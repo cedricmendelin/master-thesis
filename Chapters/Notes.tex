@@ -5,11 +5,14 @@
 \subsection{SO(3), S,}
 \subsection{LIE Group?}
 \subsection{Principle component analysis - PCA}
-
 \subsection{Local PCA}
+\subsection{K-means}
+\subsection{K-nearest neughboors}
+
 
 \section{Graph Foundation}
 \subsection{Curvature}
+\subsection{Geodesic distance}
 \subsection{Manifold Assumption}
 \subsection{Point Cloud}
 \subsection{Laplace}
@@ -18,6 +21,7 @@
 \subsection{Hyper Graphs}
 \subsection{Power Iterations}
 \subsection{Manifold Learning}
+\subsection{Signal Processing}
 \subsection{Nonlinear dimensionality reduction}
 
 
@@ -89,6 +93,12 @@ Edge consists of weight and linear orthogonal transformation.
 If linear orthogonal transformation is big, nodes are more like to be equal.
 If small, there are different
 
+Diffusion is calculated on vectors fields, where tangets are mapped to the manifold.
+A way to globally connect Local PCAs.
+
+\textbf{SNR: signal-to-noise-ration}
+
+
 LLE:
 ISOMAP:
 Laplacian eigenmaps:
@@ -104,10 +114,20 @@ manifold Md embedded in Rp, where d is the dimension of the manifold and
 $d << p$.
 
 
-\subsection{Multi-Frequency Vector Diffusion Maps}
+\subsection{Multi-Frequency Vector Diffusion Maps (MFVDM)}
+\cite{multiDiffusionMaps}
 \textbf{For a direct link between manifold embedding and tomography, very close to what Ivan explained this morning.
 If we have a graph denoising method, we will need to compare with this approach 
 (or the original vector diffusion maps).}
+
+Basically same as VDM, but with multiple frequencies per edge.
+
+Diffusion maps (DM) only consider scalar weights over the edges and the vector
+diffusion maps (VDM) only take into account consistencies
+of the transformations along connected edges using only one
+representation of $SO(2)$, i.e. $e^{ia_{i,j}}$ . In this paper, we generalize
+VDM and use not only one irreducible representation,
+i.e. $k = 1$, but also higher order $k$ up to $k_{max}$.
 
 
 \section{Graph Laplacian Tomography From Unknown Random Projections}
@@ -116,9 +136,38 @@ standard approach that we need to compare with.
 Maybe their setting (2D tomography with unknown angle) is a good setting to start with.
 }
 
-\section{Non-local means}
-Image denoising
+\section{denoising}
+Recover original image from noisy observation.
+Is Achieved by averaging.
 
+- classical local smoothing filters:
+    - gaussian filters
+    - anisotropic filters
+    - Total Variation minimization
+    - neighborhood filters
+
+- neighborhood filters (review of image denoising)
+- non local means
+- functions adapted kernels (nonlinear independent component analysis)
+
+
+\section{Non-local means}
+Image denoising accuratly done.
+
+Better performance, when algorithms tries to correct noise rather than seperate noise
+from original image.
+
+Compares similar pixel neighborhoods and assign large weighted for similar pixels.
+
+
+
+
+\section{Learning to Drop}
+Graph denoising
+
+
+\section{WalkPooling}
+Image denoising
 
 \section{Point Clouds}
 \subsection{Dynamic graph Cnn for learning on point clouds}
