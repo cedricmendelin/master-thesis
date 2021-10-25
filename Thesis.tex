@@ -1,0 +1,71 @@
+%% ----------------------------------------------------------------
+%% Thesis.tex -- main
+%% ---------------------------------------------------------------- 
+
+\documentclass[a4paper, 10pt, oneside]{memoir}
+%% Use the option citeauthor to be able to use citet. The default cite will still work.
+\usepackage[citeauthor]{basilea}
+
+%% ----------------------------------------------------------------
+
+\title				{Application of Graph Learning to inverse problems}
+\thesistype			{Master Thesis Preperation}
+
+\department 		    {Department of Mathematics and Computer Science}
+\faculty			{Natural Science Faculty of the University of Basel}
+\research		    {Data-Analytics \\ Webpage}
+
+\examiner    		{Prof. Dr. Ivan Dokmanić}
+\supervisor  		{Dr. Valentin Debarnot}
+
+\authors     		{Cédric Mendelin}
+\email				{cedric.mendelin@stud.unibas.ch}
+\immatriculnr		{2014-469-274}
+
+\date				{29.11.2021}
+
+% switch here for the german logo to logo-de
+\ulogo				{Template/logo-en} 
+
+
+%% ----------------------------------------------------------------
+\begin{document}
+
+% for english use \selectlanguage{english}, for german use \selectlanguage{ngerman}
+\selectlanguage{english}
+
+\thesisfront
+\maketitle
+\pagestyle{thesis}
+%% ----------------------------------------------------------------
+% \input{./Front/Acknowledgment}
+%% ----------------------------------------------------------------
+%\input{./Front/Abstract}
+%% ----------------------------------------------------------------
+\thesistoc
+%% ----------------------------------------------------------------
+%\thesisnomencl
+%% ----------------------------------------------------------------
+\thesismain
+\input{./Chapters/Notes}
+\input{./Chapters/Chapter1}
+\input{./Chapters/Chapter2}
+\input{./Chapters/Chapter3}
+%\input{./Chapters/Chapter4}
+%\input{./Chapters/Chapter5}
+%\input{./Chapters/Chapter6}
+%\input{./Chapters/Chapter7}
+%% ----------------------------------------------------------------
+%\thesisappendix
+\thesisbib
+%\begin{appendices}
+%	\input{./Back/AppendixA} 
+%\end{appendices}
+%% ----------------------------------------------------------------
+%\thesisback
+%\iflanguage{english}
+%  {\includepdf{./Back/wissensch_Redlichkeit_E_Aug_21.pdf}}
+%  {\includepdf{./Back/wissensch_Redlichkeit_D_Aug_21.pdf}}
+%% ----------------------------------------------------------------
+\end{document}
+%% ----------------------------------------------------------------
