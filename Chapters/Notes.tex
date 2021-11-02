@@ -1,45 +1,251 @@
-\chapter{Leistungsübersicht}
-Written report including: 
-\begin{itemize}
-    \item Contents of the Master's Thesis project
-    \item Project plan
-    \item summary of relevant related work
-\end{itemize}
+% \chapter{Leistungsübersicht}
+% Written report including: 
+% \begin{itemize}
+%     \item Contents of the Master's Thesis project
+%     \item Project plan
+%     \item summary of relevant related work
+% \end{itemize}
 
 \chapter{Foundation}
-\section{Graph Learning}
 
-\subsection{Graph Laplacian}
-\subsection{Deepl Learning on Graphs}
-\subsubsection{Graph Convolutional Network}
+\textbf{General Questions}
+\begin{itemize}
+    \item Difference Graph Learning and Graph Representation
+\end{itemize}
+
+
+\section{Graph Laplacian}
+
+\section{Deep Learning on Graphs}
+
+\subsection{Graph Convolutional Network}
+Graph Convolutional Networks (GCN) \cite{GCN} can be used for many tasks in the field 
+of Graph Learning, such as node classification or link prediction. 
+Basically, with GCN, a new feature representation is iteratively learned for the node features.
+
+The basic concept is as follows:
+For a given graph $G = \langle V,E \rangle$, with node features $X^{N x D}$ and adjacency Matrix $A$
+where $N$ denotes the number of nodes and $D$ the number of node input attributes.
+
+A novel node representation $Z^{N x F}$ will be learned, where $F$ is the number of output features.
+
+$Z$ will be learned within a neural network, and every layer can be written the following, non-linear function:
+
+\begin{equation}
+    \begin{aligned}
+        H^{l + 1} = f ( H^l, A), \\
+        \text{with } H^0 = X \text{ and } H^L = Z, \text{ where L is the number of layers }
+    \end{aligned}
+\end{equation}
+
+https://tkipf.github.io/graph-convolutional-networks/
+
+With GCN, a 
+
+Every layer of the network, can be described 
+
+
+\textbf{Questions:}
+\begin{itemize}
+    \item During feature propagation, only node features are considered.
+\end{itemize}
+
+
+\subsubsection{Renormalization trick}
 \subsubsection{Simple Graph Convolutional Network}
 
-\section{Graph Denoising}
+
+
+\section{Noise}
+A noisy observation is defined as:
+$y_n = y + \eta$
+
 \subsection{Denoising}
-\subsection{Non local means}
+When we talk from denoising, we want to reconstruct the true observation 
+from a given noisy observation. This reconstruction is done via averaging, which can be performed
+locally, by the calculus of variations or in the frequency domain.
+
+\subsubsection{Non local means}
+Non local means is a state-of-the-art image denoising method \cite{noneLocalMean}.
+In the name of the method are two important concepts, namely the \textit{mean}
+and \textit{non local}.
+
+For a given noisy image $v$, the denoised image is defined as:
+\begin{equation}
+    NL[v](i) = \sum{w(i,j)v(j)}
+\end{equation}
+
+where $w(i,j)$ is the weight between pixel $i$ and $j$ and fulfils two conditions:
+\begin{itemize}
+    \item $0 \le w(i,j) \le 1$
+    \item $\sum_j{w(i,j) = 1}$
+\end{itemize}
+
+Without going into detail, the weight can be seen as a similarity measure of the two pixels.
+Moreover, are these similarities calculated over square neighbourhoods of the two pixels.
+Similar pixel neighbourhoods have a large weight and different neighbourhoods have a small weight.
+
+More general, the denoised image pixel $i$ is computed 
+as an weighted average of all pixels in the image, therefore, in a non local way.
+
+\section{Graph definition}
+A graph is defined as  $G = \langle V,E \rangle$, where $V$ is a set of 
+vertices (or nodes) and $E$ is a set of edges (or links). Edges are 
+defined as a set of tuples $\langle i,j \rangle$, where $i$ and $j$ determine the 
+index of the vertices in the graph.
+
+\subsection{Adjacency Matrix}
+
+The adjacency Matrix of $G$ is then defined as follows:
+\begin{equation}
+    A_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        1  & \text{if } \langle i,j \rangle \in E \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+\subsection{Degree Matrix}
+
+The degree Matrix of $G$ is defined as follows:
+\begin{equation}
+    D_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        deg(v_i)  & \text{if } i = j \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+Where $deg(v_i)$ is the degree of the node, formally the number of incoming edges of node $v_i$.
+
+\subsection{Graph Laplacian}
+The graph Laplacian is defined as follows:
+$L = D - A$
+
+\subsubsection{Normalized Graph Laplacian}
+
+Symmetric normalized: $L_{sym} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$
+Random walk normalized: $L_{rw} = I - D^{-1} A$
+
+
+\subsection{Graph Properties}
+
+\subsubsection{Directed vs. undirected vs. weighted}
+
+\subsubsection{Dense and sparse Graph}
+A dense graph is a graph, where the number of edges in close to the maximal number of edges.
+Contrarily, a sparse graph only consists of a few edges.
 
 
 
-\chapter{Papers - Foundation}
+\subsection{Node Properties}
+\subsection{Edge Properties}
+
+\section{Graph Denoising}
+Data acquired by Real-world observations are often noisy, which can lead to poor 
+performance on data analysis tasks. This observed data can already be in the form of a graph,
+or a graph can be easily constructed. This resulting graph is what we call
+a noisy graph, as it includes the noise from the observation.
+
+Graph denoising is the task to reconstruct the original graph from a noisy one.
+Therefore, graph denoising can be seen as a pre-processing step, where noisy data is filtered.
+
+Denoising in general has often to do with averaging \cite{noneLocalMean}
+ and graphs are  a well suited data structure for this task.
+
+\subsection{Noisy Graph}
+For every noisy graph, there exists an original graph $G = \langle V,E \rangle$.
+
+The noisy graph can be defined as follows:
+\begin{equation}
+    \begin{aligned}
+        G_{noisy} = \langle V,E_{noisy} \rangle \\ 
+        \text{ where }  E_{noisy} = E \setminus  E^{-} \cup  E^{+} \\ 
+        \text{ and } E^{-} \subseteq E  ,  E^{+} \cap E = \emptyset
+    \end{aligned}
+\end{equation}
+
+Basically, the noisy graph consists of the same vertices as the original graph. From
+the original graphs edges, some are removed (denoted by $E^{-}$) and some new edges are added
+(denoted by $E^{+}$).
+
+The adjacency Matrix of $G_{noisy}$ is then defined as follows:
+\begin{equation}
+    \bar{A}_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        1  & \text{if } \langle i,j \rangle \in E_{noisy} \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+The task of graph denoising, can therefore be written as:
+\begin{equation}
+    \bar{A} \xrightarrow[method]{Graph denoising} \tilde{A} \approx A
+\end{equation}
+
+Where $\bar{A}$ denotes the noisy input graph, $\tilde{A}$ the denoised
+ graph and $A$ the original graph.
+
+
+\subsection{Graph link prediction}
+Link prediction is a task in Graph learning. 
+The idea is to predict the existence of a link (edge) between two nodes.
+The task can be formulated as a missing value estimation task. A model $M_p$ is learned
+from a given set of observed edges. The model finally maps links to probabilities:
+
+
+\begin{equation}
+    M_p : E^{\prime} \rightarrow [0,1]
+\end{equation}
+
+Where $E^{\prime}$ is the set of potential links.
+
+
+We define $U$ as the set of all possible vertices of $G$, therefore $E \subseteq U$.
+Obviously, one could see Graph denoising as a link prediction problem.
+
+The difference is, that in link prediction, we learn a model from a set of observed links 
+$E_{observed} \subseteq E$ and in Graph denoising we learn the model from 
+$E_{observed} \subseteq U$. 
+
+On could also say that link prediction problems are a subset of graph denoising problems.
+
+
+\textbf{Questions:}
+
+Link prediction: learning model M from subset of E.
+Graph denoising: learning model M from subset of U.
+
+
+
+%\chapter{Papers - Foundation}
 
 \section{Maths Foundation}
-\subsection{Hilbers Space}
+\subsection{Hilbert Space}
 \subsection{SO(3), S,}
 \subsection{LIE Group?}
 \subsection{Principle component analysis - PCA}
 \subsection{Local PCA}
 \subsection{K-means}
-\subsection{K-nearest neighboors}
+\subsection{K-nearest neighboors Graph construction}
 
 
 \section{Graph Foundation}
 \subsection{Curvature}
+\subsection{Graphlets}
 \subsection{Geodesic distance}
 \subsection{Manifold Assumption}
 \subsection{Point Cloud}
 \subsection{Laplace}
 \subsection{Walk Pooling}
 \subsection{Link prediction}
+\subsection{Katz Index}
+
+\subsection{Eigenvector centrality}
+
 \subsection{Hyper Graphs}
 \subsection{Power Iterations}
 \subsection{Manifold Learning}
