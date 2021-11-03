@@ -8,52 +8,30 @@
 
 \chapter{Foundation}
 
+
+
 \textbf{General Questions}
 \begin{itemize}
     \item Difference Graph Learning and Graph Representation
+    \item Eigenvalues
+    \item First-order Chebyshev
+    \item Connection to CryoEm
+    \item Benchmarking and Dataset
 \end{itemize}
 
+\section{Introduction to Graph Learning}
 
-\section{Graph Laplacian}
-
-\section{Deep Learning on Graphs}
-
-\subsection{Graph Convolutional Network}
-Graph Convolutional Networks (GCN) \cite{GCN} can be used for many tasks in the field 
-of Graph Learning, such as node classification or link prediction. 
-Basically, with GCN, a new feature representation is iteratively learned for the node features.
-
-The basic concept is as follows:
-For a given graph $G = \langle V,E \rangle$, with node features $X^{N x D}$ and adjacency Matrix $A$
-where $N$ denotes the number of nodes and $D$ the number of node input attributes.
-
-A novel node representation $Z^{N x F}$ will be learned, where $F$ is the number of output features.
-
-$Z$ will be learned within a neural network, and every layer can be written the following, non-linear function:
-
-\begin{equation}
-    \begin{aligned}
-        H^{l + 1} = f ( H^l, A), \\
-        \text{with } H^0 = X \text{ and } H^L = Z, \text{ where L is the number of layers }
-    \end{aligned}
-\end{equation}
-
-https://tkipf.github.io/graph-convolutional-networks/
-
-With GCN, a 
-
-Every layer of the network, can be described 
+Graph Representational Learning
+\footnote{https://towardsdatascience.com/introduction-to-graph-representation-learning-a51c963d8d11}
 
 
-\textbf{Questions:}
-\begin{itemize}
-    \item During feature propagation, only node features are considered.
-\end{itemize}
+\subsection{Spectral graph theory}
+Spectral graph theory \cite{SpectralGraphTheory} deals with learning properties and characteristics of graphs, in regard to
+the graphs eigenvalues and eigenvectors. 
 
+\subsection{Graph deep Learning}
 
-\subsubsection{Renormalization trick}
-\subsubsection{Simple Graph Convolutional Network}
-
+\textbf{TODO: write more}
 
 
 \section{Noise}
@@ -88,7 +66,7 @@ Similar pixel neighbourhoods have a large weight and different neighbourhoods ha
 More general, the denoised image pixel $i$ is computed 
 as an weighted average of all pixels in the image, therefore, in a non local way.
 
-\section{Graph definition}
+\section{Graph Foundations}
 A graph is defined as  $G = \langle V,E \rangle$, where $V$ is a set of 
 vertices (or nodes) and $E$ is a set of edges (or links). Edges are 
 defined as a set of tuples $\langle i,j \rangle$, where $i$ and $j$ determine the 
@@ -106,6 +84,8 @@ The adjacency Matrix of $G$ is then defined as follows:
     \end{cases}
 \end{equation}
 
+\subsubsection{k-hop neighbourhood}
+
 \subsection{Degree Matrix}
 
 The degree Matrix of $G$ is defined as follows:
@@ -120,15 +100,54 @@ The degree Matrix of $G$ is defined as follows:
 
 Where $deg(v_i)$ is the degree of the node, formally the number of incoming edges of node $v_i$.
 
+\subsubsection{Adjacency normalization}
+We starting calculating with Matrix A, it is sometimes necessary to normalize.
+With the degree Matrix $D$ and Adjacency Matrix $A$, we have all information we need.
+Mostly, we want to normalize, such that our rows sum to 1.
+\begin{equation}
+    A_{rownorm} = D^{-1} A
+\end{equation}
+
+But we can achieve the same for columns, we just need to swap the two matrices:
+\begin{equation}
+    A_{colnorm} = A D^{-1}
+\end{equation}
+
+And a final, a probably the most useful normalization, is the symmetric normalization:
+
+\begin{equation}
+    A_{sym} =  D^{-\frac{1}{2}} A D^{-\frac{1}{2}}
+\end{equation}
+
+\textbf{TODO: Add some nice example}
+
 \subsection{Graph Laplacian}
 The graph Laplacian is defined as follows:
-$L = D - A$
+\begin{equation}
+    L = D - A
+\end{equation}
+
 
 \subsubsection{Normalized Graph Laplacian}
 
 Symmetric normalized: $L_{sym} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$
 Random walk normalized: $L_{rw} = I - D^{-1} A$
 
+\subsubsection{Normalized Graph Laplacian eigendecomposition}
+
+\begin{equation}
+    \begin{aligned}
+        L_{sym} =U \Lambda U^T \\
+        U = [u_0, \ddots, u_{N-1}] \in R^{N x N}\\
+        \Lambda = diag ( [\lambda_0, \ddots, \lambda_{N-1}] ) \in R^{N x N}
+    \end{aligned}
+\end{equation}
+
+In this scenario, Eigenvectors are also known as \textit{graph Fourier modes}
+and eigenvalues are known as the \textit{spectral frequencies}.
+
+Moreover, with the Graph Fourier Transform, we can calculate these values from a symmetric
+graph Laplacian.
 
 \subsection{Graph Properties}
 
@@ -142,6 +161,11 @@ Contrarily, a sparse graph only consists of a few edges.
 
 \subsection{Node Properties}
 \subsection{Edge Properties}
+
+\subsection{Graph Construction}
+\textbf{TODO: KNN}
+
+
 
 \section{Graph Denoising}
 Data acquired by Real-world observations are often noisy, which can lead to poor 
@@ -220,6 +244,93 @@ Link prediction: learning model M from subset of E.
 Graph denoising: learning model M from subset of U.
 
 
+\section{Graph Laplacian}
+
+\section{Deep Learning on Graphs}
+
+\subsection{Graph Convolutional Network}
+Graph Convolutional Networks (GCN) \cite{GCN} can be used for many tasks in the field 
+of Graph Learning, such as node classification or link prediction. 
+Basically, with GCN, a new feature representation is iteratively learned for the node features.
+
+The basic concept is as follows:
+For a given graph $G = \langle V,E \rangle$, with node features $X^{N x D}$ and adjacency Matrix $A$
+where $N$ denotes the number of nodes and $D$ the number of node input attributes,
+
+a novel node representation $Z^{N x F}$ will be learned, where $F$ is the number of output features.
+
+$Z$ will be learned within a neural network, and every layer can be written by the following, non-linear function:
+
+\begin{equation}
+    \begin{aligned}
+        H^{l + 1} = f( H^l, A), \\
+        \text{with } H^0 = X \text{ and } H^L = Z, 
+    \end{aligned}
+\end{equation}
+
+Where $L$ is the number of layers in the neural network.
+The model only differ in the choice of $f(\cdot,\cdot)$.
+
+We are ready to define our first GCN. To keep it simple, $f(\cdot,\cdot)$ will be defined as the following:
+\begin{equation}
+    f( H^l, A) = \sigma (A H^l W^l)
+\end{equation} 
+
+Where $\sigma ( \cdot )$ is a non-linear activation function, such as ReLU and $W^l$ is
+a weight Matrix of the layer $l$ of the neural network. As \cite{GCN} could show during experiments,
+this choice of $f(\cdot,\cdot)$ is already very powerful and leads to state-of-the-art results.
+
+\subsubsection{Renormalization trick}
+
+With this model, we do have two problems and need to refine it further.
+First of all, with the multiplication of $A$, we average over the neighbour nodes but
+will ignore the node itself. Therefore, self-loops will be added to $A$.
+The second problem is, that A is not normalized and if therefore, when multiplying with $A$,
+the features of the nodes will change it scale. Therefore, we need to normalize $A$
+such that all rows sum to one. This can be done with a simple multiplication with the D.
+
+These two steps are called the Renormalization trick \cite{GCN}
+First of all, we can simple add the self-loops by adding the Identity Matrix to $A$, 
+$\hat{A} = A + I$ and $\hat{D}$ is the degree Matrix of $\hat{A}$.
+Now, we can achieve a symmetric normalization by multiplying $D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$.
+
+And finally, we can put all things together, and replace $A$ in the original equation:
+\begin{equation}
+    f( H^l, A) = \sigma (\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} H^l W^l)
+\end{equation} 
+
+
+\textbf{Questions:}
+\begin{itemize}
+    \item During feature propagation, only node features are considered.
+    \item Spectral Analysis Chapter
+\end{itemize}
+
+
+
+\subsubsection{Simple Graph Convolutional Network}
+Simple Graph Convolutional Network (SGC) \cite{simpleGCN} proposed a simplified version of GCN.
+They could verify their hypothesis, that GCN is dominated by the local averaging step and the non-linear 
+activation function between layers do not contribute to much to the success of GCN.
+
+This makes the calculation simpler. We denote $S = \hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} $
+and can use the fact that in every layer of the neural network, the same computation will take place.
+
+\begin{equation}
+    \begin{aligned}
+        Z = S \ddots S X W^1 W^2 \ddots W^L \\
+        Z = S^L X W^1 W^2 \ddots W^L \\
+        Z = S^L X W    
+    \end{aligned}
+\end{equation}
+
+where $W$ is the matrix of all vector weights.
+
+\subsubsection{Link go Graph Laplacian:}
+\footnote{https://towardsdatascience.com/spectral-graph-convolution-explained-and-implemented-step-by-step-2e495b57f801}
+
+not read currently:
+\footnote{https://towardsdatascience.com/tutorial-on-graph-neural-networks-for-computer-vision-and-beyond-part-2-be6d71d70f49}
 
 %\chapter{Papers - Foundation}
 
@@ -231,6 +342,9 @@ Graph denoising: learning model M from subset of U.
 \subsection{Local PCA}
 \subsection{K-means}
 \subsection{K-nearest neighboors Graph construction}
+\subsection{Fourier domain}
+
+\subsection{Graph Fourier transform}
 
 
 \section{Graph Foundation}
@@ -245,13 +359,20 @@ Graph denoising: learning model M from subset of U.
 \subsection{Katz Index}
 
 \subsection{Eigenvector centrality}
+\subsection{NN forward passing}
+\begin{equation}
+    H^{i + 1} = \sigma ( W^i H ^i + b^i)
+\end{equation}
+\footnote{https://towardsdatascience.com/understanding-graph-convolutional-networks-for-node-classification-a2bfdb7aba7b}
+
+\subsection{NN activation functions}
+\subsection{Drops after layer}
 
 \subsection{Hyper Graphs}
 \subsection{Power Iterations}
 \subsection{Manifold Learning}
 \subsection{Signal Processing}
 \subsection{Nonlinear dimensionality reduction}
-
 
 
 \section{Diffusion Maps:}
@@ -381,9 +502,9 @@ Is Achieved by averaging.
 
 
 \section{Non-local means}
-Image denoising accuratly done.
+Image denoising accurately done.
 
-Better performance, when algorithms tries to correct noise rather than seperate noise
+Better performance, when algorithms tries to correct noise rather than separate noise
 from original image.
 
 Compares similar pixel neighborhoods and assign large weighted for similar pixels.
