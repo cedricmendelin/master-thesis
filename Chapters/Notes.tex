@@ -59,12 +59,13 @@ where $w(i,j)$ is the weight between pixel $i$ and $j$ and fulfils two condition
     \item $\sum_j{w(i,j) = 1}$
 \end{itemize}
 
-Without going into detail, the weight can be seen as a similarity measure of the two pixels.
-Moreover, are these similarities calculated over square neighbourhoods of the two pixels.
+The weight can be seen as a similarity measure of the two pixels.
+Moreover, these similarities are calculated over square neighbourhoods of the two pixels,
+where the l2 norm of the neighbourhood is used.
 Similar pixel neighbourhoods have a large weight and different neighbourhoods have a small weight.
 
-More general, the denoised image pixel $i$ is computed 
-as an weighted average of all pixels in the image, therefore, in a non local way.
+More general, the denoised image pixel $i$ is computed as an weighted average of all pixels in the 
+image, therefore, in a non local way.
 
 \section{Graph Foundations}
 A graph is defined as  $G = \langle V,E \rangle$, where $V$ is a set of 
@@ -156,8 +157,6 @@ graph Laplacian.
 \subsubsection{Dense and sparse Graph}
 A dense graph is a graph, where the number of edges in close to the maximal number of edges.
 Contrarily, a sparse graph only consists of a few edges.
-
-
 
 \subsection{Node Properties}
 \subsection{Edge Properties}
@@ -307,7 +306,6 @@ And finally, we can put all things together, and replace $A$ in the original equ
 \end{itemize}
 
 
-
 \subsubsection{Simple Graph Convolutional Network}
 Simple Graph Convolutional Network (SGC) \cite{simpleGCN} proposed a simplified version of GCN.
 They could verify their hypothesis, that GCN is dominated by the local averaging step and the non-linear 
@@ -334,45 +332,76 @@ not read currently:
 
 %\chapter{Papers - Foundation}
 
-\section{Maths Foundation}
-\subsection{Hilbert Space}
-\subsection{SO(3), S,}
-\subsection{LIE Group?}
-\subsection{Principle component analysis - PCA}
-\subsection{Local PCA}
-\subsection{K-means}
-\subsection{K-nearest neighboors Graph construction}
-\subsection{Fourier domain}
+\section{Graph Laplacian Tomography From Unknown Random Projections}
 
-\subsection{Graph Fourier transform}
+\cite{LaplaceRandomProjections} introduces a Laplacian-based algorithm, with which 
+reconstruction of a planar object from projects at random unknown directions is possible.
+
+Overall, in computerized tomography (CT), reconstruction a objects with only samples of its projections
+is a standard problem. In \cite{LaplaceRandomProjections} the problem was extended by the facts,
+that the projects angle to the object is unknown.
+
+Formally:
+Given $N$ projection vectors $( P_{\theta_i}(t_1), P_{\theta_i}(t_2), \ddots, P_{\theta_i}(t_N)$ 
+at unkown angles $\{\Theta_i\}^N_{i=1}$ which are drawn from the uniform distribution of $[0, 2\pi]$
+and $t_1, t_2, \ddots, t_n$ are fixed n points (all equally spaced due to uniform distribution) 
+find the underlying density function $\phi (x,y)$ of the object.
 
 
-\section{Graph Foundation}
-\subsection{Curvature}
-\subsection{Graphlets}
-\subsection{Geodesic distance}
-\subsection{Manifold Assumption}
-\subsection{Point Cloud}
-\subsection{Laplace}
-\subsection{Walk Pooling}
-\subsection{Link prediction}
-\subsection{Katz Index}
+
+In the paper, the following problem was tackled:
+
+
+\textbf{A reference that I already mentioned in the first mail:
+standard approach that we need to compare with. 
+Maybe their setting (2D tomography with unknown angle) is a good setting to start with.
+}
+
+
+
+\section{Foundationis todo}
+
+\subsection{cryoEm}
+
+\begin{itemize}
+    \item Graph construction with knn
+    \item Curvature
+    \item Convolution
+    \item Fourier transform and Fourier frequencies
+    \item SO(3), S
+    \item Manifold assumption
+    \item Power Iterations
+    \item Non linear dimensionality reduciton
+\end{itemize}
+
+Nice to have:
+\begin{itemize}
+    \item Hilbert Space
+    \item Signal Processing    
+    \item LIE Group
+    \item Local PCA
+    \item Curvature
+    \item Graphlets
+    \item Link prediction
+    \item Geodesic distance
+    \item Katz Index
+    \item Eigenvector centrality
+    \item NN forward passing
+    \item NN dropout after layer
+\end{itemize}
+
+\section{Convolution}
+\begin{equation}
+    (f \star g)(t) := \int_{-\infty}^{\infty} f(\tau) g(t - \tau) d\tau
+\end{equation}
 
 \subsection{Eigenvector centrality}
 \subsection{NN forward passing}
 \begin{equation}
-    H^{i + 1} = \sigma ( W^i H ^i + b^i)
+    H^{i + 1} = \sigma ( W^i H ^i + b^i) 
 \end{equation}
 \footnote{https://towardsdatascience.com/understanding-graph-convolutional-networks-for-node-classification-a2bfdb7aba7b}
 
-\subsection{NN activation functions}
-\subsection{Drops after layer}
-
-\subsection{Hyper Graphs}
-\subsection{Power Iterations}
-\subsection{Manifold Learning}
-\subsection{Signal Processing}
-\subsection{Nonlinear dimensionality reduction}
 
 
 \section{Diffusion Maps:}
@@ -479,35 +508,6 @@ representation of $SO(2)$, i.e. $e^{ia_{i,j}}$ . In this paper, we generalize
 VDM and use not only one irreducible representation,
 i.e. $k = 1$, but also higher order $k$ up to $k_{max}$.
 
-
-\section{Graph Laplacian Tomography From Unknown Random Projections}
-\textbf{A reference that I already mentioned in the first mail:
-standard approach that we need to compare with. 
-Maybe their setting (2D tomography with unknown angle) is a good setting to start with.
-}
-
-\section{denoising}
-Recover original image from noisy observation.
-Is Achieved by averaging.
-
-- classical local smoothing filters:
-    - gaussian filters
-    - anisotropic filters
-    - Total Variation minimization
-    - neighborhood filters
-
-- neighborhood filters (review of image denoising)
-- non local means
-- functions adapted kernels (nonlinear independent component analysis)
-
-
-\section{Non-local means}
-Image denoising accurately done.
-
-Better performance, when algorithms tries to correct noise rather than separate noise
-from original image.
-
-Compares similar pixel neighborhoods and assign large weighted for similar pixels.
 
 
 
