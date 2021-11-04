@@ -13,9 +13,7 @@ Written report including:
 \textbf{General Questions}
 \begin{itemize}
     \item Difference Graph Learning and Graph Representation
-    \item Eigenvalues
-    \item First-order Chebyshev
-    \item Connection to CryoEm
+    \item CryoEm, Datasets, Tasks, etc.
     \item Benchmarking and Dataset
 \end{itemize}
 
@@ -23,7 +21,20 @@ Written report including:
 \begin{itemize}
     \item During feature propagation, only node features are considered.
     \item Spectral Analysis Chapter
-    \item Degree of = A + I same as $\hat{D} = D + I$, not 2 times with self loop?
+\end{itemize}
+
+
+\textbf{Questions Random projection:}
+\begin{itemize}
+    \item Assumption about uniform(0, 2$\pi$) and equally spaced $t$?
+    \item First-order Chebyshev
+\end{itemize}
+
+\textbf{Next Steps:}
+\begin{itemize}
+    \item Familiarize with CryoEm
+    \item Do some coding
+    \item Read paper regarding Manifold Learning
 \end{itemize}
 
 \section{Introduction to Graph Learning}
@@ -57,7 +68,7 @@ and \textit{non local}.
 
 For a given noisy image $v$, the denoised image is defined as:
 \begin{equation}
-    NL[v](i) = \sum{w(i,j)v(j)}
+    NL[v](i) = \sum{w(i,j) \; v(j)}
 \end{equation}
 
 where $w(i,j)$ is the weight between pixel $i$ and $j$ and fulfils two conditions:
@@ -87,7 +98,7 @@ The adjacency Matrix of $G$ is then defined as follows:
     A_{ij} =    
     \begin{cases}
         %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
-        1  & \text{if } \langle i,j \rangle \in E \\
+        1  & \text{if } \langle i , j \rangle \in E \\
         0, & \text{otherwise}
     \end{cases}
 \end{equation}
@@ -113,12 +124,12 @@ We starting calculating with Matrix A, it is sometimes necessary to normalize.
 With the degree Matrix $D$ and Adjacency Matrix $A$, we have all information we need.
 Mostly, we want to normalize, such that our rows sum to 1.
 \begin{equation}
-    A_{rownorm} = D^{-1} A
+    A_{row-norm} = D^{-1} A
 \end{equation}
 
 But we can achieve the same for columns, we just need to swap the two matrices:
 \begin{equation}
-    A_{colnorm} = A D^{-1}
+    A_{col-norm} = A D^{-1}
 \end{equation}
 
 And a final, a probably the most useful normalization, is the symmetric normalization:
@@ -141,17 +152,17 @@ The graph Laplacian is defined as follows:
 Symmetric normalized: $L_{sym} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$
 Random walk normalized: $L_{rw} = I - D^{-1} A$
 
-\subsubsection{Normalized Graph Laplacian eigendecomposition}
+\subsubsection{Normalized Graph Laplacian eigen decomposition}
 
 \begin{equation}
     \begin{aligned}
-        L_{sym} =U \Lambda U^T \\
-        U = [u_0, \ddots, u_{N-1}] \in R^{N x N}\\
-        \Lambda = diag ( [\lambda_0, \ddots, \lambda_{N-1}] ) \in R^{N x N}
+        L_{sym} &= U \Lambda U^T \\
+        U &= [u_0, \dots, u_{N-1}] \in R^{N \times N}\\
+        \Lambda &= diag \left ( [\lambda_0, \dots, \lambda_{N-1}]  \right ) \in R^{N \times N}
     \end{aligned}
 \end{equation}
 
-In this scenario, Eigenvectors are also known as \textit{graph Fourier modes}
+In this scenario, eigenvectors are also known as \textit{graph Fourier modes}
 and eigenvalues are known as the \textit{spectral frequencies}.
 
 Moreover, with the Graph Fourier Transform, we can calculate these values from a symmetric
@@ -182,8 +193,8 @@ a noisy graph, as it includes the noise from the observation.
 Graph denoising is the task to reconstruct the original graph from a noisy one.
 Therefore, graph denoising can be seen as a pre-processing step, where noisy data is filtered.
 
-Denoising in general has often to do with averaging \cite{noneLocalMean}
- and graphs are  a well suited data structure for this task.
+Denoising in general has often to do with averaging 
+ and graphs are  a well suited data structure for this task\cite{noneLocalMean}.
 
 \subsection{Noisy Graph}
 For every noisy graph, there exists an original graph $G = \langle V,E \rangle$.
@@ -191,9 +202,10 @@ For every noisy graph, there exists an original graph $G = \langle V,E \rangle$.
 The noisy graph can be defined as follows:
 \begin{equation}
     \begin{aligned}
-        G_{noisy} = \langle V,E_{noisy} \rangle \\ 
-        \text{ where }  E_{noisy} = E \setminus  E^{-} \cup  E^{+} \\ 
-        \text{ and } E^{-} \subseteq E  ,  E^{+} \cap E = \emptyset
+        G_{noisy} &= \langle V,E_{noisy} \rangle,  \\ 
+        \text{ with }  E_{noisy} &= E \setminus  E^{-} \cup  E^{+}, \\ 
+         E^{-} & \subseteq E, \\
+         E^{+} \cap E &= \emptyset
     \end{aligned}
 \end{equation}
 
@@ -213,7 +225,7 @@ The adjacency Matrix of $G_{noisy}$ is then defined as follows:
 
 The task of graph denoising, can therefore be written as:
 \begin{equation}
-    \bar{A} \xrightarrow[method]{Graph denoising} \tilde{A} \approx A
+    \bar{A} \xrightarrow[method]{Graph-denoising} \tilde{A} \approx A
 \end{equation}
 
 Where $\bar{A}$ denotes the noisy input graph, $\tilde{A}$ the denoised
@@ -263,8 +275,9 @@ $Z$ will be learned within a neural network, and every layer can be written by t
 
 \begin{equation}
     \begin{aligned}
-        H^{l + 1} = f( H^l, A), \\
-        \text{with } H^0 = X \text{ and } H^L = Z, 
+        H^{l + 1} &= f( H^l, A), \\
+        \text{with } H^0 &= X , \\
+        H^L &= Z, 
     \end{aligned}
 \end{equation}
 
@@ -277,7 +290,7 @@ We are ready to define our first GCN. To keep it simple, $f(\cdot,\cdot)$ will b
 \end{equation} 
 
 Where $\sigma ( \cdot )$ is a non-linear activation function, such as ReLU and $W^l$ is
-a weight Matrix of the layer $l$ of the neural network. As \cite{GCN} could show during experiments,
+a weight Matrix of the layer $l$ of the neural network. As \citet{GCN} could show during experiments,
 this choice of $f(\cdot,\cdot)$ is already very powerful and leads to state-of-the-art results.
 
 \subsubsection{Renormalization trick}
@@ -289,7 +302,7 @@ The second problem is, that A is not normalized and if therefore, when multiplyi
 the features of the nodes will change it scale. Therefore, we need to normalize $A$
 such that all rows sum to one. This can be done with a simple multiplication with the D.
 
-These two steps are called the Renormalization trick \cite{GCN}
+These two steps are called the Renormalization trick\cite{GCN}.
 First of all, we can simple add the self-loops by adding the Identity Matrix to $A$, 
 $\hat{A} = A + I$ and $\hat{D}$ is the degree Matrix of $\hat{A}$.
 Now, we can achieve a symmetric normalization by multiplying $D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$.
@@ -310,8 +323,8 @@ and can use the fact that in every layer of the neural network, the same computa
 
 \begin{equation}
     \begin{aligned}
-        Z = S \ddots S X W^1 W^2 \ddots W^L \\
-        Z = S^L X W^1 W^2 \ddots W^L \\
+        Z = S \dots S X W^1 W^2 \dots W^L \\
+        Z = S^L X W^1 W^2 \dots W^L \\
         Z = S^L X W    
     \end{aligned}
 \end{equation}
@@ -367,22 +380,112 @@ not read currently:
 
 \section{Graph Laplacian Tomography From Unknown Random Projections}
 
-\cite{LaplaceRandomProjections} introduces a Laplacian-based algorithm, with which 
+\citet{LaplaceRandomProjections} introduces a Laplacian-based algorithm, with which 
 reconstruction of a planar object from projects at random unknown directions is possible.
 
-Overall, in computerized tomography (CT), reconstruction a objects with only samples of its projections
-is a standard problem. In \cite{LaplaceRandomProjections} the problem was extended by the facts,
-that the projects angle to the object is unknown.
+Overall, in computerized tomography (CT), reconstruction of an object with only samples of its projections
+is a standard problem. In \citet{LaplaceRandomProjections} the problem was extended by the fact,
+that the projection angle to the object is unknown.
 
 Formally:
-Given $N$ projection vectors $( P_{\theta_i}(t_1), P_{\theta_i}(t_2), \ddots, P_{\theta_i}(t_N)$ 
-at unkown angles $\{\Theta_i\}^N_{i=1}$ which are drawn from the uniform distribution of $[0, 2\pi]$
-and $t_1, t_2, \ddots, t_n$ are fixed n points (all equally spaced due to uniform distribution) 
-find the underlying density function $\phi (x,y)$ of the object.
+Given $N$ projection vectors $( P_{\theta_i}(t_1), P_{\theta_i}(t_2), \dots, P_{\theta_i}(t_N)$ 
+at unknown angles $\{\Theta_i\}^N_{i=1}$ which are drawn from the uniform distribution of $[0, 2\pi]$
+and $t_1, t_2, \dots, t_n$ are fixed n points (all equally spaced due to uniform distribution) 
+find the underlying density function $\rho (x,y)$ of the object.
+
+\subsection{Radon transform}
+
+The radon transform $P_{\Theta}(t)$ is the line integral of $\rho$
+along parallel lines $L$ at angle $\Theta$ and distance $t$ from the orign.
+
+\begin{equation}
+    \begin{aligned}
+        P_{\Theta}(t) &= \int_L \rho (x,y) ds \\
+                      &=  \int_{-\infty}^{\infty} \rho (x,y) \; \delta(x \cos \Theta + y \sin \Theta - t) dx \; dy
+    \end{aligned}
+\end{equation}
+
+An algorithm for estimating angles from given projections have been introduced by \cite{formerUnkownRandomProjections}.
+The introduced algorithm consists of three steps:
+\begin{enumerate}
+    \item Angle estimation
+    \item Angle Ordering
+    \item Joint maximum likelihood refinement of angles and shifts
+\end{enumerate}
+
+Step 2 was implemented by some nearest neighbour algorithm. In the work of 
+\cite{LaplaceRandomProjections}, they introduced a new way of ordering the angles,
+using Graph Laplacian.
 
 
+\subsection{Laplace-Beltrami operator}
+\cite{LaplaceRandomProjections} could show, that the graph Laplacian
+ approximates the Laplace-Beltrami operator, if data points are uniformly distributed 
+ over the manifold.
 
-In the paper, the following problem was tackled:
+ Further, they showed that in the case of non-uniformly distributed data points, the Laplacian
+ approximated the backward Fokker-Planck operator (which is a generalization of the Laplace-Beltrami operator).
+ With that, at least the ordering of the angles can be estimated.
+
+ Finally, with a small normalization of the Laplacian, the Laplace-Beltrami operator can also be 
+ approximated in the non-uniform distributed case.
+
+\subsection{Algorithm}
+
+For a given set of projections vector $x_i = ( P_{\Theta_i}(t_1), \dots, P_{\Theta_i}(t_n))$ for $i = 1,2, \dots, mN$
+
+The algorithm proposed in \cite{LaplaceRandomProjections} consists of five steps:
+
+\begin{enumerate}
+    \item Double the number of projections to 2mN (due to the fact that projections are symmetric)
+    \item Construct the co-called density invariant Graph Laplacian $\tilde{L}$
+    \item Compute $\theta_1(i)$ and $\theta_2(i)$ the first two nontrivial eigenvector of $\tilde{L}$
+    \item Sort $x_i$ according to $\phi_i = \tan^{-1}(\theta_1(i) \; / \;\theta_2(i))$
+    \item Reconstruct image using the sorted projections and estimated angles.
+\end{enumerate}
+
+Where $\tilde{L}$ can be constructed by the following way:
+
+\begin{equation}
+    \begin{aligned}
+        W_{ij} = k \left ( \frac{\left \| x_i - x_j \right \|^2}{2 \epsilon}  \right ), \\
+        i, j = 1, \dots, N
+    \end{aligned}
+\end{equation}
+
+where $||\cdot ||$ is the euclidean-norm, $k$ a semi-positive kernel 
+and  $\epsilon > 0$ the bandwidth of the kernel. As mentioned in \cite{LaplaceRandomProjections},
+the kernel $k(x) = \exp (-x)$ is a popular choice.
+
+With the newly computed weight Matrix $W$ and the degree Matrix $D$ corresponding to $W$, we can finally 
+define $\tilde{L}$.
+
+\begin{equation}
+    \begin{aligned}
+        \tilde{W} &= D^{-1} W D^{-1} \\
+        \tilde{D} &= \text{Degree matrix corresponding to } \tilde{W} \\
+        \tilde{L} &= \tilde{D}^{-1} \tilde{W} - I \\
+    \end{aligned}
+\end{equation}
+
+
+\section{Folded spectrum Method}
+Calculation of eigenvalues and eigenvectors of a given Hamiltonian matrix $H$ 
+is a fundamental mathematical problem. Often, we are interested in just the smallest 
+values, which can be efficiently computed. But if we are interested in selected values,
+this can be hard. $H$ is needed to be diagonalized (bring matrix $H$ into diagonal form) 
+which is computationally expensive and for big matrices impossible.
+
+Currently, the best way to solve such problems is the Folded spectrum (FS) \cite{foldedSpectrumMethod} method,
+which iteratively solves the problem. During calculation, the eigenvalue spectrum will be folded around a reference 
+value $\epsilon$.
+
+\begin{equation}
+    v^{t+1} = v^t - \alpha (H - \epsilon I )^2 v^t ,
+\end{equation}
+
+with $0 < \alpha < 1$. When $t \rightarrow \infty$, then $v^{\infty}$ should be the 
+eigenvector with respect to the reference value $\epsilon$.
 
 
 \textbf{A reference that I already mentioned in the first mail:
@@ -390,21 +493,53 @@ standard approach that we need to compare with.
 Maybe their setting (2D tomography with unknown angle) is a good setting to start with.
 }
 
+\subsection{Manifolds}
+A manifold is a topological space, where locally Euclidean distances make sense.
+More formally, a $n$-dimensional manifold is a topological space where
+each point has e neighbourhood, that is homeomorphic to an subset of a n.dimensional
+Euclidean space.
+
+Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already become 
+pretty complex and are basically any surfaces like planes, sphere but also the torus,
+Klein bottle or others.
+
+\subsubsection{Manifold assumption}
+The manifold assumption is a popular assumption for high-dimensional datasets.
+Even if a given dataset is in high-dimension and consists of many features, one can assume,
+that these data points are samples from a low-dimensional manifold, 
+which embeds the high-dimensional space.
+
+Therefore, if one can approximate the underlying Manifold, one solved a dimensionality reduction
+as we can embed the data points in the low-dimensional manifold space.
+
+There is a complete area of research devotes to this manifold assumption, and basically
+we then talk from Manifold Learning. 
+
+\textbf{TODO: write more} \cite{ManifoldLearning}
 
 
-\section{Foundationis todo}
+\subsection{Power Iterations}
+
+Power iteration (also called power method) is a iteratively method, 
+which approximates the biggest eigenvalue of a diagonalizable matrix A.
+
+\textbf{TODO}
+
+\chapter{TODO}
+\section{Foundations todo}
 
 \subsection{cryoEm}
 
+
 \begin{itemize}
-    \item Graph construction with knn
+    \item Graph construction with k-NN
     \item Curvature
     \item Convolution
     \item Fourier transform and Fourier frequencies
     \item SO(3), S
     \item Manifold assumption
     \item Power Iterations
-    \item Non linear dimensionality reduciton
+    \item Non linear dimensionality reduction
 \end{itemize}
 
 Nice to have:
@@ -435,7 +570,7 @@ Nice to have:
 \end{equation}
 \footnote{https://towardsdatascience.com/understanding-graph-convolutional-networks-for-node-classification-a2bfdb7aba7b}
 
-
+\chapter{Paper notes}
 
 \section{Diffusion Maps:}
 \citet{diffusionMaps}
@@ -461,12 +596,12 @@ Kernel eigenmap methods:
 - local linear embedding
 - Laplacian eigenmaps,
 - hessian eigenmaps
-- local tangent space alignement
+- local tangent space alignment
 
 The remarkable idea emerging from these papers is that eigenvectors of Markov matrices can be thought of as coordinates
-on the data set. Therefore, the data, originally modeled as a graph, can be represented (embedded) as a cloud of points
+on the data set. Therefore, the data, originally modelled as a graph, can be represented (embedded) as a cloud of points
 in a Euclidean space.
-two major advantages over classical dimensionality redution (PCA, MDS):
+two major advantages over classical dimensionality reduction (PCA, MDS):
 The first aspect is essential as most of the time, in their original form, the data points do not lie on
  linear manifolds.
  The second point is the expression of the fact that in many
@@ -481,7 +616,7 @@ $L_{rw} = D^{-1}L = I - D^{-1}W $
 
 Markov chain has a stationary distribution.
 If graph is connected, stationary is unique.
-If X is finite, chian is ergodic.
+If X is finite,  is ergodic.
 
 Diffusion distance:
 Diffusion map $\psi$ embeds the data into the Euclidean space so that in this space, the Euclidean
@@ -505,7 +640,7 @@ Edge consists of weight and linear orthogonal transformation.
 If linear orthogonal transformation is big, nodes are more like to be equal.
 If small, there are different
 
-Diffusion is calculated on vectors fields, where tangets are mapped to the manifold.
+Diffusion is calculated on vectors fields, where tangents are mapped to the manifold.
 A way to globally connect Local PCAs.
 
 \textbf{SNR: signal-to-noise-ratio}
