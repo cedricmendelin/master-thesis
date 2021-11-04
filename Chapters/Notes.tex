@@ -1,10 +1,10 @@
-% \chapter{Leistungsübersicht}
-% Written report including: 
-% \begin{itemize}
-%     \item Contents of the Master's Thesis project
-%     \item Project plan
-%     \item summary of relevant related work
-% \end{itemize}
+\chapter{Assessment criteria}
+Written report including: 
+\begin{itemize}
+    \item Contents of the Master's Thesis project
+    \item Project plan
+    \item summary of relevant related work
+\end{itemize}
 
 \chapter{Foundation}
 
@@ -19,6 +19,13 @@
     \item Benchmarking and Dataset
 \end{itemize}
 
+\textbf{Questions GCN:}
+\begin{itemize}
+    \item During feature propagation, only node features are considered.
+    \item Spectral Analysis Chapter
+    \item Degree of = A + I same as $\hat{D} = D + I$, not 2 times with self loop?
+\end{itemize}
+
 \section{Introduction to Graph Learning}
 
 Graph Representational Learning
@@ -30,7 +37,7 @@ Spectral graph theory \cite{SpectralGraphTheory} deals with learning properties 
 the graphs eigenvalues and eigenvectors. 
 
 \subsection{Graph deep Learning}
-
+Deep Learning with graphs.
 \textbf{TODO: write more}
 
 
@@ -238,12 +245,6 @@ $E_{observed} \subseteq U$.
 On could also say that link prediction problems are a subset of graph denoising problems.
 
 
-\textbf{Questions:}
-
-Link prediction: learning model M from subset of E.
-Graph denoising: learning model M from subset of U.
-
-
 \section{Graph Laplacian}
 
 \section{Deep Learning on Graphs}
@@ -268,7 +269,7 @@ $Z$ will be learned within a neural network, and every layer can be written by t
     \end{aligned}
 \end{equation}
 
-Where $L$ is the number of layers in the neural network.
+where $L$ is the number of layers in the neural network.
 The model only differ in the choice of $f(\cdot,\cdot)$.
 
 We are ready to define our first GCN. To keep it simple, $f(\cdot,\cdot)$ will be defined as the following:
@@ -300,14 +301,6 @@ And finally, we can put all things together, and replace $A$ in the original equ
 \end{equation} 
 
 
-\textbf{Questions:}
-\begin{itemize}
-    \item During feature propagation, only node features are considered.
-    \item Spectral Analysis Chapter
-\end{itemize}
-
-
-
 \subsubsection{Simple Graph Convolutional Network}
 Simple Graph Convolutional Network (SGC) \cite{simpleGCN} proposed a simplified version of GCN.
 They could verify their hypothesis, that GCN is dominated by the local averaging step and the non-linear 
@@ -326,7 +319,46 @@ and can use the fact that in every layer of the neural network, the same computa
 
 where $W$ is the matrix of all vector weights.
 
+
+
 \subsubsection{Link go Graph Laplacian:}
+
+In the section, we will have a look at the connection between SGC and Graph Laplacian.
+
+We can define $x \in R^n$ as our signals and define the Fourier transform as $\hat{x} = U^T x$
+and the inverse as $x = U\hat{x}$. 
+With the transform, we can easily switch between spatial and Fourier(spectral) domain.
+
+Further, we can define the graph convolution operation between signal $x$ and filter $g$.
+
+\begin{equation}
+    g \star x = U((U^T g) (U^T x)) = U \hat{G} U^T x,
+\end{equation}
+
+where $\hat{G}$ is a diagonal matrix where the elements are the 
+spectral filter coefficients (eigenvalues?)
+
+The graph convolution can be approximated by the $k$-th order polynomials of Laplacians:
+
+\begin{equation}
+    \approx \sum_{i=0}^{k} \Delta^i x = U \left ( \sum_{i=0}^{k}  \Theta_i \Lambda^i \right ) U^T x,
+\end{equation}
+
+where $\Delta = D - A$ and $\Theta_i$ are 
+filter coefficients which correspond to polynomials of the Laplacian eigenvalues,
+ $\hat{G} = \sum_i \Theta_i \Lambda^i$
+
+
+ In the original \cite{GCN} paper, the approximation is done with $k = 1$ 
+ \begin{equation}
+     g \star x = \Theta (I + D^{-\frac{1}{2}} A D^{-\frac{1}{2}} )x,
+ \end{equation}
+
+, where \citet{GCN} further applies the renormalization trick, ending up replacing
+$I + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ with $\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}}$.
+
+$I + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ is also called first-order Chebyshev filter.
+
 \footnote{https://towardsdatascience.com/spectral-graph-convolution-explained-and-implemented-step-by-step-2e495b57f801}
 
 not read currently:
