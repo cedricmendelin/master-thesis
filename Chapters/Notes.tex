@@ -30,6 +30,25 @@ Written report including:
     \item First-order Chebyshev
 \end{itemize}
 
+
+\textbf{Questions Walk Pooling}
+\begin{itemize}
+    \item vanilla graph classification
+    \item Subgraph classification?
+\end{itemize}
+
+
+
+\textbf{Trainable Laplacian with folded FSM}
+\begin{itemize}
+    \item Noisy projection samples?
+    \item What is the underlying problem to solve?
+    \item Other graph creation mechanism
+    \item Similarity measure
+\end{itemize}
+
+
+
 \textbf{Next Steps:}
 \begin{itemize}
     \item Familiarize with CryoEm
@@ -51,39 +70,6 @@ the graphs eigenvalues and eigenvectors.
 Deep Learning with graphs.
 \textbf{TODO: write more}
 
-
-\section{Noise}
-A noisy observation is defined as:
-$y_n = y + \eta$
-
-\subsection{Denoising}
-When we talk from denoising, we want to reconstruct the true observation 
-from a given noisy observation. This reconstruction is done via averaging, which can be performed
-locally, by the calculus of variations or in the frequency domain.
-
-\subsubsection{Non local means}
-Non local means is a state-of-the-art image denoising method \cite{noneLocalMean}.
-In the name of the method are two important concepts, namely the \textit{mean}
-and \textit{non local}.
-
-For a given noisy image $v$, the denoised image is defined as:
-\begin{equation}
-    NL[v](i) = \sum{w(i,j) \; v(j)}
-\end{equation}
-
-where $w(i,j)$ is the weight between pixel $i$ and $j$ and fulfils two conditions:
-\begin{itemize}
-    \item $0 \le w(i,j) \le 1$
-    \item $\sum_j{w(i,j) = 1}$
-\end{itemize}
-
-The weight can be seen as a similarity measure of the two pixels.
-Moreover, these similarities are calculated over square neighbourhoods of the two pixels,
-where the l2 norm of the neighbourhood is used.
-Similar pixel neighbourhoods have a large weight and different neighbourhoods have a small weight.
-
-More general, the denoised image pixel $i$ is computed as an weighted average of all pixels in the 
-image, therefore, in a non local way.
 
 \section{Graph Foundations}
 A graph is defined as  $G = \langle V,E \rangle$, where $V$ is a set of 
@@ -183,6 +169,80 @@ Contrarily, a sparse graph only consists of a few edges.
 \textbf{TODO: KNN}
 
 
+\subsection{Manifolds}
+A manifold is a topological space, where locally Euclidean distances make sense.
+More formally, a $n$-dimensional manifold is a topological space where
+each point has e neighbourhood, that is homeomorphic to an subset of a n.dimensional
+Euclidean space.
+
+Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already become 
+pretty complex and are basically any surfaces like planes, sphere but also the torus,
+Klein bottle or others.
+
+\subsubsection{Manifold assumption}
+The manifold assumption is a popular assumption for high-dimensional datasets.
+Even if a given dataset is in high-dimension and consists of many features, one can assume,
+that these data points are samples from a low-dimensional manifold, 
+which embeds the high-dimensional space.
+
+Therefore, if one can approximate the underlying Manifold, one solved a dimensionality reduction
+as we can embed the data points in the low-dimensional manifold space.
+
+There is a complete area of research devotes to this manifold assumption, and basically
+we then talk from Manifold Learning. 
+
+\textbf{TODO: write more} \cite{ManifoldLearning}
+
+
+\subsection{Power Iterations}
+
+Power iteration (also called power method) is a iteratively method, 
+which approximates the biggest eigenvalue of a diagonalizable matrix A.
+
+The algorithm starts with a random vector $b_0$ or a approximation of the dominant eigenvector.
+
+\begin{equation}
+    b_{k+1} = \frac{Ab_k}{||Ab_k||}
+\end{equation}
+
+The algorithm not necessarily converge. The algorithm will converge, if A has an eigenvalue strictly grater than its other eigenvalues
+and the initial vector $b_0$ has a component in direction of an eigenvector, associated with the dominant eigenvector.
+
+
+\section{Noise}
+A noisy observation is defined as:
+$y_n = y + \eta$
+
+\subsection{Denoising}
+When we talk from denoising, we want to reconstruct the true observation 
+from a given noisy observation. This reconstruction is done via averaging, which can be performed
+locally, by the calculus of variations or in the frequency domain.
+
+\subsubsection{Non local means}
+Non local means is a state-of-the-art image denoising method \cite{noneLocalMean}.
+In the name of the method are two important concepts, namely the \textit{mean}
+and \textit{non local}.
+
+For a given noisy image $v$, the denoised image is defined as:
+\begin{equation}
+    NL[v](i) = \sum{w(i,j) \; v(j)}
+\end{equation}
+
+where $w(i,j)$ is the weight between pixel $i$ and $j$ and fulfils two conditions:
+\begin{itemize}
+    \item $0 \le w(i,j) \le 1$
+    \item $\sum_j{w(i,j) = 1}$
+\end{itemize}
+
+The weight can be seen as a similarity measure of the two pixels.
+Moreover, these similarities are calculated over square neighbourhoods of the two pixels,
+where the l2 norm of the neighbourhood is used.
+Similar pixel neighbourhoods have a large weight and different neighbourhoods have a small weight.
+
+More general, the denoised image pixel $i$ is computed as an weighted average of all pixels in the 
+image, therefore, in a non local way.
+
+
 
 \section{Graph Denoising}
 Data acquired by Real-world observations are often noisy, which can lead to poor 
@@ -255,8 +315,6 @@ $E_{observed} \subseteq U$.
 
 On could also say that link prediction problems are a subset of graph denoising problems.
 
-
-\section{Graph Laplacian}
 
 \section{Deep Learning on Graphs}
 
@@ -376,7 +434,77 @@ $I + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ is also called first-order Chebyshev f
 not read currently:
 \footnote{https://towardsdatascience.com/tutorial-on-graph-neural-networks-for-computer-vision-and-beyond-part-2-be6d71d70f49}
 
-%\chapter{Papers - Foundation}
+
+
+\subsection{Walk Pooling}
+
+Homophilic and heterophilic are properties of the underlying dataset in link predication. 
+A homophilic dataset leads to the tendency to interact with similiar nodes. Whereas a heterophilic dataset contratly has the tendendy to 
+not link, if nodes are similar.
+
+\citet{walkPooling} proposed a new way of link prediction, which works
+with a random-walk-based pooling method called WalkPool.
+
+Based on the assumption, that link presence can be predicted 
+only based on the information on its neighbours within a small radius $k$,
+they calculate subgraphs and extract information from these subgraphs.
+
+\subsubsection{Feature extraction}
+Based on the adjacency matrix and some node attributes, 
+feature will be extracted with a GNN $f_{\theta}$
+
+\begin{equation}
+    Z = f_{\theta} (A,X)
+\end{equation}
+
+This step could be achieved by the earlier introduced GCN.
+
+\subsubsection{Subgraph classification}
+
+For candidate link $E^c$, the k-hop enclosing subgraphs
+ will be constructed, which allows the transformation
+from a link predication problem to a graph classification problem.
+
+
+From these subgraphs, so called random-walk profiles are calculated:
+
+\subsubsection{Random-walk profiles}
+
+First of all, the node correlation is calculated with two multilayer peceptrons (MLP)
+
+\begin{equation}
+    w_{x,y} = \frac{Q_{\theta}(z_x)^T K_{\theta}(z_y)}{\sqrt{F^{\prime\prime}}}
+\end{equation}
+
+Then, from all neighbouring nodes ($N(x)$), probabilities are calculated:
+\begin{equation}
+    p_{x,y} = 
+    \begin{cases}
+            %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+            [softmax(w_{x,z})_{z \in N(x)}]_y  & \text{if } \langle x , y \rangle \in E \\
+            0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+From these calculated probabilities $P$ and its powers, we can derive information for 
+graph classification:
+
+Node level features $node^{\tau}$ desribe loop structures arround the candidate link.
+Further, link features $link^{\tau}$ give a probability, about a random walk with length
+$\tau$ from the two nodes ( ending in a loop). And finally, graph features $graph^{\tau}$ are related to the total
+probability of length $\tau$ loops.
+
+\textbf{TODO:}
+As we do not know about if the candidate link is present of not, we consider the subgraphs,
+consisting of the candidate link and without the candidate link.
+
+
+We finally can describe WalkPool as:
+
+\begin{equation}
+    WP_{\theta}(G, Z) =w_{1,2}(node^{\tau, +}, node^{\tau, -}, link^{\tau, +}, link^{\tau, -}, \delta graph^{\tau})^{\tau_c}_{\tau = 2}
+\end{equation}
+
 
 \section{Graph Laplacian Tomography From Unknown Random Projections}
 
@@ -493,35 +621,6 @@ standard approach that we need to compare with.
 Maybe their setting (2D tomography with unknown angle) is a good setting to start with.
 }
 
-\subsection{Manifolds}
-A manifold is a topological space, where locally Euclidean distances make sense.
-More formally, a $n$-dimensional manifold is a topological space where
-each point has e neighbourhood, that is homeomorphic to an subset of a n.dimensional
-Euclidean space.
-
-Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already become 
-pretty complex and are basically any surfaces like planes, sphere but also the torus,
-Klein bottle or others.
-
-\subsubsection{Manifold assumption}
-The manifold assumption is a popular assumption for high-dimensional datasets.
-Even if a given dataset is in high-dimension and consists of many features, one can assume,
-that these data points are samples from a low-dimensional manifold, 
-which embeds the high-dimensional space.
-
-Therefore, if one can approximate the underlying Manifold, one solved a dimensionality reduction
-as we can embed the data points in the low-dimensional manifold space.
-
-There is a complete area of research devotes to this manifold assumption, and basically
-we then talk from Manifold Learning. 
-
-\textbf{TODO: write more} \cite{ManifoldLearning}
-
-
-\subsection{Power Iterations}
-
-Power iteration (also called power method) is a iteratively method, 
-which approximates the biggest eigenvalue of a diagonalizable matrix A.
 
 \textbf{TODO}
 
@@ -685,7 +784,7 @@ Graph denoising
 
 
 \section{WalkPooling}
-Image denoising
+
 
 \section{Point Clouds}
 \subsection{Dynamic graph Cnn for learning on point clouds}
