@@ -8,21 +8,28 @@ Written report including:
 
 \chapter{Foundation}
 
-
-
 \textbf{General Questions}
 \begin{itemize}
-    \item Difference Graph Learning and Graph Representation
+    \item Difference Graph Learning and Graph Representation Learning
+    \item What is the overall task
     \item CryoEm, Datasets, Tasks, etc.
     \item Benchmarking and Dataset
+    \item Plugin for Latex -> Slack
+\end{itemize}
+
+\textbf{Trainable Laplacian with folded FSM}
+\begin{itemize}
+    \item Noisy projection samples?
+    \item What is the underlying problem to solve?
+    \item Other graph creation mechanism to consider.
+    \item Similarity measure
 \end{itemize}
 
 \textbf{Questions GCN:}
 \begin{itemize}
     \item During feature propagation, only node features are considered.
-    \item Spectral Analysis Chapter
+    \item Spectral Analysis Chapter in SGCN
 \end{itemize}
-
 
 \textbf{Questions Random projection:}
 \begin{itemize}
@@ -30,23 +37,11 @@ Written report including:
     \item First-order Chebyshev
 \end{itemize}
 
-
 \textbf{Questions Walk Pooling}
 \begin{itemize}
-    \item vanilla graph classification
+    \item What is vanilla graph classification?
     \item Subgraph classification?
 \end{itemize}
-
-
-
-\textbf{Trainable Laplacian with folded FSM}
-\begin{itemize}
-    \item Noisy projection samples?
-    \item What is the underlying problem to solve?
-    \item Other graph creation mechanism
-    \item Similarity measure
-\end{itemize}
-
 
 
 \textbf{Next Steps:}
@@ -439,7 +434,7 @@ not read currently:
 \subsection{Walk Pooling}
 
 Homophilic and heterophilic are properties of the underlying dataset in link predication. 
-A homophilic dataset leads to the tendency to interact with similiar nodes. Whereas a heterophilic dataset contratly has the tendendy to 
+A homophilic dataset leads to the tendency to interact with similar nodes. Whereas a heterophilic dataset contrary has the tendency to 
 not link, if nodes are similar.
 
 \citet{walkPooling} proposed a new way of link prediction, which works
@@ -470,7 +465,7 @@ From these subgraphs, so called random-walk profiles are calculated:
 
 \subsubsection{Random-walk profiles}
 
-First of all, the node correlation is calculated with two multilayer peceptrons (MLP)
+First of all, the node correlation is calculated with two multilayer perceptrons (MLP)
 
 \begin{equation}
     w_{x,y} = \frac{Q_{\theta}(z_x)^T K_{\theta}(z_y)}{\sqrt{F^{\prime\prime}}}
