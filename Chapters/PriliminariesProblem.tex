@@ -1,2 +1,49 @@
 \chapter{Preliminaries and Problem Setup}
 \label{sec:preliminariesProblem}
+
+
+In the following chapter, the problem setup handled by the Master Thesis will be explained.
+Further, preliminaries regarding assumptions and other decisions are explained.
+
+\section{Reconstruct problem}
+Tomographic reconstruction is a popular inverse problem. 
+The aim is, to reconstruct an object, from its observed projections.
+
+\subsection{Manifold assumption}
+\subsection{sinogram}
+
+In computerized tomography (CT) this means to 
+
+\begin{equation}
+    y_i = g_i A(\bar{x} ; \alpha_i) + noise,
+\end{equation}
+
+where \\
+$y_i$ is the observed data \\
+$ \bar{x} $  is the original object, \\
+$A(\cdot ; \alpha)$ is a non-linear operator parameterized by some value(s) $\alpha$ 
+that change from one observation to another, \\
+$A(\cdot; \alpha) : \mathbb{R}^{A} \to \mathbb{R}^{B}$
+$g$ is a linear (and invertible operator) \\
+
+
+ 
+
+\subsection{2D example}
+
+$a_i \in SO(1)$
+$A := N \times N$
+$B := N$
+
+
+
+\subsection{3D example}
+
+$a_i \in SO(2)$
+$A := N \times N \times N$
+$B := N \times N$
+
+\cite{radonTransform}
+
+
+Simple Case in 
