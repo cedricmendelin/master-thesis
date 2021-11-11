@@ -5,6 +5,9 @@
 \documentclass[a4paper, 10pt, oneside]{memoir}
 %% Use the option citeauthor to be able to use citet. The default cite will still work.
 \usepackage[citeauthor]{basilea}
+\usepackage{pgfgantt}
+%\usepackage{lscape}
+\usepackage{pdflscape}
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
 %% ----------------------------------------------------------------
@@ -49,10 +52,13 @@
 %% ----------------------------------------------------------------
 \thesismain
 \input{./Chapters/Notes}
-%\input{./Chapters/Chapter1}
-%\input{./Chapters/Chapter2}
-%\input{./Chapters/Chapter3}
-%\input{./Chapters/Chapter4}
+\input{./Chapters/Papers}
+\input{./Chapters/Introduction.tex}
+\input{./Chapters/Foundation.tex}
+\input{./Chapters/PriliminariesProblem.tex}
+\input{./Chapters/RelatedWork.tex}
+\input{./Chapters/Evaluation.tex}
+\input{./Chapters/ProjectPlan.tex}
 %\input{./Chapters/Chapter5}
 %\input{./Chapters/Chapter6}
 %\input{./Chapters/Chapter7}

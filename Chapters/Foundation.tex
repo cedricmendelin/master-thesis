@@ -1,0 +1,288 @@
+\chapter{Foundation}
+\label{sec:foundation}
+
+
+Before digging into the problem setup of the Master Thesis, in the following chapter, a broad foundation
+of graphs and Graph Learning will be given. Moreover, some important mathematically concepts will be introduced.
+A more detailed explanation to some sections will follow in the Section~\nameref{sec:relatedWork}
+
+
+\section{Graph Learning}
+As already mentioned, Graph Learning is a highly popular research area and got lot of attention in recent years.
+It is a new way of applying Machine Learning (ML) and many algorithms emerged from ML.
+
+A lot of real data can be modelled as a graph. The data could have a graph structure, like social networks. 
+Or a graph can be artificially constructed with methods like k-nearest neighbours (KNN) or with some other similarity
+measure concept.
+
+\subsection{Graph Learning Tasks}
+When a graph is available, one can start using Graph Learning algorithms for solving tasks.
+Popular tasks are node classification, or link prediction within a graph. One tries to learn from node and edge properties 
+as well as the topology of the graph and tries to map the information to a model, which allows prediction or classification.
+
+Another popular task in Graph Learning is community detection, where the aim is to identify cluster of nodes within the input graph.
+
+Further, graphs are highly popular for dimensionality-reduction. In higher dimensions, the euclidean distance is not helpful and therefore,
+algorithms for reducing the dimensionality, such that euclidean distance make sense again are needed. 
+Graph algorithms provide a helpful tool in such scenarios.
+
+\subsection{Algorithm categories}
+\subsubsection{Spectral graph theory}
+Spectral graph theory \cite{SpectralGraphTheory} deals with learning properties and characteristics of graphs, in regard to
+the graphs eigenvalues and eigenvectors. 
+
+\subsubsection{Graph Deep Learning}
+Basically, in Graph Deep Learning, Deep Learning algorithms are extended for the usage with graphs.
+After all, a model or some feature will be learned within a neural network, suitable for working with graphs.
+
+\subsubsection{Random walk based methods}
+
+
+\section{Graph Foundations}
+A graph is defined as  $G = \langle V,E \rangle$, where $V$ is a set of 
+vertices (or nodes) and $E$ is a set of edges (or links). Edges are 
+defined as a set of tuples $\langle i,j \rangle$, where $i$ and $j$ determine the 
+index of the vertices in the graph.
+
+\subsection{Graph Properties}
+
+\subsubsection{Directed vs. undirected vs. weighted}
+
+\subsubsection{Dense and sparse Graph}
+A dense graph is a graph, where the number of edges in close to the maximal number of edges.
+Contrarily, a sparse graph only consists of a few edges.
+
+\subsection{Node Properties}
+\subsection{Edge Properties}
+Homophilic and heterophilic are properties of the underlying dataset in link predication. 
+A homophilic dataset leads to the tendency to interact with similar nodes. Whereas a heterophilic dataset contrary has the tendency to 
+not link, if nodes are similar.
+
+\subsection{Adjacency Matrix}
+
+The adjacency matrix of $G$ is then defined as follows:
+\begin{equation}
+    A_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        1  & \text{if } \langle i , j \rangle \in E \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+\subsubsection{k-hop neighbourhood}
+The adjacency matrix $A$ has a nice property. When calculating the $k$-th power of $A^k$ , on calculates the k-hop neighbourhood
+of the given matrix. Which can be used for many application.
+
+\subsection{Degree Matrix}
+The degree Matrix of $G$ is defined as follows:
+\begin{equation}
+    D_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        deg(v_i)  & \text{if } i = j \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+Where $deg(v_i)$ is the degree of the node, formally the number of incoming edges of node $v_i$.
+
+\subsubsection{Normalization}
+When starting calculating with Matrix A, it is sometimes necessary to normalize.
+With the degree Matrix $D$ and Adjacency Matrix $A$, we have all information we need.
+Mostly, we want to normalize, such that our rows sum to 1.
+\begin{equation}
+    A_{row-norm} = D^{-1} A
+\end{equation}
+
+But we can achieve the same for columns, we just need to swap the two matrices:
+\begin{equation}
+    A_{col-norm} = A D^{-1}
+\end{equation}
+
+And a final, a probably the most useful normalization, is the symmetric normalization:
+
+\begin{equation}
+    A_{sym} =  D^{-\frac{1}{2}} A D^{-\frac{1}{2}}
+\end{equation}
+
+
+\subsection{Graph Laplacian}
+The graph Laplacian is defined as follows:
+\begin{equation}
+    L = D - A
+\end{equation}
+
+
+\subsubsection{Normalized Graph Laplacian}
+
+Symmetric normalized: $L_{sym} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$
+Random walk normalized: $L_{rw} = I - D^{-1} A$
+
+\subsubsection{Normalized Graph Laplacian eigen decomposition}
+
+\begin{equation}
+    \begin{aligned}
+        L_{sym} &= U \Lambda U^T \\
+        U &= [u_0, \dots, u_{N-1}] \in R^{N \times N}\\
+        \Lambda &= diag \left ( [\lambda_0, \dots, \lambda_{N-1}]  \right ) \in R^{N \times N}
+    \end{aligned}
+\end{equation}
+
+In this scenario, eigenvectors are also known as \textit{graph Fourier modes}
+and eigenvalues are known as the \textit{spectral frequencies}.
+
+Moreover, with the Graph Fourier Transform, we can calculate these values from a symmetric
+graph Laplacian.
+
+\subsection{Graph Construction}
+\textbf{TODO: KNN}
+
+\section{Manifolds}
+A manifold is a topological space, where locally Euclidean distances make sense.
+More formally, a $n$-dimensional manifold is a topological space where
+each point has e neighbourhood, that is homeomorphic to an subset of a n.dimensional
+Euclidean space.
+
+Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already become 
+pretty complex and are basically any surfaces like planes, sphere but also the torus,
+Klein bottle or others.
+
+\subsection{Manifold assumption}
+The manifold assumption is a popular assumption for high-dimensional datasets.
+Even if a given dataset is in high-dimension and consists of many features, one can assume,
+that these data points are samples from a low-dimensional manifold, 
+which embeds the high-dimensional space.
+
+Therefore, if one can approximate the underlying Manifold, one solved a dimensionality reduction
+as we can embed the data points in the low-dimensional manifold space.
+
+There is a complete area of research devotes to this manifold assumption, and basically
+we then talk from Manifold Learning. 
+
+\textbf{TODO: write more} \cite{ManifoldLearning}
+
+\section{Graph Denoising}
+Data acquired by Real-world observations are often noisy, which can lead to poor 
+performance on data analysis tasks. This observed data can already be in the form of a graph,
+or a graph can be easily constructed. This resulting graph is what we call
+a noisy graph, as it includes the noise from the observation.
+
+Graph denoising is the task to reconstruct the original graph from a noisy one.
+Therefore, graph denoising can be seen as a pre-processing step, where noisy data is filtered.
+
+Denoising in general has often to do with averaging 
+ and graphs are  a well suited data structure for this task\cite{noneLocalMean}.
+
+
+\subsection{Noise}
+A noisy observation is defined as:
+$y_n = y + \eta$
+
+\subsection{Denoising}
+When we talk from denoising, we want to reconstruct the true observation 
+from a given noisy observation. This reconstruction is done via averaging, which can be performed
+locally, by the calculus of variations or in the frequency domain.
+
+\subsection{Noisy Graph}
+For every noisy graph, there exists an original graph $G = \langle V,E \rangle$.
+
+The noisy graph can be defined as follows:
+\begin{equation}
+    \begin{aligned}
+        G_{noisy} &= \langle V,E_{noisy} \rangle,  \\ 
+        \text{ with }  E_{noisy} &= E \setminus  E^{-} \cup  E^{+}, \\ 
+         E^{-} & \subseteq E, \\
+         E^{+} \cap E &= \emptyset
+    \end{aligned}
+\end{equation}
+
+Basically, the noisy graph consists of the same vertices as the original graph. From
+the original graphs edges, some are removed (denoted by $E^{-}$) and some new edges are added
+(denoted by $E^{+}$).
+
+The adjacency Matrix of $G_{noisy}$ is then defined as follows:
+\begin{equation}
+    \bar{A}_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        1  & \text{if } \langle i,j \rangle \in E_{noisy} \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+The task of graph denoising, can therefore be written as:
+\begin{equation}
+    \bar{A} \xrightarrow[method]{Graph-denoising} \tilde{A} \approx A
+\end{equation}
+
+Where $\bar{A}$ denotes the noisy input graph, $\tilde{A}$ the denoised
+ graph and $A$ the original graph.
+
+
+\subsubsection{Connection to link prediction}
+Link prediction is a task in Graph learning. 
+The idea is to predict the existence of a link (edge) between two nodes.
+The task can be formulated as a missing value estimation task. A model $M_p$ is learned
+from a given set of observed edges. The model finally maps links to probabilities:
+
+
+\begin{equation}
+    M_p : E^{\prime} \rightarrow [0,1]
+\end{equation}
+
+Where $E^{\prime}$ is the set of potential links.
+
+
+We define $U$ as the set of all possible vertices of $G$, therefore $E \subseteq U$.
+Obviously, one could see Graph denoising as a link prediction problem.
+
+The difference is, that in link prediction, we learn a model from a set of observed links 
+$E_{observed} \subseteq E$ and in Graph denoising we learn the model from 
+$E_{observed} \subseteq U$. 
+
+On could also say that link prediction problems are a subset of graph denoising problems.
+
+
+
+\section{Math Foundation}
+
+
+\subsection{Power Iterations}
+\label{sec:powerIterations}
+
+Power iteration (also called power method) is a iteratively method, 
+which approximates the biggest eigenvalue of a diagonalizable matrix A.
+
+The algorithm starts with a random vector $b_0$ or a approximation of the dominant eigenvector.
+
+\begin{equation}
+    b_{k+1} = \frac{Ab_k}{||Ab_k||}
+\end{equation}
+
+The algorithm not necessarily converge. The algorithm will converge, if A has an eigenvalue strictly grater than its other eigenvalues
+and the initial vector $b_0$ has a component in direction of an eigenvector, associated with the dominant eigenvector.
+
+\section{Folded spectrum Method}
+\label{sec:FoldedSpectrumMethod}
+Calculation of eigenvalues and eigenvectors of a given Hamiltonian matrix $H$ 
+is a fundamental mathematical problem. Often, we are interested in just the smallest 
+values, which can be efficiently computed. But if we are interested in selected values,
+this can be hard. $H$ is needed to be diagonalized (bring matrix $H$ into diagonal form) 
+which is computationally expensive and for big matrices impossible.
+
+Currently, the best way to solve such problems is the Folded spectrum (FS) \cite{foldedSpectrumMethod} method,
+which iteratively solves the problem. During calculation, the eigenvalue spectrum will be folded around a reference 
+value $\epsilon$.
+
+\begin{equation}
+    v^{t+1} = v^t - \alpha (H - \epsilon I )^2 v^t ,
+\end{equation}
+
+with $0 < \alpha < 1$. When $t \rightarrow \infty$, then $v^{\infty}$ should be the 
+eigenvector with respect to the reference value $\epsilon$.
+
+\subsection{Fourrier Transform}
+\subsection{Radon Transform}
+
+\section{CT tomography and cryp-EM}

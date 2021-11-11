@@ -1,0 +1,281 @@
+\chapter{Related Work}
+\label{sec:relatedWork}
+
+In the following section, related work will be introduced.
+
+
+\section{Graph Deep Learning}
+Graph deep learning is a fast evolving field in research. With Graph Neural Networks (GNN)
+
+\cite{GNN}
+\cite{GAT}
+
+\subsection{Graph feature extraction with GCN}
+
+\subsection{Graph Convolutional Network}
+Graph Convolutional Networks (GCN) \cite{GCN} can be used for many tasks in the field 
+of Graph Learning, such as node classification or link prediction. 
+Basically, with GCN, a new feature representation is iteratively learned for the node features.
+
+The basic concept is as follows:
+For a given graph $G = \langle V,E \rangle$, with node features $X^{N x D}$ and adjacency Matrix $A$
+where $N$ denotes the number of nodes and $D$ the number of node input attributes,
+
+a novel node representation $Z^{N x F}$ will be learned, where $F$ is the number of output features.
+
+$Z$ will be learned within a neural network, and every layer can be written by the following, non-linear function:
+
+\begin{equation}
+    \begin{aligned}
+        H^{l + 1} &= f( H^l, A), \\
+        \text{with } H^0 &= X , \\
+        H^L &= Z, 
+    \end{aligned}
+\end{equation}
+
+where $L$ is the number of layers in the neural network.
+The model only differ in the choice of $f(\cdot,\cdot)$.
+
+We are ready to define our first GCN. To keep it simple, $f(\cdot,\cdot)$ will be defined as the following:
+\begin{equation}
+    f( H^l, A) = \sigma (A H^l W^l)
+\end{equation} 
+
+Where $\sigma ( \cdot )$ is a non-linear activation function, such as ReLU and $W^l$ is
+a weight Matrix of the layer $l$ of the neural network. As \citet{GCN} could show during experiments,
+this choice of $f(\cdot,\cdot)$ is already very powerful and leads to state-of-the-art results.
+
+\subsubsection{Renormalization trick}
+
+With this model, we do have two problems and need to refine it further.
+First of all, with the multiplication of $A$, we average over the neighbour nodes but
+will ignore the node itself. Therefore, self-loops will be added to $A$.
+The second problem is, that A is not normalized and if therefore, when multiplying with $A$,
+the features of the nodes will change it scale. Therefore, we need to normalize $A$
+such that all rows sum to one. This can be done with a simple multiplication with the D.
+
+These two steps are called the Renormalization trick\cite{GCN}.
+First of all, we can simple add the self-loops by adding the Identity Matrix to $A$, 
+$\hat{A} = A + I$ and $\hat{D}$ is the degree Matrix of $\hat{A}$.
+Now, we can achieve a symmetric normalization by multiplying $D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$.
+
+And finally, we can put all things together, and replace $A$ in the original equation:
+\begin{equation}
+    f( H^l, A) = \sigma (\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} H^l W^l)
+\end{equation} 
+
+
+\subsubsection{Simple Graph Convolutional Network}
+\textbf{Basically Power method with normalization}
+
+Simple Graph Convolutional Network (SGC) \cite{simpleGCN} proposed a simplified version of GCN.
+They could verify their hypothesis, that GCN is dominated by the local averaging step and the non-linear 
+activation function between layers do not contribute to much to the success of GCN.
+
+This makes the calculation simpler. We denote $S = \hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} $
+and can use the fact that in every layer of the neural network, the same computation will take place.
+
+\begin{equation}
+    \begin{aligned}
+        Z = S \dots S X W^1 W^2 \dots W^L \\
+        Z = S^L X W^1 W^2 \dots W^L \\
+        Z = S^L X W    
+    \end{aligned}
+\end{equation}
+
+where $W$ is the matrix of all vector weights.
+
+
+
+\subsubsection{Link to Graph Laplacian:}
+
+In the section, we will have a look at the connection between SGC and Graph Laplacian.
+
+We can define $x \in R^n$ as our signals and define the Fourier transform as $\hat{x} = U^T x$
+and the inverse as $x = U\hat{x}$. 
+With the transform, we can easily switch between spatial and Fourier(spectral) domain.
+
+Further, we can define the graph convolution operation between signal $x$ and filter $g$.
+
+\begin{equation}
+    g \star x = U((U^T g) (U^T x)) = U \hat{G} U^T x,
+\end{equation}
+
+where $\hat{G}$ is a diagonal matrix where the elements are the 
+spectral filter coefficients (eigenvalues?)
+
+The graph convolution can be approximated by the $k$-th order polynomials of Laplacians:
+
+\begin{equation}
+    \approx \sum_{i=0}^{k} \Delta^i x = U \left ( \sum_{i=0}^{k}  \Theta_i \Lambda^i \right ) U^T x,
+\end{equation}
+
+where $\Delta = D - A$ and $\Theta_i$ are 
+filter coefficients which correspond to polynomials of the Laplacian eigenvalues,
+ $\hat{G} = \sum_i \Theta_i \Lambda^i$
+
+
+ In the original \cite{GCN} paper, the approximation is done with $k = 1$ 
+ \begin{equation}
+     g \star x = \Theta (I + D^{-\frac{1}{2}} A D^{-\frac{1}{2}} )x,
+ \end{equation}
+
+, where \citet{GCN} further applies the renormalization trick, ending up replacing
+$I + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ with $\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}}$.
+
+$I + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ is also called first-order Chebyshev filter.
+
+%\footnote{https://towardsdatascience.com/spectral-graph-convolution-explained-and-implemented-step-by-step-2e495b57f801}
+
+%not read currently:
+%\footnote{https://towardsdatascience.com/tutorial-on-graph-neural-networks-for-computer-vision-and-beyond-part-2-be6d71d70f49}
+
+
+
+
+\cite{GCN}
+\cite{simpleGCN}
+\cite{dynamicGCN}
+
+
+
+\section{Manifold Learning}
+\cite{isomap}
+\cite{LLE}
+\cite{LaplacianEigenmaps}
+
+\section{Random Walk approaches}
+
+\cite{diffusionMaps}
+\cite{vectorDiffusionMaps}
+\cite{multiDiffusionMaps}
+
+
+\section{Denoising}
+
+\subsection{Image Denoising}
+
+\subsubsection{Non local means}
+Non local means is a state-of-the-art image denoising method \cite{noneLocalMean}.
+In the name of the method are two important concepts, namely the \textit{mean}
+and \textit{non local}.
+
+For a given noisy image $v$, the denoised image is defined as:
+\begin{equation}
+    NL[v](i) = \sum{w(i,j) \; v(j)}
+\end{equation}
+
+where $w(i,j)$ is the weight between pixel $i$ and $j$ and fulfils two conditions:
+\begin{itemize}
+    \item $0 \le w(i,j) \le 1$
+    \item $\sum_j{w(i,j) = 1}$
+\end{itemize}
+
+The weight can be seen as a similarity measure of the two pixels.
+Moreover, these similarities are calculated over square neighbourhoods of the two pixels,
+where the l2 norm of the neighbourhood is used.
+Similar pixel neighbourhoods have a large weight and different neighbourhoods have a small weight.
+
+More general, the denoised image pixel $i$ is computed as an weighted average of all pixels in the 
+image, therefore, in a non local way.
+Image Denoising
+Graph Denoising
+
+\subsection{Graph Denoising}
+
+\cite{noneLocalMean}
+\cite{learningToDrop}
+
+
+\subsection{cryo-EM calcuation}
+
+\section{Graph Laplacian Tomography From Unknown Random Projections}
+
+\citet{LaplaceRandomProjections} introduces a Laplacian-based algorithm, with which 
+reconstruction of a planar object from projects at random unknown directions is possible.
+
+Overall, in computerized tomography (CT), reconstruction of an object with only samples of its projections
+is a standard problem. In \citet{LaplaceRandomProjections} the problem was extended by the fact,
+that the projection angle to the object is unknown.
+
+Formally:
+Given $N$ projection vectors $( P_{\theta_i}(t_1), P_{\theta_i}(t_2), \dots, P_{\theta_i}(t_N)$ 
+at unknown angles $\{\Theta_i\}^N_{i=1}$ which are drawn from the uniform distribution of $[0, 2\pi]$
+and $t_1, t_2, \dots, t_n$ are fixed n points (all equally spaced due to uniform distribution) 
+find the underlying density function $\rho (x,y)$ of the object.
+
+\subsection{Radon transform}
+
+The radon transform $P_{\Theta}(t)$ is the line integral of $\rho$
+along parallel lines $L$ at angle $\Theta$ and distance $t$ from the orign.
+
+\begin{equation}
+    \begin{aligned}
+        P_{\Theta}(t) &= \int_L \rho (x,y) ds \\
+                      &=  \int_{-\infty}^{\infty} \rho (x,y) \; \delta(x \cos \Theta + y \sin \Theta - t) dx \; dy
+    \end{aligned}
+\end{equation}
+
+An algorithm for estimating angles from given projections have been introduced by \cite{formerUnkownRandomProjections}.
+The introduced algorithm consists of three steps:
+\begin{enumerate}
+    \item Angle estimation
+    \item Angle Ordering
+    \item Joint maximum likelihood refinement of angles and shifts
+\end{enumerate}
+
+Step 2 was implemented by some nearest neighbour algorithm. In the work of 
+\cite{LaplaceRandomProjections}, they introduced a new way of ordering the angles,
+using Graph Laplacian.
+
+
+\subsection{Laplace-Beltrami operator}
+\cite{LaplaceRandomProjections} could show, that the graph Laplacian
+ approximates the Laplace-Beltrami operator, if data points are uniformly distributed 
+ over the manifold.
+
+ Further, they showed that in the case of non-uniformly distributed data points, the Laplacian
+ approximated the backward Fokker-Planck operator (which is a generalization of the Laplace-Beltrami operator).
+ With that, at least the ordering of the angles can be estimated.
+
+ Finally, with a small normalization of the Laplacian, the Laplace-Beltrami operator can also be 
+ approximated in the non-uniform distributed case.
+
+\subsection{Algorithm}
+
+For a given set of projections vector $x_i = ( P_{\Theta_i}(t_1), \dots, P_{\Theta_i}(t_n))$ for $i = 1,2, \dots, mN$
+
+The algorithm proposed in \cite{LaplaceRandomProjections} consists of five steps:
+
+\begin{enumerate}
+    \item Double the number of projections to 2mN (due to the fact that projections are symmetric)
+    \item Construct the co-called density invariant Graph Laplacian $\tilde{L}$
+    \item Compute $\theta_1(i)$ and $\theta_2(i)$ the first two nontrivial eigenvector of $\tilde{L}$
+    \item Sort $x_i$ according to $\phi_i = \tan^{-1}(\theta_1(i) \; / \;\theta_2(i))$
+    \item Reconstruct image using the sorted projections and estimated angles.
+\end{enumerate}
+
+Where $\tilde{L}$ can be constructed by the following way:
+
+\begin{equation}
+    \begin{aligned}
+        W_{ij} = k \left ( \frac{\left \| x_i - x_j \right \|^2}{2 \epsilon}  \right ), \\
+        i, j = 1, \dots, N
+    \end{aligned}
+\end{equation}
+
+where $||\cdot ||$ is the euclidean-norm, $k$ a semi-positive kernel 
+and  $\epsilon > 0$ the bandwidth of the kernel. As mentioned in \cite{LaplaceRandomProjections},
+the kernel $k(x) = \exp (-x)$ is a popular choice.
+
+With the newly computed weight Matrix $W$ and the degree Matrix $D$ corresponding to $W$, we can finally 
+define $\tilde{L}$.
+
+\begin{equation}
+    \begin{aligned}
+        \tilde{W} &= D^{-1} W D^{-1} \\
+        \tilde{D} &= \text{Degree matrix corresponding to } \tilde{W} \\
+        \tilde{L} &= \tilde{D}^{-1} \tilde{W} - I \\
+    \end{aligned}
+\end{equation}
+
