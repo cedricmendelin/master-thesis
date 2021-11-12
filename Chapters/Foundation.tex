@@ -36,6 +36,7 @@ Basically, in Graph Deep Learning, Deep Learning algorithms are extended for the
 After all, a model or some feature will be learned within a neural network, suitable for working with graphs.
 
 \subsubsection{Random walk based methods}
+\textbf{TODO}
 
 
 \section{Graph Foundations}
@@ -137,30 +138,6 @@ graph Laplacian.
 
 \subsection{Graph Construction}
 \textbf{TODO: KNN}
-
-\section{Manifolds}
-A manifold is a topological space, where locally Euclidean distances make sense.
-More formally, a $n$-dimensional manifold is a topological space where
-each point has e neighbourhood, that is homeomorphic to an subset of a n.dimensional
-Euclidean space.
-
-Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already become 
-pretty complex and are basically any surfaces like planes, sphere but also the torus,
-Klein bottle or others.
-
-\subsection{Manifold assumption}
-The manifold assumption is a popular assumption for high-dimensional datasets.
-Even if a given dataset is in high-dimension and consists of many features, one can assume,
-that these data points are samples from a low-dimensional manifold, 
-which embeds the high-dimensional space.
-
-Therefore, if one can approximate the underlying Manifold, one solved a dimensionality reduction
-as we can embed the data points in the low-dimensional manifold space.
-
-There is a complete area of research devotes to this manifold assumption, and basically
-we then talk from Manifold Learning. 
-
-\textbf{TODO: write more} \cite{ManifoldLearning}
 
 \section{Graph Denoising}
 Data acquired by Real-world observations are often noisy, which can lead to poor 
@@ -283,7 +260,42 @@ with $0 < \alpha < 1$. When $t \rightarrow \infty$, then $v^{\infty}$ should be 
 eigenvector with respect to the reference value $\epsilon$.
 
 \subsection{Embedding}
+An embedding $f: X \rightarrow Y$ is defined as a structure-preserving mapping from one domain to another.
 
+In graph theory, a graph embedding in the mapping from the graph $G$
+to a surface structure $\Sigma$. 
+
+
+
+\section{Manifolds}
+A manifold is a topological space, where locally Euclidean distances make sense.
+More formally, a $n$-dimensional manifold is a topological space where
+each point has e neighbourhood, that is homeomorphic to an subset of a n.dimensional
+Euclidean space.
+
+Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already become 
+pretty complex and are basically any surfaces like planes, sphere but also the torus,
+Klein bottle or others.
+
+\subsection{Manifold assumption}
+\label{sec:manifoldAssumption}
+
+The manifold assumption is a popular assumption for high-dimensional datasets.
+Even if a given dataset is in high-dimension and consists of many features, one can assume,
+that these data points are samples from a low-dimensional manifold, 
+which embeds the high-dimensional space.
+
+Therefore, if one can approximate the underlying Manifold, one solved a dimensionality reduction
+as we can embed the data points in the low-dimensional manifold space.
+
+There is a complete area of research devotes to this manifold assumption, and basically
+we then talk from Manifold Learning. 
+
+\textbf{TODO: write more} \cite{ManifoldLearning}
+
+
+\subsection{Line integral}
+Integral where function is evaluated along a curve
 
 \subsection{SO3}
 \subsection{Lie Group}
@@ -291,3 +303,6 @@ eigenvector with respect to the reference value $\epsilon$.
 \subsection{Radon Transform}
 
 \section{CT tomography and cryp-EM}
+
+\section{Wasserstein Loss-function}
+
