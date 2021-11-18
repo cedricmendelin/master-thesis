@@ -5,22 +5,20 @@
 In the following chapter, the problem setup handled by the Master Thesis will be explained.
 Further, preliminaries regarding assumptions and other decisions are defined.
 
-\section{Reconstruct problem}
+\section{Reconstruction problem}
 Tomographic reconstruction is a popular inverse problem \cite{tomographicReconstruction}. 
-The aim is, to reconstruct an object, from its observed projections.
-More formally, the aim is to recover some density function $f$ from overserved samples, taken from the line-integral $p(\cdot)$.
+The aim is to reconstruct an object $x$ from its observed projections $P=[p_0, p_1, \dots, p_N]$.
+More formally, the aim is to recover some density function $f$ from overserved samples $y$, taken from the line-integral $p(\cdot)$.
 
-The problem can be defined as a two-dimensional (2-D) problem but also as a three-dimensional (3-D) problem.
-In 2-D, also called classical tomography reconstruct problem,  the underlying density function is in two dimensions and the measurements lines lie on a plane.
-In 3-D, the density function deals within three dimensions and the measurements are lines with arbitrary orientation in space.
-
+The problem can be defined as a two-dimensional (2D) problem but also as a three-dimensional (3D) problem. In the following, we focus on the 2D case.
+In 2D, also called classical tomography reconstruct problem, the underlying density function is in two dimensions and the measurements lines lie on a plane.
 
 The problem automatically gets harder, if we deal with incomplete datasets (subset of measured lines, limited angle data) but also with noisy observations.
-Moreover, the angle $\theta$ of the projections, are not always known. During some observation methods, (cryoEm), the underlying object
+Moreover, the angle $\theta$ of the projections are not always known.
 
-\subsection{Notation}
+\subsection{Computer tomography}
 
-Let start with some notations. First of all, lets define the line integral $p$ of our unknown density function $f$ in the 2-D case:
+First of all, lets define the line integral $p$ of our unknown density function $f$ in the 2D case:
 
 \begin{equation}
     \begin{aligned}
@@ -32,63 +30,63 @@ Let start with some notations. First of all, lets define the line integral $p$ o
 
 where $p$ is the line integral of the density function $f$, $\theta$ the projection angle and $s$ the distance from the origin.
 
-In the 2-D case, the line integral corresponds to the Radon-Transform \cite{radonTransform}.
-With the 2-D Radon transform, we can map the density function $f$ to the sinogram $p$. 
-When data of the line integral is presented as a 2-D image, we are speaking from the \textit{sinogram}.
-The concept of Radon transform was extended as well and can be applied to higher dimensions as well.
+In the 2D case, the line integral corresponds to the Radon-Transform \cite{radonTransform}.
+When data of the line integral is presented as a 2D image, we are speaking from the \textit{sinogram}.
+With the 2D Radon transform, we can map the density function $f$ to the sinogram $p$. 
+
+\begin{figure}
+    \centering
+    \subbottom[Radon Transform  $R f(\theta=45, s=0)$\label{fig:phantom_theta45}]{\includegraphics[width=0.3\textwidth]{phantom_theta45.png}}
+    \subbottom[Radon Transform  $R f(\theta=45, s=14.14)$\label{fig:phantom_theta45_s14}]{\includegraphics[width=0.3\textwidth]{phantom_theta45_s14.png}}
+    \subbottom[Shepp–Logan phantom sinogram of $p(\theta=45, s=0)$\label{fig:phantom_sinogram}]{\includegraphics[width=0.3\textwidth]{phantom_sinogram.png}}
+    \caption{Examples, where the original object $x$ is the Shepp-Logan phantom.}
+    \label{fig:phantom}
+\end{figure}
 
 \subsection{Filter Backprojection}
 Filter Backprojection (FBP) is a reconstruction method, which allows to solve for $p$. It is equivalent to the inverse of the Radon Transform
 and is related to the Fourrier transform. Basically, it maps sinograms of $p$ back to the density function $f$.
 
-The problem with the algorithm is, that it only work for complete data and without noise.
-
-\subsection{Manifold assumption}
-In the reconstruct problem, we can apply the Manifold assumption from section \ref{sec:manifoldAssumption}.
-Moreover, in the none-noisy case, we can even assume how this Manifold look like.
-
-The manifold, and therefore, a low-dimensional embedding, can be calculated the following:
-
-\begin{enumerate}
-    \item Construct the knn-graph from our line integral (sinogram).
-    \item Calculate the normalized Graph Laplacian
-    \item Extract the second, third (and fourth) smallest eigenvectors
-\end{enumerate}
-
-\textbf{todo: Show with Shepp-Logan-phantom that we get unit-cirlce}
-
-The showed example can be extended to 3-D, where the underlying manifold corresponds to the Sphere.
-Therefore, we can derive, that our angles have the following property:
-In the 2-D case, $\theta \in SO(1)$ and the in 3-D case, $theta \in SO(2)$.
-
-Again, the Circle and Sphere can be computed and for the none-noisy, the underlying Manifold can be seen as known.
+The problem with the algorithm is, that it only works for complete data and without noise.
 
 
-\section{Thesis problem}
-During the Master Thesis, the reconstruction problem with unknown angles is considered. 
-Moreover, the observed samples are considered to be noisy. 
 
-The resulting proposed algorithm should work in the 2-D and 3-D scenario.
-
-The main idea is, to exploit the fact that the underlying Manifold is known (Circle in 2-D and Sphere in 3-D). 
-
-From our noisy observations, we can compute the approximated manifold and compare it with the original manifold.
-The comparison between the manifold enables the possibility of a Loss function and Learning in general.
+\section{Cryo-EM}
 
 
-\subsection{Overall notation}
+\subsection{Single particle multireference alignment (MRA)}
+
+
+\subsection{Extension for PSF}
+
+Why exactly?
+Convolving (point spread function) PSF  with observation.
+
+
+\section{General form}
+
+In the following, we want to defined a form, which is valid for the 2D reconstruction 
+problem of CT as well as the 3D cryo-EM problem.
+
 
 \begin{equation}
     \begin{aligned}
-        y_i &= p(\theta, s) + noise \\
-        y_i &= A(x, \theta) + noise \\
-        p(\theta, s) &= A(x, \theta) \\
+        y_i &= g_i  A(x, \theta) + noise \\
     \end{aligned}
 \end{equation}
 
 where $y_i$ is the observed sample, $x$ our original object and $A(x, \theta)$ a non-linear operator.
 
 
+
+\subsection{Extension}
+Again, we can extend the formula to:
+
+\begin{equation}
+    \begin{aligned}
+        y_i &= h_i \times g_i  A(x, \theta) + noise \\
+    \end{aligned}
+\end{equation}
 
 \subsection{2D example}
 
@@ -105,6 +103,45 @@ $f(x) = \int_{\theta = 0}^{\pi} p(\theta, s) |_{s=x \cdot (- \sin \theta, cos \t
 $a_i \in SO(2)$
 $A := N \times N \times N$
 $B := N \times N$
+
+
+
+%The concept of Radon transform was extended as well and can be applied to higher dimensions as well.
+
+
+\section{Manifold assumption}
+In the reconstruct problem, we can apply the Manifold assumption from section \ref{sec:manifoldAssumption}.
+Moreover, in the none-noisy case, we can even assume how this Manifold look like.
+
+The manifold, and therefore, a low-dimensional embedding, can be calculated the following:
+
+\begin{enumerate}
+    \item Construct the knn-graph from our line integral (sinogram).
+    \item Calculate the normalized Graph Laplacian
+    \item Extract the second, third (and fourth) smallest eigenvectors
+\end{enumerate}
+
+\textbf{todo: Show with Shepp-Logan-phantom that we get unit-cirlce}
+
+The showed example can be extended to 3D, where the underlying manifold corresponds to the Sphere.
+Therefore, we can derive, that our angles have the following property:
+In the 2D case, $\theta \in SO(1)$ and the in 3D case, $theta \in SO(2)$.
+
+Again, the circle and sphere can be computed and for the none-noisy, the underlying Manifold can be seen as known.
+
+
+\section{Thesis problem}
+During the Master Thesis, the reconstruction problem with unknown angles is considered. 
+Moreover, the observed samples are considered to be noisy. 
+
+The resulting proposed algorithm should work in the 2D and 3D scenario.
+
+The main idea is, to exploit the fact that the underlying Manifold is known (Circle in 2D and Sphere in 3D). 
+
+From our noisy observations, we can compute the approximated manifold and compare it with the original manifold.
+The comparison between the manifold enables the possibility of a Loss function and Learning in general.
+
+
 
 
 Simple Case in 

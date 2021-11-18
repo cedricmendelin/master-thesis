@@ -299,10 +299,34 @@ Integral where function is evaluated along a curve
 
 \subsection{SO3}
 \subsection{Lie Group}
-\subsection{Fourrier Transform}
+
+\subsection{Fourier Transform}
+\textit{Fourier Analysis} is the overall field of study, which deals with representing (or approximating) functions as 
+sums of trigonometric functions. When the function is defined in such a way, we are talking from the \textit{Fourier Domain}.
+
+\textit{Fourier transform} (FT) is the way of transforming signals to the Fourier Domain, which is popular in ML.
+Basically, with the Fourier transform, a signal can be decomposed to a \textit{Fourier series}, which consists of many weighted sinusoids. 
+
+
+\subsubsection{Fourier-slice theorem}
+The Fourier-slice theorem \cite{fourierSliceTheorem} in 2D is defined as follows:
+
+\begin{equation}
+    \label{eq:Fourrier-slice}
+    F_1 P_1 = S_1 F_2,
+\end{equation}
+
+where $F1$ and $F2$ are FTs in 1D and 2D respectively, P1 is a projection operator ($P_1 : 2D \rightarrow 1D$) and $S1$ is a slice operator 
+(which slice through the origin).
+
+So basically what it states is, that the 1D FT of a projection is the same, as the 2D FT limiting to the slicing.
+
+\textbf{TODO: make it more formal}
+
+
 \subsection{Radon Transform}
 
-\section{CT tomography and cryp-EM}
+\section{CT tomography and cryo-EM}
 
 \section{Wasserstein Loss-function}
 
