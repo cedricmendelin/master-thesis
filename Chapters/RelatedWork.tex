@@ -86,7 +86,6 @@ and can use the fact that in every layer of the neural network, the same computa
 where $W$ is the matrix of all vector weights.
 
 
-
 \subsubsection{Link to Graph Laplacian:}
 
 In the section, we will have a look at the connection between SGC and Graph Laplacian.
@@ -277,5 +276,77 @@ define $\tilde{L}$.
         \tilde{D} &= \text{Degree matrix corresponding to } \tilde{W} \\
         \tilde{L} &= \tilde{D}^{-1} \tilde{W} - I \\
     \end{aligned}
+\end{equation}
+
+
+
+
+\subsection{Walk Pooling}
+
+Homophilic and heterophilic are properties of the underlying dataset in link predication. 
+A homophilic dataset leads to the tendency to interact with similar nodes. Whereas a heterophilic dataset contrary has the tendency to 
+not link, if nodes are similar.
+
+\citet{walkPooling} proposed a new way of link prediction, which works
+with a random-walk-based pooling method called WalkPool.
+
+Based on the assumption, that link presence can be predicted 
+only based on the information on its neighbours within a small radius $k$,
+they calculate subgraphs and extract information from these subgraphs.
+
+\subsubsection{Feature extraction}
+Based on the adjacency matrix and some node attributes, 
+feature will be extracted with a GNN $f_{\theta}$
+
+\begin{equation}
+    Z = f_{\theta} (A,X)
+\end{equation}
+
+This step could be achieved by the earlier introduced GCN.
+
+\subsubsection{Subgraph classification}
+
+For candidate link $E^c$, the k-hop enclosing subgraphs
+ will be constructed, which allows the transformation
+from a link predication problem to a graph classification problem.
+
+
+From these subgraphs, so called random-walk profiles are calculated:
+
+\subsubsection{Random-walk profiles}
+
+First of all, the node correlation is calculated with two multilayer perceptrons (MLP)
+
+\begin{equation}
+    w_{x,y} = \frac{Q_{\theta}(z_x)^T K_{\theta}(z_y)}{\sqrt{F^{\prime\prime}}}
+\end{equation}
+
+Then, from all neighbouring nodes ($N(x)$), probabilities are calculated:
+\begin{equation}
+    p_{x,y} = 
+    \begin{cases}
+            %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+            [softmax(w_{x,z})_{z \in N(x)}]_y  & \text{if } \langle x , y \rangle \in E \\
+            0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+From these calculated probabilities $P$ and its powers, we can derive information for 
+graph classification:
+
+Node level features $node^{\tau}$ describe loop structures around the candidate link.
+Further, link features $link^{\tau}$ give a probability, about a random walk with length
+$\tau$ from the two nodes ( ending in a loop). And finally, graph features $graph^{\tau}$ are related to the total
+probability of length $\tau$ loops.
+
+\textbf{TODO:}
+As we do not know about if the candidate link is present of not, we consider the subgraphs,
+consisting of the candidate link and without the candidate link.
+
+
+We finally can describe WalkPool as:
+
+\begin{equation}
+    WP_{\theta}(G, Z) =w_{1,2}(node^{\tau, +}, node^{\tau, -}, link^{\tau, +}, link^{\tau, -}, \delta graph^{\tau})^{\tau_c}_{\tau = 2}
 \end{equation}
 
