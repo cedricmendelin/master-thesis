@@ -1,7 +1,6 @@
 \chapter{Foundation}
 \label{sec:foundation}
 
-
 Before digging into the problem setup of the Master Thesis, in the following chapter, a broad foundation
 of graphs and Graph Learning will be given. Moreover, some important mathematically concepts will be introduced as well as cryo-EM.
 %A more detailed explanation to some sections will follow in the Section~\nameref{sec:relatedWork}
@@ -12,23 +11,28 @@ vertices (or nodes) and $E$ is a set of edges (or links). Edges are
 defined as a set of tuples $\langle i,j \rangle$, where $i$ and $j$ determine the 
 index of the vertices in the graph.
 
-\subsection{Graph Properties}
+The edges of the graph can be \textit{directed} or \textit{undirected}, which means that 
+the node ordering in the graph matters, or not. In a directed graph, a edge points explicitly from
+one node to another, which means that edge $\langle i,j \rangle \neq \langle j,i \rangle$. 
+In undirected graphs the ordering does not matter and $\langle i,j \rangle = \langle j,i \rangle$.
 
-\subsubsection{Directed vs. undirected vs. weighted}
+Moreover, edges can have weights, which is a method to define some more important neighbours to a node.
+If edges are dealing with weights, we are talking from a \textit{weighted} graph.
 
-\subsubsection{Dense and sparse Graph}
-A dense graph is a graph, where the number of edges in close to the maximal number of edges.
-Contrarily, a sparse graph only consists of a few edges.
+A \textit{dense} graph is a graph, where the number of edges in close to the maximal number of edges.
+Contrarily, a \textit{sparse} graph only consists of a few edges.
 
-\subsection{Node Properties}
-\subsection{Edge Properties}
 \textit{Homophilic} and \textit{heterophilic} are properties of the underlying dataset in link predication. 
 A homophilic dataset leads to the tendency to interact with similar nodes. Whereas a heterophilic dataset contrary has the tendency to 
 not link, if nodes are similar.
 
+\subsection{Important matrices}
+To do calculation with graphs, it is common to translate graphs in a well suitable mathematically
+form, which are matrices. In the following, some important matrices will be introduced.
 
-\subsection{Adjacency Matrix}
-The adjacency matrix of $G$ is then defined as follows:
+\paragraph{Adjacency matrix:}
+
+The (binary) adjacency matrix of graph $G$ is defined as follows:
 \begin{equation}
     \label{eg:AdjacencyMatrix}
     A_{ij} =    
@@ -39,12 +43,22 @@ The adjacency matrix of $G$ is then defined as follows:
     \end{cases}
 \end{equation}
 
-\paragraph{K-hop neighbourhood:}
-The adjacency matrix $A$ has a nice property. When calculating the $k$-th power of $A^k$ , on calculates the k-hop neighbourhood
-of the given matrix. Which can be used for many application.
+The matrix $A$ has dimension $\mathbb{R}^{N \times N}$ and the indices of the matrix correspond to the nodes of the graph.
+If there is an edge between two nodes, the entry in the matrix will be set to 1, otherwise to 0.
+This leads to an \textit{unweighted} graph, as the weight of all edges will be 1. 
 
-\subsection{Degree Matrix}
-The degree Matrix of $G$ is defined as follows:
+When the graph is undirected, the resulting matrix will be symmetric and has therefore a complete set of eigenvalues
+and eigenvectors. The set of eigenvalues are also called \textit{spectrum} of the graph.
+
+\subparagraph{K-hop neighbourhood:}
+The adjacency matrix $A$ has many a nice property, and one is referred to the k-hop neighbourhood. 
+When calculating the $k$-th power of $A$, on calculates the k-hop neighbourhood of the graph.
+The resulting matrix gives the number of walks of length $k$ from one node to another.
+Moreover, with $A[i]$, one can determine the k-hop neighbourhood of node $i$. 
+Every node in the extracted row, which has a value $> 0$ can be reached within $k$ hops.
+
+\paragraph{Degree matrix:}
+The degree matrix of $G$ is defined as follows:
 \begin{equation}
     D_{ij} =    
     \begin{cases}
@@ -56,9 +70,9 @@ The degree Matrix of $G$ is defined as follows:
 
 Where $deg(v_i)$ is the degree of the node, formally the number of incoming edges of node $v_i$.
 
-\paragraph{k}{Normalization:}
-When starting calculating with Matrix A, it is sometimes necessary to normalize.
-With the degree Matrix $D$ and Adjacency Matrix $A$, we have all information we need.
+\paragraph{Normalization:}
+When starting calculating with matrix A, it is sometimes necessary to normalize.
+With the degree matrix $D$ and adjacency matrix $A$, we have all information we need.
 Mostly, we want to normalize, such that our rows sum to 1.
 \begin{equation}
     A_{row-norm} = D^{-1} A
@@ -69,13 +83,13 @@ But we can achieve the same for columns, we just need to swap the two matrices:
     A_{col-norm} = A D^{-1}
 \end{equation}
 
-And a final, a probably the most useful normalization, is the symmetric normalization:
+And a final normalization is the symmetric normalization, which preserves the nice symmetric of undirected graphs:
 \begin{equation}
     A_{sym} =  D^{-\frac{1}{2}} A D^{-\frac{1}{2}}
 \end{equation}
 
 
-\subsection{Graph Laplacian}
+\paragraph{Graph Laplacian}
 The graph Laplacian is a matrix that represents the graph and can be used to find many important properties of the graph. 
 It is defined as follows:
 \begin{equation}
@@ -104,7 +118,26 @@ Random walk normalized: $L_{rw} = I - D^{-1} A$ \newline
 %graph Laplacian.
 
 \subsection{Graph Construction}
-\textbf{TODO: KNN}
+
+When data is not in form of a graph available, a graph from the data can be constructed.
+First of all, every sample can be seen as a node and only the decision of how edges will be constructed
+is necessary. One popular approach is k-nearest neighbour (KNN) graph construction. The parameter $k$
+defines how many edges every node will have at the end. The neighbourhood of node $i$ is defined
+as $\mathbb{N}_i$ and consists of the nodes, with the the $k$ smallest similarity measure.
+
+\begin{equation}
+    \label{eg:knn}
+    A_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        1  & \text{if } j \in \mathbb{N}_i \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+Instead of using a fixed parameter $k$ as in KNN approach, one could define a threshold $\pi$
+and connection nodes if the similarity measure is smaller than $\pi$. This is another common way
+to define graphs and result in a graph, where not all nodes have the same amount of edges.
 
 \section{Graph Denoising}
 Data acquired by Real-world observations are often noisy, which can lead to poor 
@@ -118,17 +151,17 @@ Therefore, graph denoising can be seen as a pre-processing step, where noisy dat
 Denoising in general has often to do with averaging 
  and graphs are  a well suited data structure for this task\cite{noneLocalMean}.
 
-
-\subsection{Noise}
+\paragraph{Noise:}
 A noisy observation is defined as:
-$y_n = y + \eta$
+$y_n = y + \eta$, where $\eta$ is the observation noise.
 
-\subsection{Denoising}
+\paragraph{Denoising:}
 When we talk from denoising, we want to reconstruct the true observation 
-from a given noisy observation. This reconstruction is done via averaging, which can be performed
-locally, by the calculus of variations or in the frequency domain.
+from a given noisy observation. 
+This reconstruction is done via averaging, which can be performed
+locally, by the calculus of variations or in the frequency domain\cite{noneLocalMean}.
 
-\subsection{Noisy Graph}
+\paragraph{Noisy Graph}:
 For every noisy graph, there exists an original graph $G = \langle V,E \rangle$.
 
 The noisy graph can be defined as follows:
@@ -145,7 +178,7 @@ Basically, the noisy graph consists of the same vertices as the original graph. 
 the original graphs edges, some are removed (denoted by $E^{-}$) and some new edges are added
 (denoted by $E^{+}$).
 
-The adjacency Matrix of $G_{noisy}$ is then defined as follows:
+The adjacency matrix of $G_{noisy}$ is then defined as follows:
 \begin{equation}
     \bar{A}_{ij} =    
     \begin{cases}
@@ -164,7 +197,7 @@ Where $\bar{A}$ denotes the noisy input graph, $\tilde{A}$ the denoised
  graph and $A$ the original graph.
 
 
-\subsubsection{Connection to link prediction}
+\subparagraph{subsection}{Connection to link prediction}
 Link prediction is a task in Graph learning. 
 The idea is to predict the existence of a link (edge) between two nodes.
 The task can be formulated as a missing value estimation task. A model $M_p$ is learned
@@ -208,7 +241,7 @@ Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already
 pretty complex and are basically any surfaces like planes, sphere but also the torus,
 Klein bottle or others.
 
-\paragraph{subsection}{Manifold assumption:}
+\paragraph{Manifold assumption:}
 \label{sec:manifoldAssumption}
 
 The manifold assumption is a popular assumption for high-dimensional datasets.
@@ -294,8 +327,27 @@ It states, that the 2D FT of the tomographic projection is the same as the 3D FT
 Basically, for the CT reconstruction problem, acquiring samples from known viewing directions is the same 
 as sampling the 3D Fourier-space. This  concept is exploited by the filter BackProjection algorithms, see section~\ref{sec:filterBackProjection}.
 
-
 \subsection{Radon Transform}
+The radon transform\cite{radonTransform} is the main mathematically concept of tomographic reconstruction.
+
+It is an integral transformation of a function $f(x,y)$, which is defined on the plane. In tomographic reconstruction
+the function $f$ will be the observed tomographic image.
+The radon transform then transform $f$ to a function $Rf$, which corresponds to the line integral of the line defined by 
+the two parameters $\theta$ and $s$, where $\theta$ is a angle and s the distance to the origin.
+
+In Figure~\ref{fig:phantom_theta45} and Figure~\ref{fig:phantom_theta45_s14} on can see two plots of different
+values for $\theta$ and $s$, where $f(x,y)$ is the Shepp-Logan phantom. The complete $Rf(\theta=45, s=0)$, 
+which are also called sinogram, can be see in Figure~\ref{fig:phantom_sinogram}
+
+\begin{figure}
+    \centering
+    \subbottom[Radon Transform  $R f(\theta=45, s=0)$\label{fig:phantom_theta45}]{\includegraphics[width=0.3\textwidth]{phantom_theta45.png}}
+    \subbottom[Radon Transform  $R f(\theta=45, s=14.14)$\label{fig:phantom_theta45_s14}]{\includegraphics[width=0.3\textwidth]{phantom_theta45_s14.png}}
+    \subbottom[Shepp–Logan phantom sinogram of $Rf(\theta=45, s=0)$\label{fig:phantom_sinogram}]{\includegraphics[width=0.3\textwidth]{phantom_sinogram.png}}
+    \caption{Examples, where the original object $x$ is the Shepp-Logan phantom.}
+    \label{fig:phantom}
+\end{figure}
+
 
 
 \section{Graph Learning}
@@ -340,6 +392,6 @@ over the graph. With sampling a lot of these walks, one can infer information ab
 
 
 \section{Cryo-EM}
-
+\textbf{TODO}
 
 
