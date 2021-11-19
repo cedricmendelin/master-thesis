@@ -6,6 +6,7 @@ In the following chapter, the problem setup handled by the Master Thesis will be
 Further, preliminaries regarding assumptions and other decisions are defined.
 
 \section{Reconstruction problem}
+\label{sec:reconstructionProblemCT}
 Tomographic reconstruction is a popular inverse problem \cite{tomographicReconstruction}. 
 The aim is to reconstruct an object $x$ from its observed projections $P=[p_0, p_1, \dots, p_N]$.
 More formally, the aim is to recover some density function $f$ from overserved samples $y$, taken from the line-integral $p(\cdot)$.
@@ -44,6 +45,7 @@ With the 2D Radon transform, we can map the density function $f$ to the sinogram
 \end{figure}
 
 \subsection{Filter Backprojection}
+\label{sec:filterBackProjection}
 Filter Backprojection (FBP) is a reconstruction method, which allows to solve for $p$. It is equivalent to the inverse of the Radon Transform
 and is related to the Fourrier transform. Basically, it maps sinograms of $p$ back to the density function $f$.
 

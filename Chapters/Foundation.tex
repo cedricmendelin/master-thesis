@@ -3,41 +3,8 @@
 
 
 Before digging into the problem setup of the Master Thesis, in the following chapter, a broad foundation
-of graphs and Graph Learning will be given. Moreover, some important mathematically concepts will be introduced.
-A more detailed explanation to some sections will follow in the Section~\nameref{sec:relatedWork}
-
-
-\section{Graph Learning}
-As already mentioned, Graph Learning is a highly popular research area and got lot of attention in recent years.
-It is a new way of applying Machine Learning (ML) and many algorithms emerged from ML.
-
-A lot of real data can be modelled as a graph. The data could have a graph structure, like social networks. 
-Or a graph can be artificially constructed with methods like k-nearest neighbours (KNN) or with some other similarity
-measure concept.
-
-\subsection{Graph Learning Tasks}
-When a graph is available, one can start using Graph Learning algorithms for solving tasks.
-Popular tasks are node classification, or link prediction within a graph. One tries to learn from node and edge properties 
-as well as the topology of the graph and tries to map the information to a model, which allows prediction or classification.
-
-Another popular task in Graph Learning is community detection, where the aim is to identify cluster of nodes within the input graph.
-
-Further, graphs are highly popular for dimensionality-reduction. In higher dimensions, the euclidean distance is not helpful and therefore,
-algorithms for reducing the dimensionality, such that euclidean distance make sense again are needed. 
-Graph algorithms provide a helpful tool in such scenarios.
-
-\subsection{Algorithm categories}
-\subsubsection{Spectral graph theory}
-Spectral graph theory \cite{SpectralGraphTheory} deals with learning properties and characteristics of graphs, in regard to
-the graphs eigenvalues and eigenvectors. 
-
-\subsubsection{Graph Deep Learning}
-Basically, in Graph Deep Learning, Deep Learning algorithms are extended for the usage with graphs.
-After all, a model or some feature will be learned within a neural network, suitable for working with graphs.
-
-\subsubsection{Random walk based methods}
-\textbf{TODO}
-
+of graphs and Graph Learning will be given. Moreover, some important mathematically concepts will be introduced as well as cryo-EM.
+%A more detailed explanation to some sections will follow in the Section~\nameref{sec:relatedWork}
 
 \section{Graph Foundations}
 A graph is defined as  $G = \langle V,E \rangle$, where $V$ is a set of 
@@ -55,14 +22,15 @@ Contrarily, a sparse graph only consists of a few edges.
 
 \subsection{Node Properties}
 \subsection{Edge Properties}
-Homophilic and heterophilic are properties of the underlying dataset in link predication. 
+\textit{Homophilic} and \textit{heterophilic} are properties of the underlying dataset in link predication. 
 A homophilic dataset leads to the tendency to interact with similar nodes. Whereas a heterophilic dataset contrary has the tendency to 
 not link, if nodes are similar.
 
-\subsection{Adjacency Matrix}
 
+\subsection{Adjacency Matrix}
 The adjacency matrix of $G$ is then defined as follows:
 \begin{equation}
+    \label{eg:AdjacencyMatrix}
     A_{ij} =    
     \begin{cases}
         %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
@@ -71,7 +39,7 @@ The adjacency matrix of $G$ is then defined as follows:
     \end{cases}
 \end{equation}
 
-\subsubsection{k-hop neighbourhood}
+\paragraph{K-hop neighbourhood:}
 The adjacency matrix $A$ has a nice property. When calculating the $k$-th power of $A^k$ , on calculates the k-hop neighbourhood
 of the given matrix. Which can be used for many application.
 
@@ -88,7 +56,7 @@ The degree Matrix of $G$ is defined as follows:
 
 Where $deg(v_i)$ is the degree of the node, formally the number of incoming edges of node $v_i$.
 
-\subsubsection{Normalization}
+\paragraph{k}{Normalization:}
 When starting calculating with Matrix A, it is sometimes necessary to normalize.
 With the degree Matrix $D$ and Adjacency Matrix $A$, we have all information we need.
 Mostly, we want to normalize, such that our rows sum to 1.
@@ -102,39 +70,38 @@ But we can achieve the same for columns, we just need to swap the two matrices:
 \end{equation}
 
 And a final, a probably the most useful normalization, is the symmetric normalization:
-
 \begin{equation}
     A_{sym} =  D^{-\frac{1}{2}} A D^{-\frac{1}{2}}
 \end{equation}
 
 
 \subsection{Graph Laplacian}
-The graph Laplacian is defined as follows:
+The graph Laplacian is a matrix that represents the graph and can be used to find many important properties of the graph. 
+It is defined as follows:
 \begin{equation}
     L = D - A
 \end{equation}
 
+\paragraph{}{Normalized Graph Laplacian:}
+During computation, it is often needed to have a normalized version of the Graph Laplacian: \newline
+Symmetric normalized: $L_{sym} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$ \newline
+Random walk normalized: $L_{rw} = I - D^{-1} A$ \newline
 
-\subsubsection{Normalized Graph Laplacian}
-
-Symmetric normalized: $L_{sym} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$
-Random walk normalized: $L_{rw} = I - D^{-1} A$
-
-\subsubsection{Normalized Graph Laplacian eigen decomposition}
-
-\begin{equation}
-    \begin{aligned}
-        L_{sym} &= U \Lambda U^T \\
-        U &= [u_0, \dots, u_{N-1}] \in R^{N \times N}\\
-        \Lambda &= diag \left ( [\lambda_0, \dots, \lambda_{N-1}]  \right ) \in R^{N \times N}
-    \end{aligned}
-\end{equation}
-
-In this scenario, eigenvectors are also known as \textit{graph Fourier modes}
-and eigenvalues are known as the \textit{spectral frequencies}.
-
-Moreover, with the Graph Fourier Transform, we can calculate these values from a symmetric
-graph Laplacian.
+%\subsubsection{Normalized Graph Laplacian eigen decomposition}
+%
+%\begin{equation}
+%    \begin{aligned}
+%        L_{sym} &= U \Lambda U^T \\
+%        U &= [u_0, \dots, u_{N-1}] \in R^{N \times N}\\
+%        \Lambda &= diag \left ( [\lambda_0, \dots, \lambda_{N-1}]  \right ) \in R^{N \times N}
+%    \end{aligned}
+%\end{equation}
+%
+%In this scenario, eigenvectors are also known as \textit{graph Fourier modes}
+%and eigenvalues are known as the \textit{spectral frequencies}.
+%
+%Moreover, with the Graph Fourier Transform, we can calculate these values from a symmetric
+%graph Laplacian.
 
 \subsection{Graph Construction}
 \textbf{TODO: KNN}
@@ -221,9 +188,39 @@ $E_{observed} \subseteq U$.
 On could also say that link prediction problems are a subset of graph denoising problems.
 
 
-
 \section{Math Foundation}
+In the following section, some mathematically concepts and methods will be explained.
 
+\subsection{Embedding}
+Mathematically, an embedding $f: X \rightarrow Y$ is defined as a structure-preserving mapping from one domain to another.
+
+In graph theory, a graph embedding in the mapping from the graph $G$
+to a surface structure $\Sigma$. 
+
+
+\subsection{Manifolds}
+A manifold is a topological space, where locally Euclidean distances make sense.
+More formally, a $n$-dimensional manifold is a topological space where
+each point has e neighbourhood, that is homeomorphic to an subset of a n.dimensional
+Euclidean space.
+
+Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already become 
+pretty complex and are basically any surfaces like planes, sphere but also the torus,
+Klein bottle or others.
+
+\paragraph{subsection}{Manifold assumption:}
+\label{sec:manifoldAssumption}
+
+The manifold assumption is a popular assumption for high-dimensional datasets.
+Even if a given dataset is in high-dimension and consists of many features, one can assume,
+that these data points are samples from a low-dimensional manifold, 
+which embeds the high-dimensional space.
+
+Therefore, if one can approximate the underlying Manifold, one solved a dimensionality reduction
+as we can embed the data points in the low-dimensional manifold space.
+
+There is a complete area of research devotes to this manifold assumption, and basically
+we then talk from Manifold Learning. 
 
 \subsection{Power Iterations}
 \label{sec:powerIterations}
@@ -234,6 +231,7 @@ which approximates the biggest eigenvalue of a diagonalizable matrix A.
 The algorithm starts with a random vector $b_0$ or a approximation of the dominant eigenvector.
 
 \begin{equation}
+    \label{eq:powerIterations}
     b_{k+1} = \frac{Ab_k}{||Ab_k||}
 \end{equation}
 
@@ -253,52 +251,24 @@ which iteratively solves the problem. During calculation, the eigenvalue spectru
 value $\epsilon$.
 
 \begin{equation}
+    \label{eq:foldedSpectrumMethod}
     v^{t+1} = v^t - \alpha (H - \epsilon I )^2 v^t ,
 \end{equation}
 
 with $0 < \alpha < 1$. When $t \rightarrow \infty$, then $v^{\infty}$ should be the 
 eigenvector with respect to the reference value $\epsilon$.
 
-\subsection{Embedding}
-An embedding $f: X \rightarrow Y$ is defined as a structure-preserving mapping from one domain to another.
 
-In graph theory, a graph embedding in the mapping from the graph $G$
-to a surface structure $\Sigma$. 
+\subsection{Wasserstein metric}
 
+The Wasserstein metric is a distance measure between two probability distributions, as is used in ML as a loss function\cite{learningWithWasserstein}. 
+Intuitively, it can can be understood as the minimum cost, to transfer the mass of one distribution to the other.
+Therefore, it is also known as the \textit{earth mover's distance}.
 
+As \citet{wassersteinGAN} could show, ordinary distance measures like \textit{Total Variation}, \textit{Kullback-Leibler divergence}
+and \textit{Jensen-Shannon divergence} are not sensible when learning with distributions supported by manifolds
+On the contrary, Wasserstein metric does a good job as loss function in such scenarios.
 
-\section{Manifolds}
-A manifold is a topological space, where locally Euclidean distances make sense.
-More formally, a $n$-dimensional manifold is a topological space where
-each point has e neighbourhood, that is homeomorphic to an subset of a n.dimensional
-Euclidean space.
-
-Some example for a 1-D manifold is a line or a circle. 2-D manifolds can already become 
-pretty complex and are basically any surfaces like planes, sphere but also the torus,
-Klein bottle or others.
-
-\subsection{Manifold assumption}
-\label{sec:manifoldAssumption}
-
-The manifold assumption is a popular assumption for high-dimensional datasets.
-Even if a given dataset is in high-dimension and consists of many features, one can assume,
-that these data points are samples from a low-dimensional manifold, 
-which embeds the high-dimensional space.
-
-Therefore, if one can approximate the underlying Manifold, one solved a dimensionality reduction
-as we can embed the data points in the low-dimensional manifold space.
-
-There is a complete area of research devotes to this manifold assumption, and basically
-we then talk from Manifold Learning. 
-
-\textbf{TODO: write more} \cite{ManifoldLearning}
-
-
-\subsection{Line integral}
-Integral where function is evaluated along a curve
-
-\subsection{SO3}
-\subsection{Lie Group}
 
 \subsection{Fourier Transform}
 \textit{Fourier Analysis} is the overall field of study, which deals with representing (or approximating) functions as 
@@ -309,24 +279,67 @@ Basically, with the Fourier transform, a signal can be decomposed to a \textit{F
 
 
 \subsubsection{Fourier-slice theorem}
-The Fourier-slice theorem \cite{fourierSliceTheorem} in 2D is defined as follows:
+The Fourier-slice theorem \cite{fourierSliceTheorem} in 3D is defined as follows:
 
 \begin{equation}
     \label{eq:Fourrier-slice}
-    F_1 P_1 = S_1 F_2,
+    F_2 P_2 = S_2 F_3,
 \end{equation}
 
-where $F1$ and $F2$ are FTs in 1D and 2D respectively, P1 is a projection operator ($P_1 : 2D \rightarrow 1D$) and $S1$ is a slice operator 
-(which slice through the origin).
+where $F2$ and $F3$ are FTs in 2D and 3D respectively, P2 is a projection operator ($P_2 : 3D \rightarrow 2D$) and $S2$ is the restriction operator.
 
-So basically what it states is, that the 1D FT of a projection is the same, as the 2D FT limiting to the slicing.
-
-\textbf{TODO: make it more formal}
+As pointed out by \cite{cryoEmMath},
+the Fourier-slice theorem is the foundation of the reconstruction problem in computerized tomography (CT), which will be explained in section~\ref{sec:reconstructionProblemCT}.
+It states, that the 2D FT of the tomographic projection is the same as the 3D FT restricted to a 2D plane through the origin.
+Basically, for the CT reconstruction problem, acquiring samples from known viewing directions is the same 
+as sampling the 3D Fourier-space. This  concept is exploited by the filter BackProjection algorithms, see section~\ref{sec:filterBackProjection}.
 
 
 \subsection{Radon Transform}
 
-\section{CT tomography and cryo-EM}
 
-\section{Wasserstein Loss-function}
+\section{Graph Learning}
+As already mentioned, Graph Learning is a popular research area and got a lot of attention in recent years.
+It is a new way of applying Machine Learning (ML) with graphs as a data structure 
+and many algorithms emerged from ML.
+
+A lot of real data can be modelled as graphs. The data could have graph structure, like social networks. 
+Or a graph can be artificially constructed with methods like k-nearest neighbours (KNN) or with some other similarity
+measure.
+
+%\subsection{Graph Learning Tasks}
+\paragraph{Graph Learning Tasks:}
+When a graph is available, one can start using Graph Learning algorithms for solving tasks.
+Popular tasks are node classification, or link prediction within a graph. One tries to learn from node and edge features 
+as well as the topology of the graph and tries to map information to a model, which allows prediction or classification.
+
+Another popular task in Graph Learning is community detection, where the aim is to identify cluster of nodes within the input graph.
+
+Further, graphs are highly popular for dimensionality-reduction. In higher dimensions, the euclidean distance is not helpful and therefore,
+algorithms for reducing the dimensionality, such that euclidean distance make sense again. are needed. 
+Graph algorithms provide a helpful tool in such scenarios, as ordinary algorithms like principle component analysis (PCA) fail.
+
+\paragraph{Algorithm categories}
+
+There are many algorithmic approaches, how to exploit graphs. 
+
+\textit{Graph Deep Learning} is a derivation from Deep Learning. 
+Basically, in Graph Deep Learning, Deep Learning algorithms are extended for the usage with graphs.
+After all, a model or some feature will be learned within a neural network, suitable for working with graphs.
+
+\textit{Spectral graph theory}\cite{SpectralGraphTheory} deals with learning properties and characteristics of graphs, in regard to
+the graphs eigenvalues and eigenvectors. 
+
+\textit{Manifold Learning }\cite{ManifoldLearning} is a popular approach for dimensionality reduction on graphs. 
+Using the manifold assumption section~\ref{sec:manifoldAssumption}, an embedding of the graph for lower dimension is calculated,
+which can preserve most of the information, of the original graph.
+
+Further, \textit{Random Walks} is a concept, which is often used in Graph Learning. 
+It is used to exploit topological information of a graph by randomly "walking" (use edges to move from on node to another)
+over the graph. With sampling a lot of these walks, one can infer information about the graphs topology.
+
+
+\section{Cryo-EM}
+
+
 
