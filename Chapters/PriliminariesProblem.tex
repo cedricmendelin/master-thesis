@@ -50,7 +50,6 @@ Basically, it maps sinograms of $\rho$ back to the density function $f$.
 The disadvantage of the algorithm is, that it only works for complete data and without noise
 and needs adjustments when dealing with such scenarios. 
 
-
 \section{Cryo-EM}
 Similar to tomographic reconstruction, there is the cryo-EM reconstruction problem\cite{cryoEmMath}.
 It can be seen as a 3D reconstruction problem as the original object $x$ to be reconstructed is in 3D.
@@ -90,6 +89,8 @@ where $h_i$ is the PSF of the microscope and $*$ defines the convolution.
 
 \section{General form}
 
+\textbf{TODO: finalize the overall setting, gaussian noise, etc.}
+
 As the tomographic reconstruction and the cryo-EM reconstruction are rather similar, 
 the aim of the Master Thesis will be to design an algorithm, that can be applied in both scenarios.
 
@@ -112,8 +113,8 @@ and an in-plane transformation.
 \paragraph{Classical tomography reconstruction:}
 
 $\theta \in SO(1)$
-$A := N \times N$
-$B := N$
+$D = 2$
+Distance measure: $\norm{y_i - y_j}$
 
 $f(x) = \int_{\theta = 0}^{\pi} \rho(\theta, s) |_{s=x \cdot (- \sin \theta, cos \theta) } d \theta$
 
@@ -122,9 +123,8 @@ $f(x) = \int_{\theta = 0}^{\pi} \rho(\theta, s) |_{s=x \cdot (- \sin \theta, cos
 \paragraph{Cryo-Em reconstruction:}
 
 $\theta \in SO(3)$
-$A := N \times N \times N$
-$B := N \times N$
-
+$D = 3$
+Distance measure: $\norm{g * y_i - y_j}$
 
 
 \subsection{Manifold assumption}
@@ -141,7 +141,7 @@ The manifold, and therefore, a low-dimensional embedding, can be calculated the 
 
 The showed example can be extended to 3D, where the underlying manifold corresponds to the sphere.
 Therefore, we can derive, that our angles have the following property:
-In the 2D case, $\theta \in SO(1)$ and the in 3D case, $theta \in SO(3)$.
+In the 2D case, $\theta \in SO(1)$ and the in 3D case, $\theta \in SO(3)$.
 
 
 
@@ -162,6 +162,12 @@ The main idea is, to exploit the fact that the underlying Manifold is known (cir
 
 From our noisy observations, we can compute the approximated manifold and compare it with the original manifold.
 The comparison between the manifold enables the possibility of a loss function and learning in general.
+
+
+It is expected that the folded spectrum \cite{foldedSpectrumMethod} introduced in section~\ref{sec:FoldedSpectrumMethod}
+can be used to estimate the eigenvalues of the Graph Laplacian.
+Further, as already mentioned in section~\ref{sec:wasserstein-metric}, the wasserstein metric is a good choice
+as a loss function, when it comes to dealing with data from a manifold distribution \cite{wassersteinGAN}. 
 
 
 \textbf{todo}
