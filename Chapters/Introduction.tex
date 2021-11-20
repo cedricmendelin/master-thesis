@@ -1,37 +1,43 @@
 \chapter{Introduction}
 \label{sec:introduction}
 
-Inverse problems refer to the process, which, from observed data, derive a model that produces
-the data. They are widely used throughout different science directions, such as Machine Learning (ML),
+Inverse problems refer to the process, to derive an unknown system from observed data.
+In Machine Learning (ML), this system can be seen as the model, which produced the data.
+They are widely used throughout different science directions, such as ML,
 signal processing, computer vision, natural language processing and many more.
 
 In recent years, Graphs got a lot of attention in ML and are one of the most promising research areas.
 Graphs are a well suited data structure, simple but with high expressiveness 
-and, therefore, well suited in ML. Data can be in a graph structure already, like social networks, or
-they can be constructed easily.
+and, therefore, well suited in ML and for inverse problems. For some specific scenarios
+ordinary ML algorithm fail but Graph ML approach have great success, e.g dimensionality reduction for high-dimensional data.
+Data can be in a graph structure already, like social networks, or they can be constructed easily.
 
 Cryo-electron microscopy (cryo-EM), where molecules are imaged in an electron microscope,
 gained a lot of attention in recent years. 
 Due to ground-breaking improvements regarding hardware and data processing, the field of research
 has highly improved. In the year 2017, the pioneers in the field of cryo-EM even got the 
 Nobel Prize in Chemistry\footnote{https://www.nobelprize.org/prizes/chemistry/2017/press-release/}
-Today, using cryo-Em many molecular structures can be displayed with near-atomic resolution.
+Today, using cryo-EM many molecular structures can be displayed with near-atomic resolution.
+The big challenge with cryo-EM is enormous noise, which makes calculation challenging, 
+but more to that later in the report. During the Master Thesis, 
+the aim is to exploit Graph Learning on the cryo-EM reconstruction problem.
 
 \bigskip
 
 The following report resulted as the Master Thesis Preparation report. During the six weeks project, 
-the aim was to familiarize with the research direction, build up the mathematically foundation needed 
-for the Thesis itself and define the project content and an overall project plan.
+the aim was to familiarize with the research area, build up some mathematically foundation needed 
+for the Thesis and define the project content as well as a project plan.
 
 \bigskip
 
-The report is structured as the following:
+The report is structured the following:
 In chapter~\ref{sec:foundation}, the overall foundation for the Master Thesis will be given, focusing 
-on Graph Learning, Graph Denoising, some mathematically methods and definitions as well as
- a short introduction to cryo-EM.
+on Graph Learning, Graph Denoising, some mathematically methods and definitions as well as a 
+introduction to cryo-EM.
 Chapter~\ref{sec:preliminariesProblem} is dedicated to the problem setup and some preliminaries of the problem. 
 Moreover, the base idea of the Master Thesis is defined.
 Up to this point, the underlying problem has been defined and some related work can be given in chapter~\ref{sec:relatedWork}.
+To end the report, the project plan and some work packages are introduced in chapter~\ref{sec:projectPlan}
 
 
 
