@@ -5,145 +5,173 @@
 In the following chapter, the problem setup handled by the Master Thesis will be explained.
 Further, preliminaries regarding assumptions and other decisions are defined.
 
-\section{Reconstruction problem}
+\section{Tomographic reconstruction problem}
 \label{sec:reconstructionProblemCT}
-Tomographic reconstruction is a popular inverse problem \cite{tomographicReconstruction}. 
-The aim is to reconstruct an object $x$ from its observed projections $P=[p_0, p_1, \dots, p_N]$.
-More formally, the aim is to recover some density function $f$ from overserved samples $y$, taken from the line-integral $p(\cdot)$.
+Tomographic reconstruction\cite{tomographicReconstruction} is a popular inverse problem \cite{tomographicReconstruction}. 
+The aim is to reconstruct an object $x$ from its observed projections $\mathcal{P}=[\rho_0, \rho_1, \dots, \rho_N]$.
+More formally, the aim is to recover some density function $f$ from overserved samples $y$, taken from the line-integral $\rho(\cdot)$.
 
-The problem can be defined as a two-dimensional (2D) problem but also as a three-dimensional (3D) problem. In the following, we focus on the 2D case.
-In 2D, also called classical tomography reconstruct problem, the underlying density function is in two dimensions and the measurements lines lie on a plane.
+The problem can be defined as a two-dimensional (2D) problem but also as a three-dimensional (3D) problem. 
+In the following, we focus on the 2D case.
+In 2D, also called classical tomography reconstruction problem, the underlying density function is in two dimensions and the measurement lines lie on a plane.
 
 The problem automatically gets harder, if we deal with incomplete datasets (subset of measured lines, limited angle data) but also with noisy observations.
-Moreover, the angle $\theta$ of the projections are not always known.
 
-\subsection{Computer tomography}
+\paragraph{Classical tomography reconstruction}
 
-First of all, lets define the line integral $p$ of our unknown density function $f$ in the 2D case:
+First of all, lets define the line integral $\rho$ of our unknown density function $f$ in the classical case:
 
 \begin{equation}
     \begin{aligned}
-        p(\theta, s)   &=  R f(\theta, s) \\
+        y_i &= \rho_i (\theta_i, s_i)
+        \rho(\theta, s)   &=  R f(\theta, s) \\
         R f(\theta, s) &=  \int_{-\infty}^{\infty} f(x(z), y(z)) dz \\
-                       &= \int_{-\infty}^{\infty} f((z \sin \theta + s \cos \theta), (-z \cos \theta + s \sin \theta)) dz \\
+        &= \int_{-\infty}^{\infty} f((z \sin \theta + s \cos \theta), (-z \cos \theta + s \sin \theta)) dz \\
     \end{aligned}
 \end{equation}
 
-where $p$ is the line integral of the density function $f$, $\theta$ the projection angle and $s$ the distance from the origin.
+where $\rho$ is the line integral of the density function $f$, $\theta$ the projection angle and $s$ the distance from the origin.
 
-In the 2D case, the line integral corresponds to the Radon-Transform \cite{radonTransform}.
-When data of the line integral is presented as a 2D image, we are speaking from the \textit{sinogram}.
-With the 2D Radon transform, we can map the density function $f$ to the sinogram $p$. 
+In the 2D case, the line integral corresponds to the Radon-Transform $Rf$
+With the 2D Radon transform, we can map the density function $f$ to the sinogram $\rho$. 
 
-%\begin{figure}
-%    \centering
-%    \subbottom[Radon Transform  $R f(\theta=45, s=0)$\label{fig:phantom_theta45}]{\includegraphics[width=0.3\textwidth]{phantom_theta45.png}}
-%    \subbottom[Radon Transform  $R f(\theta=45, s=14.14)$\label{fig:phantom_theta45_s14}]{\includegraphics[width=0.3\textwidth]{phantom_theta45_s14.png}}
-%    \subbottom[Shepp–Logan phantom sinogram of $p(\theta=45, s=0)$\label{fig:phantom_sinogram}]{\includegraphics[width=0.3\textwidth]{phantom_sinogram.png}}
-%    \caption{Examples, where the original object $x$ is the Shepp-Logan phantom.}
-%    \label{fig:phantom}
-%\end{figure}
-
-\subsection{Filter Backprojection}
+\paragraph{Filter Backprojection}
 \label{sec:filterBackProjection}
-Filter Backprojection (FBP) is a reconstruction method, which allows to solve for $p$. It is equivalent to the inverse of the Radon Transform
-and is related to the Fourrier transform. Basically, it maps sinograms of $p$ back to the density function $f$.
+Filter Backprojection (FBP) is a reconstruction method, typically used in classical tomography reconstruction.
+It allows to solve for $\rho$ and is equivalent to the inverse of the Radon Transform
+and is related to the Fourier transform. 
 
-The problem with the algorithm is, that it only works for complete data and without noise.
+Basically, it maps sinograms of $\rho$ back to the density function $f$.
 
+\begin{equation}
+    f(x) = \int_{0}^{\pi} Rf(\theta, s) |_{s=x \cdot (- \sin \theta, cos \theta) } d \theta
+\end{equation}
+
+The disadvantage of the algorithm is, that it only works for complete data and without noise
+and needs adjustments when dealing with such scenarios. 
 
 
 \section{Cryo-EM}
+Similar to tomographic reconstruction, there is the cryo-EM reconstruction problem\cite{cryoEmMath}.
+It can be seen as a 3D reconstruction problem as the original object $x$ to be reconstructed is in 3D.
 
+During observation process, the object will be frozen, which results in a random rotation, and from this intermediate state 
+projections $\mathcal{P}=[\rho_0, \rho_1, \dots, \rho_N]$ are observed.
 
-\subsection{Single particle multireference alignment (MRA)}
+More formally, the aim is to recover some density function $f$ from overserved samples $y$, taken from 
+randomly rotated, projected 2D samples.
 
+The two problem are highly related, but the cryo-EM reconstruct is even harder than tomographic reconstruction.
+During CT observation, the patient is asked to not move and therefore, the angles of projection is known, whereas
+in cryo-EM this information will be lost during the freezing process.
+Secondly, the high level of noise makes cryo-EM much more challenging regarding tomographic reconstruction.
 
-\subsection{Extension for PSF}
+\begin{equation}
+    \label{eg:cryoEmSimple}
+    y_i = \Pi_z \left( R_{\theta} x) \right) + noise,
+\end{equation}
 
-Why exactly?
-Convolving (point spread function) PSF  with observation.
+where $R_{\theta}$ is a 3D rotation and $\theta \in SO(3)$, $\Pi_z$ the tomographic projection.
+
+\paragraph{Extended formula:} 
+The equation~\ref{eg:cryoEmSimple} is a simplified version of the cryo-EM reconstruction problem.
+First of all, the point spread function (PSF) of the microscope is not taken into account.
+Moreover, due to structural variety in the molecule, the underlying object $x$ is not the same 
+for every observation but can be seen as a random signal from an unknown distribution defined over all possible molecules structures.
+
+The extended version can be defined as follows
+\begin{equation}
+    \label{eg:cryoEmExtended}
+    y_i = h_i * \Pi_z \left( R_{\theta} x_i) \right) + noise,
+\end{equation}
+
+where $h_i$ is the PSF of the microscope and $*$ defines the convolution.
 
 
 \section{General form}
 
-In the following, we want to defined a form, which is valid for the 2D reconstruction 
-problem of CT as well as the 3D cryo-EM problem.
+As the tomographic reconstruction and the cryo-EM reconstruction are rather similar, 
+the aim of the Master Thesis will be to design an algorithm, that can be applied in both scenarios.
+
+Therefore, a general form of the two problem will be defined in the following.
+First of all, we define $x \in L^2(\Omega)$, where $L^2$ is the Lebesgue space and $\Omega$
+in the sample space $\Omega \subset \mathbb{R}^D$. Further we define $\tilde{\Omega} \subset \mathbb{R}^{D-1}$.
 
 
 \begin{equation}
     \begin{aligned}
-        y_i &= g_i  A(x, \theta) + noise \\
+        y_i &= g_i \circ A(x, \theta) + noise \\
     \end{aligned}
 \end{equation}
 
-where $y_i$ is the observed sample, $x$ our original object and $A(x, \theta)$ a non-linear operator.
+where $y_i$ is the observed sample, $x$ our original object, $A$ a non-linear operator 
+$A: x \in L^2(\Omega) \rightarrow \tilde{x} \in L^2(\tilde{\Omega})$
+and an in-plane transformation.
 
 
+\paragraph{Classical tomography reconstruction:}
 
-\subsection{Extension}
-Again, we can extend the formula to:
-
-\begin{equation}
-    \begin{aligned}
-        y_i &= h_i \times g_i  A(x, \theta) + noise \\
-    \end{aligned}
-\end{equation}
-
-\subsection{2D example}
-
-$a_i \in SO(1)$
+$\theta \in SO(1)$
 $A := N \times N$
 $B := N$
 
-$f(x) = \int_{\theta = 0}^{\pi} p(\theta, s) |_{s=x \cdot (- \sin \theta, cos \theta) } d \theta$
+$f(x) = \int_{\theta = 0}^{\pi} \rho(\theta, s) |_{s=x \cdot (- \sin \theta, cos \theta) } d \theta$
 
 
 
-\subsection{3D example}
+\paragraph{Cryo-Em reconstruction:}
 
-$a_i \in SO(2)$
+$\theta \in SO(3)$
 $A := N \times N \times N$
 $B := N \times N$
+
+
+
+\subsection{Manifold assumption}
+In the reconstruct problem, we can apply the manifold assumption from section \ref{sec:manifoldAssumption}.
+Moreover, in the none-noisy case, we can even assume how this Manifold look like.
+
+The manifold, and therefore, a low-dimensional embedding, can be calculated the following:
+
+\begin{enumerate}
+    \item Construct the knn-graph from our observations.
+    \item Calculate the normalized Graph Laplacian.
+    \item Extract the second, third (and fourth) smallest eigenvectors.
+\end{enumerate}
+
+The showed example can be extended to 3D, where the underlying manifold corresponds to the sphere.
+Therefore, we can derive, that our angles have the following property:
+In the 2D case, $\theta \in SO(1)$ and the in 3D case, $theta \in SO(3)$.
 
 
 
 %The concept of Radon transform was extended as well and can be applied to higher dimensions as well.
 
 
-\section{Manifold assumption}
-In the reconstruct problem, we can apply the Manifold assumption from section \ref{sec:manifoldAssumption}.
-Moreover, in the none-noisy case, we can even assume how this Manifold look like.
 
-The manifold, and therefore, a low-dimensional embedding, can be calculated the following:
 
-\begin{enumerate}
-    \item Construct the knn-graph from our line integral (sinogram).
-    \item Calculate the normalized Graph Laplacian
-    \item Extract the second, third (and fourth) smallest eigenvectors
-\end{enumerate}
-
-\textbf{todo: Show with Shepp-Logan-phantom that we get unit-cirlce}
-
-The showed example can be extended to 3D, where the underlying manifold corresponds to the Sphere.
-Therefore, we can derive, that our angles have the following property:
-In the 2D case, $\theta \in SO(1)$ and the in 3D case, $theta \in SO(2)$.
-
-Again, the circle and sphere can be computed and for the none-noisy, the underlying Manifold can be seen as known.
+Again, the circle and sphere can be computed and for the none-noisy, the underlying manifold can be seen as known.
 
 
 \section{Thesis problem}
 During the Master Thesis, the reconstruction problem with unknown angles is considered. 
 Moreover, the observed samples are considered to be noisy. 
+The resulting proposed algorithm should work in the 2D and 3D scenario (classical tomography and cryo-Em).
 
-The resulting proposed algorithm should work in the 2D and 3D scenario.
-
-The main idea is, to exploit the fact that the underlying Manifold is known (Circle in 2D and Sphere in 3D). 
+The main idea is, to exploit the fact that the underlying Manifold is known (circle in 2D and sphere in 3D). 
 
 From our noisy observations, we can compute the approximated manifold and compare it with the original manifold.
-The comparison between the manifold enables the possibility of a Loss function and Learning in general.
+The comparison between the manifold enables the possibility of a loss function and learning in general.
 
 
+\textbf{todo}
+Problem can be seen as Graph Denoising and therefore, algorithm 
+will denoise the graph based on the manifold assumption.
 
 
-Simple Case in 
+Detailed work packes chapter~\ref{sec:projectPlan}
+
+\subsection{Evaluation}
+
+Baselines \cite{multiDiffusionMaps} and \cite{LaplaceRandomProjections}.
+
