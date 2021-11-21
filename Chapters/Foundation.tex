@@ -51,6 +51,7 @@ When the graph is undirected, the resulting matrix will be symmetric and has a c
 and eigenvectors. The set of eigenvalues are also called \textit{spectrum} of the graph.
 
 \subparagraph{K-hop neighbourhood:}
+\label{sec:K-hop neighbourhood}
 The adjacency matrix $A$ has many nice properties, and one is referred to the k-hop neighbourhood. 
 When calculating the $k$-th power of $A$, on calculates the k-hop neighbourhood of the graph.
 The resulting matrix gives the number of walks of length $k$ from one node to another.
@@ -87,7 +88,8 @@ The symmetric normalization is well suited for undirected graphs, as it preserve
 
 
 \paragraph{Graph Laplacian}
-The graph Laplacian is a matrix that represents the graph and can be used to find many important properties of the graph. 
+The graph Laplacian is a matrix that represents the graph and can be used to find many important properties of the graph, 
+which are not handled here but a good overview can be found by \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
 It is defined as follows:
 \begin{equation}
     L = D - A
@@ -334,7 +336,6 @@ which is also called \textit{sinogram}, can be see in Figure~\ref{fig:phantom_si
     \subbottom[Radon Transform  $R f(\theta=45, s=14.14)$\label{fig:phantom_theta45_s14}]{\includegraphics[width=0.3\textwidth]{phantom_theta45_s14.png}}
     \subbottom[Shepp–Logan phantom sinogram of $Rf(\theta=45, s=0)$\label{fig:phantom_sinogram}]{\includegraphics[width=0.3\textwidth]{phantom_sinogram.png}}
     \caption{Examples, where the original object $x$ is the Shepp-Logan phantom.}
-    \label{fig:phantom}
 \end{figure}
 
 

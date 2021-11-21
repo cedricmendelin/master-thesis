@@ -124,7 +124,8 @@ happen that two samples are equivalent up to an 2D rotation.
 Consider a first example $y_1$, which has no 3D rotation at all and 
 a second sample $y_2$ with a rotation only in in x-y plane by 45°.
 The two samples have a defined in-plane rotation $g$, such that $g y_1 = y_2$.
-Therefore, in our distance measure we add this term of in-plan rotation: $min_{g \in SO(1)}\norm{g * y_i - y_j}$. 
+Therefore, in our distance measure we add this term of in-plan rotation: $min_{g \in SO(1)}\norm{g * y_i - y_j}$, 
+which is inspired by the work of \cite{multiDiffusionMaps}. 
 
 
 \subsection{Manifold assumption}
@@ -144,12 +145,11 @@ The manifold in the 2D case is a circle and in the 3D case, it will be a sphere.
 \begin{figure}[H]
     \centering
     \subbottom[Shepp-Logan phantom          \label{fig:phantom}]{\includegraphics[width=0.18\textwidth]{phantom.png}}
-    \subbottom[Original sinogram            \label{fig:phantom_sinogram}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram.png}}
+    \subbottom[Original sinogram            \label{fig:ps:phantom_sinogram}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram.png}}
     \subbottom[Noisy sinogram               \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram_noisy.png}}
     \subbottom[2nd and 3rd smallest eigenvector of Graph Laplacian      \label{fig:phantom_second_third_evec}]{\includegraphics[width=0.18\textwidth]{phantom_second_third_evec.png}}
     \subbottom[2nd and 3rd smallest eigenvector of noisy Graph Laplacian\label{fig:phantom_second_third_evec_noisy}]{\includegraphics[width=0.18\textwidth]{phantom_second_third_evec_noisy.png}}
     \caption{Shepp-Logan phantom manifold}
-    \label{fig:phantom}
 \end{figure}
 
 In Figure~\ref{fig:phantom_second_third_evec} the manifold calculated from the original Graph Laplacian
@@ -164,7 +164,6 @@ the manifold for $\sigma=100$ is plotted.
     \subtop[Highly noisy sinogram               \label{fig:phantom_sinogram_noisy_high}]{\includegraphics[width=0.4\textwidth]{phantom_sinogram_noisy_high.png}}
     \subtop[2nd and 3rd smallest eigenvector of Graph Laplacian      \label{fig:phantom_second_third_evec_noisy_high}]{\includegraphics[width=0.4\textwidth]{phantom_second_third_evec_noisy_high.png}}
     \caption{Shepp-Logan phantom manifold for high noise level}
-    \label{fig:phantom}
 \end{figure}
 
 In all the plots, knn-graph have been constructed with $k=10$. The showed example can be extended to 3D, where the underlying manifold corresponds to the sphere.
@@ -191,7 +190,7 @@ will denoise the graph based on the manifold assumption.
 
 \paragraph{Evaluation:}
 During evaluation, 2D and 3D scenario will be considered. A first evaluation will be done on artificial constructed
-toy-dataset. If time allows, real dataset from classical tomography and/or cryo-EM can be evaluated as well.
+toy-dataset. If time allows, real dataset from classical tomography and/or cryo-EM\footnote{https://www.ebi.ac.uk/emdb/} can be evaluated as well.
 During evaluation, two baselines are considered which already solved the problem. The first one is a multi-frequency diffusion 
 map approach\cite{multiDiffusionMaps, cryoEmMutliDM}, which aims to denoise cryo-EM images. 
 Secondly, \cite{LaplaceRandomProjections} a Graph Laplacian approach solving classical tomography with random projection angles will be compare against.
