@@ -86,70 +86,88 @@ The extended version can be defined as follows
 
 where $h_i$ is the PSF of the microscope and $*$ defines the convolution.
 
+Cryo-Em
+
 
 \section{General form}
-
-\textbf{TODO: finalize the overall setting, gaussian noise, etc.}
 
 As the tomographic reconstruction and the cryo-EM reconstruction are rather similar, 
 the aim of the Master Thesis will be to design an algorithm, that can be applied in both scenarios.
 
 Therefore, a general form of the two problem will be defined in the following.
 First of all, we define $x \in L^2(\Omega)$, where $L^2$ is the Lebesgue space and $\Omega$
-in the sample space $\Omega \subset \mathbb{R}^D$. Further we define $\tilde{\Omega} \subset \mathbb{R}^{D-1}$.
+is the sample space $\Omega \subset \mathbb{R}^D$, where $D$ is the dimension of the sample space. 
+Further we define $\tilde{\Omega} \subset \mathbb{R}^{D-1}$.
 
 
 \begin{equation}
     \begin{aligned}
-        y_i &= g_i \circ A(x, \theta) + noise \\
+        y_i &= A(x, \theta) + \eta \\
     \end{aligned}
 \end{equation}
 
 where $y_i$ is the observed sample, $x$ our original object, $A$ a non-linear operator 
-$A: x \in L^2(\Omega) \rightarrow \tilde{x} \in L^2(\tilde{\Omega})$
-and an in-plane transformation.
-
+$A: x \in L^2(\Omega) \rightarrow \tilde{x} \in L^2(\tilde{\Omega})$ and $\eta ~ \mathcal{N}(O, \sigma^2 I)$ gaussian noise.
 
 \paragraph{Classical tomography reconstruction:}
 
-$\theta \in SO(1)$
-$D = 2$
-Distance measure: $\norm{y_i - y_j}$
-
-$f(x) = \int_{\theta = 0}^{\pi} \rho(\theta, s) |_{s=x \cdot (- \sin \theta, cos \theta) } d \theta$
-
-
+For classical tomography, the parameters can be defined with $D=2$ and $\theta \in SO(1)$.
+Further, $A(\cdot)$ can be defined as the Radon transform. 
+A distance measure between samples can be set up by using the l2-norm $\norm{y_i - y_j}$.
 
 \paragraph{Cryo-Em reconstruction:}
-
-$\theta \in SO(3)$
-$D = 3$
-Distance measure: $\norm{g * y_i - y_j}$
+For classical tomography, the parameters can be defined with $D=3$ and $\theta \in SO(3)$.
+Further, $A(\cdot)$ can be defined as $\Pi_z \left( R_{\theta} x) \right)$ 
+where $R_{\theta}$ is a 3D rotation and $\theta \in SO(3)$, $\Pi_z$ the tomographic projection.
+As the samples are drawn with some random 3D rotation and then will be projected, it can 
+happen that two samples are equivalent up to an 2D rotation. 
+Consider a first example $y_1$, which has no 3D rotation at all and 
+a second sample $y_2$ with a rotation only in in x-y plane by 45°.
+The two samples have a defined in-plane rotation $g$, such that $g y_1 = y_2$.
+Therefore, in our distance measure we add this term of in-plan rotation: $min_{g \in SO(1)}\norm{g * y_i - y_j}$. 
 
 
 \subsection{Manifold assumption}
 In the reconstruct problem, we can apply the manifold assumption from section \ref{sec:manifoldAssumption}.
-Moreover, in the none-noisy case, we can even assume how this Manifold look like.
+Moreover, in the none-noisy case, we can even assume how this manifold looks like.
 
 The manifold, and therefore, a low-dimensional embedding, can be calculated the following:
 
 \begin{enumerate}
-    \item Construct the knn-graph from our observations.
-    \item Calculate the normalized Graph Laplacian.
-    \item Extract the second, third (and fourth) smallest eigenvectors.
+    \item Construct the knn-graph from our observations (see section~\ref{sec:graphConstruction}).
+    \item Calculate the normalized Graph Laplacian (see equation~\ref{eq:normalizedGraphLaplacian}).
+    \item Extract the second, third (and fourth) smallest eigenvectors (see FSM section~\ref{sec:FoldedSpectrumMethod}).
 \end{enumerate}
 
-The showed example can be extended to 3D, where the underlying manifold corresponds to the sphere.
-Therefore, we can derive, that our angles have the following property:
-In the 2D case, $\theta \in SO(1)$ and the in 3D case, $\theta \in SO(3)$.
+The manifold in the 2D case is a circle and in the 3D case, it will be a sphere.
 
+\begin{figure}[H]
+    \centering
+    \subbottom[Shepp-Logan phantom          \label{fig:phantom}]{\includegraphics[width=0.18\textwidth]{phantom.png}}
+    \subbottom[Original sinogram            \label{fig:phantom_sinogram}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram.png}}
+    \subbottom[Noisy sinogram               \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram_noisy.png}}
+    \subbottom[2nd and 3rd smallest eigenvector of Graph Laplacian      \label{fig:phantom_second_third_evec}]{\includegraphics[width=0.18\textwidth]{phantom_second_third_evec.png}}
+    \subbottom[2nd and 3rd smallest eigenvector of noisy Graph Laplacian\label{fig:phantom_second_third_evec_noisy}]{\includegraphics[width=0.18\textwidth]{phantom_second_third_evec_noisy.png}}
+    \caption{Shepp-Logan phantom manifold}
+    \label{fig:phantom}
+\end{figure}
 
+In Figure~\ref{fig:phantom_second_third_evec} the manifold calculated from the original Graph Laplacian
+can be seen and it is a perfect circle. Next to it, in Figure~\ref{fig:phantom_second_third_evec_noisy}
+the noisy version with $\sigma=2$ is plotted and the manifold is circle like but not at all like from the original one.
 
-%The concept of Radon transform was extended as well and can be applied to higher dimensions as well.
+The more noise we add, the less the manifold looks like a circle. In Figure~\ref{fig:phantom_second_third_evec_noisy_high}
+the manifold for $\sigma=100$ is plotted.
 
+\begin{figure}[H]
+    \centering
+    \subtop[Highly noisy sinogram               \label{fig:phantom_sinogram_noisy_high}]{\includegraphics[width=0.4\textwidth]{phantom_sinogram_noisy_high.png}}
+    \subtop[2nd and 3rd smallest eigenvector of Graph Laplacian      \label{fig:phantom_second_third_evec_noisy_high}]{\includegraphics[width=0.4\textwidth]{phantom_second_third_evec_noisy_high.png}}
+    \caption{Shepp-Logan phantom manifold for high noise level}
+    \label{fig:phantom}
+\end{figure}
 
-
-
+In all the plots, knn-graph have been constructed with $k=10$. The showed example can be extended to 3D, where the underlying manifold corresponds to the sphere.
 Again, the circle and sphere can be computed and for the none-noisy, the underlying manifold can be seen as known.
 
 
@@ -158,26 +176,25 @@ During the Master Thesis, the reconstruction problem with unknown angles is cons
 Moreover, the observed samples are considered to be noisy. 
 The resulting proposed algorithm should work in the 2D and 3D scenario (classical tomography and cryo-Em).
 
-The main idea is, to exploit the fact that the underlying Manifold is known (circle in 2D and sphere in 3D). 
+The main idea is to exploit the fact, that the underlying manifold is known (circle in 2D and sphere in 3D). 
+From our noisy observations, a manifold can be computed and compare it with the original manifold.
+The comparison between the manifolds enables the possibility of a loss function and learning in general.
 
-From our noisy observations, we can compute the approximated manifold and compare it with the original manifold.
-The comparison between the manifold enables the possibility of a loss function and learning in general.
-
-
-It is expected that the folded spectrum \cite{foldedSpectrumMethod} introduced in section~\ref{sec:FoldedSpectrumMethod}
+It is expected, that the folded spectrum \cite{foldedSpectrumMethod} introduced in section~\ref{sec:FoldedSpectrumMethod}
 can be used to estimate the eigenvalues of the Graph Laplacian.
 Further, as already mentioned in section~\ref{sec:wasserstein-metric}, the wasserstein metric is a good choice
-as a loss function, when it comes to dealing with data from a manifold distribution \cite{wassersteinGAN}. 
+as a loss function when it comes to dealing with data from a manifold distribution \cite{wassersteinGAN}, as in our case. 
+
+The problem can be seen as Graph Denoising as observations are noisy and therefore, the proposed algorithm 
+will denoise the graph based on the manifold assumption. 
 
 
-\textbf{todo}
-Problem can be seen as Graph Denoising and therefore, algorithm 
-will denoise the graph based on the manifold assumption.
-
-
-Detailed work packes chapter~\ref{sec:projectPlan}
-
-\subsection{Evaluation}
-
-Baselines \cite{multiDiffusionMaps} and \cite{LaplaceRandomProjections}.
-
+\paragraph{Evaluation:}
+During evaluation, 2D and 3D scenario will be considered. A first evaluation will be done on artificial constructed
+toy-dataset. If time allows, real dataset from classical tomography and/or cryo-EM can be evaluated as well.
+During evaluation, two baselines are considered which already solved the problem. The first one is a multi-frequency diffusion 
+map approach\cite{multiDiffusionMaps, cryoEmMutliDM}, which aims to denoise cryo-EM images. 
+Secondly, \cite{LaplaceRandomProjections} a Graph Laplacian approach solving classical tomography with random projection angles will be compare against.
+The evaluation process is a first broad idea. Any adjustments in baseline papers or dataset are possible during 
+the Master Thesis. The baseline papers are further addressed in the related work chapter~\ref{sec:relatedWork}
+and detailed work packages are defined in chapter~\ref{sec:projectPlan}

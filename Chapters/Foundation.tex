@@ -96,6 +96,7 @@ It is defined as follows:
 \paragraph{Normalized Graph Laplacian:}
 During computation, it is often needed to have a normalized version of the Graph Laplacian: \newline
 \begin{equation}
+    \label{eq:normalizedGraphLaplacian}
     \begin{aligned}
         L_{sym} &= I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}
         L_{rw}  &= I - D^{-1} A,
@@ -120,7 +121,7 @@ where $L_{sym}$ is a symmetric normalization and $L_{rw}$ is called a random wal
 %graph Laplacian.
 
 \subsection{Graph Construction}
-
+\label{sec:graphConstruction}
 When data is not available as a graph, it can be constructed from the data.
 First of all, every sample can be seen as a node and only the decision of how edges will be constructed
 is necessary. One popular approach is k-nearest neighbour (KNN) graph construction. The parameter $k$
