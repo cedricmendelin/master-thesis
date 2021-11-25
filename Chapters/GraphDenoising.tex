@@ -1,0 +1,212 @@
+\chapter{Graph Denoising}
+
+
+
+
+\section{Graph Foundations}
+A graph is defined as  $G = \langle V,E \rangle$, where $V$ is a set of 
+vertices (or nodes) and $E$ is a set of edges (or links). 
+Edges are defined as a set of tuples $(i, j)$, where $i$ and $j$ determine the 
+index of the vertices in the graph.
+
+Edges can be either \textit{directed} or \textit{undirected} and that has to do with the position of the 
+nodes in the edge. In a directed graph, a edge points explicitly from
+one node to another, which means that edge $(i, j) \neq (j, i)$. 
+In undirected graphs the ordering does not matter and  $(i, j) = (j, i)$.
+
+Moreover, edges can have weights, which is a method to define importance to the neighbours of a node.
+If edges are dealing with weights, we are talking from a \textit{weighted} graph.
+The \textit{neighbourhood} of a node $\mathcal{N(i)} = \forall x $ is defined as all the adjacent node 
+of $i$, which means that there is an edge between the nodes. 
+
+
+\paragraph{Adjacency matrix:}
+To do calculation with graphs, it is common to translate graphs in a well suitable mathematically
+form, which are matrices.
+The adjacency matrix can be seen as a way of representing graphs as a matrix.
+The (binary) adjacency matrix of graph $G$ is defined as follows:
+\begin{equation}
+    \label{eg:AdjacencyMatrix}
+    A_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        1  & \text{if } (i, j) \in E \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+The matrix $A$ has dimension $\mathbb{R}^{N \times N}$ and the indices of the matrix correspond to the nodes of the graph.
+If there is an edge between two nodes, the entry in the matrix will be set to $1$, otherwise to $0$.
+This leads to an unweighted graph, as the weight of all edges will be $1$. 
+
+When the graph is undirected, the resulting matrix will be symmetric and has a complete set of eigenvalues
+and eigenvectors. The set of eigenvalues are also called \textit{spectrum} of the graph.
+
+\paragraph{Degree matrix:}
+The degree matrix of $G$ is defined as follows:
+\begin{equation}
+    D_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        deg(v_i)  & \text{if } i = j \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+Where $deg(v_i)$ is the degree of the node, formally the number of incoming edges of node $v_i$.
+
+\paragraph{Graph Laplacian:}
+The graph Laplacian is a matrix that represents the graph and can be used to find many important properties of the graph, 
+which are not handled here but a good overview can be found by \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
+It is defined as follows:
+\begin{equation}
+    L = D - A
+\end{equation}
+
+
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    Cryo-EM reconstruction needs to define algorithms, which works well in high noise regimes.
+    During Master Thesis only on single-particle cryo-EM is considered, so speaking from cryo-EM 
+    it refers to single-particle cryo-EM.
+\end{tcolorbox}
+
+
+
+\subsection{Graph Construction}
+3) General framework for constructing a graph:
+a) Each vertex is associated to some feature/signal/whatever $x\in \mathcal{X}$, for some space arbitrary space $\mathcal{X}$.
+b) We construct the graph $G_0$ using: $d(x_i,x_j) < \tau$, $\tau$ is a threshold, or k-NN (defined it here in one line).
+c) For simplification, and because it covers already most cases, we will work on $\mathcal{x}= R^M$
+d) There are some applications, as we will see (or have seen if already introduced), where we have only access to a noisy version of the true signal:
+ $y = x + \eta$, where $y,x \in R^N$, and eta i.i.d follow Gaussian $(0,sigma^2)$.
+e) Then we defined the noisy graph G as in b)
+
+\label{sec:graphConstruction}
+When data is not available as a graph, it can be constructed from the data.
+First of all, every element of the dataset can be seen as a node and only the decision of how edges will be constructed
+is necessary. One popular approach is k-nearest neighbour (KNN) graph construction. The parameter $k$
+defines how many edges every node will have at the end. The neighbourhood of node $i$ is defined
+as $\mathcal{N}_i$ and consists of the nodes, with the $k$ smallest similarity measure.
+
+\begin{equation}
+    \label{eg:knn}
+    A_{ij} =    
+    \begin{cases}
+        %1  & \text{if } \norm{\biggl y_i - y_j \biggr} < \tau\\
+        1  & \text{if } j \in \mathcal{N}_i \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+Instead of using a fixed parameter $k$ as in KNN approach, one could define a threshold $\pi$
+and connection nodes if the similarity measure is smaller than $\pi$. This is another common way
+to define graphs and results in a graph, where not all nodes have the same amount of edges.
+
+\section{Graph Denoising}
+\textbf{TODO: Not the name in literature}
+
+Data acquired by real-world observations are often noisy, which can lead to poor 
+performance on data analysis tasks. Graph constructed by noisy data is what we call
+a noisy graph, as it includes the noise from observations.
+
+Graph denoising is the task to reconstruct the original graph from a noisy one.
+Therefore, graph denoising can be seen as a pre-processing step, where noisy data is filtered.
+
+Denoising in general has often to do with averaging 
+ and graphs are a well suited data structure for this task\cite{noneLocalMean}.
+
+\paragraph{Noise:}
+A noisy observation is defined as:
+$y_n = y + \eta$, where $\eta$ is the observation noise (often assumed to be gaussian distributed)
+and $y$ the noiseless observation.
+
+\paragraph{Denoising:}
+When we talk from denoising, we want to reconstruct the true observation 
+from a given noisy observation. 
+This reconstruction is done via averaging, which can be performed
+locally, by the calculus of variations or in the frequency domain\cite{noneLocalMean}.
+
+\paragraph{Noisy Graph}:
+For every noisy graph, there exists an original graph $G = \langle V,E \rangle$.
+
+The noisy graph can be defined as follows:
+\begin{equation}
+    \begin{aligned}
+        G_{noisy} &= \langle V,E_{noisy} \rangle,  \\ 
+        \text{ with }  E_{noisy} &= E \setminus  E^{-} \cup  E^{+}, \\ 
+         E^{-} & \subseteq E, \\
+         E^{+} \cap E &= \emptyset
+    \end{aligned}
+\end{equation}
+
+The noisy graph consists of the same vertices as the original graph. From
+the original graphs edges, some are removed (denoted by $E^{-}$) and some new edges are added
+(denoted by $E^{+}$).
+
+The adjacency matrix of $G_{noisy}$ is denoted by $\bar{A}_{ij}$.
+The task of graph denoising, can therefore be written as:
+\begin{equation}
+    \bar{A} \xrightarrow[method]{Graph-denoising} \tilde{A} \approx A
+\end{equation}
+
+Where $\bar{A}$, $\tilde{A}$, $A$ denotes the adjacency matrix from the noisy input graph, the denoised
+ graph and the original graph respectively.
+
+\subparagraph{Connection to link prediction}
+Link prediction is a task in Graph Learning. 
+The idea is to predict existence of a link (edge) between two nodes.
+The task can be formulated as a missing value estimation task. A model $M_p$ is learned
+from a given set of observed edges. The model finally maps links to probabilities:
+
+
+\begin{equation}
+    M_p : E^{\prime} \rightarrow [0,1],
+\end{equation}
+
+where $E^{\prime}$ is the set of potential links.
+
+We define $U$ as the set of all possible vertices of $G$, therefore $E \subseteq U$.
+Obviously, graph denoising can be seen as a link prediction problem.
+
+The difference is, that in link prediction a model from a set of observed links is learned
+$E_{observed} \subseteq E$ and in graph denoising the model is learned from 
+$E_{observed} \subseteq U$. 
+
+On could also say that link prediction problems are a subset of graph denoising problems.
+
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    Finally, the goal of the master thesis is to produce methods to estimate 
+    $G_0$ based on G. 
+    (You can put it in a tcolorbox or something similar to show that this is the most important things to read here). 
+    To do so, we will focus on a particular problem where this setting makes sense: cryo-EM. And to solve this problem, we will try to connect with recent machine learning techniques
+    (if you follow the plan that proposed below)
+\end{tcolorbox}
+
+\paragraph{Graph Laplacian}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    5) Graph Laplacian and machine learning: this is one on the main idea to explore in the thesis. 
+Graph Laplacian is a powerful tool, but relies on the noisy adjacency matrix. 
+Can we learn the adjacency matrix such that the output of the Graph Laplacian is what we expected (link with spectrum folded).
+
+6) Mathematical analysis of the link between Graph neural network and Graph Laplacian, as in the paper "Simplifying graph convolutional networks". 
+Another strong idea to explore.
+\end{tcolorbox}
+
+\section{Manifolds}
+2.3: use mathematic definitions.
+To avoid heavy definition that we won't need: 
+Let $\mathcal{M} = \{ f(x), f is C^K, f: R^d \to R^N \}$. 
+In this thesis, we will consider $C^k$ dfferentiable d-dimensional manifold defined by $\mathcal{M}$.
+
+Embedding -> low dimensional embedding: mapping that goes from a high dimensional space to a low dimensional one. 
+For instance, using the previous definition, an embedding on M is a function that maps $\mathcal{M} \to R^d$.
+
+
+suggestion on Sections 2.3:
+1) Definitions: manifold and then embedding, but special case (not general definition that is heavy and not needed).
+2) 2 simple examples: circle (d=1, N=2) and one embedding, sphere (d=2,N=3) or more general d-dimensional sphere 
+$S^d = {x \in R^{d+1}, \|x\|=1}$. 
+3) link with signal processing (paragraph currently called "Manifold assumption")

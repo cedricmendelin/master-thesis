@@ -1,0 +1,155 @@
+\chapter{Imaging methods}
+\label{sec:imaging}
+
+In the first chapter, the imaging methods \textit{computed tomography} and 
+\textit{cryo-electron microscopy} (cryo-EM) will be introduced. 
+Further, their reconstruction is defined in a mathematically way.
+Application of cryo-EM is the major motivation for the Master Thesis, 
+as the problem is not easy to solve due to dealing with enormous noise.
+
+
+\section{Computed tomography}
+Computed tomography is a well established tomography imaging method.
+Using X-ray source, fan shaped beams are produced which scan the imaging object,
+resulting in many measurements taken over straight lines \cite{computedTomography}.
+
+\paragraph{Tomography reconstruction:}
+Tomographic reconstruction\cite{tomographicReconstruction} is a popular inverse problem \cite{tomographicReconstruction}. 
+The aim is to reconstruct an imaged object from observed measurements.
+The reconstruction object can be in two-dimension (2D) or in three-dimension (3D). 
+In the Master Thesis, the focus will be on 2D case, which is called \textit{classical tomography reconstruction}.
+
+\paragraph{2D tomographic reconstruction:}
+
+Mathematically, the observed measurements can be defined as follows:
+
+\begin{equation}
+    \label{eq:2Dreconstruction}
+    \begin{aligned}
+        y_i[j] &= R(x, \theta_i, s_j) + \eta_i[j] , \text{ with } 1 \leq i \leq N, \text{ and } 1 \leq j \leq M
+    \end{aligned}
+\end{equation}
+
+where $N$ is number of observations and $M$ the observation dimension.
+Then, $x \in L^2(\Omega)$ with $\Omega \subset \mathbb{R}^2 $ is the original object.
+Further, $y_i \in \mathbb{R}^M$ is the $i$-th observation with $y_i[j] \in \mathbb{R}$ the $j$-th element of the observation.
+$R(\cdot; \theta, s): L^2(\Omega) \to L^2(\tilde{\Omega}) , x \mapsto R(x; \theta,s)$ refers to the Radon Transform
+with $\tilde{\Omega} \subset \mathbb{R}$, $\theta$ as the observation angle from the x-axis and $s_j$ as the sampling point.
+$\eta$ refers to noise and is defined as $\eta_i[j] \sim \mathcal{N}(0,\sigma^2)$.
+
+\subparagraph{Filter Backprojection:}
+Filter Backprojection is a reconstruction method, typically used in classical tomography reconstruction.
+It allows to inverse the Radon Transform and is related to the Fourier Transform. 
+
+\section{Cryo-EM}
+Cryo-EM is another imaging method, that enables the view of molecules in near-atomic resolution.
+In the Master Thesis, only single-particle cryo-EM is considered.
+During the imaging process, molecules are frozen in a thin layer of ice, where they are randomly oriented and positioned. 
+The freezing process allows to observe molecules in a stable state where they are not moving.
+To the contrary, the random orientation and positioning of the molecules makes reconstruction challenging\cite{singleParticleCryoEm}.
+With an electron microscope, one can observe two-dimensional tomographic projection images of the molecules in the ice,
+which are called \textit{micrograph}. The frozen molecules are fragile and the electron microscope needs to work with
+very low power (electron dose), resulting in highly noisy images. The resulting signal-to-noise ration (SNR)
+is typically smaller than 1, which indicates that there is more noise than signal\cite{cryoEmMath2}.
+
+
+\paragraph{3D cryo-EM reconstruction:}
+Similar to tomographic reconstruction, there is the cryo-EM reconstruction problem\cite{cryoEmMath}.
+It can be seen as a 3D reconstruction problem as the original object $x \in L^2(\Omega)$ to be reconstructed is in 3D,
+where now $\Omega \subset \mathbb{R}^3 $ and $\tilde{\Omega} \subset \mathbb{R}^2 $.
+
+Mathematically, the observed measurements can be defined as follows:
+\begin{equation}
+    \label{eg:cryoEmSimple}
+    y_i = \Pi_z ( Rot (x; \theta_i)) + \eta_i, \text{ with } 1 \leq i \leq N
+\end{equation}
+
+where $\Pi : L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto  \int x(\cdot,\cdot,z) dz$ is the projection operator
+and $Rot : L^2(\Omega) \to L^2(\Omega), Rot_\theta(x) = \left((x_1,x_2,x_3) \mapsto x( x_1R^1, x_2R^2, x_3R^3)\right)$ is the rotation operator modelling the rotation during freezing.
+Further, $\theta_i = [\theta_i^1, \theta_i^2, \theta_i^3 ] $ where entries $ [\theta_i^1, \theta_i^2, \theta_i^3 \in \mathbb{R}$ and 
+$R = [R^1, R^2, R^3] \in SO(3)$. $\eta_i[j,k] \sim \mathcal{N}(0,\sigma^2I)$ corresponds again to the noise of the observation.
+
+
+As $y_i$ is not observable directly, discretization is needed:
+\begin{equation}
+    \label{eg:cryoEmSimpleDiscrete}
+    \begin{aligned}
+        y_i &= \left( \Pi_z ( Rot (x; \theta_i)) + \eta_i\right)(\Delta), \text{ with } 1 \leq i \leq N \\
+        y_i[j,k] &= \Pi_z ( Rot(x; \theta_i))_{j,k} + \eta_i[j,k], \text{ with } 1 \leq i \leq N \text{ and } 1 \leq j,k \leq M    
+    \end{aligned}
+\end{equation}
+
+where $\Delta \subset \tilde{\Omega}^{M^2}$ is the sampling grid and $M$ is the first and second dimension of the sampling grid.
+
+
+\subparagraph{Extended formula:} 
+The equation~\ref{eg:cryoEmSimple} is a simplified version of the cryo-EM reconstruction problem.
+First of all, the point spread function (PSF) of the microscope is not taken into account.
+Moreover, in cryo-EM the same kind of molecule is observed many times.
+Due to structural variety in the molecules, the underlying object $x$ is not the same 
+for every observation but can be seen as a random signal from an unknown distribution defined over all possible molecules structures.
+
+The extended version can be defined as follows:
+\begin{equation}
+    \label{eg:cryoEmExtended}
+    y_i = h_i \circ \Pi_z ( Rot (x_i; \theta_i)) + \eta_i, \text{ with } 1 \leq i \leq N
+\end{equation}
+
+where $h_i$ is the PSF of the microscope and $\circ$ defines the convolution. 
+During the Thesis, the equation~\ref{eq:cryoEmSimpleDiscrete} is used, not the extended version.
+
+\subparagraph{Difference to tomographic reconstruction:}
+The two problems are highly related, but the cryo-EM reconstruct is more challenging.
+During CT observation, the patient is asked to not move and therefore, the angles of projection is known, whereas
+in cryo-EM this information will be lost during the freezing process.
+Secondly, the high level of noise makes cryo-EM much more challenging regarding tomographic reconstruction.
+The observation 
+
+
+\section{General from}
+As the tomographic reconstruction and the cryo-EM reconstruction are rather similar, 
+the aim of the Master Thesis will be to design an algorithm, that can be applied in both scenarios.
+
+Therefore, a general form of the two problem will be defined in the following.
+First of all, we define $x \in L^2(\Omega)$, where $L^2$ is the Lebesgue space and $\Omega$
+is the sample space $\Omega \subset \mathbb{R}^D$, where $D$ is the dimension of the sample space. 
+Further we define $\tilde{\Omega} \subset \mathbb{R}^{D-1}$.
+
+\begin{equation}
+    \begin{aligned}
+        y_i &= \left( A(x, \theta_i) + \eta_i \right) (\Delta)\\
+    \end{aligned}
+\end{equation}
+
+where $y_i \in \tilde{\Omega}^M$ is the observed sample, $M$ the sample dimension, $x \in L^2(\Omega)$ our original object, $A$ a non-linear operator 
+$A: L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto A(x; \theta)$ and
+$\eta ~ \mathcal{N}(O, \sigma^2 I)$ gaussian noise. $\Delta \subset \tilde{Omega}^{M^2}$ is a term for discretization.
+
+\paragraph{Classical tomography reconstruction:}
+
+For classical tomography, the parameters can be defined with $D=2$ and $\theta \in \mathbb{R}^1$.
+Further, $A(\cdot)$ can be defined as the Radon transform.
+A distance measure between samples can be set up by using the l2-norm $\norm{y_i - y_j}$.
+
+\paragraph{Cryo-Em reconstruction:}
+For cryo-EM, the parameters can be defined with $D=3$ and $\theta \in \mathbb{R}^3$.
+Further, $A(\cdot)$ can be defined as $\Pi_z \left( Rot(x; \theta) \right)$ 
+where $Rot$ is the 3D rotation and $\Pi_z$ the tomographic projection.
+
+As the samples are drawn with some random 3D rotation and then will be projected, it can 
+happen that two samples are equivalent up to an 2D rotation. 
+Consider a first example $y_1$, which has no 3D rotation at all and 
+a second sample $y_2$ with a rotation only in in x-y plane by 45°.
+The two samples have a defined in-plane rotation $g$, such that $g y_1 = y_2$.
+Therefore, in our distance measure we add this term of in-plan rotation: $min_{g \in SO(1)}\norm{g * y_i - y_j}$, 
+which is inspired by the work of \cite{multiDiffusionMaps}. 
+
+
+Transition: noise is the main problem in single particle cryo-EM. In the thesis we will look at way remove it. 
+In the next chapter, we will see that it has strong connections with Graphs.
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    Cryo-EM reconstruction needs to define algorithms, which works well in high noise regimes.
+    During Master Thesis only on single-particle cryo-EM is considered, so speaking from cryo-EM 
+    it refers to single-particle cryo-EM.
+\end{tcolorbox}
