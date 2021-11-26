@@ -1,52 +1,6 @@
-\chapter{Related Work}
-\label{sec:relatedWork}
-
-In the following section, related work will be introduced.
-
-\section{Graph Deep Learning}
-As we have seen in the Foundation chapter~\ref{sec:foundation}, one can define the problem of Graph Denoising as
-a way of link predication. The state-of-the-art method for solving link prediction are graph deep learning approaches.
-Graph deep learning is a fast evolving field in research. With Graph Neural Networks (GNN)\cite{GNN} the framework
-for GNN has been established. 
-
-Using Graph Convolutional Networks (GCN) \cite{GCN} is a popular way for graph feature extraction. 
-Basically, with GCN a new feature representation is iteratively learned for the node features (edges features are not taken into account).
-It can be seen as an averaging of nodes over their neighbourhood where all the neighbours get the same weight combined with some non-linear activation. 
-To consider the node itself in the averaging process they apply to so-called "Renormalization trick", where self-loops are added to the 
-adjacency matrix and after every layer, a normalization step is applied.The topology of the graph will not be adjusted during the learning process.
-
-\citet{GAT} extended the concept of GCN with attention and not all the neighbouring nodes get the same weight (attention).
-Simple Graph Convolutional Network (SGC) \cite{simpleGCN} proposed a simplified version of GCN.
-They could verify their hypothesis that GCN is dominated by the local averaging step and the non-linear 
-activation function between layers do not contribute to much to the success of GCN. 
-Therefore, it can be seen as a way of power iteration over the adjacency matrix with normalization in every layer.
-\citet{dynamicGCN} proposed a extended version of GCN by not operating on the same graph in every layer but adopting
-the underlying graph topology layer by layer.
-
 
 %\section{Manifold Learning}
-%Manifold learning is a popular method for dimensionality reduction for high-dimensional datasets.
-%\cite{Isomap}
-%\cite{LLE}
-%\cite{LaplacianEigenmaps}
 
-\section{Denoising}
-
-Denoising is an important part in practical application of ML, as observed signals are often noisy.
-Especially in computer vision it has a high importance, where observation noise in images is a major issue.
-
-
-Non local means is a state-of-the-art image denoising method \cite{noneLocalMean}.
-In the name of the method are two important concepts, namely the \textit{mean}
-and \textit{non local}.
-
-For a given noisy image $v$, the denoised image is defined as $NL[v](i) = \sum{w(i,j) \; v(j)}$.
-where $w(i,j)$ is the weight between pixel $i$ and $j$. The weight can be seen as a similarity measure of the two pixels.
-Moreover, these similarities are calculated over square neighbourhoods of the two pixels,
-where the l2-norm of the neighbourhood is used.
-Similar pixel neighbourhoods have a large weight and different neighbourhoods have a small weight.
-More general, the denoised image pixel $i$ is computed as an weighted average of all pixels in the 
-image, therefore, in a non local way.
 
 \citet{learningToDrop} introduced PTDNET, a way of topological denoising in graphs.
 It can be seen as two neural networks, where the first is called denoising network and the second is a GNN.
@@ -56,8 +10,8 @@ irrelevant edges. Further, in the GNN the node representation of the denoise gra
 
 
 
-\section{Problem setup section}
-In the last section of related work, papers which aim to solve part of the Master Thesis problem will be introduced.
+\section{Related tomography papers}
+In the last section of related work, papers which have a connection to the Master Thesis domain will be introduced.
 
 \citet{LaplaceRandomProjections} introduces a Laplacian-based algorithm, with which 
 reconstruction of a planar object from projections at random unknown directions is possible.

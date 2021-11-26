@@ -6,7 +6,35 @@ Probably, there are some parts which will not work out as expected and
 adjustments are needed throughout the Thesis, the project plan can be seen as a rough guideline.
 
 \section{Problem conclusion:}
-Conlusion from red boxes
+Conclusion from red boxes.
+
+During the Master Thesis, the reconstruction problem with unknown angles is considered. 
+Moreover, the observed samples are considered to be noisy. 
+The resulting proposed algorithm should work in the 2D and 3D scenario (classical tomography and cryo-Em).
+
+The main idea is to exploit the fact, that the underlying manifold is known (circle in 2D and sphere in 3D). 
+From our noisy observations, a manifold can be computed and compare it with the original manifold.
+The comparison between the manifolds enables the possibility of a loss function and learning in general.
+
+It is expected, that the folded spectrum \cite{foldedSpectrumMethod} introduced in section~\ref{sec:FoldedSpectrumMethod}
+can be used to estimate the eigenvalues of the Graph Laplacian.
+Further, as already mentioned in section~\ref{sec:wasserstein-metric}, the wasserstein metric is a good choice
+as a loss function when it comes to dealing with data from a manifold distribution \cite{wassersteinGAN}, as in our case. 
+
+The problem can be seen as Graph Denoising as observations are noisy and therefore, the proposed algorithm 
+will denoise the graph based on the manifold assumption. 
+
+
+
+\paragraph{Evaluation:}
+During evaluation, 2D and 3D scenario will be considered. A first evaluation will be done on artificial constructed
+toy-dataset. If time allows, real dataset from classical tomography and/or cryo-EM\footnote{https://www.ebi.ac.uk/emdb/} can be evaluated as well.
+During evaluation, two baselines are considered which already solved the problem. The first one is a multi-frequency diffusion 
+map approach\cite{multiDiffusionMaps, cryoEmMutliDM}, which aims to denoise cryo-EM images. 
+Secondly, \cite{LaplaceRandomProjections} a Graph Laplacian approach solving classical tomography with random projection angles will be compare against.
+The evaluation process is a first broad idea. Any adjustments in baseline papers or dataset are possible during 
+the Master Thesis. The baseline papers are further addressed in the related work chapter~\ref{sec:relatedWork}
+and detailed work packages are defined in chapter~\ref{sec:projectPlan}
 
 
 \section{Work packages}
