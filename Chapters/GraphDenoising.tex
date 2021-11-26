@@ -19,9 +19,8 @@ If edges are dealing with weights, we are talking from a \textit{weighted} graph
 The \textit{neighbourhood} of a node $\mathcal{N(i)} = \forall x $ is defined as all the adjacent node 
 of $i$, which means that there is an edge between the nodes. 
 
-
 \paragraph{Adjacency matrix:}
-To do calculation with graphs, it is common to translate graphs in a well suitable mathematically
+To do calculations with graphs, it is common to translate graphs in a well suitable mathematically
 form, which are matrices.
 The adjacency matrix can be seen as a way of representing graphs as a matrix.
 The (binary) adjacency matrix of graph $G$ is defined as follows:
@@ -107,11 +106,11 @@ to define graphs and results in a graph, where not all nodes have the same amoun
 \textbf{TODO: Not the name in literature}
 
 Data acquired by real-world observations are often noisy, which can lead to poor 
-performance on data analysis tasks. Graph constructed by noisy data is what we call
+performance on data analysis tasks. Graph constructed by noisy data is called
 a noisy graph, as it includes the noise from observations.
 
 Graph denoising is the task to reconstruct the original graph from a noisy one.
-Therefore, graph denoising can be seen as a pre-processing step, where noisy data is filtered.
+
 
 Denoising in general has often to do with averaging 
  and graphs are a well suited data structure for this task\cite{noneLocalMean}.
@@ -124,10 +123,10 @@ and $y$ the noiseless observation.
 \paragraph{Denoising:}
 When we talk from denoising, we want to reconstruct the true observation 
 from a given noisy observation. 
-This reconstruction is done via averaging, which can be performed
+Reconstruction is done via averaging, that can be performed
 locally, by the calculus of variations or in the frequency domain\cite{noneLocalMean}.
 
-\paragraph{Noisy Graph}:
+\paragraph{Noisy Graph:}
 For every noisy graph, there exists an original graph $G = \langle V,E \rangle$.
 
 The noisy graph can be defined as follows:
@@ -141,7 +140,7 @@ The noisy graph can be defined as follows:
 \end{equation}
 
 The noisy graph consists of the same vertices as the original graph. From
-the original graphs edges, some are removed (denoted by $E^{-}$) and some new edges are added
+the original graphs edges, some are removed (denoted by $E^{-}$) and some are added
 (denoted by $E^{+}$).
 
 The adjacency matrix of $G_{noisy}$ is denoted by $\bar{A}_{ij}$.
@@ -150,21 +149,15 @@ The task of graph denoising, can therefore be written as:
     \bar{A} \xrightarrow[method]{Graph-denoising} \tilde{A} \approx A
 \end{equation}
 
-Where $\bar{A}$, $\tilde{A}$, $A$ denotes the adjacency matrix from the noisy input graph, the denoised
- graph and the original graph respectively.
+Where $\bar{A}$, $\tilde{A}$, $A$ denotes the adjacency matrix from noisy input graph, denoised
+ graph and original graph respectively.
 
 \subparagraph{Connection to link prediction}
 Link prediction is a task in Graph Learning. 
 The idea is to predict existence of a link (edge) between two nodes.
 The task can be formulated as a missing value estimation task. A model $M_p$ is learned
-from a given set of observed edges. The model finally maps links to probabilities:
-
-
-\begin{equation}
-    M_p : E^{\prime} \rightarrow [0,1],
-\end{equation}
-
-where $E^{\prime}$ is the set of potential links.
+from a given set of observed edges. The model finally maps links to probabilities
+$M_p : E^{\prime} \rightarrow [0,1]$ where $E^{\prime}$ is the set of potential links.
 
 We define $U$ as the set of all possible vertices of $G$, therefore $E \subseteq U$.
 Obviously, graph denoising can be seen as a link prediction problem.
@@ -173,7 +166,11 @@ The difference is, that in link prediction a model from a set of observed links 
 $E_{observed} \subseteq E$ and in graph denoising the model is learned from 
 $E_{observed} \subseteq U$. 
 
-On could also say that link prediction problems are a subset of graph denoising problems.
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    On could also say that link prediction problems are a subset of graph denoising problems.
+\end{tcolorbox}
+
 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]

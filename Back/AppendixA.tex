@@ -82,21 +82,21 @@ Basically, for the CT reconstruction problem, acquiring samples from known viewi
 as sampling the 3D Fourier-space. This concept is exploited by the filter BackProjection algorithms, see section~\ref{sec:filterBackProjection}.
 
 \section{Radon Transform}
-The radon transform\cite{radonTransform} is the main mathematically concept of tomographic reconstruction.
+The Radon Transform\cite{radonTransform} is the main mathematically concept of tomographic reconstruction.
+It is an integral transformation and the inverse for classical tomography is well defined by the Fourier Transform.
 
-It is an integral transformation of a function $f(x,y)$, which is defined on the plane. In tomographic reconstruction
-the function $f$ will be the observed tomographic image.
-The radon transform then transforms $f$ to a function $Rf$, which corresponds to the line integral of the line defined by 
-the two parameters $\theta$ and $s$, where $\theta$ is a angle and $s$ the distance to the origin.
+For classical tomography, $R: f \to Rf, f(x,y) \mapsto Rf(\theta, s)$, where $f$ is a 2D image and $x$ and $y$
+can be seen as the coordinates within this image. Then, $Rf(f; \theta, s)$ defines a line, where $s$ is the distance 
+from the origin and $\theta$ is the angle to the x-axis.
 
 In Figure~\ref{fig:phantom_theta45} and Figure~\ref{fig:phantom_theta45_s14} on can see two plots of different
-values for $\theta$ and $s$, where $f(x,y)$ is the Shepp-Logan phantom. The complete $R(\theta=45, s=0)x$, 
+values for $\theta$ and $s$, where $f(x,y)$ is the Shepp-Logan phantom. The complete $R(\theta=45, s=0)$, 
 which is also called \textit{sinogram}, can be see in Figure~\ref{fig:phantom_sinogram}
 
 \begin{figure}[H]
     \centering
-    \subbottom[Radon Transform  $R(\theta=45, s=0)x$\label{fig:phantom_theta45}]{\includegraphics[width=0.3\textwidth]{phantom_theta45.png}}
-    \subbottom[Radon Transform  $R(\theta=45, s=14.14)x$\label{fig:phantom_theta45_s14}]{\includegraphics[width=0.3\textwidth]{phantom_theta45_s14.png}}
-    \subbottom[Shepp–Logan phantom sinogram of $R(\theta=45, s=0)x$\label{fig:phantom_sinogram}]{\includegraphics[width=0.3\textwidth]{phantom_sinogram.png}}
+    \subbottom[Radon Transform  $R(x;\theta=45, s=0)$\label{fig:phantom_theta45}]{\includegraphics[width=0.3\textwidth]{phantom_theta45.png}}
+    \subbottom[Radon Transform  $R(x;\theta=45, s=14.14)$\label{fig:phantom_theta45_s14}]{\includegraphics[width=0.3\textwidth]{phantom_theta45_s14.png}}
+    \subbottom[Shepp–Logan phantom sinogram of $R(x; \theta=45, s=0)$\label{fig:phantom_sinogram}]{\includegraphics[width=0.3\textwidth]{phantom_sinogram.png}}
     \caption{Examples, where the original object $x$ is the Shepp-Logan phantom.}
 \end{figure}
