@@ -1,43 +1,41 @@
 \chapter{Master Thesis project}
 \label{sec:projectOverview}
-In the last chapter of the Thesis Preparation report, the project plan will be introduced as well as a broad overview of different 
-work packages. Further, the project timeline can be seen as a Gantt chart.
-Probably, there are some parts which will not work out as expected and 
-adjustments are needed throughout the Thesis, the project plan can be seen as a rough guideline.
+In the last chapter of the report, a short conclusion of the Thesis problem is given.
+Further, the project plan will be introduced as well as a broad overview of different 
+work packages. Finally, the project timeline can be seen as a Gantt chart.
 
-\section{Problem conclusion:}
-Conclusion from red boxes.
+\section{Problem conclusion}
 
-During the Master Thesis, the reconstruction problem with unknown angles is considered. 
-Moreover, the observed samples are considered to be noisy. 
-The resulting proposed algorithm should work in the 2D and 3D scenario (classical tomography and cryo-Em).
+Cryo-Em and computed tomography within the high noise regime is the field of interest of the Master Thesis.
+In both imaging methods, the final goal is to reconstruct an original object from observed noisy data. 
+It is expected, that better denoising will boost the overall 
+quality of reconstruction. 
 
-The main idea is to exploit the fact, that the underlying manifold is known (circle in 2D and sphere in 3D). 
-From our noisy observations, a manifold can be computed and compare it with the original manifold.
-The comparison between the manifolds enables the possibility of a loss function and learning in general.
-
-It is expected, that the folded spectrum \cite{foldedSpectrumMethod} introduced in section~\ref{sec:FoldedSpectrumMethod}
-can be used to estimate the eigenvalues of the Graph Laplacian.
-Further, as already mentioned in section~\ref{sec:wasserstein-metric}, the wasserstein metric is a good choice
-as a loss function when it comes to dealing with data from a manifold distribution \cite{wassersteinGAN}, as in our case. 
-
-The problem can be seen as Graph Denoising as observations are noisy and therefore, the proposed algorithm 
-will denoise the graph based on the manifold assumption. 
-
-
+The Master Thesis will therefore introduce a new method for denoising. 
+We believe, that graphs are a well suited data structure for denoising.
+Additionally, we hope to explore further connection of the powerful Graph Laplacian
+and machine learning and use it to estimate a denoised graph from a noisy one.
+Further, the idea is to exploit the fact, that the manifold of the 
+noise-less input data is known.
 
 \paragraph{Evaluation:}
-During evaluation, 2D and 3D scenario will be considered. A first evaluation will be done on artificial constructed
-toy-dataset. If time allows, real dataset from classical tomography and/or cryo-EM\footnote{https://www.ebi.ac.uk/emdb/} can be evaluated as well.
-During evaluation, two baselines are considered which already solved the problem. The first one is a multi-frequency diffusion 
-map approach\cite{multiDiffusionMaps, cryoEmMutliDM}, which aims to denoise cryo-EM images. 
-Secondly, \cite{LaplaceRandomProjections} a Graph Laplacian approach solving classical tomography with random projection angles will be compare against.
-The evaluation process is a first broad idea. Any adjustments in baseline papers or dataset are possible during 
-the Master Thesis. The baseline papers are further addressed in the related work chapter~\ref{sec:relatedWork}
-and detailed work packages are defined in chapter~\ref{sec:projectPlan}
+The introduced denoising method will be evaluated during the Master Thesis.
+During evaluation, 2D and 3D scenario will be considered.
+ A first evaluation will be done on artificial constructed toy-dataset.
+ If time allows, real dataset from classical tomography and/or cryo-EM\footnote{https://www.ebi.ac.uk/emdb/} can be evaluated as well.
 
+During evaluation, two baselines are considered which already solved part of the problem. 
+The first one is a multi-frequency diffusion map approach\cite{multiDiffusionMaps, cryoEmMutliDM}, which aims to denoise cryo-EM images. 
+Secondly, \cite{LaplaceRandomProjections} a Graph Laplacian approach solving classical tomography with random projection angles will be compared against.
+
+The evaluation process is a first broad idea. Any adjustments in baseline papers or dataset are possible during 
+the Master Project.
 
 \section{Work packages}
+In the upcoming section, some work packages are defined.
+Probably, there are some parts of the project which will not work out as expected and 
+adjustments are needed throughout the Thesis.
+The project plan can be seen as a rough guideline.
 
 \paragraph{Implement algorithm for 2D case:}
 The first step will be, to familiarize with the problem and implement
@@ -45,11 +43,11 @@ the algorithm for 2D.
 
 \paragraph{Evaluate 2D case on toy dataset and implement baselines:}
 As a second step, the implemented 2D algorithm will be tested on a toy dataset,
-where noise is added to the images by hand. As the aim is to work with highly noisy images,
+where noise is added to images by hand. As the goal is to work with highly noisy images,
 the noise level can be selected and increased when working with toy datasets. 
 The evaluation in 2D is crucial and needs to in a satisfying matter. 
-It does not make sense to continue with 3D implement, when the simply 2D case is not handled well enough.
-Therefore, if the evaluation results are not satisfying, the algorithm needs to be iteratively adjusted, 
+It does not make sense to continue with 3D implementation, when the simple 2D case is not handled well enough.
+Therefore, if evaluation results are not satisfying, the algorithm needs to be iteratively adjusted, 
 such that the evaluation will be in a good enough quality.
 
 

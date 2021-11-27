@@ -37,7 +37,7 @@ where $N$ is number of observations and $M$ the observation dimension.
 Then, $x \in L^2(\Omega)$ is the original object with $\Omega \subset \mathbb{R}^2 $ and $L^2$ the Lebesgue space.
 Further, $y_i \in \mathbb{R}^M$ is the $i$-th observation with $y_i[j] \in \mathbb{R}$ $j$-th element of the observation.
 
-$R(\cdot; \theta, s): L^2(\Omega) \to L^2(\tilde{\Omega}) , x \mapsto R(x; \theta,s)$ refers to the Radon Transform
+$R(\cdot; \theta, s): L^2(\Omega) \to L^2(\tilde{\Omega}) , x \mapsto R(x; \theta,s)$ refers to the Radon Transform\cite{radonTransform} 
 with $\tilde{\Omega} \subset \mathbb{R}$, $\theta$ as the observation angle from the x-axis and $s_j$ as the sampling point.
 $\eta$ refers to noise and is defined as $\eta_i[j] \sim \mathcal{N}(0,\sigma^2)$.
 
@@ -143,7 +143,7 @@ $\eta \sim \mathcal{N}(O, \sigma^2 I)$ gaussian noise. $\Delta \subset \tilde{Om
 \paragraph{Classical tomography reconstruction:}
 
 For classical tomography parameters are defined defined with $D=2$ and $\theta \in \mathbb{R}$.
-Further, $A(\cdot)$ is the Radon transform, defined in equation~\ref{eq:2Dreconstruction}.
+Further, $A(\cdot)$ is the Radon Transform, defined in equation~\ref{eq:2Dreconstruction}.
 A distance measure between measurements can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
 
 \paragraph{Cryo-Em reconstruction:}
