@@ -39,7 +39,7 @@ Further, $N$ corresponds to number of observations.
 Then, $x \in L^2(\Omega)$ is the original object with $\Omega \subset \mathbb{R}^2 $ and $L^2$ the Lebesgue space.
 
 $R(\cdot; \theta, s): L^2(\Omega) \to L^2(\tilde{\Omega}) , x \mapsto R(x; \theta,s)$ refers to the Radon Transform \cite{radonTransform} 
-with $\tilde{\Omega} \subset \mathbb{R}$, $\theta_i \in \mathbb{S}^1$ as observation angle and $s_j \in \mathbb{R}$ 
+with $\tilde{\Omega} \subset \mathbb{R}$, $\theta_i \in \mathbb{R}$ as observation angle and $s_j \in \mathbb{R}$ 
 as sampling point. Finally, $\eta_i \in \mathbb{R}^M$ refers to gaussian noise and 
 is defined as $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$.
 
@@ -80,7 +80,7 @@ where $y_i \in \mathbb{R}^M$ with $M$ as observation dimension.
 Then, $\Pi_z : L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto  \int x(\cdot,\cdot,z) dz$ is projection operator from z-axis
 and 
 $Rot : L^2(\Omega) \to L^2(\Omega), Rot(x, \theta_i) = \left((x_1,x_2,x_3) \mapsto x( x_1R^1_{\theta_i}, x_2R^2_{\theta_i}, x_3R^3_{\theta_i})\right)$ is rotation operator modelling the rotation during freezing.
-Further, $\theta_i = [\theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} ] $ where entries $ \theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} \in \mathbb{S}^1$ and 
+Further, $\theta_i = [\theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} ] $ where entries $ \theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} \in \mathbb{R}$ and 
 $R_{\theta_i} =  R_{e_x} (\theta_i^{(1)}) R_{e_y} (\theta_i^{(2)}) R_{e_z} (\theta_i^{(3)}) = [R^1_{\theta_i}, R^2_{\theta_i}, R^3_{\theta_i}] \in SO(3)$ is the 3D rotation matrix 
 (see \ref{app:3DrotationMatrix} for further details). 
 $\eta_i \sim \mathcal{N}(0,\sigma^2I) \in \mathbb{R}^M$ corresponds to noise of observation.
@@ -149,7 +149,7 @@ and $\tilde{\Omega} \subset \mathbb{R}^{D-1}$ as the dimension of the space of o
 where $y_i \in \tilde{\Omega}^M$ is the $i$-th observation, $M$ observation dimension,
 $x \in L^2(\Omega)$ original object, $A$ a non-linear operator 
 $A: L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto A(x; \theta_i)$, 
-$\theta_i \in \mathbb{S}^P$ projection angle vector with $P$ the projection dimension
+$\theta_i \in \mathbb{R}^P$ projection angle vector with $P$ the projection dimension
 and
 $\eta \sim \mathcal{N}(O, \sigma^2 I) \in \tilde{\Omega}^M$ gaussian noise. 
 $\Delta \subset \tilde{\Omega}^{M}$ is a term for discretization.
