@@ -2,10 +2,10 @@
 \label{sec:graphDenoising}
     
 
-In the following chapter, the connection between graphs and the domain of denoising in high-noise 
-domains, such as cryo-EM, is established.
+Following chapter establishes connection between graphs and denoising in high-noise 
+domains, such as cryo-EM.
 First, a broad definition of graphs is given and further, the term "Graph Denoising" is
-introduced and explained. Finally, the connection to Graph Laplacian is established
+introduced and explained. Finally, connection to Graph Laplacian is established
 and different opportunities exploiting for a good denoising algorithms are shown.
 
 
@@ -13,15 +13,17 @@ and different opportunities exploiting for a good denoising algorithms are shown
 Real world data can be in graph structure, like social networks, citation networks,
 protein interaction networks or google search. 
 If data is not available in graph structure, a graph can be artificially constructed with methods like k-nearest neighbours (k-NN) or others.
+A general framework for graph construction is introduced in section~\ref{sec:graphConstruction}.
 
 \paragraph{Graph Learning:} Graph Learning is a hot research area and got a lot of attention in recent years.
 It is a way of applying ML on graphs and algorithms emerged from ML but also other fields.
 When a graph is available, one can start using Graph Learning algorithms for solving tasks.
-Popular tasks are node classification or link prediction within a graph, where the model is learned from node and edge features 
-as well as the topology of the graph. The model can than be used for prediction or classification.
-Another common task is community detection, where the aim is to identify cluster of nodes within the input graph.
-Further, graphs are highly favoured for dimensionality-reduction, where 
-graph algorithms provide a helpful tool, as ordinary algorithms like principle component analysis fail.
+Popular tasks are \textit{node classification} or \textit{link prediction} within a graph, where model is learned from node and edge features 
+as well as topology. The model can than be used for prediction or classification.
+Another common task is \textit{community detection}, where the aim is to identify cluster of nodes within the input graph.
+Further, graphs are highly favoured for \textit{dimensionality-reduction}, where 
+graph algorithms provide a helpful tool, as ordinary algorithms like principle component analysis fail to 
+establish a meaningful dimensionality-reduction.
 
 \subsection{Graph definition}
 A graph is defined as $G = \langle V,E \rangle$, where $V$ is a set of 
@@ -34,16 +36,15 @@ A graph can be either \textit{directed} or \textit{undirected}.
 In a directed one, an edge connects explicitly from one node to another, which means that edge $(i, j) \neq (j, i)$. 
 In undirected graphs ordering does not matter and $(i, j) = (j, i)$.
 
-The \textit{neighbourhood}, denoted by $\mathcal{N}(i) $, of a node $i$  is defined as all adjacent nodes,
-or in other words, there is an edge between the neighbourhood nodes and $i$. 
+The \textit{neighbourhood}, denoted by $\mathcal{N}(i)$, of a node $i$  is defined as all adjacent nodes.
+In other words, there is an edge between neighbourhood nodes and $i$. 
 Further, edges can have \textit{weights}, which is a method to define importance to neighbours of a node.
 If edges are dealing with weights, the term \textit{weighted} graph is used.
 The \textit{degree} of a node are the number of incoming edges.
 
 \paragraph{Adjacency matrix:}
-To do calculations with graphs, it is common to translate graphs in a well suitable mathematically
-form, which are matrices.
-The adjacency matrix can be seen as a way of representing graphs as a matrix.
+To do calculations with graphs, it is common to translate graphs in a matrix, 
+such as the adjacency matrix.
 The (binary) adjacency matrix of graph $G$ is defined as follows:
 \begin{equation}
     \label{eg:AdjacencyMatrix}
@@ -55,16 +56,16 @@ The (binary) adjacency matrix of graph $G$ is defined as follows:
     \end{cases}
 \end{equation}
 
-The matrix $A$ has dimension $\mathbb{R}^{N \times N}$ with $N$ as number of nodes,
-and indices of $A$ correspond to nodes of the graph.
-If there exists an edge between two nodes, the entry in $A$ will be set to $1$, otherwise to $0$.
-This leads to an unweighted graph, as weight of all edges will be $1$, 
+Matrix $A$ has dimension $\mathbb{R}^{N \times N}$ with $N$ as number of nodes
+and indices of $A$ correspond to nodes $V$.
+If there exists an edge between two nodes, entry in $A$ will be set to $1$, otherwise to $0$.
+This leads to an unweighted graph, as weights of all edges will be $1$, 
 but could easily be extended by assigned not just values of $1$ or $0$. 
 When the graph is undirected, the corresponding adjacency matrix will be symmetric. 
 Eigenvalues of $A$ are called \textit{spectrum} of the graph.
 
 
-\subsection{Graph Construction}
+\subsection{Graph construction}
 \label{sec:graphConstruction}
 When data is not available as a graph, it can be easily constructed.
 Consider data from space $\Omega \subset \mathbb{R}^M $, but could basically be any arbitrary space.
@@ -80,18 +81,19 @@ Further, the graph $G$ can be constructed by using:
     \end{cases}
 \end{equation}
 
-where $n_i$, $n_j$ are nodes from indices $i,j$, $d$ is corresponds to a similarity measure between two nodes and $\tau$ is a threshold, 
-when to consider two nodes to be adjacent. K-NN is one possible implementation of a graph construction algorithm, 
+where $x_i$, $x_j$ are nodes from indices $i,j$, $d$ corresponds to a similarity measure and $\tau$ is a threshold, 
+when to consider two nodes to be adjacent.
+K-NN is one possible implementation of a graph construction algorithm, 
 where for every node, $k$ neighbours will be defined.
-The neighbourhood of node $i$ is defined as $\mathcal{N}_i$ and consists of the nodes, with the $k$ smallest similarity measure.
+The neighbourhood $\mathcal{N}_i$ of node $i$ is defined as $k$ nodes with smallest similarity measured.
 
 \paragraph{Noise regime}
-In the case of noise, observation of $x$ it not possible directly.
+In the case of noise, observation of $x$ it not possible.
 Measurements will give access to $y = x + \eta$ where $y,x \in \Omega$ and the noise $\eta$ is assumed to be drawn from gaussian distribution $\mathcal{N} \sim (0,\sigma^2)$.
 The \textit{noisy graph} $G_0$ can be constructed as in equation~\ref{eq:graphConstruction}, but replacing $y$ with $x$:
 \begin{equation}
     \label{eq:graphConstructionNoise}
-    A_{ij} =    
+    A_{0_{ij}} =    
     \begin{cases}
         1  & \text{if } d(y_i, y_j) < \tau\\
         0, & \text{otherwise}
@@ -102,63 +104,64 @@ The \textit{noisy graph} $G_0$ can be constructed as in equation~\ref{eq:graphCo
 \section{Graph Denoising definition}
 
 First of all, \textit{Graph Denoising} is not a common term in literature.
-In the previous section, noisy graph $G_0$ was introduced and the aim is to denoise this graph,
-which means to estimate the original graph $G$ from a given noisy graph $G_0$. 
-This is what is meant with Graph Denoising, which is rather related to signal or image denoising.
+In previous section, noisy graph $G_0$ was introduced and goal is to denoise this graph,
+which means to estimate original graph $G$ from a given noisy graph $G_0$. 
+This is our definition for Graph Denoising, which is rather related to signal or image denoising.
 Reconstruction of a true signal given noisy observation signal is done via averaging, that can be performed
 locally, by the calculus of variations or in the frequency domain\cite{noneLocalMean}. 
 
 \paragraph{Noisy Graph:}
 For every noisy graph there exists an original graph $G = \langle V,E \rangle$.
 The noisy graph $G_0$ can further be defined as $G_0 = \langle V, E_0 \rangle$,  
- where $E_0 = E \setminus  E^{-} \cup  E^{+}$ with $E^{-} \subseteq E$ and $E^{+} \cap E = \emptyset$.
+ where $E_0 = E \setminus  E^{-}_0 \cup  E^{+}_0$ with $E^{-}_0 \subseteq E$ and $E^{+}_0 \cap E = \emptyset$.
 
-$G_0$ consists of same nodes $V$ as the original graph $G$. 
-From the edges of $G$ denoted by $E$, some are removed (denoted by $E^{-}$) and some are added
-(denoted by $E^{+}$), which results is the edges $E_0$ of $G_0$.
+$G_0$ consists of same nodes $V$ as original graph $G$. 
+From $E$ some edges are removed (denoted by $E^{-}_0$) and some are added
+(denoted by $E^{+}_0$), which results is edges $E_0$.
 
-The adjacency matrix of $G_0$ is denoted by $A_0$.
-The task of Graph Denoising, can therefore be written as $GD: A_0 \mapsto \tilde{A} \approx A$,
-where $A_0$, $\tilde{A}$, $A$ denotes the adjacency matrix from noisy input graph, denoised
- graph and original graph respectively.
+Graph Denoising can therefore be written as $GD: A_0 \mapsto \tilde{A} \approx A$,
+where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from noisy input graph, denoised graph and original graph respectively.
 
  \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     The goal of the Master Thesis is to introduce a method to estimate 
-    the original graph $G$ with corresponding $A$ based on an observed noisy graph $G_0$ with $A_0$.
+    original graph $G$ with corresponding $A$ based on observed noisy graph $G_0$ with $A_0$.
 \end{tcolorbox}
 
-\subparagraph{Connection to link prediction}
+\paragraph{Connection to link prediction:}
 Link prediction is a task in Graph Learning. 
-The idea is to predict existence of a link (edge) between two nodes.
+The goal is to predict existence of a link between two nodes.
 The task can be formulated as a missing value estimation task. A model $M_p$ is learned
 from a given set of observed edges. The model finally maps links to probabilities
 $M_p : E^{\prime} \rightarrow [0,1]$ where $E^{\prime}$ is the set of potential links.
 
 Further, $U$ determines the set of all possible vertices of $G$, therefore $E \subseteq U$.
-Obviously, Graph Denoising can be seen as a link prediction problem.
+Clearly, Graph Denoising can be seen as a link prediction problem.
 The difference is, that in link prediction a model from a set of observed links is learned
-$E_{observed} \subseteq E$ and in Graph Denoising the model is learned from 
-$E_{observed} \subseteq U$. 
+$E^{\prime}  \subseteq E$ and in Graph Denoising model is learned from 
+$E^{\prime}  \subseteq U$. 
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    On could also say that link prediction problems are a subset of graph denoising problems.
+\end{tcolorbox}
+
 
 \subsection{Non-local means:}
 In the following section, a short introduction to the 
-state-of-the-art image denoising method non-local means is given\cite{noneLocalMean}.
-For a given noisy image $v$, the denoised image is defined as $NL[v](i) = \sum{w(i,j) \; v(j)}$.
-where $w(i,j)$ is the weight between pixel $i$ and $j$. 
-Weight can be seen as similarity measure of pixels.
-Moreover, similarities are calculated over square neighbourhoods of pixels,
-where $\ell2$-norm of the neighbourhood is used.
+state-of-the-art image denoising method non-local means is given \cite{noneLocalMean}.
+For a given noisy image $v$, the denoised image is defined as $NL[v](i) = \sum{w(i,j) \; v(j)}$,
+where $w(i,j)$ is weight between pixel $i$ and $j$. 
+Weight can be seen as similarity measure of pixels, which are calculated over square neighbourhoods.
 Similar pixel neighbourhoods have a large weight and different neighbourhoods have a small weight.
-More general, the denoised image pixel $i$ is computed as an weighted average of all pixels in the 
+More general, denoised image pixel $i$ is computed as an weighted average of all pixels in the 
 image, therefore, in a non-local way.
 
 Non-local means is not a denoising algorithm, which works with graph as a data structure.
 But, it uses a neighbourhood for averaging, which shows great potential of graphs
-as a data structure as graphs can represent neighbours really well.
+as a data structure for denoising, as graphs can represent neighbours and neighbourhoods really well.
 
 
 \section{Graph Laplacian}
-The Graph Laplacian is a matrix that represents the graph and can be used to find many important properties.
+Graph Laplacian is a matrix that represents a graph and can be used to find many important properties.
 It is a very powerful tool and therefore, a complete section is dedicated to it.
 A good introduction and overview can be found by \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
 
@@ -172,20 +175,21 @@ where $A$ is the adjacency matrix and $D$ the degree matrix (diagonal matrix wit
 \subsection{Manifolds}
 \label{sec:manifolds}
 
-In high-dimensional data euclidean distances are not meaningful,
+In high-dimensional data Euclidean distances are not meaningful,
 in the sense that they will not capture similar data points well.
-Graph Laplacian can be used to compute a \textit{Manifold}, which can help in such a scenario. 
-In the manifold space, euclidean distances make sense again. 
+Graph Laplacian can be used to compute a \textit{Manifold}, which can help in such scenarios. 
+In manifold space, Euclidean distances make sense again. 
 Let manifold $M$ be defined as $\mathcal{M} = \{ f(x), f \in C^K, f: \mathbb{R}^D \to \mathbb{R}^d \}$.
 Manifolds are a well established mathematical concept. In the Master Thesis, only 
-$C^k$ differentiable d-dimensional manifold defined by $\mathcal{M}$ are considered. 
-When $d \ll D$, manifold defines a \textit{low-dimensional embedding}, which maps from high-dimensional space 
+$C^k$ differentiable d-dimensional manifolds defined by $\mathcal{M}$ are considered. 
+When $d \ll D$, manifolds define a \textit{low-dimensional embedding}, which maps from high-dimensional space 
 $\mathbb{R}^D$ to low-dimensional space $\mathbb{R}^d$.
 
-Lets give two popular examples of such manifolds, namely the \textit{circle} and the \textit{sphere}.
+Lets give two popular examples of manifolds, namely the \textit{circle} and the \textit{sphere}.
 The circle is a 1D manifold, where $d=1$ and $D=2$. A sphere is a 2D manifold, with $d=2$ and $D=3$.
-In figure~\ref{fig:circle_sampling}, 200 samples are drawn from a uniform distribution of circle manifold
-and in figure~\ref{fig:sphere_sampling}, 400 samples are drawn from a uniform distribution of sphere manifold.
+In figure~\ref{fig:circle_sampling}, 200 samples are drawn from a uniform distribution of the unit-circle manifold
+and in figure~\ref{fig:sphere_sampling}, 400 samples are drawn from a uniform distribution of the unit-sphere manifold,
+as well as the sphere itself.
 
 \begin{figure}[H]
     \centering
@@ -198,19 +202,18 @@ and in figure~\ref{fig:sphere_sampling}, 400 samples are drawn from a uniform di
     \caption{Samples drawn from 1D and 2D manifold.}
 \end{figure}
 
-One popular algorithm for calculating manifolds is Diffusion Maps\cite{diffusionMaps}, 
+One popular algorithm for calculating manifolds is diffusion maps \cite{diffusionMaps}, 
 which is a non-linear approach for calculating low-dimensional manifolds
 for (high-dimensional) datasets, using Graph Laplacian.
-Vector Diffusion Maps\cite{vectorDiffusionMaps} generalize the concept of Diffusion Maps for vector fields.
-Multi-Frequency Vector Diffusion Maps (MFVDM)\citet{multiDiffusionMaps} 
-can be seen as an extension to Vector Diffusion Maps \cite{vectorDiffusionMaps}, 
-which works well even on highly noisy environments.
-\cite{multiDiffusionMaps} was successfully applied in cryo-EM setting,
- where it was used for denoising purpose\cite{cryoEmMutliDM}.
+Vector diffusion maps \cite{vectorDiffusionMaps} generalize the concept of diffusion maps for vector fields.
+Multi-frequency vector diffusion maps \cite{multiDiffusionMaps} 
+can be seen as an extension to vector diffusion maps, which works well even on highly noisy environments.
+\citet{cryoEmMutliDM} successfully applied multi-frequency vector diffusion Maps in cryo-EM setting,
+ where it was used for denoising purpose.
 
 \paragraph{Manifold assumption:}
 \label{sec:manifoldAssumption}
-The manifold assumption is a popular assumption for high-dimensional datasets.
+Manifold assumption is a popular assumption for high-dimensional datasets.
 For a given dataset in high-dimension, one can assume that data points are samples drawn from a low-dimensional manifold,
 that embeds the high-dimensional space. 
 Therefore, if underlying manifold can be approximated, a dimensionality reduction
@@ -218,8 +221,8 @@ is established as one can embed the data points in the low-dimensional manifold 
 There is a complete area of research devoted to this manifold assumption called Manifold Learning\cite{ManifoldLearning},
 but it is not only used there.
 
-\paragraph{Manifold estimation:}
-The manifold, and therefore, a low-dimensional embedding, can be calculated the following:
+\paragraph{Manifold calculation:}
+Manifold of a dataset can be calculated the following:
 
 \begin{enumerate}
     \item Construct k-NN graph from observations (see section~\ref{sec:graphConstruction}).
@@ -227,44 +230,46 @@ The manifold, and therefore, a low-dimensional embedding, can be calculated the 
     \item Extract the second, third (and fourth) smallest eigenvectors.
 \end{enumerate}
 
-Therefore, it can be observed how the manifold of classical tomography and cryo-EM looks like.
-In the following, the Shepp-Logan phantom is used as an example of a classical tomography image.
+Therefore, it can be observed how the manifold of classical tomography and cryo-EM objects look like.
+In the following, the Shepp-Logan phantom (figure~\ref{fig:phantom}) is used as an example of classical tomography.
+In figure~\ref{fig:phantom_sinogram}, figure~\ref{fig:phantom_sinogram_noisy} and figure~\ref{fig:phantom_sinogram_noisy_high} 
+sinogram of the original phantom and phantoms, where gaussian noise was added, are shown.
 
 \begin{figure}[H]
     \centering
     \subbottom[Shepp-Logan phantom          \label{fig:phantom}]{\includegraphics[width=0.18\textwidth]{phantom.png}}
-    \subbottom[Original sinogram            \label{fig:ps:phantom_sinogram}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram.png}}
+    \subbottom[Original sinogram            \label{fig:phantom_sinogram}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram.png}}
     \subbottom[Noisy sinogram               \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram_noisy.png}}
-    \subbottom[2nd and 3rd smallest eigenvector of Graph Laplacian      \label{fig:phantom_second_third_evec}]{\includegraphics[width=0.18\textwidth]{phantom_second_third_evec.png}}
-    \subbottom[2nd and 3rd smallest eigenvector of noisy Graph Laplacian\label{fig:phantom_second_third_evec_noisy}]{\includegraphics[width=0.18\textwidth]{phantom_second_third_evec_noisy.png}}
-    \caption{Shepp-Logan phantom manifold}
+    \subbottom[Highly noisy sinogram               \label{fig:phantom_sinogram_noisy_high}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram_noisy_high.png}}
+    \caption{Shepp-Logan phantom and sinograms}
 \end{figure}
 
-In Figure~\ref{fig:phantom_second_third_evec} the manifold calculated from the original image Graph Laplacian
+In Figure~\ref{fig:phantom_second_third_evec} the manifold calculated from original phantom Graph Laplacian
 can be seen and it is a perfect circle. 
-Further, noise was added to the image and in Figure~\ref{fig:phantom_second_third_evec_noisy}
-the noisy version with $\sigma=2$ is plotted and the manifold is circle like but not a perfect circle.
+Further, in figure~\ref{fig:phantom_second_third_evec_noisy}
+noisy version with $\sigma=2$ is plotted and the manifold is not a perfect circle, but circle like.
 
-The more noise is added to the original image, the less the manifold looks like a circle. In Figure~\ref{fig:phantom_second_third_evec_noisy_high}
-the manifold for $\sigma=100$ is plotted. In all plots, knn-graph have been constructed with $k=10$. 
+The more noise is added, the less manifold looks like a circle. In figure~\ref{fig:phantom_second_third_evec_noisy_high}
+the manifold for $\sigma=100$ is plotted. In all plots, k-NN graphs have been constructed with $k=10$. 
 
 \begin{figure}[H]
     \centering
-    \subtop[Highly noisy sinogram               \label{fig:phantom_sinogram_noisy_high}]{\includegraphics[width=0.4\textwidth]{phantom_sinogram_noisy_high.png}}
-    \subtop[2nd and 3rd smallest eigenvector of Graph Laplacian      \label{fig:phantom_second_third_evec_noisy_high}]{\includegraphics[width=0.4\textwidth]{phantom_second_third_evec_noisy_high.png}}
-    \caption{Shepp-Logan phantom manifold for high noise level}
+    \subbottom[Original phantom manifold      \label{fig:phantom_second_third_evec}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec.png}}
+    \subbottom[Noisy phantom manifold\label{fig:phantom_second_third_evec_noisy}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy.png}}
+    \subbottom[Highly-noisy phantom manifold \label{fig:phantom_second_third_evec_noisy_high}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy_high.png}}
+    \caption{Shepp-Logan phantom manifolds}
 \end{figure}
 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    In the field of classical tomography and cryo-EM, the manifold is well defined for none-noisy data.
+    In the field of classical tomography and cryo-EM, the underlying low-dimensional manifold is well defined for none-noisy data.
     In the 2D case of classical tomography, the underlying manifold is a circle, whereas in 3D case of cryo-EM the manifold
     if defined as a sphere.
-    This fact can be exploited during learning, by using wasserstein loss function (see \ref{sec:wasserstein-metric}).
+    This fact can be exploited during learning (e.g. by using Wasserstein loss function (see \ref{sec:wasserstein-metric})).
 \end{tcolorbox}
 
 
-\subsection{Connection to machine learning}
+\subsection{Connection to Machine Learning}
 
 Graph Laplacian is used for dimensionality reduction for high-dimensional data, as well as spectral clustering and semi-supervised learning.
 \citet{LaplaceRandomProjections} used Graph Laplacian in a complete other domain, namely in tomography. 
@@ -274,34 +279,35 @@ Further, Graph Laplacian is depended on the adjacency matrix $A$, if $A$ is nois
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     In the Master Thesis, further experience of Graph Laplacian in the domain of tomography and denoising
-    should be gained. Additionally, connection with machine learning will be explored, hopefully allowing to learn a denoised 
+    should be gained. Additionally, connection with Machine Learning will be explored, hopefully allowing to learn a denoised 
     adjacency matrix to fully enable the power of Graph Laplacian.
 \end{tcolorbox}
 
 
 \subsection{Graph Deep Learning}
 As already mentioned, Graph Denoising can be seen as a way of link predication. 
-The state-of-the-art method for solving link prediction are graph deep learning approaches.
-Graph deep learning is a fast evolving field in research. With Graph Neural Networks (GNN)\cite{GNN} the framework
-for GNN has been established. 
+The state-of-the-art method for solving link prediction are \textit{Graph Deep Learning} approaches.
+Graph Deep Learning is a fast evolving field in research. With Graph Neural Networks (GNN) \cite{GNN} the framework
+for neural networks with graphs has been established. 
 
 Using Graph Convolutional Networks (GCN) \cite{GCN} for graph feature extraction is a popular way. 
-Basically, with GCN a new feature representation is iteratively learned for the node features (edges features are not taken into account).
-It can be seen as an averaging of nodes over their neighbourhood where all the neighbours get the same weight combined with some non-linear activation. 
-To consider the node itself in the averaging process they apply to so-called "Renormalization trick", where self-loops are added to the 
-adjacency matrix and after every layer, a normalization step is applied.The topology of the graph will not be adjusted during the learning process.
+With GCN a new feature representation is iteratively learned for the node features (edge features are not considered).
+It can be seen as an averaging of nodes over their neighbourhood where all neighbours get the same weight combined with some non-linear activation (e.g. ReLU). 
+To consider the node itself in averaging they apply the so-called "Renormalization trick", where self-loops are added to the 
+adjacency matrix and after every layer, a normalization step is applied. 
+The topology of the graph will not be adjusted during  learning process.
 
 \citet{GAT} extended the concept of GCN with attention and not all the neighbouring nodes get the same weight (attention).
-Simple Graph Convolutional Network (SGC) \cite{simpleGCN} proposed a simplified version of GCN.
-They could verify their hypothesis that GCN is dominated by the local averaging step and the non-linear 
+Simple Graph Convolutional Network \cite{simpleGCN} proposed a simplified version of GCN.
+They could verify their hypothesis that GCN is dominated by local averaging step and non-linear 
 activation function between layers do not contribute to much to the success of GCN. 
 Therefore, it can be seen as a way of power iteration (see \ref{sec:powerIterations} for further information) over the adjacency matrix with normalization in every layer.
-\citet{dynamicGCN} proposed a extended version of GCN by not operating on the same graph in every layer but adopting
-the underlying graph topology layer by layer.
+\citet{dynamicGCN} proposed an extension to GCN by not operating on the same graph in every layer but adopting
+underlying graph topology layer by layer.
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     In the Master Thesis, connection between Graph Laplacian and GNNs should be further studied.
     The fact, that \citet{simpleGCN} could simplify the existing GCN algorithm is motivation enough
-    that similar connections can be drawn in other fields of Graph Learning.
+    that similar connections can be drawn in other fields of Graph Deep Learning.
 \end{tcolorbox}
 
