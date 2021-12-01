@@ -1,5 +1,9 @@
 \documentclass[aspectratio=169]{beamer}
+
 \usepackage{basileabeam}
+\usepackage[most]{tcolorbox}
+
+
 \addbibresource{presentation.bib}
 % Notes:
 %\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]
@@ -31,7 +35,7 @@
     \titlepage
 \end{frame}
 
-\begin{frame}[t]{Overview}
+\begin{frame}[t]{Outline}
     \tableofcontents
 \end{frame}
 
@@ -39,34 +43,48 @@
 
 \section{Imaging methods}	% You can also have slides prior to the first section or work entirely without sections.
 
-
-\begin{frame}[c]{Some Images}
-\begin{columns}[c]
-    \column{.55\textwidth}
-            \includegraphics[width=0.8\textwidth]{block}
-    \column{.45\textwidth}
-            Turing machine \cite{diffusionMaps}
-\end{columns}
-\end{frame}
-
-
-\begin{frame}[c]{Some Images}
+\begin{frame}[c]{Cryo-EM}
     \begin{figure}
-        \includegraphics[width=0.8\textwidth]{turingmachine}
-        \caption{A Turing Machine.}
+        \includegraphics[width=0.4\textwidth]{cryo-EM-overview.png}
+        \includegraphics[width=0.4\textwidth]{micky-mouse.png}
+        \caption{Cryo-EM overview \cite[Figure 1 and Figure 2]{cryoEmMath2}}
     \end{figure}
+
+\end{frame}
+
+\begin{frame}[c]{Cryo-EM challenges}
+    \begin{itemize}
+        \item High-noise level 
+        \item Unknown rotation during freezing
+        \item (Structural variety of observations)
+    \end{itemize}
+
+    
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    The main domain of interest is the high-noise domain (cryo-EM).
+\end{tcolorbox}
+
 \end{frame}
 
 
-\begin{frame}[c]{Some Equations}
-Now we introduce an equation.
-\begin{theorem}
-A Turing Machine is a 7-Tuple:
-\begin{equation}
-    M = \langle Q, \Gamma, b, \Sigma, \delta, q_0, F \rangle
-\end{equation}
-\end{theorem}
-A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q, \Gamma, b, \Sigma, \delta, q_0, F \rangle$.
+\begin{frame}[c]{Computed Tomography}
+    \begin{columns}[c]
+        \column{.45\textwidth}
+                \includegraphics[width=0.4\textwidth]{phantom.png}
+                \includegraphics[width=0.4\textwidth]{phantom_sinogram.png}
+                
+        \column{.55\textwidth}
+            \begin{itemize}
+                \item Related to cryo-EM
+                \item Can be seen as simpler version in 2D
+                \item Good to start with
+            \end{itemize}
+    \end{columns}
+
+    \begin{definition}[Observation]
+        $$ y_i[j] = R(x, \theta_i, s_j) + \eta_i[j] , \text{ with } 1 \leq i \leq N \text{ and } 1 \leq j \leq M,$$
+    \end{definition}
+
 \end{frame}
 
 
@@ -79,20 +97,16 @@ A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q,
         \item $E$: Calculate adjacency matrix with similarity measure $d$ and some threshold $\tau$
      \end{itemize}
 
-    \begin{columns}
-        \column{.5\textwidth}
-            \begin{definition}
-                \begin{equation}
-                    \label{eq:graphConstruction}
-                    A_{ij} =    
-                    \begin{cases}
-                        1  & \text{if } d(x_i, x_j) < \tau\\
-                        0, & \text{otherwise}
-                    \end{cases}
-                \end{equation}
-            \end{definition}
-        \column{.5\textwidth}
-    \end{columns}
+     \begin{definition}[Adjacency Matrix]
+        \begin{equation}
+            \label{eq:graphConstruction}
+            A_{ij} =    
+            \begin{cases}
+                1  & \text{if } d(x_i, x_j) < \tau\\
+                0, & \text{otherwise}
+            \end{cases}
+        \end{equation}
+    \end{definition}
 \end{frame}
 
 \begin{frame}{Graph construction}
@@ -103,32 +117,16 @@ A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q,
         \item $V$: each node associated with $y \in \Omega$
         \item $E$: Calculate adjacency matrix with similarity measure $d$ and some threshold $\tau$
      \end{itemize}
-
-    \begin{columns}
-        \column{.5\textwidth}
-            \begin{definition}
-                \begin{equation}
-                    \label{eq:graphConstruction}
-                    A_{ij} =    
-                    \begin{cases}
-                        1  & \text{if } d(x_i, x_j) < \tau\\
-                        0, & \text{otherwise}
-                    \end{cases}
-                \end{equation}
-            \end{definition}
-        \column{.5\textwidth}
-            \begin{definition}
-                \begin{equation}
-                    \label{eq:graphConstructionNoise}
-                    A_{0_{ij}} =    
-                    \begin{cases}
-                        1  & \text{if } d(y_i, y_j) < \tau\\
-                        0, & \text{otherwise}
-                    \end{cases}
-                \end{equation}
-                
-            \end{definition}
-    \end{columns}
+     \begin{definition}[Noisy Adjacency Matrix]
+        \begin{equation}
+            \label{eq:graphConstructionNoise}
+            A_{0_{ij}} =    
+            \begin{cases}
+                1  & \text{if } d(y_i, y_j) < \tau\\
+                0, & \text{otherwise}
+            \end{cases}
+        \end{equation}    
+     \end{definition}
 \end{frame}
 
 \begin{frame}[c]{Noisy graph}
@@ -148,12 +146,12 @@ A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q,
     \textit{Graph denoising} is the task, to estimate a denoised graph $\tilde{G}$  
     from a given noisy graph $G_O$, with underlying original graph $G$:
 
-    \begin{definition}
+    \begin{definition}[Graph Denoising]
         $$GD: G_0 \mapsto \tilde{G} \approx G,$$
     \end{definition}
     where $G_0$, $\tilde{G}$, $G$ denotes noisy, estimated denoised and original graph respectively.
     
-    \begin{definition}
+    \begin{definition}[Graph Denoising]
         $$GD: A_0 \mapsto \tilde{A} \approx A,$$
     \end{definition}
     where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from $G_0$, $\tilde{G}$ and $G$ respectively.
@@ -163,23 +161,43 @@ A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q,
 \section{Conclusion}
 
 
-\begin{frame}[t]{Items and Numbers}
-\begin{columns}
-    \column{.5\textwidth}
-            \begin{itemize}
-            \item one
-            \item two
-            \item three
-            \end{itemize}
-    \column{.5\textwidth}
-            \begin{enumerate}
-            \item first
-            \item second
-            \item third
-            \end{enumerate}
-\end{columns}
+\begin{frame}[c]{Manifolds}
+    We know structure of manifolds for noiseless data:
+    \begin{itemize}
+        \item Computed Tomography $\to$ circle
+        \item Cryo-Em $\to$ sphere
+    \end{itemize}
+
+    If data is noisy, manifold will "drift" away from noise less manifold:
+    \begin{figure}
+        \includegraphics[width=0.25\textwidth]{phantom_second_third_evec}
+        \includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy}
+        \includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy_high}
+        \caption{Manifolds for phantom without noise, and different noise levels.}
+    \end{figure}
 \end{frame}
 
+
+\begin{frame}{Project Conclusion}
+    \begin{itemize}
+        \item Introduce Graph Denoising method
+        \item Focus on high-noise domain (cryo-EM)
+        \item Exploit known manifold in 2D and 3D
+        \item Further study Graph Laplacian and connection with
+            \begin{itemize}
+                \item Tomography domain
+                \item GNNs and Machine Learning in general
+            \end{itemize}
+        \item Evaluate on toy dataset in 2D and 3D
+        \item Nice to have: evaluate on cryo-EM / CT dataset
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Project schedule}
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{gantt_chart}
+    \end{figure}
+\end{frame}
 
 \begin{frame}[t,plain]
 \lastpage{{\usebeamerfont{title} Questions?}\\[5ex]}
@@ -187,9 +205,9 @@ A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q,
 
 \backupbegin
 
-%\begin{frame}{References}
-%    \printbibliography
-%\end{frame}
+\begin{frame}{References}
+    \printbibliography
+\end{frame}
 
 \backupend
 

@@ -251,6 +251,18 @@
 \end{beamercolorbox}%
 }
 
+% table of content:
+%\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{section in toc}{%
+    \leavevmode\leftskip=1.75ex%
+  \llap{%
+    \usebeamerfont{section number projected}%
+    \usebeamercolor[bg]{section number projected}%
+    \vrule width2.25ex height1.85ex depth.4ex%
+    \hskip-2.25ex%
+    \hbox to2.25ex{\hfil\color{fg}\inserttocsectionnumber\hfil}}%
+  \kern1.25ex\inserttocsection\par}
+
 % Frame title continuations, default
 \defbeamertemplate*{frametitle continuation}{decolines theme}{(\insertcontinuationcount)}
 
