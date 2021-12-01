@@ -3,7 +3,7 @@
 \usepackage{basileabeam}
 \usepackage[most]{tcolorbox}
 
-
+\setbeamercovered{invisible}
 \addbibresource{presentation.bib}
 % Notes:
 %\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]
@@ -59,9 +59,14 @@
         \item (Structural variety of observations)
     \end{itemize}
 
-    
+    \pause
     \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-        The main domain of interest is the high-noise domain (cryo-EM).
+        Only single particle cryo-EM is considered.
+    \end{tcolorbox}
+
+    \pause
+    \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+        The main domain of interest is high-noise domain (cryo-EM).
     \end{tcolorbox}
 
 \end{frame}
@@ -115,12 +120,14 @@
 \section{Graph Denoising}
 
 \begin{frame}{Graph construction}
-    Let $\Omega$ be a dataset $\Omega \subset \mathbb{R}^M$, a graph can be constructed like:
+    Consider $n$ observed images $(x_0, x_1, \dots, x_n)$, where $x_i \in \mathbb{R}^M$ with $M$ as image dimension.
+    A graph can be constructed by:
     \begin{itemize}
-        \item $V$: each node associated with $x \in \Omega$
-        \item $E$: Calculate adjacency matrix with similarity measure $d$ and some threshold $\tau$
+        \item $V$: The images can be used as nodes.
+        \item $E$: If similarity measure $d$ of two images $x_i, x_j$ is smaller than given threshold $\tau$, there will be an edge.
      \end{itemize}
 
+     \pause
      \begin{definition}[Adjacency Matrix]
         \begin{equation}
             \label{eq:graphConstruction}
@@ -134,13 +141,17 @@
 \end{frame}
 
 \begin{frame}{Graph construction}
-    Let $\Omega$ be a dataset $\Omega \subset \mathbb{R}^M$, but only observation 
-    of $y = x + \eta$ (with $\eta$ drawn from $\mathcal{N} \sim (0, \sigma^2)$), 
-    a graph can be constructed like:
+    Consider $n$ observed \textbf{noisy} images $(y_0, y_1, \dots, y_n)$, where $y_i \in \mathbb{R}^M$ with $M$ as image dimension.
+    Then, $y_i = x_i + \eta$ with $\eta$ drawn from $\mathcal{N} \sim (0, \sigma^2)$ and $(x_0, x_1, \dots, x_n)$
+    as the original images.
+    A noisy graph can be constructed like:
     \begin{itemize}
-        \item $V$: each node associated with $y \in \Omega$
-        \item $E$: Calculate adjacency matrix with similarity measure $d$ and some threshold $\tau$
+        \item $V$: The \textbf{noisy} images $y$ can be used as nodes.
+        \item $E$: If similarity measure $d$ of two \textbf{noisy} images $y_i, y_j$ is smaller than given threshold $\tau$, there will be an edge.
      \end{itemize}
+
+     \pause
+
      \begin{definition}[Noisy Adjacency Matrix]
         \begin{equation}
             \label{eq:graphConstructionNoise}
@@ -153,18 +164,18 @@
      \end{definition}
 \end{frame}
 
-\begin{frame}[c]{Noisy graph}
-
-    \begin{theorem}
-        For every noisy graph $G_0 = \langle V, E_0 \rangle$, 
-        there exists a noiseless graph $G = \langle V, E \rangle$.
-        Both graphs consists of the same set of vertices $V$ but different edges.
-        $E_0$  is defined as follows:
-        $$E_0 = E \setminus  E^{-}_0 \cup  E^{+}_0,$$
-        where $E^{-}_0 \subseteq E$ and $E^{+}_0 \subseteq U$ with $U$ the set of all possible edges and $E^{+}_0 \cap E = \emptyset$
-    \end{theorem}
-
-\end{frame}
+%\begin{frame}[c]{Noisy graph}
+%
+%    \begin{definition}
+%        For every noisy graph $G_0 = \langle V, E_0 \rangle$, 
+%        there exists a noiseless graph $G = \langle V, E \rangle$.
+%        Both graphs consists of the same set of vertices $V$ but different edges.
+%        $E_0$  is defined as follows:
+%        $$E_0 = E \setminus  E^{-}_0 \cup  E^{+}_0,$$
+%        where $E^{-}_0 \subseteq E$ and $E^{+}_0 \subseteq U$ with $U$ the set of all possible edges and $E^{+}_0 \cap E = \emptyset$
+%    \end{theorem}
+%
+%\end{frame}
 
 \begin{frame}[c]{Graph Denoising}
     \textit{Graph denoising} is the task, to estimate a denoised graph $\tilde{G}$  
@@ -174,15 +185,15 @@
         $$GD: G_0 \mapsto \tilde{G} \approx G,$$
     \end{definition}
     where $G_0$, $\tilde{G}$, $G$ denotes noisy, estimated denoised and original graph respectively.
-    
-    \begin{definition}[Graph Denoising]
-        $$GD: A_0 \mapsto \tilde{A} \approx A,$$
-    \end{definition}
-    where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from $G_0$, $\tilde{G}$ and $G$ respectively.
+   
 
 \end{frame}
 
 \section{Conclusion}
+
+\begin{frame}
+    Slide about Manifolds on cryo-EM and CT.
+\end{frame}
 
 
 \begin{frame}[c]{Manifolds}
@@ -202,10 +213,10 @@
 \end{frame}
 
 
-\begin{frame}{Project Conclusion}
+\begin{frame}{Project Conclusion - Next steps}
     \begin{itemize}
-        \item Introduce Graph Denoising method
         \item Focus on high-noise domain (cryo-EM)
+        \item Introduce Graph Denoising method
         \item Exploit known manifold in 2D and 3D
         \item Further study Graph Laplacian and connection with
             \begin{itemize}
