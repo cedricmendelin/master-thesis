@@ -60,11 +60,28 @@
     \end{itemize}
 
     
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    The main domain of interest is the high-noise domain (cryo-EM).
-\end{tcolorbox}
+    \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+        The main domain of interest is the high-noise domain (cryo-EM).
+    \end{tcolorbox}
 
 \end{frame}
+
+%\begin{frame}
+%    \begin{definition}[Cryo-EM observation]
+%        $$ y_i[j,k] = \Pi_z (\; Rot(\;x; \theta_i))_{j,k} + \eta_i[j,k], \text{ with } 1 \leq i \leq N \text{ and } 1 \leq j,k \leq M,$$
+%    \end{definition}
+%    \begin{itemize}
+%        \item $y_i[] \in \tilde{\Omega}, x \in L^2(\Omega)$ with $\Omega \subset \mathbb{R}^3 $ and $\tilde{\Omega} \subset \mathbb{R}^2 $
+%        \item $M$ observation dimension
+%        \item $\Pi_z : L^2(\Omega) \to L^2(\tilde{\Omega})$ projection operator
+%        \item $Rot : L^2(\Omega) \to L^2(\Omega),$ is rotation operator
+%        \item $Rot(x, \theta_i) = \left((x_1,x_2,x_3) \mapsto x( x_1R^1_{\theta_i}, x_2R^2_{\theta_i}, x_3R^3_{\theta_i})\right)$
+%        \begin{itemize}
+%            \item $\theta_i = [\theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} ] $, with $\theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} \in \mathbb{R}$
+%            \item $R_{\theta_i} =  [R^1_{\theta_i}, R^2_{\theta_i}, R^3_{\theta_i}] \in SO(3)$ is the 3D rotation matrix 
+%        \end{itemize}
+%    \end{itemize}
+%\end{frame}
 
 
 \begin{frame}[c]{Computed Tomography}
@@ -81,11 +98,18 @@
             \end{itemize}
     \end{columns}
 
-    \begin{definition}[Observation]
-        $$ y_i[j] = R(x, \theta_i, s_j) + \eta_i[j] , \text{ with } 1 \leq i \leq N \text{ and } 1 \leq j \leq M,$$
-    \end{definition}
-
 \end{frame}
+
+% \begin{frame}
+%     \begin{definition}[CT observation]
+%         $$ y_i[j] = R(x, \theta_i, s_j) + \eta_i[j] , \text{ with } 1 \leq i \leq N \text{ and } 1 \leq j \leq M,$$
+%     \end{definition}
+% 
+%     \begin{itemize}
+%         \item 
+%     \end{itemize}
+%     
+% \end{frame}
 
 
 \section{Graph Denoising}
@@ -137,7 +161,7 @@
         Both graphs consists of the same set of vertices $V$ but different edges.
         $E_0$  is defined as follows:
         $$E_0 = E \setminus  E^{-}_0 \cup  E^{+}_0,$$
-        where $E^{-}_0 \subseteq E$ and $E^{-}_0 \subseteq U$ with $U$ the set of all possible edges and $E^{+}_0 \cap E = \emptyset$
+        where $E^{-}_0 \subseteq E$ and $E^{+}_0 \subseteq U$ with $U$ the set of all possible edges and $E^{+}_0 \cap E = \emptyset$
     \end{theorem}
 
 \end{frame}
@@ -168,7 +192,7 @@
         \item Cryo-Em $\to$ sphere
     \end{itemize}
 
-    If data is noisy, manifold will "drift" away from noise less manifold:
+    If data is noisy, manifold will "drift" away from noiseless manifold:
     \begin{figure}
         \includegraphics[width=0.25\textwidth]{phantom_second_third_evec}
         \includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy}
