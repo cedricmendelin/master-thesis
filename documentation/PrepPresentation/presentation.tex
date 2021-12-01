@@ -1,6 +1,6 @@
 \documentclass[aspectratio=169]{beamer}
 \usepackage{basileabeam}
-
+\addbibresource{presentation.bib}
 % Notes:
 %\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]
 %\setbeamertemplate{note page}[plain]
@@ -28,23 +28,27 @@
 \begin{document}
 
 \begin{frame}[t,plain]
-\titlepage
+    \titlepage
 \end{frame}
 
-\note{Notes can help you to remember important information. Turn on the notes option.}
+\begin{frame}[t]{Overview}
+    \tableofcontents
+\end{frame}
 
-\section{Section 1}	% You can also have slides prior to the first section or work entirely without sections.
+%% Presentation content
+
+\section{Imaging methods}	% You can also have slides prior to the first section or work entirely without sections.
+
 
 \begin{frame}[c]{Some Images}
 \begin{columns}[c]
     \column{.55\textwidth}
             \includegraphics[width=0.8\textwidth]{block}
     \column{.45\textwidth}
-            Turing machine
+            Turing machine \cite{diffusionMaps}
 \end{columns}
 \end{frame}
 
-\note{Notes can help you to remember important information. Turn on the notes option.}
 
 \begin{frame}[c]{Some Images}
     \begin{figure}
@@ -53,7 +57,6 @@
     \end{figure}
 \end{frame}
 
-\note{Notes can help you to remember important information. Turn on the notes option.}
 
 \begin{frame}[c]{Some Equations}
 Now we introduce an equation.
@@ -66,9 +69,99 @@ A Turing Machine is a 7-Tuple:
 A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q, \Gamma, b, \Sigma, \delta, q_0, F \rangle$.
 \end{frame}
 
-\note{Notes can help you to remember important information. Turn on the notes option.}
 
-\section{Section 2}
+\section{Graph Denoising}
+
+\begin{frame}{Graph construction}
+    Let $\Omega$ be a dataset $\Omega \subset \mathbb{R}^M$, a graph can be constructed like:
+    \begin{itemize}
+        \item $V$: each node associated with $x \in \Omega$
+        \item $E$: Calculate adjacency matrix with similarity measure $d$ and some threshold $\tau$
+     \end{itemize}
+
+    \begin{columns}
+        \column{.5\textwidth}
+            \begin{definition}
+                \begin{equation}
+                    \label{eq:graphConstruction}
+                    A_{ij} =    
+                    \begin{cases}
+                        1  & \text{if } d(x_i, x_j) < \tau\\
+                        0, & \text{otherwise}
+                    \end{cases}
+                \end{equation}
+            \end{definition}
+        \column{.5\textwidth}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Graph construction}
+    Let $\Omega$ be a dataset $\Omega \subset \mathbb{R}^M$, but only observation 
+    of $y = x + \eta$ (with $\eta$ drawn from $\mathcal{N} \sim (0, \sigma^2)$), 
+    a graph can be constructed like:
+    \begin{itemize}
+        \item $V$: each node associated with $y \in \Omega$
+        \item $E$: Calculate adjacency matrix with similarity measure $d$ and some threshold $\tau$
+     \end{itemize}
+
+    \begin{columns}
+        \column{.5\textwidth}
+            \begin{definition}
+                \begin{equation}
+                    \label{eq:graphConstruction}
+                    A_{ij} =    
+                    \begin{cases}
+                        1  & \text{if } d(x_i, x_j) < \tau\\
+                        0, & \text{otherwise}
+                    \end{cases}
+                \end{equation}
+            \end{definition}
+        \column{.5\textwidth}
+            \begin{definition}
+                \begin{equation}
+                    \label{eq:graphConstructionNoise}
+                    A_{0_{ij}} =    
+                    \begin{cases}
+                        1  & \text{if } d(y_i, y_j) < \tau\\
+                        0, & \text{otherwise}
+                    \end{cases}
+                \end{equation}
+                
+            \end{definition}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[c]{Noisy graph}
+
+    \begin{theorem}
+        For every noisy graph $G_0 = \langle V, E_0 \rangle$, 
+        there exists a noiseless graph $G = \langle V, E \rangle$.
+        Both graphs consists of the same set of vertices $V$ but different edges.
+        $E_0$  is defined as follows:
+        $$E_0 = E \setminus  E^{-}_0 \cup  E^{+}_0,$$
+        where $E^{-}_0 \subseteq E$ and $E^{-}_0 \subseteq U$ with $U$ the set of all possible edges and $E^{+}_0 \cap E = \emptyset$
+    \end{theorem}
+
+\end{frame}
+
+\begin{frame}[c]{Graph Denoising}
+    \textit{Graph denoising} is the task, to estimate a denoised graph $\tilde{G}$  
+    from a given noisy graph $G_O$, with underlying original graph $G$:
+
+    \begin{definition}
+        $$GD: G_0 \mapsto \tilde{G} \approx G,$$
+    \end{definition}
+    where $G_0$, $\tilde{G}$, $G$ denotes noisy, estimated denoised and original graph respectively.
+    
+    \begin{definition}
+        $$GD: A_0 \mapsto \tilde{A} \approx A,$$
+    \end{definition}
+    where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from $G_0$, $\tilde{G}$ and $G$ respectively.
+
+\end{frame}
+
+\section{Conclusion}
+
 
 \begin{frame}[t]{Items and Numbers}
 \begin{columns}
@@ -88,41 +181,15 @@ A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q,
 \end{frame}
 
 
-\note{Notes can help you to remember important information. Turn on the notes option.}
-
-\begin{frame}[c]{Tables}
-Tables are also interesting.
-\begin{table}[ht!]
-\centering
-\begin{tabular}{|l|c|l|} \hline
-Title&$f$&Comments\\ \hline
-The chemical basis of morphogenesis & 7327 & \\ \hline
-On computable numbers & 6347 & Turing Machine\\ \hline
-Computing machinery and intelligence & 6130 & \\ \hline
-\end{tabular}
-\end{table}
-\end{frame}
-
-\note{Notes can help you to remember important information. Turn on the notes option.}
-
-\begin{frame}[c]{Speaker Notes}
-You may turn on the notes and handout option to see the notes to the slides.
-\end{frame}
-
-\note{Notes can help you to remember important information. Turn on the notes option.}
-
 \begin{frame}[t,plain]
-\lastpage{{\usebeamerfont{title} Questions?}\\[5ex]
-author@email.com}
+\lastpage{{\usebeamerfont{title} Questions?}\\[5ex]}
 \end{frame}
-
-\note{Notes can help you to remember important information. Turn on the notes option.}
 
 \backupbegin
 
-\begin{frame}{Backup}
-Test
-\end{frame}
+%\begin{frame}{References}
+%    \printbibliography
+%\end{frame}
 
 \backupend
 
