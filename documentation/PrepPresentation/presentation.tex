@@ -2,6 +2,8 @@
 
 \usepackage{basileabeam}
 \usepackage[most]{tcolorbox}
+\usepackage{subfig}
+
 
 \setbeamercovered{invisible}
 \addbibresource{presentation.bib}
@@ -31,6 +33,13 @@
 
 \begin{document}
 
+\AtBeginSection[]{%
+  \frame<beamer>{ 
+    \frametitle{Outline}   
+    \tableofcontents[currentsection] 
+  }
+}
+
 \begin{frame}[t,plain]
     \titlepage
 \end{frame}
@@ -39,9 +48,32 @@
     \tableofcontents
 \end{frame}
 
+
 %% Presentation content
 
 \section{Imaging methods}	% You can also have slides prior to the first section or work entirely without sections.
+
+\begin{frame}[c]{Cryo-electron microscopy (cryo-EM)}
+    \begin{columns}[c]
+        \column{.65\textwidth}
+            \begin{itemize}
+                \item Allows observation of molecules in near atomic resolution.
+                \item Samples are frozen and further observed in electron microscope.
+                \item During freezing, molecules rotates randomly.
+                \item Frozen molecules are fragile, electron microscope needs to work with low power.
+                \item Observations can be reconstructed to 3D model.
+            \end{itemize}
+
+            \begin{tcolorbox}[colback=red!5!white,hide=<-1>, alert=<2>, colframe=red!75!black]
+                Only single particle cryo-EM is considered.
+            \end{tcolorbox}
+        \column{.35\textwidth}
+        \begin{figure}
+            \includegraphics[width=0.22\textwidth]{cryo-em-workflow.png}
+            \caption{Cryo-EM workflow \cite[Figure]{singleParticleCryoEm}}
+        \end{figure}
+    \end{columns}
+\end{frame}
 
 \begin{frame}[c]{Cryo-EM}
     \begin{figure}
@@ -53,22 +85,33 @@
 \end{frame}
 
 \begin{frame}[c]{Cryo-EM challenges}
-    \begin{itemize}
-        \item High-noise level 
-        \item Unknown rotation during freezing
-        \item (Structural variety of observations)
-    \end{itemize}
+    \begin{columns}[c]
+        \column{.50\textwidth}
+        
+        \begin{itemize}
+            \item High-noise level 
+            \item Unknown rotation during freezing
+            \item (Structural variety of observations)
+        \end{itemize}
 
-    \pause
-    \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-        Only single particle cryo-EM is considered.
-    \end{tcolorbox}
+        \begin{tcolorbox}[colback=red!5!white,hide=<-1>, alert=<2>,colframe=red!75!black]
+            Master Thesis domain of interest is to high-noise regime (cryo-EM).
+            Goal is to introduce a denoise method for cryo-EM 2D projections.
+        \end{tcolorbox}
 
-    \pause
-    \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-        The main domain of interest is high-noise domain (cryo-EM).
-    \end{tcolorbox}
+        \column{.50\textwidth}
+        \begin{figure}
+            \centering
+            \subfloat[Noiseless photograph]
+                {\includegraphics[width=0.6\textwidth]{rotom}} \\
+            \subfloat[Noisy photograph]
+                {\includegraphics[width=0.6\textwidth]{rotom_noise}}
+            \caption{Noise observation example}
+        \end{figure}
 
+    \end{columns}
+
+    %\footnotetext[1]{https://www.ebi.ac.uk/emdb/EMD-32177}
 \end{frame}
 
 %\begin{frame}
@@ -91,16 +134,18 @@
 
 \begin{frame}[c]{Computed Tomography}
     \begin{columns}[c]
-        \column{.45\textwidth}
-                \includegraphics[width=0.4\textwidth]{phantom.png}
-                \includegraphics[width=0.4\textwidth]{phantom_sinogram.png}
-                
         \column{.55\textwidth}
             \begin{itemize}
                 \item Related to cryo-EM
                 \item Can be seen as simpler version in 2D
                 \item Good to start with
             \end{itemize}
+        
+        \column{.45\textwidth}
+            \includegraphics[width=0.4\textwidth]{phantom.png}
+            \includegraphics[width=0.4\textwidth]{phantom_sinogram.png}
+                
+        
     \end{columns}
 
 \end{frame}
@@ -123,7 +168,7 @@
     Consider $n$ observed images $(x_0, x_1, \dots, x_n)$, where $x_i \in \mathbb{R}^M$ with $M$ as image dimension.
     A graph can be constructed by:
     \begin{itemize}
-        \item $V$: The images can be used as nodes.
+        \item $V$: Images can be used as nodes.
         \item $E$: If similarity measure $d$ of two images $x_i, x_j$ is smaller than given threshold $\tau$, there will be an edge.
      \end{itemize}
 
@@ -146,7 +191,7 @@
     as the original images.
     A noisy graph can be constructed like:
     \begin{itemize}
-        \item $V$: The \textbf{noisy} images $y$ can be used as nodes.
+        \item $V$: \textbf{Noisy} images $y$ can be used as nodes.
         \item $E$: If similarity measure $d$ of two \textbf{noisy} images $y_i, y_j$ is smaller than given threshold $\tau$, there will be an edge.
      \end{itemize}
 
@@ -191,8 +236,36 @@
 
 \section{Conclusion}
 
-\begin{frame}
-    Slide about Manifolds on cryo-EM and CT.
+\begin{frame}[c]{Abstract model without noise}
+    \begin{definition}
+        $$y_i = A(x, \theta_i), \text{ with } 1 \leq i \leq N ,$$
+    \end{definition}
+
+    \begin{itemize}
+        \item $\Omega \subset \mathbb{R}^D$ as original object space with dimension $D$
+        \item $\tilde{\Omega} \subset \mathbb{R}^{D-1}$ as observations space with dimension $D-1$.
+        \item $y_i \in \tilde{\Omega}^M$ with $M$ observation dimension
+        \item $x \in L^2(\Omega)$
+        \item $\theta_i \in \mathbb{R}^P$ projection angle vector with projection dimension $P$
+        \item $A: L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto A(x; \theta_i)$, a non-linear operator  
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}[c]{Computed tomography - low-dimensional manifold}
+    \begin{columns}
+        \column{.55\textwidth}
+        \begin{itemize}
+            \item Observations $y_i$  with angle $\theta_i$
+            \item There is a mapping between observation $y_i$ and $\theta_i$
+            \item For computed tomography, $\theta \in [0, 2\pi]$ (circle)
+            \item Therefore, there exists a one to one mapping from $y_i$ to point on the circle $(\cos \theta_i, \sin \theta_i)$.
+        \end{itemize}
+        
+        \column{.55\textwidth}
+        \includegraphics[width=0.6\textwidth]{phantom_many_theta.png}
+        
+    \end{columns}
 \end{frame}
 
 
@@ -205,9 +278,10 @@
 
     If data is noisy, manifold will "drift" away from noiseless manifold:
     \begin{figure}
-        \includegraphics[width=0.25\textwidth]{phantom_second_third_evec}
-        \includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy}
-        \includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy_high}
+        \includegraphics[width=0.2\textwidth]{phantom_second_third_evec}
+        \includegraphics[width=0.2\textwidth]{phantom_second_third_evec_noisy}
+        \includegraphics[width=0.2\textwidth]{phantom_second_third_evec_noisy2}
+        \includegraphics[width=0.2\textwidth]{phantom_second_third_evec_noisy_high}
         \caption{Manifolds for phantom without noise, and different noise levels.}
     \end{figure}
 \end{frame}
