@@ -18,7 +18,7 @@
 \email				{cedric.mendelin@stud.unibas.ch}
 \institute          {Department of Mathematics and Computer Science, University of Basel}
 
-\date               {Date}
+\date               {09.12.2021}
 
 \ulogo        		{Template/header}
 \ulistelement    	{Template/listelement}
@@ -59,7 +59,7 @@
             \begin{itemize}
                 \item Allows observation of molecules in near atomic resolution.
                 \item Samples are frozen and further observed in electron microscope.
-                \item During freezing, molecules rotates randomly.
+                \item During freezing, molecules rotate randomly.
                 \item Frozen molecules are fragile, electron microscope needs to work with low power.
                 \item Observations can be reconstructed to 3D model.
             \end{itemize}
@@ -169,7 +169,7 @@
     A graph can be constructed by:
     \begin{itemize}
         \item $V$: Images can be used as nodes.
-        \item $E$: If similarity measure $d$ of two images $x_i, x_j$ is smaller than given threshold $\tau$, there will be an edge.
+        \item $E$: If similarity measure \textbf{$d$} of two images $x_i, x_j$ is smaller than given threshold \textbf{$\tau$}, there will be an edge.
      \end{itemize}
 
      \pause
@@ -224,7 +224,7 @@
 
 \begin{frame}[c]{Graph Denoising}
     \textit{Graph denoising} is the task, to estimate a denoised graph $\tilde{G}$  
-    from a given noisy graph $G_O$, with underlying original graph $G$:
+    from a given noisy graph $G_0$, with underlying original graph $G$:
 
     \begin{definition}[Graph Denoising]
         $$GD: G_0 \mapsto \tilde{G} \approx G,$$
@@ -237,7 +237,7 @@
 \section{Conclusion}
 
 \begin{frame}[c]{Abstract model without noise}
-    \begin{definition}
+    \begin{definition}[Noiseless observation abstract model]
         $$y_i = A(x, \theta_i), \text{ with } 1 \leq i \leq N ,$$
     \end{definition}
 
@@ -259,7 +259,7 @@
             \item Observations $y_i$  with angle $\theta_i$
             \item There is a mapping between observation $y_i$ and $\theta_i$
             \item For computed tomography, $\theta \in [0, 2\pi]$ (circle)
-            \item Therefore, there exists a one to one mapping from $y_i$ to point on the circle $(\cos \theta_i, \sin \theta_i)$.
+            \item Therefore, there exists a one to one mapping from $y_i$ to points on the circle.
         \end{itemize}
         
         \column{.55\textwidth}
