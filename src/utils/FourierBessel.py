@@ -1050,7 +1050,6 @@ class FBBasis2D(Basis):
         if verbose:
             print("Decomposition: {0}".format(time.time()-t))
 
-
         index = faiss.IndexFlatL2(c1_conc.shape[1])
         if ngpus>1:
             res = faiss.StandardGpuResources()

@@ -5,7 +5,8 @@ from scipy.spatial.transform import Rotation as R
 import sys
 sys.path.insert(0, '..')
 
-
+#magnolia.vtk
+#panther.stl
 mesh = Mesh(dataurl+"bunny.obj").normalize().subdivide()
 
 mesh.show()
