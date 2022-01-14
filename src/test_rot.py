@@ -20,7 +20,7 @@ pts[:,2]=pts[:,2]-(pts[:,2].max()+pts[:,2].min())/2
 print(pts.shape)
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
-import utils.plotting as plot
+import utils.Plotting as plot
 plt.ion()
 import numpy as np
 
@@ -46,9 +46,9 @@ for l in range(L):
     x1[l] = rotate(x1[0],360/L*l)
 
 
-#plot.plot_imshow(x1[29])
-#plot.plot_imshow(x1[0])
-#plot.plot_imshow(x1[5])
+plot.plot_imshow(x1[29])
+plot.plot_imshow(x1[0])
+plot.plot_imshow(x1[5])
 
 
 
@@ -90,6 +90,8 @@ M=360
 t = time.time()
 K=10
 dist2, ind2, angles2 = fb.Knn_mat_reduce_ram(x1, K, M,False)
+
+
 print("Faiss KNN      -- distance matrix: M={0} rotations, L={1} images. Elapsed time: {2} seconds.".format(M,L,time.time()-t))
 print(dist2.shape, ind2.shape, angles2.shape)
 
@@ -153,22 +155,6 @@ plt.scatter(eigenVectors[:, idx[1]], eigenVectors[:, idx[2]],cmap='hsv')
 #print(A)
 #print(W)
 #print(Theta)
-"""
-from utils.FourierBessel import FBBasis2D
-x1 = np.random.rand(10000,100,100)
-ell_max = 5 # max order of the Fourier-Bessel approximation, will dictate the number of coeffs. See fb.count to see the number of coefficients
-K = 10 # Nearest neighbors
-M = 45 # number of angle to try
-
-# If memory is an issue, or very high number of images
-fb = FBBasis2D((x1.shape[1],x1.shape[1]),ell_max,dtype=np.float64)
-dist, ind, angles = ppip
-
-# If memory is not an issue, or very high number of images
-dist2, angle2 = fb.distance_matrix(x1,x1,M)
-nbrs = NearestNeighbors(n_neighbors=10, metric='precomputed').fit(np.abs(dist2))
-distances, indices = nbrs.kneighbors()
-"""
 
 
 input("Enter to terminate")

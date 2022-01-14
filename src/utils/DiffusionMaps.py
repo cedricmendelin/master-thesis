@@ -1,6 +1,13 @@
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 
+# Diffusion Maps
+def calc_diffusion_maps_and_distance(A, alpha=1, n_eign=2, t=1):
+  P = diffusion_map(X=A, alpha=alpha)
+  D, psi=diffusion_distance(P, n_eign=n_eign,t=t)
+  
+  return P, D, psi
+
 def diffusion_map(X=None, alpha=0.15):
   """
   1. Compute the euclidean_distances matrix: dists
@@ -38,3 +45,9 @@ def diffusion_distance(P, n_eign=2,t=1):
   psi   = eVectorsSorted @ np.diag(eValuesSortedT)
 
   return euclidean_distances(psi,psi) ,psi
+
+def plot_diffusion_distance(psi):
+  fig = plt.figure(figsize=(10, 10))
+  coor1=(psi[:, 0]-psi[:, 0].mean())/psi[:, 0].std()
+  coor2=(psi[:, 1]-psi[:, 1].mean())/psi[:, 1].std()
+  plt.scatter(coor1, coor2,cmap='hsv')

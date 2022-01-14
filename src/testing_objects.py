@@ -7,6 +7,7 @@ sys.path.insert(0, '..')
 
 #magnolia.vtk
 #panther.stl
+#bunny.obj
 mesh = Mesh(dataurl+"bunny.obj").normalize().subdivide()
 
 mesh.show()
