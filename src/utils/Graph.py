@@ -9,16 +9,17 @@ from aspire.source import ArrayImageSource
 """
 Create adjacency matrix from indices and optional weights.
 """
-def create_adj_mat(index_edge_array, weights=None):
+def create_adj_mat(index_edge_array, reflections=None, weights=None):
   n = index_edge_array.shape[0]
   neighbors = index_edge_array.shape[1]
   edges = []
   for i in range(0, n):
     for j in range(0, neighbors):
-        if weights is not None:
-            edges.append((i, index_edge_array[i,j], weights[i,j]))
-        else:
-            edges.append((i, index_edge_array[i,j]))
+        if reflections is None or reflections[i,j]:
+          if weights is not None:
+              edges.append((i, index_edge_array[i,j], weights[i,j]))
+          else:
+              edges.append((i, index_edge_array[i,j]))
 
   G = nx.Graph()
 
