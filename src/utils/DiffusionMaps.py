@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
+import matplotlib.pyplot as plt
 
 # Diffusion Maps
 def calc_diffusion_maps_and_distance(A, alpha=1, n_eign=2, t=1):
@@ -21,7 +22,7 @@ def diffusion_map(X=None, alpha=0.15):
   P = np.diag(1/D) @ K 
   return P
 
-def diffusion_distance(P, n_eign=2,t=1):
+def diffusion_distance(P, n_eign=2, t=1):
   """
   Your task: given diffusion_map: P, time of diffuion: t, and number of eignvalue you need: n_eign
   
@@ -34,7 +35,6 @@ def diffusion_distance(P, n_eign=2,t=1):
   4. Compute the euclidean_distances matrix: D=euclidean_distances(psi, psi)
   """
   eValues, eVectors = np.linalg.eig(P)
-  print(eValues)
   eValues=eValues.real
   eVectors=eVectors.real
   eValueIndexOrder = np.argsort(-np.abs(eValues))
@@ -44,9 +44,9 @@ def diffusion_distance(P, n_eign=2,t=1):
   eValuesSortedT = eValuesSorted**t
   psi   = eVectorsSorted @ np.diag(eValuesSortedT)
 
-  return euclidean_distances(psi,psi) ,psi
+  return euclidean_distances(psi,psi), psi
 
-def plot_diffusion_distance(psi):
+def plot_diffusion_distance_2d(psi):
   fig = plt.figure(figsize=(10, 10))
   coor1=(psi[:, 0]-psi[:, 0].mean())/psi[:, 0].std()
   coor2=(psi[:, 1]-psi[:, 1].mean())/psi[:, 1].std()
