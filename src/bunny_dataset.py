@@ -12,15 +12,15 @@ import sys
 sys.path.insert(0, '..')
 
 ################### Parameters ###################
-N = 100
-dim = 3
+N = 500
+#dim = 3
 image_res = 100
 
 # Noise
 snr = 10
 
 # KNN
-K=10
+K=6
 
 ################### WAN initialization ###################
 wandb.init(project="bunny-dataset", entity="cedric-mendelin")
@@ -53,7 +53,8 @@ t = time.time()
 
 #fb = FBBasis2D((image_res,image_res),ell_max=5,dtype=np.float64)
 #dist, ind, angles = fb.Knn_mat_reduce_ram(original_images, K, M, False)
-classes, reflections, rotations, correlations = create_or_load_knn_rotation_invariant('bunny', N, image_res, snr, original_images, K)
+classes, reflections, rotations, correlations = create_or_load_knn_rotation_invariant('bunny', N, image_res, original_images, K)
+classes_noisy, _, _, _ = create_or_load_knn_rotation_invariant('bunny_noisy', N, image_res, noisy_images, K, snr)
 
 wandb.log({"time_knn": time.time()-t})
 

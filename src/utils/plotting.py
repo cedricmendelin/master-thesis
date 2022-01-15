@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+import networkx as nx
+
+
 color_map = plt.cm.get_cmap('gray')
 reversed_color_map = color_map.reversed()
 plt.ion()
@@ -18,3 +21,7 @@ def plot_3dscatter(x,y,z, figsize):
     # Creating plot
     ax.scatter3D(x, y, z, cmap='hsv')
     plt.show()
+
+def draw_graph(A):
+    g = nx.from_numpy_matrix(A)
+    nx.draw(g)

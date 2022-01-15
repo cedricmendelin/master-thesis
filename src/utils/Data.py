@@ -77,8 +77,12 @@ def create_or_load_vedo_images(dataset, name, N, image_size, SNR_value, save=Tru
     return original_images, rotations, noisy_images, noise
 
 
-def create_or_load_knn_rotation_invariant(name, N, image_res, snr, original_images, K, save=True):
-    aspireknn_filename = 'aspire_knn_{0}_{1}_{2}_{3}_{4}.npz'.format(name, N, image_res, K, snr)
+def create_or_load_knn_rotation_invariant(name, N, image_res, original_images, K, snr=None, save=True):
+    aspireknn_filename = ''
+    if snr is None:
+        aspireknn_filename = 'aspire_knn_{0}_{1}_{2}_{3}.npz'.format(name, N, image_res, K)
+    else:
+        aspireknn_filename = 'aspire_knn_{0}_{1}_{2}_{3}_{4}.npz'.format(name, N, image_res, K, snr)
 
     classes = None
     reflections = None
