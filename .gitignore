@@ -555,5 +555,5 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/macos,linux,latex,windows,pycharm,jetbrains,git
 .vscode/settings.json
 wandb/*
-data/*
+src/data/*
 *.pyc
