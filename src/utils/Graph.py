@@ -12,23 +12,16 @@ Create adjacency matrix from indices and optional weights.
 def create_adj_mat(index_edge_array, reflections=None, weights=None):
   n = index_edge_array.shape[0]
   neighbors = index_edge_array.shape[1]
-  edges = []
-  for i in range(0, n):
-    for j in range(0, neighbors):
+  A = np.zeros((n,n))
+  for i in range(n):
+    for j in range(neighbors):
         if reflections is None or reflections[i,j]:
           if weights is not None:
-              edges.append((i, index_edge_array[i,j], weights[i,j]))
+              A[i, index_edge_array[i,j]] = weights[i,j]
           else:
-              edges.append((i, index_edge_array[i,j]))
+              A[i, index_edge_array[i,j]] = 1
 
-  G = nx.Graph()
-
-  if weights is not None:
-    G.add_weighted_edges_from(edges)
-  else:
-    G.add_edges_from(edges)
-
-  return nx.to_numpy_array(G)
+  return A
 
 """
 Gets the degree matrix of given matrix.
@@ -95,7 +88,28 @@ def aspire_knn_with_rotation_invariant_distance(X, K):
       #,    n_angles = M
   )
   # set angles=True to obtain the in-plane angles, but very long to obtain
-  # angles=True [not available]
+  # angles=True [not available] => does not compute rotations
   # Watch out, when angles=True, the correlation is returned istead of the distance
   classes, reflections, rotations, shifts, correlations = rir.classify() 
   return classes, reflections, rotations, shifts, correlations
+
+
+  
+
+def fibonacci_sphere(samples=1000):
+
+    points = []
+    phi = np.pi * (3. - np.sqrt(5.))  # golden angle in radians
+
+    for i in range(samples):
+        y = 1 - (i / float(samples - 1)) * 2  # y goes from 1 to -1
+        radius = np.sqrt(1 - y * y)  # radius at y
+
+        theta = phi * i  # golden angle increment
+
+        x = np.cos(theta) * radius
+        z = np.sin(theta) * radius
+
+        points.append((x, y, z))
+
+    return points

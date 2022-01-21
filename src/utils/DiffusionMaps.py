@@ -35,8 +35,8 @@ def diffusion_distance(P, n_eign=2, t=1):
   4. Compute the euclidean_distances matrix: D=euclidean_distances(psi, psi)
   """
   eValues, eVectors = np.linalg.eig(P)
-  eValues=eValues.real
-  eVectors=eVectors.real
+  eValues = eValues.real
+  eVectors = eVectors.real
   eValueIndexOrder = np.argsort(-np.abs(eValues))
   #print(eValues[eValueIndexOrder])
   eValuesSorted = np.real(eValues[eValueIndexOrder[1:n_eign+1]])

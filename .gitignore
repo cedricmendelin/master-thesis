@@ -557,3 +557,4 @@ $RECYCLE.BIN/
 wandb/*
 src/data/*
 *.pyc
+*.map
