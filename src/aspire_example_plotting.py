@@ -12,20 +12,22 @@ import aspire
 import matplotlib.pyplot as plt
 
 DATA_DIR = "src/maps"  # Tutorial example data folder
-v_npy = mrcfile.open('C:\master-thesis\src\maps\emd_25792.map').data.astype(np.float64)
+#v_npy = mrcfile.open('C:\master-thesis\src\maps\emd_25792.map').data.astype(np.float32)
+map_name = 'out.map'
+v_npy = mrcfile.open('C:\master-thesis\\' + map_name ).data.astype(np.float32)
 
+print(v_npy.shape)
 # Then using that to instantiate a Volume, which is downsampled to 60x60x60
-v = Volume(v_npy).downsample(100)
+#v = Volume(v_npy).downsample(100)
 
 
-res = np.array(v.asnumpy())
+#res = np.array(v.asnumpy())
 
-print(res)
-print(res[0].shape)
-print(v.asnumpy().shape)
-print(v.to_vec().shape)
+#print(res[0].shape)
+#print(v.asnumpy().shape)
+#print(v.to_vec().shape)
 
-vol = vedo.Volume(res[0], spacing=(1, 1, 1), alphaUnit=1, mode=0)
+vol = vedo.Volume(v_npy)
 
 vol.show()
 

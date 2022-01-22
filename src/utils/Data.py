@@ -1,9 +1,12 @@
 import numpy as np
-from vedo import Mesh, dataurl
+from vedo import Mesh, dataurl, mesh2Volume
 from .Geometry import *
 from .Graph import *
 import os.path as path
 import gemmi
+import vedo
+
+from aspire.volume import Volume
 
 basedir = 'src/data/'
 
@@ -118,6 +121,19 @@ def create_or_load_knn_rotation_invariant(name, N, image_res, images, K, snr=Non
             np.savez_compressed(aspireknn_filename, classes=classes, reflections=reflections, rotations=rotations, correlations=correlations)
 
     return classes, reflections, rotations, correlations
+
+def vedo_bunny_to_asipre_volume():
+    mesh = Mesh(dataurl + "bunny.obj").normalize().subdivide()
+    vol = mesh2Volume(mesh, spacing=(0.01,0.01,0.01))
+
+    vol_equally_spaced = np.pad(vol.tonumpy(), ((0,3),(0,6),(0,57)), mode='constant', constant_values=0).astype(np.float32)
+
+    return Volume(vol_equally_spaced)
+
+
+def aspire_volume_to_vedo_volume(aspire_vol, vol_index=0):
+    return vedo.Volume(aspire_vol.__getitem__(vol_index))
+
 
 def voxelSaveAsMap(voxel, location = 'out.map'):
     grid = gemmi.FloatGrid(voxel.shape[0],voxel.shape[1],voxel.shape[2] )

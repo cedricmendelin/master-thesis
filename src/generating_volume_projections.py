@@ -119,7 +119,12 @@ src = Simulation(
     seed=12345,  # RNG seed for reproducibility
     dtype=v.dtype,  # match our datatype to the Volume.
     noise_filter=white_noise_filter,  # optionally prescribe noise
+    unique_filters=[RadialCTFFilter(defocus=d) for d in np.linspace(1.5e4, 2.5e4, 7)]
 )
+
+
+print(src.get_metadata("__filter_indices"))
+
 
 # %%
 # Yield projection images from the Simulation Source
