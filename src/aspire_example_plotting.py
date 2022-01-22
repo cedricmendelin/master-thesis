@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 DATA_DIR = "src/maps"  # Tutorial example data folder
 #v_npy = mrcfile.open('C:\master-thesis\src\maps\emd_25792.map').data.astype(np.float32)
-map_name = 'out.map'
+map_name = 'bunny.map'
 v_npy = mrcfile.open('C:\master-thesis\\' + map_name ).data.astype(np.float32)
 
 print(v_npy.shape)

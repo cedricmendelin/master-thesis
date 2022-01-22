@@ -95,10 +95,8 @@ def aspire_knn_with_rotation_invariant_distance(X, K):
 
 
   
-
 def fibonacci_sphere(samples=1000):
-
-    points = []
+    points = np.zeros((samples, 3))
     phi = np.pi * (3. - np.sqrt(5.))  # golden angle in radians
 
     for i in range(samples):
@@ -110,6 +108,6 @@ def fibonacci_sphere(samples=1000):
         x = np.cos(theta) * radius
         z = np.sin(theta) * radius
 
-        points.append((x, y, z))
+        points[i] = np.array([x,y,z])
 
     return points
