@@ -13,10 +13,28 @@ import matplotlib.pyplot as plt
 
 DATA_DIR = "src/maps"  # Tutorial example data folder
 #v_npy = mrcfile.open('C:\master-thesis\src\maps\emd_25792.map').data.astype(np.float32)
-map_name = 'bunny.map'
+map_name = 'out_bunny_20.map'
 v_npy = mrcfile.open('C:\master-thesis\\' + map_name ).data.astype(np.float32)
 
+
+
+print(v_npy.max())
+print(v_npy.min())
+print(v_npy.mean())
+
 print(v_npy.shape)
+
+v_npy = mrcfile.open('C:\master-thesis\\' + map_name ).data.astype(np.float32)
+
+v_npy[v_npy < 1e-13] = 0
+
+vol = vedo.Volume(v_npy)
+
+vol.show()
+
+print(v_npy.max())
+print(v_npy.min())
+print(v_npy.mean())
 # Then using that to instantiate a Volume, which is downsampled to 60x60x60
 #v = Volume(v_npy).downsample(100)
 
