@@ -18,22 +18,22 @@ classes_noisy, reflections_noisy, rotations_noisy, correlations_noisy = create_o
 
 #Laplacian
 #A = create_adj_mat(classes)
-A = create_adj_mat(classes, reflections)
+A = create_adj_mat_nx(classes, reflections)
 
 embedding = calc_graph_laplacian(A, numberOfEvecs=3)
 
 #print(embedding.shape)
 
-#plot_3dscatter(embedding[:, 0], embedding[:, 1], embedding[:, 2],  (10,10))
+plot_3dscatter(embedding[:, 0], embedding[:, 1], embedding[:, 2],  (10,10))
 
 
-A_noisy = create_adj_mat(classes_noisy, reflections_noisy)
+A_noisy = create_adj_mat_nx(classes_noisy, reflections_noisy)
 
 embedding_noisy = calc_graph_laplacian(A_noisy, numberOfEvecs=3)
 
 print(embedding_noisy.shape)
 
-#plot_3dscatter(embedding_noisy[:, 0], embedding_noisy[:, 1], embedding_noisy[:, 2],  (10,10))
+plot_3dscatter(embedding_noisy[:, 0], embedding_noisy[:, 1], embedding_noisy[:, 2],  (10,10))
 
 
 diff = embedding - embedding_noisy
