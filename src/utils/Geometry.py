@@ -1,5 +1,7 @@
 from scipy.spatial.transform import Rotation as R
+from scipy.ndimage.interpolation import rotate
 import numpy as np
+from tqdm import tqdm
 
 def get_2d(d3_points, resolution=100, xlim=[-2,2], ylim=[-2,2]):
     [xlim_l,xlim_u]=xlim
@@ -16,8 +18,54 @@ def get_2d(d3_points, resolution=100, xlim=[-2,2], ylim=[-2,2]):
     return img
 
 def rotation3d(d3_points, phi, psi, theta, deg=True):
-    r = R.from_euler('xyz', [phi, psi, theta], degrees=deg)
+    r = R.from_euler('zyz', [phi, psi, theta], degrees=deg)
     return r.apply(d3_points)
 
 def random_rotation_3d(N, deg=True):
-    return R.random(N).as_euler('xyz', degrees=deg)
+    return R.random(N).as_euler('zyz', degrees=deg)
+
+
+def rotate_volume(V, alpha, beta, gamma):
+    V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(2, 1), reshape=False)
+    V = rotate(V, beta, mode='constant', cval=0, order=3, axes=(2, 0), reshape=False)
+    V = rotate(V, gamma, mode='constant', cval=0, order=3, axes=(1,0), reshape=False)
+    return V
+
+
+def create_mask3d(resolution):
+    x3,y3,z3 = np.indices((resolution,resolution,resolution))
+    x3,y3,z3=x3-resolution/2,y3-resolution/2,z3-resolution/2
+    mask3d=(x3**2+y3**2+z3**2)<(resolution/2)**2
+
+    return mask3d
+
+def create_r(resolution):
+    x2,y2=np.indices((resolution,resolution))
+    x2,y2=x2-resolution/2,y2-resolution/2
+    r=((resolution/2)**2-x2**2-y2**2)
+    r[r<1]=1
+    r=np.sqrt(r)
+    r=r/r.max()*2
+
+    return r
+
+def reconstruction_naive(estimated_images, n, resolution, rotation_list_re):
+    mask3d = create_mask3d(resolution)
+    r = create_r(resolution)
+    voxel_shape = (resolution,resolution,resolution)
+
+    V = np.zeros(voxel_shape, dtype=np.float)
+
+    for i in tqdm(range(n)):
+        estimation = estimated_images[i]
+        #V0=np.broadcast_to(image*r,(resolution,resolution,resolution)).transpose((1,2,0))
+        V0 = np.broadcast_to(estimation * r ,voxel_shape).transpose((1,2,0))
+        V0 = np.array(V0)
+        V0[mask3d == False] = 0
+        
+        rotations = rotation_list_re[i]
+        V = V + rotate_volume(V0,rotations[0],rotations[1],rotations[2])
+        
+    V = V / n
+
+    return V

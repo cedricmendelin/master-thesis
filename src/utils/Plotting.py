@@ -1,17 +1,17 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 
+matplotlib.use('TkAgg')
+if(not plt.isinteractive):
+    plt.ion()
 
 color_map = plt.cm.get_cmap('gray')
 reversed_color_map = color_map.reversed()
-plt.ion()
 
 def plot_imshow(data):
-    plt.ion()
     plt.figure()
     plt.imshow(data, cmap=reversed_color_map)
-
-
 
 def plot_3dscatter(x,y,z, figsize):
     #Plot with color to visualize the manifold.
@@ -25,3 +25,9 @@ def plot_3dscatter(x,y,z, figsize):
 def draw_graph(A):
     g = nx.from_numpy_matrix(A)
     nx.draw(g)
+
+def plot_voxels(voxels):
+    ax = plt.figure().add_subplot(projection='3d')
+    ax.voxels(voxels)
+    ax.view_init(30, 150)
+    plt.show()

@@ -2,6 +2,7 @@ from utils.Graph import *
 from utils.Data import *
 from utils.Plotting import *
 from utils.DiffusionMaps import *
+from utils.Vedo import *
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -37,6 +38,7 @@ plot_3dscatter(embedding_noisy[:, 0], embedding_noisy[:, 1], embedding_noisy[:, 
 
 
 diff = embedding - embedding_noisy
+
 
 assert np.all(diff != 0) , "embeddings are same"
 
