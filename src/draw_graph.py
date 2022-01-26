@@ -5,6 +5,7 @@ from utils.DiffusionMaps import *
 from utils.Vedo import *
 import matplotlib.pyplot as plt
 import networkx as nx
+from utils.GraphAlign import *
 
 N = 1000
 image_res = 100
@@ -26,6 +27,16 @@ embedding = calc_graph_laplacian(A, numberOfEvecs=3)
 #print(embedding.shape)
 
 plot_3dscatter(embedding[:, 0], embedding[:, 1], embedding[:, 2],  (10,10))
+
+
+fibo_sphere = fibonacci_sphere(samples=999)
+
+
+G_aligned = GAlign("embedding", emb2=fibo_sphere, emb1=embedding).get_align()
+embedding = fibo_sphere[G_aligned]
+
+plot_3dscatter(embedding[:, 0], embedding[:, 1], embedding[:, 2],  (10,10))
+
 
 
 A_noisy = create_adj_mat_nx(classes_noisy, reflections_noisy)

@@ -13,7 +13,7 @@ def plot_imshow(data):
     plt.figure()
     plt.imshow(data, cmap=reversed_color_map)
 
-def plot_3dscatter(x,y,z, figsize):
+def plot_3dscatter(x,y,z, figsize=(10,10)):
     #Plot with color to visualize the manifold.
     fig = plt.figure(figsize=figsize)
     ax = plt.axes(projection ="3d")

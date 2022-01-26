@@ -7,6 +7,8 @@ from aspire.classification.align2d import BFRAlign2D
 from aspire.classification import RIRClass2D
 from aspire.source import ArrayImageSource
 
+from .GraphAlign import GAlign
+
 
 """
 Create adjacency matrix from indices and optional weights.
@@ -93,6 +95,14 @@ def calc_graph_laplacian_from_knn_indices(indices, weights=None, numberOfEvecs=2
   A = create_adj_mat(indices, weights)
   return calc_graph_laplacian(A, numberOfEvecs)
   
+
+def align_3d_embedding_to_shpere(embedding):
+  n = embedding.shape[0]
+  fibo_sphere = fibonacci_sphere(samples=n)
+  G_aligned = GAlign("embedding", emb1=fibo_sphere, emb2=embedding).get_align()
+  embedding = fibo_sphere[G_aligned]
+  return embedding
+
 
 """
 Compute the rotation invariant distance between two 2D images and define knn graph.

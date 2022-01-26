@@ -1,5 +1,3 @@
-from struct import Struct
-from turtle import distance
 import numpy as np
 from .Geometry import *
 from .Graph import *

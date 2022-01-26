@@ -5,7 +5,7 @@ from sklearn.neighbors import NearestNeighbors
 # par_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
 # sys.path.append('%s/software/' % cur_dir)
 
-from software.REGAL.alignments import get_embedding_similarities
+from .software.REGAL.alignments import get_embedding_similarities
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
 
@@ -18,7 +18,7 @@ from scipy import sparse
 
 class GAlign:
     def __init__(self, emb_method, G1=None, G2=None,emb1=None,emb2=None,ndim=3,max_layer = 2):
-        if emb_method=='Lap':
+        if emb_method == 'Lap':
             self.G1 = G1
             self.G2 = G2
             self.n=G1.shape[0]
@@ -63,13 +63,10 @@ class GAlign:
         self.emb1,self.emb2=get_embeddings(representations)
 
 
-
-
-
-
     def get_sim(self):
-        self.sim=get_embedding_similarities(self.emb1, self.emb2, sim_measure = "euclidean", num_top = None)
+        self.sim = get_embedding_similarities(self.emb1, self.emb2, sim_measure = "euclidean", num_top = None)
         return self.sim
+
     def get_align(self,q=True):
         sim=self.get_sim()
         candidate=np.arange(self.n)

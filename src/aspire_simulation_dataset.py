@@ -6,7 +6,7 @@ from aspire.volume import Volume
 
 from utils.Data import *
 from utils.AspireHelpers import *
-from utils.Plotting import plot_3dscatter
+from utils.Plotting import *
 import time
 import mrcfile
 
@@ -38,13 +38,15 @@ aspire_vol, sim, clean_graph, noisy_graph = create_or_load_dataset_from_map("bun
 A = create_adj_mat_nx(clean_graph.classes)
 
 embedding = calc_graph_laplacian(A, numberOfEvecs=3)
+embedding_normalized = normalize_min_max(embedding)
 
-print(embedding.shape)
+plot_3dscatter(embedding_normalized[:,0], embedding_normalized[:,1], embedding_normalized[:,2])
 
-plot_3dscatter(embedding[:, 0], embedding[:, 1], embedding[:, 2],  (10,10))
-#Plot with color to visualize the manifold.
+embedding_normalized = align_3d_embedding_to_shpere(embedding_normalized)
 
-print(embedding)
+plot_3dscatter(embedding_normalized[:,0], embedding_normalized[:,1], embedding_normalized[:,2])
+
+
 
 A_noisy = create_adj_mat_nx(noisy_graph.classes)
 embedding_noisy = calc_graph_laplacian(A_noisy, numberOfEvecs=3)
