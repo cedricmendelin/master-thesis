@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 # Parameters:
 DATA_DIR = "src/maps/"  # Tutorial example data folder
-map_name = 'emd_25792.map'
-normalize_data_min_max = True
+map_name = 'rec_given_rots.map'
+normalize_data_min_max = False
 cut_negatives_and_small_values = True
 should_downsample = False
 downsample_size = 60

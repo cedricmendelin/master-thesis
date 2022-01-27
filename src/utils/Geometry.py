@@ -3,6 +3,9 @@ from scipy.ndimage.interpolation import rotate
 import numpy as np
 from tqdm import tqdm
 
+def my_euler_sequence():
+    return 'zyz'
+
 def get_2d(d3_points, resolution=100, xlim=[-2,2], ylim=[-2,2]):
     [xlim_l,xlim_u]=xlim
     [ylim_l,ylim_u]=ylim
@@ -18,19 +21,69 @@ def get_2d(d3_points, resolution=100, xlim=[-2,2], ylim=[-2,2]):
     return img
 
 def rotation3d(d3_points, phi, psi, theta, deg=True):
-    r = R.from_euler('zyz', [phi, psi, theta], degrees=deg)
+    r = R.from_euler(my_euler_sequence(), [phi, psi, theta], degrees=deg)
     return r.apply(d3_points)
 
 def random_rotation_3d(N, deg=True):
-    return R.random(N).as_euler('zyz', degrees=deg)
+    return R.random(N).as_euler(my_euler_sequence(), degrees=deg)
 
+
+def calc_rotation_from_points_on_sphere(points):
+    # points: (N, 3)
+    n = points.shape[0]
+    origin = np.array([1,0,0])
+    r = np.sqrt(origin[0] ** 2 + origin[1] ** 2)
+    theta = np.sign(origin[1]) * np.arccos(origin[0] / r)
+
+    euler_angles = np.zeros_like(points)
+
+    for i in range(n):
+        point=points[i]
+        alpha = np.arccos(point[0] / r) - theta
+
+        intermediate_x = origin[0] * np.cos(alpha) - origin[1] * np.sin(alpha) 
+        intermediate_y = origin[0] * np.sin(alpha) + origin[1] * np.cos(alpha)
+        intermediate_z = origin[2]
+
+        r2 =  np.sqrt(intermediate_y ** 2 + intermediate_z ** 2)
+        psi = np.sign(intermediate_z) * np.arccos(intermediate_y / r2)
+        tau = np.sign(point[2]) * np.arccos(point[1] / r2)
+
+        beta = tau - psi
+
+        R_z = np.array(
+        [
+            [np.cos(alpha), - np.sin(alpha),0],
+            [np.sin(alpha), np.cos(alpha),0],
+            [0,0,1]
+        ])
+
+        R_x = np.array(
+        [
+            [1,0,0], 
+            [0, np.cos(beta), - np.sin(beta)], 
+            [0, np.sin(beta), np.cos(beta)]
+        ])
+
+        rot = R.__mul__(R.from_matrix(R_x), R.from_matrix(R_z))
+        euler_angles[i] = rot.as_euler(my_euler_sequence())
+
+    return euler_angles
 
 def rotate_volume(V, alpha, beta, gamma):
-    V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(2, 1), reshape=False)
+    # we need z y z!
+    # angle in degrees!
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.rotate.html
+
+    alpha = np.rad2deg(alpha)
+    beta = np.rad2deg(beta)
+    gamma = np.rad2deg(gamma)
+
+    #V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(2, 1), reshape=False)
+    V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(1, 0), reshape=False)
     V = rotate(V, beta, mode='constant', cval=0, order=3, axes=(2, 0), reshape=False)
     V = rotate(V, gamma, mode='constant', cval=0, order=3, axes=(1,0), reshape=False)
     return V
-
 
 def create_mask3d(resolution):
     x3,y3,z3 = np.indices((resolution,resolution,resolution))

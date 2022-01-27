@@ -46,7 +46,17 @@ embedding_normalized = align_3d_embedding_to_shpere(embedding_normalized)
 
 plot_3dscatter(embedding_normalized[:,0], embedding_normalized[:,1], embedding_normalized[:,2])
 
+rots = calc_rotation_from_points_on_sphere(embedding_normalized)
 
+clean_images = sim.images(0, n_img).asnumpy()
+rec_calculated_rots = reconstruction_naive(clean_images, n_img, img_size, rots)
+rec_given_rots = reconstruction_naive(clean_images, n_img, img_size, sim.angles)
+
+
+voxelSaveAsMap(rec_calculated_rots, 'rec_calculated_rots.map')
+voxelSaveAsMap(rec_calculated_rots, 'rec_given_rots.map')
+
+assert False
 
 A_noisy = create_adj_mat_nx(noisy_graph.classes)
 embedding_noisy = calc_graph_laplacian(A_noisy, numberOfEvecs=3)

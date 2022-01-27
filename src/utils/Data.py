@@ -73,6 +73,10 @@ def set_negatives_and_small_values_to(x, new_val=0, threshold=1e-13):
     x[x < threshold] = new_val
     return x
 
+def set_small_values_to(x, new_val=0, threshold=1e-13):
+     x[np.abs(x) < threshold] = new_val
+     return x
+
 """
 Normalize midrange dimension vice.
 input x:  (N, ndim)
