@@ -26,7 +26,15 @@ def get_vedo_dataset_signal(dataset):
 
     # why midrange?
 
-    return normalize_midrange(pts)
+    pts=pts[np.random.permutation(pts.shape[0]),:]
+
+    pts[:,0]=pts[:,0]-(pts[:,0].max()+pts[:,0].min())/2
+    pts[:,1]=pts[:,1]-(pts[:,1].max()+pts[:,1].min())/2
+    pts[:,2]=pts[:,2]-(pts[:,2].max()+pts[:,2].min())/2
+    pts_max=np.linalg.norm(pts,axis=1).max()
+    pts=pts/pts_max
+
+    return pts
 
 
 """
@@ -85,7 +93,7 @@ def visualize_voxels_3d(voxels):
     vedo.show(vol)
 
 def vedo_bunny_to_asipre_volume():
-    mesh = Mesh(dataurl + "bunny.obj").normalize().subdivide()
+    mesh = Mesh(dataurl + "bunny.obj")#.normalize().subdivide()
     vol = mesh2Volume(mesh, spacing=(0.01,0.01,0.01))
 
     vol_equally_spaced = np.pad(vol.tonumpy(), ((0,3),(0,6),(0,57)), mode='constant', constant_values=0).astype(np.float32)

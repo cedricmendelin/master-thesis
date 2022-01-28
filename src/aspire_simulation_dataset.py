@@ -17,65 +17,74 @@ logger = logging.getLogger(__name__)
 # aspire_vol = vedo_bunny_to_asipre_volume()
 
 DATA_DIR = "src/maps/"  # Tutorial example data folder
+
 map_name = 'bunny.map'
 
 # Main:
 t = time.time()
 
 
-v_npy = mrcfile.open(DATA_DIR + map_name ).data.astype(np.float32)
-
-aspire_vol = Volume(v_npy)
+#v_npy = mrcfile.open(DATA_DIR + map_name ).data.astype(np.float32)
 
 
-img_size = 100  # image size in square
+img_size = 50  # image size in square
 n_img = 1000  # number of images
 snr = 10
 K = 10
 
-aspire_vol, sim, clean_graph, noisy_graph = create_or_load_dataset_from_map("bunny-test", map_name, n_img, img_size, snr, K)
+aspire_vol, sim, clean_graph, noisy_graph = create_or_load_dataset_from_map("bunny-ctf", map_name, n_img, img_size, snr, K, normalize=False, ctf=np.zeros((7)))
+
+sim.images(200,4).show()
+
+sim.projections(200,4).show()
+
 
 A = create_adj_mat_nx(clean_graph.classes)
 
 embedding = calc_graph_laplacian(A, numberOfEvecs=3)
-embedding_normalized = normalize_min_max(embedding)
+embedding = normalize_range(embedding, -1, 1)
+plot_3dscatter(embedding[:,0], embedding[:,1], embedding[:,2])
 
-plot_3dscatter(embedding_normalized[:,0], embedding_normalized[:,1], embedding_normalized[:,2])
+embedding_aligned = align_3d_embedding_to_shpere(embedding)
 
-embedding_normalized = align_3d_embedding_to_shpere(embedding_normalized)
+plot_3dscatter(embedding_aligned[:,0], embedding_aligned[:,1], embedding_aligned[:,2])
 
-plot_3dscatter(embedding_normalized[:,0], embedding_normalized[:,1], embedding_normalized[:,2])
+rots, alpha_beta = calc_rotation_from_points_on_sphere(embedding_aligned)
 
-rots = calc_rotation_from_points_on_sphere(embedding_normalized)
+print(rots)
+print(sim.angles)
+print(alpha_beta)
 
-clean_images = sim.images(0, n_img).asnumpy()
+clean_images = sim.projections(0, n_img).asnumpy()
+
 rec_calculated_rots = reconstruction_naive(clean_images, n_img, img_size, rots)
 rec_given_rots = reconstruction_naive(clean_images, n_img, img_size, sim.angles)
 
-
 voxelSaveAsMap(rec_calculated_rots, 'rec_calculated_rots.map')
-voxelSaveAsMap(rec_calculated_rots, 'rec_given_rots.map')
+voxelSaveAsMap(rec_given_rots, 'rec_given_rots.map')
 
-assert False
 
 A_noisy = create_adj_mat_nx(noisy_graph.classes)
 embedding_noisy = calc_graph_laplacian(A_noisy, numberOfEvecs=3)
 
-print(embedding_noisy)
-
-
 plot_3dscatter(embedding_noisy[:, 0], embedding_noisy[:, 1], embedding_noisy[:, 2],  (10,10))
 
 
+embedding_noisy_aligned = align_3d_embedding_to_shpere(embedding_noisy)
 
-diff = embedding - embedding_noisy
+rots, alpha_beta = calc_rotation_from_points_on_sphere(embedding_noisy_aligned)
 
-assert np.all(diff != 0) , "embeddings are same"
+print(rots)
+print(sim.angles)
+print(alpha_beta)
 
-input("enter to terminate")
+noisy_images = sim.images(0, n_img).asnumpy()
 
+rec_calculated_rots = reconstruction_naive(noisy_images, n_img, img_size, rots)
+rec_given_rots = reconstruction_naive(noisy_images, n_img, img_size, sim.angles)
 
-print(time.time() - t)
+voxelSaveAsMap(rec_calculated_rots, 'rec_noisy_calculated_rots.map')
+voxelSaveAsMap(rec_given_rots, 'rec_noisy_given_rots.map')
 
 assert False
 

@@ -96,12 +96,21 @@ def calc_graph_laplacian_from_knn_indices(indices, weights=None, numberOfEvecs=2
   return calc_graph_laplacian(A, numberOfEvecs)
   
 
-def align_3d_embedding_to_shpere(embedding):
+def align_3d_embedding_to_shpere(embedding, debug=False):
   n = embedding.shape[0]
   fibo_sphere = fibonacci_sphere(samples=n)
-  G_aligned = GAlign("embedding", emb1=fibo_sphere, emb2=embedding).get_align()
-  embedding = fibo_sphere[G_aligned]
-  return embedding
+  G_aligned = GAlign("embedding", emb1=embedding, emb2=fibo_sphere).get_align()
+  result = fibo_sphere[G_aligned]
+
+  if debug:
+    for i in range(n):
+      if i % 100 == 0:
+        print(f"Actual {embedding[i]}, estimated {result[i]}")
+  
+    dist = np.linalg.norm(embedding - result)
+    print(dist/n)
+
+  return result
 
 
 """
@@ -134,6 +143,11 @@ def aspire_knn_with_rotation_invariant_distance(X, K):
   return classes, reflections, rotations, shifts, correlations
 
 
+def sampling_sphere(Ntheta):
+    th = np.random.random(Ntheta) * np.pi * 2
+    x = np.random.random(Ntheta) * 2 - 1
+    out = np.array([np.cos(th) * np.sqrt(1 - x**2), np.sin(th) * np.sqrt(1 - x**2),x]).T
+    return out
   
 def fibonacci_sphere(samples=1000):
     points = np.zeros((samples, 3))

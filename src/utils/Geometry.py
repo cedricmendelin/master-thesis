@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 def my_euler_sequence():
-    return 'zyz'
+    return 'ZYZ'
 
 def get_2d(d3_points, resolution=100, xlim=[-2,2], ylim=[-2,2]):
     [xlim_l,xlim_u]=xlim
@@ -24,8 +24,52 @@ def rotation3d(d3_points, phi, psi, theta, deg=True):
     r = R.from_euler(my_euler_sequence(), [phi, psi, theta], degrees=deg)
     return r.apply(d3_points)
 
-def random_rotation_3d(N, deg=True):
+def random_rotation_3d(N, deg=False):
     return R.random(N).as_euler(my_euler_sequence(), degrees=deg)
+
+def calc_rotation_from_points_on_sphere_2(points):
+    n = points.shape[0]
+    rotation_point = np.array([1,0,0])
+    euler_angles = np.zeros_like(points)
+    alpha_beta = np.zeros_like(points)
+    
+    for i in range(n):
+        point=points[i]
+        r = np.sqrt(point[0] ** 2 + point[1] ** 2)
+        theta = np.sign(point[1]) * np.arccos(point[0] / r)
+
+        
+        alpha = np.arccos(point[0] / r) - theta
+
+        intermediate_x = point[0] * np.cos(alpha) - point[1] * np.sin(alpha) 
+        intermediate_y = point[0] * np.sin(alpha) + point[1] * np.cos(alpha)
+        intermediate_z = point[2]
+
+        r2 =  np.sqrt(intermediate_y ** 2 + intermediate_z ** 2)
+        psi = np.sign(intermediate_z) * np.arccos(intermediate_y / r2)
+        tau = np.sign(rotation_point[2]) * np.arccos(rotation_point[1] / r2)
+
+        beta = tau - psi
+
+        R_z = np.array(
+        [
+            [np.cos(alpha), - np.sin(alpha),0],
+            [np.sin(alpha), np.cos(alpha),0],
+            [0,0,1]
+        ])
+
+        R_x = np.array(
+        [
+            [1,0,0], 
+            [0, np.cos(beta), - np.sin(beta)], 
+            [0, np.sin(beta), np.cos(beta)]
+        ])
+
+        rot = R.__mul__(R.from_matrix(R_x), R.from_matrix(R_z))
+        euler_angles[i] = rot.as_euler(my_euler_sequence())
+        alpha_beta[i] = np.array([alpha, beta, 0])
+
+    return euler_angles, alpha_beta
 
 
 def calc_rotation_from_points_on_sphere(points):
@@ -36,6 +80,7 @@ def calc_rotation_from_points_on_sphere(points):
     theta = np.sign(origin[1]) * np.arccos(origin[0] / r)
 
     euler_angles = np.zeros_like(points)
+    alpha_beta = np.zeros_like(points)
 
     for i in range(n):
         point=points[i]
@@ -67,8 +112,9 @@ def calc_rotation_from_points_on_sphere(points):
 
         rot = R.__mul__(R.from_matrix(R_x), R.from_matrix(R_z))
         euler_angles[i] = rot.as_euler(my_euler_sequence())
+        alpha_beta[i] = np.array([alpha, beta, 0])
 
-    return euler_angles
+    return euler_angles, alpha_beta
 
 def rotate_volume(V, alpha, beta, gamma):
     # we need z y z!
@@ -79,9 +125,33 @@ def rotate_volume(V, alpha, beta, gamma):
     beta = np.rad2deg(beta)
     gamma = np.rad2deg(gamma)
 
-    #V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(2, 1), reshape=False)
-    V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(1, 0), reshape=False)
+    # (2,1) -> x-axis rotation
+    # (2,0) -> y-axis rotation
+    # (1,0) -> z-axis rotation
+
+    # V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(1, 0), reshape=False)
+    # V = rotate(V, beta, mode='constant', cval=0, order=3, axes=(2, 1), reshape=False)
+
+    V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(1,0), reshape=False)
     V = rotate(V, beta, mode='constant', cval=0, order=3, axes=(2, 0), reshape=False)
+    V = rotate(V, gamma, mode='constant', cval=0, order=3, axes=(1,0), reshape=False)
+    return V
+
+def rotate_volume_zxinv(V, alpha, beta, gamma):
+
+    alpha = np.rad2deg(alpha)
+    beta = np.rad2deg(beta)
+    gamma = np.rad2deg(gamma)
+
+    # (2,1) -> x-axis rotation
+    # (2,0) -> y-axis rotation
+    # (1,0) -> z-axis rotation
+
+    # V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(1, 0), reshape=False)
+    # V = rotate(V, beta, mode='constant', cval=0, order=3, axes=(2, 1), reshape=False)
+
+    V = rotate(V, alpha, mode='constant', cval=0, order=3, axes=(1,0), reshape=False)
+    V = rotate(V, beta, mode='constant', cval=0, order=3, axes=(2, 1), reshape=False)
     V = rotate(V, gamma, mode='constant', cval=0, order=3, axes=(1,0), reshape=False)
     return V
 
@@ -112,7 +182,7 @@ def reconstruction_naive(estimated_images, n, resolution, rotation_list_re):
     for i in tqdm(range(n)):
         estimation = estimated_images[i]
         #V0=np.broadcast_to(image*r,(resolution,resolution,resolution)).transpose((1,2,0))
-        V0 = np.broadcast_to(estimation * r ,voxel_shape).transpose((1,2,0))
+        V0 = np.broadcast_to(estimation / r ,voxel_shape).transpose((1,2,0))
         V0 = np.array(V0)
         V0[mask3d == False] = 0
         

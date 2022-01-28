@@ -20,6 +20,10 @@ def find_sigma_noise(snr, x_ref):
   sigma_noise = (10**(-snr/20)) * nref
   return sigma_noise
 
+def find_sigma_noise_cheng(snr, x):
+    variance =  ( np.std(x)**2) / (10 ** (snr/10) )
+    return np.sqrt(variance)
+
 def create_or_load_knn_rotation_invariant(name, N, image_res, images, K, snr=None, save=True):
     aspireknn_filename = ''
     if snr is None:
@@ -65,6 +69,10 @@ def voxelSaveAsMap(voxel, location = 'out.map'):
     ccp4.update_ccp4_header()
     ccp4.write_ccp4_map(location)
 
+def normalize_range(x, lower, upper):
+    x1 = (upper - lower) * ((x - np.min(x)) / np.ptp(x))  + lower
+    return x1
+
 def normalize_min_max(x):
     x1 = (x - np.min(x)) / np.ptp(x) # ptp: max-min
     return x1
@@ -74,8 +82,14 @@ def set_negatives_and_small_values_to(x, new_val=0, threshold=1e-13):
     return x
 
 def set_small_values_to(x, new_val=0, threshold=1e-13):
-     x[np.abs(x) < threshold] = new_val
-     return x
+    x[np.abs(x) < threshold] = new_val
+    return x
+
+
+def normalize_cheng(x):
+    x = x - (x.max() + x.min()) / 2
+    x=x/x.max()
+    return x
 
 """
 Normalize midrange dimension vice.
@@ -89,9 +103,40 @@ def normalize_midrange(x, ndim=3):
 
     for i in range(ndim):
         out[:,i] = x[:,i] - (x[:,i].max() + x[:,i].min()) / 2
-    
 
-def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr, k):
+def getAngle(P,Q):
+    R = np.dot(P,Q.T)
+    theta = (np.trace(R) -1)/2
+    return np.arccos(theta) * (180/np.pi)
+
+def reconstruct_result_cheng(V, n, img_size, snr, k):
+     # create aspire volume and downsample to image size
+    aspire_vol = Volume(V)
+    #aspire_vol = aspire_vol.downsample(img_size)
+
+    # return values:
+    rotation_angles =  random_rotation_3d(n)
+
+    # determine noise
+    noise_variance = find_sigma_noise(snr, aspire_vol.__getitem__(0))
+
+    print(f"noise sigma: {noise_variance}")
+    noise_variance = 1e-10
+
+    # create aspire simulation
+    sim = create_simulation(aspire_vol, n, rotation_angles, noise_variance)
+
+    # get clean graph
+    distance, classes, angles,reflection = rotation_invariant_knn(sim.projections(0, n).asnumpy(), K=k)
+    clean_graph = Knn(distance, classes, angles, reflection)
+
+    # get noisy graph
+    distance, classes, angles,reflection = rotation_invariant_knn(sim.images(0, n).asnumpy(), K=k)
+    noisy_graph = None #Knn(distance, classes, angles, reflection)
+
+    return aspire_vol, sim, clean_graph, noisy_graph
+
+def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr, k, normalize=True, ctf=None):
     # checks
     assert path.isfile(MAP_DIR + map_file) , "could not find map file" 
     
@@ -109,7 +154,11 @@ def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr
 
     # load map file
     v_npy = mrcfile.open(map_file_path ).data.astype(np.float32)
-    
+
+    # normalize
+    if normalize:
+        v_npy = normalize_min_max(v_npy)
+
     # create aspire volume and downsample to image size
     aspire_vol = Volume(v_npy)
     aspire_vol = aspire_vol.downsample(img_size)
@@ -119,15 +168,25 @@ def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr
 
     # determine noise
     noise_variance = find_sigma_noise(snr, aspire_vol)
+    #found noise_variance: 0.12354835437561838
+    print(f"found noise_variance: {noise_variance}")
+
+    noise_variance = find_sigma_noise_cheng(snr, aspire_vol)
+    #found noise_variance: 0.12354835437561838
+    print(f"found noise_variance: {noise_variance}")
+
+    noise_variance = 1e-10
 
     # create aspire simulation
-    sim = create_simulation(aspire_vol, n, rotation_angles, noise_variance)
+    sim = create_simulation(aspire_vol, n, rotation_angles, noise_variance, ctf=ctf)
+
+    sim.projections(0,4).show()
 
     # get clean graph
-    clean_graph = create_or_load_knn(graph_file_path, sim.images(0, n).asnumpy(), k)
+    clean_graph = create_or_load_knn(graph_file_path, sim.projections(0, n).asnumpy(), k)
 
     # get noisy graph
-    noisy_graph = create_or_load_knn(noisy_file_path, sim.projections(0, n).asnumpy(), k)
+    noisy_graph = create_or_load_knn(noisy_file_path, sim.images(0, n).asnumpy(), k)
 
     return aspire_vol, sim, clean_graph, noisy_graph
 

@@ -10,8 +10,12 @@ color_map = plt.cm.get_cmap('gray')
 reversed_color_map = color_map.reversed()
 
 def plot_imshow(data):
+    if(not plt.isinteractive):
+        plt.ion()
     plt.figure()
     plt.imshow(data, cmap=reversed_color_map)
+    plt.colorbar()
+    plt.show()
 
 def plot_3d_scatter(data, figsize=(10,10)):
     plot_3dscatter(data[:,0], data[:,1], data[:,2], figsize)

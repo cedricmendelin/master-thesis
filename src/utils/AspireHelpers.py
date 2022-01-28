@@ -35,7 +35,7 @@ def create_simulation(aspire_vol, n, angles, noise_variance, shifts=None, amplit
     amplitudes = default_amplitudes(n)
 
   if ctf is None:
-    ctf = [RadialCTFFilter(defocus=d) for d in np.linspace(1.5e4, 2.5e4, 7)]
+    ctf = np.zeros((7))
 
   white_noise_filter = ScalarFilter(dim=2, value=noise_variance)
 
@@ -51,7 +51,7 @@ def create_simulation(aspire_vol, n, angles, noise_variance, shifts=None, amplit
       seed=seed,  # RNG seed for reproducibility
       dtype=aspire_vol.dtype,  # match our datatype to the Volume.
       noise_filter=white_noise_filter,  # optionally prescribe noise
-      unique_filters=ctf,
+      unique_filters= [RadialCTFFilter(defocus=d) for d in ctf]
   )
 
   return src
