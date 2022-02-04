@@ -17,9 +17,9 @@ def diffusion_map(X=None, alpha=0.15):
 
   """
   dists = euclidean_distances(X,X)
-  K = np.exp(-dists**2/alpha)
-  D = np.sum(K,axis=0)
-  P = np.diag(1/D) @ K 
+  W = np.exp(-dists**2/alpha)
+  D = np.sum(W,axis=0)
+  P = np.diag(1/D) @ W # D^-1 W
   return P
 
 def diffusion_distance(P, n_eign=2, t=1):
@@ -38,10 +38,10 @@ def diffusion_distance(P, n_eign=2, t=1):
   eValues = eValues.real
   eVectors = eVectors.real
   eValueIndexOrder = np.argsort(-np.abs(eValues))
-  #print(eValues[eValueIndexOrder])
   eValuesSorted = np.real(eValues[eValueIndexOrder[1:n_eign+1]])
   eVectorsSorted = np.real(eVectors[:,eValueIndexOrder[1:n_eign+1]])
-  eValuesSortedT = eValuesSorted**t
+
+  eValuesSortedT = eValuesSorted ** t
   psi   = eVectorsSorted @ np.diag(eValuesSortedT)
 
   return euclidean_distances(psi,psi), psi

@@ -11,42 +11,34 @@ image_res = 100
 snr = 10
 K=10
 
-original_images, uniform_3d_angles, noisy_images, noise = create_or_load_bunny_immages(N, image_res, snr, save=True)
+aspire_vol, sim, clean_graph, noisy_graph = create_or_load_dataset_from_map("bunny-test", "bunny.map", N, image_res, snr, K, normalize=False, ctf=np.zeros((7)))
 
-classes, reflections, rotations, correlations = create_or_load_knn_rotation_invariant(name='bunny', N=N, image_res=image_res, images=original_images, K=K)
-classes_noisy, reflections_noisy, rotations_noisy, correlations_noisy = create_or_load_knn_rotation_invariant(name='bunny_noisy', N=N, image_res=image_res, images=noisy_images, K=K, snr=snr)
+# Knn-Graoh
+# self.distance = distance
+# self.classes = classes
+# self.angles = angles
+# self.reflection = reflection
 
-print("edges:" , np.count_nonzero(reflections))
-
-print("rotation:")
 # rotation between neighbours for optimal alignment
+
+print(f"angles: shape: {clean_graph.angles.shape}, min: {clean_graph.angles.min()},  max: {clean_graph.angles.max()}, mean: {clean_graph.angles.mean()}")
+print(f"distance: shape: {clean_graph.distance.shape}, min: {clean_graph.distance.min()},  max: {clean_graph.distance.max()}, mean: {clean_graph.distance.mean()}")
+
+# angles: shape: (1000, 10), min: 0.0,  max: 6.240731352401346, mean: 2.8044403263229185
 # within interval of [0, 2 pi]
-print(rotations.shape) # (1000, 10)
-print(rotations.min())
-print(rotations.max())
-print(rotations.mean())
-# print(rotations)
 
-print("correlations")
-print(correlations.shape) # (1000, 10)
-print(correlations.min()) # 10779.522965724176
-print(correlations.max()) # 56478.243301824274
-print(correlations.mean()) # 30753.471803816934
+# distance: shape: (1000, 10), min: -8.881784197001252e-16,  max: 0.010516059903895703, mean: 0.0025571909665922836
+# normalizing distance?
 
-# normalize interval [0,1]
-#correlations = (correlations - correlations.min()) / (correlations.max() - correlations.min())
+# classes: graph edges
+# reflection: bool indicating if neighbour is flected (image is flipped)
 
-alpha = 0.2
 
-#dists = euclidean_distances(correlations,correlations)
-#K = np.exp(-dists**2/alpha)
 
-print("correlations")
-print(correlations.shape) # (1000, 10)
-print(correlations.min()) # 10779.522965724176
-print(correlations.max()) # 56478.243301824274
-print(correlations.mean()) # 30753.471803816934
-# print(correlations)
+
+epsilon = 0.2
+
+
 
 # should we normalize it?
 dim = 2
@@ -56,7 +48,6 @@ S = np.zeros((N * dim, N * dim))
 D = np.zeros((N * dim, N * dim))
 A_s = np.zeros((N,N))
 
-edge_count = 0
 
 for i in range(N):
   d_i = 0
@@ -64,7 +55,7 @@ for i in range(N):
   
   for j  in range(K):
     # optimal alignment angle
-    theta = rotations[i,j]
+    theta = clean_graph.angles[i,j]
     c, s = np.cos(theta), np.sin(theta)
     # optimal alginment rotaiton
     r =  np.array(((c, -s), (s, c)))
@@ -73,7 +64,8 @@ for i in range(N):
     # weight
     # probably wrong, we need do put it in a gaussian kernel
     #w_i_j = correlations[i,j]
-    w_i_j = np.exp(- correlations[i,j])
+    
+    w_i_j = np.exp(- clean_graph.distance[i,j] ** 2 / epsilon)
     
 
     # weighted alignment 
@@ -81,16 +73,15 @@ for i in range(N):
 
     #if reflections[i,j]:
     if True:
-      edge_count = edge_count + 1
       d_i = d_i + w_i_j 
       row = i * dim
-      col = classes[i,j] * dim
+      col = clean_graph.classes[i,j] * dim
       S[row, col] = s_weights[i,j][0,0]
       S[row, col + 1] = s_weights[i,j][0,1]
       S[row + 1, col] = s_weights[i,j][1,0]
       S[row +1 , col + 1] = s_weights[i,j][1,1]
 
-      A_s[i,classes[i,j]] = 1
+      A_s[i,clean_graph.classes[i,j]] = 1
       #print(i, classes[i,j])
   row = i * dim
   D[row:row+1, row:row+1] = d_i
@@ -127,7 +118,7 @@ S_2t_norm = np.linalg.norm(S_tilde_power_2t, ord='fro')
 print('shape S_2t_norm:', S_2t_norm.shape)
 
 
-A = create_adj_mat(classes, reflections)
+A = create_adj_mat(clean_graph.classes)
 
 print(np.array_equal(A, A_s))
 

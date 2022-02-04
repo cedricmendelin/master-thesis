@@ -1,5 +1,6 @@
 import numpy as np
-from .Geometry import *
+from .Geometry import random_rotation_3d
+from .Normalization import *
 from .Graph import *
 from .AspireHelpers import *
 import os.path as path
@@ -69,27 +70,6 @@ def voxelSaveAsMap(voxel, location = 'out.map'):
     ccp4.update_ccp4_header()
     ccp4.write_ccp4_map(location)
 
-def normalize_range(x, lower, upper):
-    x1 = (upper - lower) * ((x - np.min(x)) / np.ptp(x))  + lower
-    return x1
-
-def normalize_min_max(x):
-    x1 = (x - np.min(x)) / np.ptp(x) # ptp: max-min
-    return x1
-
-def set_negatives_and_small_values_to(x, new_val=0, threshold=1e-13):
-    x[x < threshold] = new_val
-    return x
-
-def set_small_values_to(x, new_val=0, threshold=1e-13):
-    x[np.abs(x) < threshold] = new_val
-    return x
-
-
-def normalize_cheng(x):
-    x = x - (x.max() + x.min()) / 2
-    x=x/x.max()
-    return x
 
 """
 Normalize midrange dimension vice.
@@ -121,7 +101,7 @@ def reconstruct_result_cheng(V, n, img_size, snr, k):
     noise_variance = find_sigma_noise(snr, aspire_vol.__getitem__(0))
 
     print(f"noise sigma: {noise_variance}")
-    noise_variance = 1e-10
+    noise_variance = 1e-5
 
     # create aspire simulation
     sim = create_simulation(aspire_vol, n, rotation_angles, noise_variance)
@@ -129,9 +109,10 @@ def reconstruct_result_cheng(V, n, img_size, snr, k):
     # get clean graph
     distance, classes, angles,reflection = rotation_invariant_knn(sim.projections(0, n).asnumpy(), K=k)
     clean_graph = Knn(distance, classes, angles, reflection)
+    #clean_graph = None
 
     # get noisy graph
-    distance, classes, angles,reflection = rotation_invariant_knn(sim.images(0, n).asnumpy(), K=k)
+    #distance, classes, angles,reflection = rotation_invariant_knn(sim.images(0, n).asnumpy(), K=k)
     noisy_graph = None #Knn(distance, classes, angles, reflection)
 
     return aspire_vol, sim, clean_graph, noisy_graph
@@ -153,7 +134,7 @@ def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr
         mkdir(expertiment_folder)
 
     # load map file
-    v_npy = mrcfile.open(map_file_path ).data.astype(np.float32)
+    v_npy = mrcfile.open(map_file_path ).data.astype(np.float64)
 
     # normalize
     if normalize:

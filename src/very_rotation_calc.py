@@ -31,10 +31,13 @@ dist = np.linalg.norm(normal_dist_sphere - embedding)
 print(dist/n)
 
 
-rotations = calc_rotation_from_points_on_sphere_2(embedding)
+rotations = calc_rotation_from_points_on_sphere_ZYZ(embedding, n)
 origin = np.array([1,0,0])
-rotated_p = R.from_euler(rotations[1]).apply(origin)
 
+rotated_p = R.from_euler(my_euler_sequence(), rotations[10], degrees=False).apply(embedding[10])
+
+
+print (f"Actual rotation p {rotated_p}, estimated {rotations[1]}, embedded {embedding[1]}")
 
 
 

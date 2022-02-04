@@ -57,9 +57,9 @@ tau_degree = tau * (180 / np.pi)
 
 beta = tau - psi
 
-print("beta for x rotation:")
-print(beta)
-print(beta * (180 / np.pi))
+# print("beta for x rotation:")
+# print(beta)
+# print(beta * (180 / np.pi))
 
 final_x = intermediate_x
 final_y = intermediate_y * np.cos(beta) - intermediate_z * np.sin(beta) 
@@ -102,17 +102,29 @@ rot = R.__mul__(R.from_matrix(R_x), R.from_matrix(R_z))
 
 final_rot_bla = rot.apply(p1)
 
-print(final_rot_bla)
+print(f"final rotation from rot matrix: {final_rot_bla}")
 
 print("euler angles")
 print(rot.as_euler('zxz'))
+print(rot.as_euler('ZXZ'))
 
 rot2 = R.from_euler("zxz", rot.as_euler('zxz'))
 final_rot_bla = rot2.apply(p1)
-
 set_small_values_to(final_rot_bla)
+print(f"final rotation from euler angles zxz: {final_rot_bla}")
 
-print(final_rot_bla)
+
+rot2 = R.from_euler("ZXZ", rot.as_euler('ZXZ'))
+final_rot_bla = rot2.apply(p1)
+set_small_values_to(final_rot_bla)
+print(f"final rotation from euler angles ZXZ: {final_rot_bla}")
+
+
+
+rot2 = R.from_euler("xyz", rot.as_euler('xyz'))
+final_rot_bla = rot2.apply(p1)
+set_small_values_to(final_rot_bla)
+print(f"final rotation from euler angles xyz: {final_rot_bla}")
 
 
 assert np.abs(p2[0]) <= r , "d must be smaller or equal r"

@@ -35,6 +35,7 @@ def create_simulation(aspire_vol, n, angles, noise_variance, shifts=None, amplit
     amplitudes = default_amplitudes(n)
 
   if ctf is None:
+    #ctf = np.linspace(1.5e4, 2.5e4, 7)
     ctf = np.zeros((7))
 
   white_noise_filter = ScalarFilter(dim=2, value=noise_variance)

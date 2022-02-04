@@ -1,16 +1,47 @@
-import matplotlib
-from vedo import dataurl, Mesh, mesh2Volume
-from aspire.volume import Volume
+from vedo import dataurl, Mesh, mesh2Volume, volumeFromMesh
+
+from tqdm import tqdm
+#from skimage.transform import rotate
+from scipy.spatial.transform import Rotation as R
 import numpy as np
-import matplotlib.pyplot as plt
-from utils.Data import voxelSaveAsMap, normalize_min_max
-from utils.Vedo import visualize_voxels_3d
-from utils.Geometry import downsample_voxels
+
+from sklearn.metrics.pairwise import euclidean_distances
+#import torch.nn.functional as F
+import networkx as nx
 import torch
+from skimage.data import shepp_logan_phantom
+from skimage.transform import  rescale, radon, iradon
+from skimage.morphology import disk
+from sklearn.neighbors import kneighbors_graph
+import matplotlib.pyplot as plt
+import numpy as np
+#from FBB import FBBasis2D
+from scipy import sparse
+from scipy.sparse.linalg import eigsh
+from tqdm import tqdm
+from skimage.transform import rotate
 from scipy.spatial.transform import Rotation as R
 import sys
+#import plotly.graph_objects as go
+sys.path.insert(0, '..')
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+
+from scipy import sparse
+from scipy.sparse.linalg import eigsh
 from tqdm import tqdm
-from scipy.ndimage import zoom
+from skimage.transform import rotate
+import sys
+
+
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+
+
 # Helpers:
 
 def rotation3d(d3_points,phi,psi,theta):
@@ -116,77 +147,60 @@ def get_img_3d(d3_points,resolution=50,xlim=[-1,1],ylim=[-1,1],zlim=[-1,1],theta
     return img
 
 
-
-resolution = 100
-
-mesh = Mesh(dataurl + "bunny.obj").normalize().subdivide()
-mesh.points
-vol = mesh2Volume(mesh, spacing=(0.01,0.01,0.01)).tonumpy()
-v_npy = downsample_voxels(vol, resolution)
-vol_equally_spaced = np.pad(vol, ((0,3),(0,6),(0,57)), mode='constant', constant_values=0).astype(np.float32)
-
-print(vol_equally_spaced.shape)
-
-V = Volume(vol_equally_spaced).__getitem__(0)
-
-print(V.max()) 
-print(V.min())
-print(V.mean()) # 48.72
-print(normalize_min_max(V).mean()) #0.1910
-print(np.std(normalize_min_max(V))) # 0.39316356
-print(V.shape)
+def getChengBunny(resolution=50):
+  pts=np.load("src/maps/bunny.npy")
+  pts=pts[np.random.permutation(pts.shape[0]),:]
 
 
-print(vol.max())
-print(vol.min())
-print(vol.mean()) # 66.3
-print(normalize_min_max(vol).mean()) # 0.26
-print(np.std(normalize_min_max(vol))) #0.4387954961714154
-print(vol.shape)
+  pts[:,0]=pts[:,0]-(pts[:,0].max()+pts[:,0].min())/2
+  pts[:,1]=pts[:,1]-(pts[:,1].max()+pts[:,1].min())/2
+  pts[:,2]=pts[:,2]-(pts[:,2].max()+pts[:,2].min())/2
 
+  print(pts.shape)
+  pts_max=np.linalg.norm(pts,axis=1).max()
+  pts=pts/pts_max
 
+  print(pts.shape)
 
-v_npy = downsample_voxels(vol, resolution)
+  return get_img_3d(pts,resolution=resolution,block=True).astype(np.float64)
 
-print(v_npy.max())
-print(v_npy.min())
-print(v_npy.mean()) # 66.3
-print(normalize_min_max(v_npy).mean()) #0.2599559299019605
-print(np.std(normalize_min_max(v_npy))) # 0.435922933153926
-print(v_npy.shape)
+from .Normalization import normalize_min_max
+from .Geometry import downsample_voxels
 
+def getVedoBunny(resolution=64, padding=7):
+  mesh = Mesh(dataurl + "bunny.obj").normalize().subdivide()
 
-#visualize_voxels_3d(v_npy)
+  vol = mesh2Volume(mesh, spacing=(0.01,0.01,0.01)).tonumpy()
+  V = normalize_min_max(downsample_voxels(vol, resolution - (2*padding)))
 
+  #237, 234, 183
+  p = (padding, padding)
+  V = np.pad(V, (p, p, p) , mode='constant', constant_values=0).astype(np.float64)
+  
+  return V
 
-#visualize_voxels_3d(V)
-#visualize_voxels_3d(vol)
+def getVedoBunny2(resolution=64, padding=7):
+  mesh = Mesh(dataurl + "bunny.obj").normalize().subdivide()
 
+  vol = volumeFromMesh(mesh, dims=(resolution, resolution, resolution)).tonumpy()
+  V = normalize_min_max(downsample_voxels(vol, resolution - (2*padding)))
 
+  #237, 234, 183
+  p = (padding, padding)
+  V = np.pad(V, (p, p, p) , mode='constant', constant_values=0).astype(np.float64)
+  
+  return V
 
-pts=np.load("src/maps/bunny.npy")
-pts=pts[np.random.permutation(pts.shape[0]),:]
+import mrcfile   
 
-resolution = 50
+def getMapFile(map_file="emd_25792.map", resolution=64):
+  # load map file
+  vol =  mrcfile.open('src/maps/' + map_file).data.astype(np.float64)
 
-pts[:,0]=pts[:,0]-(pts[:,0].max()+pts[:,0].min())/2
-pts[:,1]=pts[:,1]-(pts[:,1].max()+pts[:,1].min())/2
-pts[:,2]=pts[:,2]-(pts[:,2].max()+pts[:,2].min())/2
+  vol = normalize_min_max(vol)
+  
+  threshold = 0.35
+  vol[vol < threshold] = 0
 
-print(pts.shape)
-pts_max=np.linalg.norm(pts,axis=1).max()
-pts=pts/pts_max
-
-print(pts.shape)
-
-V2 = get_img_3d(pts,resolution=resolution,block=True).astype(float)
-print(V2.max()) 
-print(V2.min())
-print(V2.mean()) # 0.029984
-print(np.std(V2)) # 0.029984
-
-visualize_voxels_3d(V2)
-
-#voxelSaveAsMap(V)
-
-
+  V = normalize_min_max(downsample_voxels(vol, resolution))
+  return V
