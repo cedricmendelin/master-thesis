@@ -18,13 +18,13 @@ logger = logging.getLogger(__name__)
 # Parameters:
 #DATA_DIR = "src/maps/"  # Tutorial example data folder
 DATA_DIR = 'src/reconstruction/'  # Tutorial example data folder
-map_name = 'rec_given_rots_chengBunny.map'
+map_name = 'mean_estimated_vol.map'
 
 
 # Check if parameters suitable 
 normalize_data_min_max = True
 cut_negatives_and_small_values = False
-invert_normalization = True
+invert_normalization = False
 
 should_downsample = False
 downsample_size = 50
@@ -58,7 +58,7 @@ plot_imshow(v_npy[:,:,25])
 
 #threshold = int(input("enter threshold:"))
 
-threshold = 0.4
+threshold = 0.5
 
 v_npy[v_npy < threshold] = 0
 

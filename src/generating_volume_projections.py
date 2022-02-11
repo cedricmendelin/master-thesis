@@ -32,15 +32,17 @@ from aspire.utils import eigs
 from aspire.utils.random import Random
 from aspire.volume import Volume
 
+from utils.Data import *
+
 logger = logging.getLogger(__name__)
 
 # %%
 # Configure how many images we'd like to project
 # ----------------------------------------------
 # Specify parameters
-num_vols = 2  # number of volumes
-img_size = 60  # image size in square
-n_img = 10  # number of images
+# num_vols = 2  # number of volumes
+img_size = 50  # image size in square
+n_img = 1000  # number of images
 num_eigs = 16  # number of eigen-vectors to keep
 
 # %%
@@ -49,10 +51,15 @@ num_eigs = 16  # number of eigen-vectors to keep
 # This example starts with an mrc, loading it as an numpy array
 
 DATA_DIR = "src/maps"  # Tutorial example data folder
-v_npy = mrcfile.open('C:\master-thesis\src\maps\emd_25792.map').data.astype(np.float64)
+v_npy = mrcfile.open("C:\master-thesis\src\maps\\bunny.map").data.astype(np.float64)
+
+v_npy = normalize_min_max(v_npy)
+
+
+# v_npy = np.nan_to_num(v_npy)
 
 # Then using that to instantiate a Volume, which is downsampled to 60x60x60
-v = Volume(v_npy).downsample(60)
+v = Volume(v_npy).downsample(img_size)
 
 print(v.__getitem__(0).dtype)
 
@@ -137,10 +144,10 @@ src.images(0, 3).show()
 src.projections(0, 3).show()
 
 # Here we return the first n_img images as a numpy array.
-dirty_ary = src.images(0, n_img).asnumpy()
+# dirty_ary = src.images(0, n_img).asnumpy()
 
 # And we have access to the clean images
-clean_ary = src.projections(0, n_img).asnumpy()
+# clean_ary = src.clean_images(0, n_img).asnumpy()
 
 
 # Similary, the angles/rotations/shifts/amplitudes etc.
@@ -152,6 +159,8 @@ num_imgs = n_img
 
 # Specify the normal FB basis method for expending the 2D images
 basis = FBBasis3D((img_size, img_size, img_size))
+
+logger.info("Basis done")
 
 # Estimate the noise variance. This is needed for the covariance estimation step below.
 noise_estimator = WhiteNoiseEstimator(sim, batchSize=500)
@@ -168,11 +177,15 @@ logger.info(f"Noise Variance = {noise_variance_estimated}")
 # L-by-L-by-L array.
 
 mean_estimator = MeanEstimator(sim, basis)
-mean_est = mean_estimator.estimate()
+mean_est = mean_estimator.estimate(tol=0.8)
+logger.info("Mean estimator done")
+voxelSaveAsMap(mean_est.__getitem__(0), 'mean_estimated_vol.map')
 
 # Passing in a mean_kernel argument to the following constructor speeds up some calculations
 covar_estimator = CovarianceEstimator(sim, basis, mean_kernel=mean_estimator.kernel)
-covar_est = covar_estimator.estimate(mean_est, noise_variance)
+covar_est = covar_estimator.estimate(mean_est, noise_variance, tol=0.95)
+logger.info("Covariance estimator done")
+voxelSaveAsMap(mean_est.__getitem__(0), 'covariance_estimated_vol.map')
 
 # %%
 # Use Top Eigenpairs to Form a Basis
@@ -190,8 +203,11 @@ eigs_est = Volume(np.transpose(eigs_est, (3, 0, 1, 2)))
 # Truncate the eigendecomposition. Since we know the true rank of the
 # covariance matrix, we enforce it here.
 
-eigs_est_trunc = Volume(eigs_est[: num_vols - 1])  # hrmm not very convenient
-lambdas_est_trunc = lambdas_est[: num_vols - 1, : num_vols - 1]
+eigs_est_trunc = Volume(eigs_est[: 1])  # hrmm not very convenient
+lambdas_est_trunc = lambdas_est[: 1, : 1]
+
+
+voxelSaveAsMap(mean_est.__getitem__(0), 'eigs_est_trunc.map')
 
 # Estimate the coordinates in the eigenbasis. Given the images, we find the
 # coordinates in the basis that minimize the mean squared error, given the
@@ -206,7 +222,7 @@ coords_est = src_wiener_coords(
 
 # Since kmeans2 relies on randomness for initialization, important to push random seed to context manager here.
 with Random(0):
-    centers, vol_idx = kmeans2(coords_est.T, num_vols)
+    centers, vol_idx = kmeans2(coords_est.T, 1)
     centers = centers.squeeze()
 
 # %%

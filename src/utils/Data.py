@@ -107,7 +107,7 @@ def reconstruct_result_cheng(V, n, img_size, snr, k):
     sim = create_simulation(aspire_vol, n, rotation_angles, noise_variance)
 
     # get clean graph
-    distance, classes, angles,reflection = rotation_invariant_knn(sim.projections(0, n).asnumpy(), K=k)
+    distance, classes, angles,reflection = rotation_invariant_knn(sim.clean_images(0, n).asnumpy(), K=k)
     clean_graph = Knn(distance, classes, angles, reflection)
     #clean_graph = None
 
@@ -117,7 +117,7 @@ def reconstruct_result_cheng(V, n, img_size, snr, k):
 
     return aspire_vol, sim, clean_graph, noisy_graph
 
-def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr, k, normalize=True, ctf=None):
+def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr, k, normalize=False, ctf=None):
     # checks
     assert path.isfile(MAP_DIR + map_file) , "could not find map file" 
     
@@ -161,10 +161,10 @@ def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr
     # create aspire simulation
     sim = create_simulation(aspire_vol, n, rotation_angles, noise_variance, ctf=ctf)
 
-    sim.projections(0,4).show()
+    # sim.projections(0,4).show()
 
     # get clean graph
-    clean_graph = create_or_load_knn(graph_file_path, sim.projections(0, n).asnumpy(), k)
+    clean_graph = create_or_load_knn(graph_file_path, sim.clean_images(0, n).asnumpy(), k)
 
     # get noisy graph
     noisy_graph = create_or_load_knn(noisy_file_path, sim.images(0, n).asnumpy(), k)

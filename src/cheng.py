@@ -68,7 +68,7 @@ for i in range(n_img):
     aspire_rot = aspire_angles_xyz[i]
     inplane_rotation = aspire_rot[0]
 
-    rot = R.__mul__(R.from_matrix(rot_matrix_z(inplane_rotation)), R.from_euler("ZXZ" , rots[i]) )
+    #rot = R.__mul__(R.from_matrix(rot_matrix_z(inplane_rotation)), R.from_euler("ZXZ" , rots[i]) )
     reconstruction_rots[i] = np.array([inplane_rotation, rots[i][1], rots[i][2] ])
 
     if i % 100 == 0:
