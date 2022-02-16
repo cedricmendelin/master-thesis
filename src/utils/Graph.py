@@ -169,8 +169,7 @@ def fibonacci_sphere(samples=1000):
 
 from aspire.basis import ffb_2d
 
-# Compute Graph Laplacian
-def generateNeigbourHoodGraph(distanceMatrix, K,sym=True):
+def generate_knn_from_distances(distanceMatrix, K, sym=True, dataType='float64'):
     samples = distanceMatrix.shape[0]
     neighbourMatrix = np.zeros_like(distanceMatrix)
 
@@ -179,7 +178,7 @@ def generateNeigbourHoodGraph(distanceMatrix, K,sym=True):
         index = np.argsort(distanceRow)
         neighbourMatrix[i, index[:K+1]] = 1
         if sym:
-            neighbourMatrix = (((neighbourMatrix + neighbourMatrix.T)>0)*1).astype('float64')
+            neighbourMatrix = (((neighbourMatrix + neighbourMatrix.T) > 0) * 1 ).astype(dataType)
 
     return neighbourMatrix
 

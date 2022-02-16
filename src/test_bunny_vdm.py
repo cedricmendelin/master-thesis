@@ -19,21 +19,21 @@ print(clean_graph.classes)
 # currently we allow self-loops which should not be the case in VDM.
 
 # Build Laplacian to compare against
-A = create_adj_mat_nx(clean_graph.classes)
-laplacian_embedding2 = calc_graph_laplacian(A, numberOfEvecs=3)
-plot_3d_scatter(laplacian_embedding2)
+# A = create_adj_mat_nx(clean_graph.classes)
+# laplacian_embedding2 = calc_graph_laplacian(A, numberOfEvecs=3)
+# plot_3d_scatter(laplacian_embedding2)
 
 # Build Diffusion Maps to compare agains
 # Find good DM epsilon
-epsilon_dm = 25
-dists = euclidean_distances(A,A)
-print(f"Distances: {dists.max()}, {dists.min()}, {dists.mean()}")
-#aspire_angles_xyz = np.array([R.from_euler("ZYZ", angles).as_euler("XYZ") for angles in sim.angles])
-x = np.array([ dist ** 2 / epsilon_dm for dist in dists])
-y = np.array([ np.exp( - x_i) for x_i in x])
-plt.scatter(x,y)
-plt.title(f"Epsilon DM {epsilon_dm}")
-plt.show()
+# epsilon_dm = 25
+# dists = euclidean_distances(A,A)
+# print(f"Distances: {dists.max()}, {dists.min()}, {dists.mean()}")
+# #aspire_angles_xyz = np.array([R.from_euler("ZYZ", angles).as_euler("XYZ") for angles in sim.angles])
+# x = np.array([ dist ** 2 / epsilon_dm for dist in dists])
+# y = np.array([ np.exp( - x_i) for x_i in x])
+# plt.scatter(x,y)
+# plt.title(f"Epsilon DM {epsilon_dm}")
+# plt.show()
 
 # P = diffusion_map(X=A, alpha=epsilon_dm)
 # #fig = plt.figure(figsize=(10, 10))
@@ -58,12 +58,12 @@ plt.show()
 
 # rotation between neighbours for optimal alignment
 
-print(f"angles: shape: {clean_graph.angles.shape}, min: {clean_graph.angles.min()},  max: {clean_graph.angles.max()}, mean: {clean_graph.angles.mean()}")
-print(clean_graph.angles)
-print(f"distance: shape: {clean_graph.distance.shape}, min: {clean_graph.distance.min()},  max: {clean_graph.distance.max()}, mean: {clean_graph.distance.mean()}")
-print(clean_graph.distance)
+# print(f"angles: shape: {clean_graph.angles.shape}, min: {clean_graph.angles.min()},  max: {clean_graph.angles.max()}, mean: {clean_graph.angles.mean()}")
+# print(clean_graph.angles)
+# print(f"distance: shape: {clean_graph.distance.shape}, min: {clean_graph.distance.min()},  max: {clean_graph.distance.max()}, mean: {clean_graph.distance.mean()}")
+# print(clean_graph.distance)
 
-print(clean_graph.classes)
+# print(clean_graph.classes)
 
 # angles: shape: (1000, 10), min: 0.0,  max: 6.240731352401346, mean: 2.8044403263229185
 # within interval of [0, 2 pi]
@@ -86,13 +86,16 @@ print(f"Distances: {clean_graph.distance.max()}, {clean_graph.distance.min()}, {
 x = np.array([ dist ** 2 / epsilon_vdm for dist in clean_graph.distance.flatten()])
 y = np.array([ np.exp( - x_i) for x_i in x])
 plt.scatter(x,y)
-plt.title(f"Epsilon DM {epsilon_dm}")
+plt.title(f"Epsilon VDM {epsilon_vdm}")
 plt.show()
 
 
 # Build up Matrix S and D
 
 dim = 2
+sym = True
+
+
 O = np.zeros((N, K, dim, dim))
 W = np.zeros((N, K, dim))
 s_weights = np.zeros((N, K, dim, dim))
@@ -134,6 +137,11 @@ for i in range(N):
     col = clean_graph.classes[i,j] * dim
     S[row:row + dim, col : col+dim] = s_weights[i,j]
     A_s[i,clean_graph.classes[i,j]] = 1
+    
+    if sym:
+      S[col : col+dim, row:row + dim] = s_weights[i,j].T
+      A_s[clean_graph.classes[i,j],i] = 1
+    
 
   # set values of D
   row = i * dim
@@ -182,28 +190,48 @@ t = 1
 n_eign = 3
 
 eign_values, eign_vecs = np.linalg.eig(S_tilde)
+# S_tilde_decomposed = (eign_vecs[:,None,:]*eign_vecs[None,:,:]*eign_values[None,None,:]).sum(2)
 
-eign_values = eign_values.real
-eign_vecs = eign_vecs.real
+eign_values, eign_vecs = np.linalg.eig(S_tilde)
+tt = (eign_vecs[:,None,:]*eign_vecs[None,:,:]*eign_values[None,None,:]).sum(2)
+diff = np.linalg.norm(S_tilde - tt)
+check_S_tilde = np.linalg.norm(S_tilde - S_tilde.T)
+
+print(f"S_tilde_decomposed: {tt}")
+
+print(f"diff: {diff / np.linalg.norm(S_tilde)}")
+print(f"check: {check_S_tilde}")
+
+# print(f"S_tilde_decomposed {S_tilde_decomposed}")
+#eign_values = eign_values.real
+#eign_vecs = eign_vecs.real
+
+assert False
+print(eign_values)
+print(eign_vecs)
+
+
+# check if needed
 eign_value_idx = np.argsort(-np.abs(eign_values))
 
-# sort decomposition by decreasing order of magnitude
+# # sort decomposition by decreasing order of magnitude
 eign_values = np.real(eign_values[eign_value_idx])
 eign_vecs = np.real(eign_vecs[:,eign_value_idx])
 
-
-print(f"e_val original shape: {eign_values.shape}") # dim * N
-print(f"e_vec original shape: {eign_vecs.shape}") # (dim * N, dim * N)
-print(eign_values)
-print(eign_vecs)
 
 # verify some staff
 # decomposition of S_tilde and S_tilde ^ 2t
 S_tilde_2t = fractional_matrix_power(S_tilde, 2 * t)
 
 
+# S_tilde_decomposed = ( eign_values[:,None,None] * eign_vecs[:,None,:] * eign_vecs[:,:,None]).sum(0)
+# S_tilde_2t_decomposed = ( eign_values[:,None,None] ** (2*t)  * eign_vecs[:,None,:] * eign_vecs[:,:,None]).sum(0)
+
+# (eign_vecs[:,None,:]*eign_vecs[None,:,:]*eign_values[None,None,:]).sum(2)
+
 S_tilde_decomposed = np.zeros_like(S_tilde)
-S_tilde_2t_decomposed = np.zeros_like(S_tilde_2t)
+S_tilde_2t_decomposed = np.zeros_like(S_tilde)
+
 
 # calc decomposition
 # Equation 3.13
@@ -211,6 +239,7 @@ for i in range (N):
   i_evec_idx = i * dim
 
   for j in range (N):
+
     if A_s[i,j] != 1 or i == j:
      continue
 
@@ -241,6 +270,8 @@ print(f"S_tilde_decomposed {S_tilde_decomposed}")
 print(f"S_tilde_2t {S_tilde_2t}")
 print(f"S_tilde_2t_decomposed {S_tilde_2t_decomposed}")
 
+
+assert False
 
 # eign_values = np.real(eign_values[eign_value_idx[1:n_eign+1]])
 # eign_vecs = np.real(eign_vecs[:,eign_value_idx[1:n_eign+1]])
