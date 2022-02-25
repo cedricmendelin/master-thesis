@@ -2,26 +2,31 @@ from utils.Graph import *
 from utils.Data import *
 from utils.Plotting import *
 from utils.DiffusionMaps import *
+from utils.VectorDiffusionMaps import *
 import matplotlib.pyplot as plt
 import networkx as nx
 from scipy.linalg import fractional_matrix_power
 
 ########################### Parameters ###########################
-N = 5
-image_res = 100
+N = 10
+image_res = 20
 snr = 10
-K= 3
+K = 4
 
 ############################ Build up Simulation with projections and rotation invariant knn graph
 aspire_vol, sim, clean_graph, noisy_graph = create_or_load_dataset_from_map("bunny-test-vdm", "bunny.map", N, image_res, snr, K, normalize=False, ctf=np.zeros((7)))
-print(clean_graph.classes)
 
 # currently we allow self-loops which should not be the case in VDM.
 
 # Build Laplacian to compare against
 # A = create_adj_mat_nx(clean_graph.classes)
+# laplacian_embedding = calc_graph_laplacian(A, numberOfEvecs=3)
+# plot_3d_scatter(laplacian_embedding)
+
+# A_noisy = create_adj_mat_nx(noisy_graph.classes)
 # laplacian_embedding2 = calc_graph_laplacian(A, numberOfEvecs=3)
 # plot_3d_scatter(laplacian_embedding2)
+
 
 # Build Diffusion Maps to compare agains
 # Find good DM epsilon
@@ -79,205 +84,68 @@ print(clean_graph.classes)
 ################################## Main VDM: ############################################
 
 # Find good epsilon for VDM
-epsilon_vdm = 0.0005
-
-print(f"Distances: {clean_graph.distance.max()}, {clean_graph.distance.min()}, {clean_graph.distance.mean()}")
-#aspire_angles_xyz = np.array([R.from_euler("ZYZ", angles).as_euler("XYZ") for angles in sim.angles])
-x = np.array([ dist ** 2 / epsilon_vdm for dist in clean_graph.distance.flatten()])
-y = np.array([ np.exp( - x_i) for x_i in x])
-plt.scatter(x,y)
-plt.title(f"Epsilon VDM {epsilon_vdm}")
-plt.show()
+# 10 / 4 : 0.05
+epsilon_vdm = 0.00008
+verify_epsilon(noisy_graph.distance, [0.0005, 0.00001, 0.00003, 0.00005, 0.00008, 0.000005])
 
 
-# Build up Matrix S and D
-
+# other Parameters:
 dim = 2
 sym = True
+t = 50
+t_2 = 2 * t
+n_eign = 64
 
 
-O = np.zeros((N, K, dim, dim))
-W = np.zeros((N, K, dim))
-s_weights = np.zeros((N, K, dim, dim))
-S = np.zeros((N * dim, N * dim))
-D = np.zeros((N * dim, N * dim))
-A_s = np.zeros((N,N))
-degree = np.zeros(N)
+######################### Build up Matrix S and D #####################
 
-
-# for all images
-# calculate S, which includes W and O
-for i in range(N):
-  d_i = 0
-
-  # iterate over all neighbours
-  for j  in range(K):
-    if clean_graph.classes[i,j] == i:
-      A_s[i,i] = 1
-      continue
-
-    # optimal alignment angle and rotation
-    theta = clean_graph.angles[i,j]
-    c, s = np.cos(theta), np.sin(theta)
-    r =  np.array(((c, -s), (s, c)))
-    O[i,j] = r
-
-    # weights including gaussian kernel
-    # Equation 2.6
-    w_ij = np.exp(- clean_graph.distance[i,j] ** 2 / epsilon_vdm)
-    W[i,j] = w_ij
-
-    # weighted alignment
-    # Equation 3.1
-    s_weights[i,j] = O[i,j] * w_ij
-
-    # assign values to S
-    d_i = d_i + w_ij # Equation 3.3
-    row = i * dim
-    col = clean_graph.classes[i,j] * dim
-    S[row:row + dim, col : col+dim] = s_weights[i,j]
-    A_s[i,clean_graph.classes[i,j]] = 1
-    
-    if sym:
-      S[col : col+dim, row:row + dim] = s_weights[i,j].T
-      A_s[clean_graph.classes[i,j],i] = 1
-    
-
-  # set values of D
-  row = i * dim
-  D[row:row+dim, row:row+dim] = d_i * np.identity(dim) # Equation 3.2
-  degree[i] = d_i
-
-
-print(f"Weights: {W.shape}, max: {W.max()} , min: {W.min()}, mean: {W.mean()}")
-print(W)
-print(f"Transformations: {O.shape}, {O}")
-print(f" data: {O}")
-# print(f"Degrees: {degree}")
-
-# print(D.shape)
-print(f"D: {D}")
-print('shape S:', S.shape)
-print('S:', S)
-
-
-# Compare A calculated by iteration and by ngx
-
-# laplacian_embedding = calc_graph_laplacian(A_s, numberOfEvecs=3)
-# plot_3d_scatter(laplacian_embedding)
-
-# A = create_adj_mat_nx(clean_graph.classes)
-# laplacian_embedding2 = calc_graph_laplacian(A, numberOfEvecs=3)
-# plot_3d_scatter(laplacian_embedding2)
-
-
-# print(f"A: {A}")
-# print(f"As: {A_s}")
-
+S, D, A_s = calculate_S(N, K, noisy_graph, epsilon_vdm, dim, sym)
 
 ######################### Building S_tilde #####################
 # Equation 3.12
 D_0_5 = fractional_matrix_power(D, -0.5)
-print(f"D ^-.5: {D_0_5}")
+# print(f"D ^-.5: {D_0_5}")
 
 S_tilde = D_0_5 @ S @ D_0_5
-print(f"S_tilde: {S_tilde}")
-
+# print(f"S_tilde: {S_tilde}")
 
 ################# Spectral decomposition S_tilde ################
 # Equation 3.13
-t = 1
-n_eign = 3
+eign_values, eign_vecs = np.linalg.eigh(S_tilde)
+eign_value_idx = np.argsort(-np.abs(eign_values))
 
-eign_values, eign_vecs = np.linalg.eig(S_tilde)
-# S_tilde_decomposed = (eign_vecs[:,None,:]*eign_vecs[None,:,:]*eign_values[None,None,:]).sum(2)
-
-eign_values, eign_vecs = np.linalg.eig(S_tilde)
-tt = (eign_vecs[:,None,:]*eign_vecs[None,:,:]*eign_values[None,None,:]).sum(2)
-diff = np.linalg.norm(S_tilde - tt)
-check_S_tilde = np.linalg.norm(S_tilde - S_tilde.T)
-
-print(f"S_tilde_decomposed: {tt}")
-
-print(f"diff: {diff / np.linalg.norm(S_tilde)}")
-print(f"check: {check_S_tilde}")
+# verfiy_spectral_decomposition(eign_values, eign_vecs, eign_value_idx, S_tilde, n_eign_start=10, n_eign_stop=54, n_eign_step=4)
 
 # print(f"S_tilde_decomposed {S_tilde_decomposed}")
 #eign_values = eign_values.real
 #eign_vecs = eign_vecs.real
 
-assert False
-print(eign_values)
-print(eign_vecs)
+eign_values_org = eign_values
+eign_vecs_org = eign_vecs
 
-
-# check if needed
-eign_value_idx = np.argsort(-np.abs(eign_values))
 
 # # sort decomposition by decreasing order of magnitude
-eign_values = np.real(eign_values[eign_value_idx])
-eign_vecs = np.real(eign_vecs[:,eign_value_idx])
+eign_values = eign_values[eign_value_idx[0:n_eign+1]]
+eign_vecs = eign_vecs[:,eign_value_idx[0:n_eign+1]]
+
+S_tilde_t2_decomposed = (eign_vecs[:,None,:] * eign_vecs[None,:,:] * eign_values[None,None,:] ** t_2).sum(2)
+S_tilde_t2 = fractional_matrix_power(S_tilde, t_2)
 
 
-# verify some staff
-# decomposition of S_tilde and S_tilde ^ 2t
-S_tilde_2t = fractional_matrix_power(S_tilde, 2 * t)
+diff_2t_tilde = np.linalg.norm(S_tilde_t2 - S_tilde_t2_decomposed) / np.linalg.norm(S_tilde_t2)
+
+print(f"Diff spectral decomposition 2t S_tilde: {diff_2t_tilde}")
 
 
-# S_tilde_decomposed = ( eign_values[:,None,None] * eign_vecs[:,None,:] * eign_vecs[:,:,None]).sum(0)
-# S_tilde_2t_decomposed = ( eign_values[:,None,None] ** (2*t)  * eign_vecs[:,None,:] * eign_vecs[:,:,None]).sum(0)
-
-# (eign_vecs[:,None,:]*eign_vecs[None,:,:]*eign_values[None,None,:]).sum(2)
-
-S_tilde_decomposed = np.zeros_like(S_tilde)
-S_tilde_2t_decomposed = np.zeros_like(S_tilde)
+# print(eign_values ** 10)
+# print(eign_vecs)
 
 
-# calc decomposition
-# Equation 3.13
-for i in range (N):
-  i_evec_idx = i * dim
+# plt.hist(eign_values)
+# plt.show()
 
-  for j in range (N):
-
-    if A_s[i,j] != 1 or i == j:
-     continue
-
-    j_evec_idx = j * dim
-    res = np.zeros((dim, dim))
-    res_2t = np.zeros_like(res)
-
-    print("############################################################################################################")
-    for l in range(N * dim):
-      vl_i = eign_vecs[l][i_evec_idx: i_evec_idx + dim].reshape((dim, 1))
-      vl_j = eign_vecs[l][j_evec_idx: j_evec_idx + dim].reshape((dim, 1))
-      lambda_l = eign_values[l]
-
-      res_tmp = (lambda_l * vl_i  * vl_j.T)
-
-      res = res + res_tmp
-      res_2t = res_2t + (lambda_l ** (2 * t) * vl_i * vl_j.T)
-
-    row = i_evec_idx
-    col = j_evec_idx
-    print(f"result: ( {i}, {j}) = {res}")
-    S_tilde_decomposed[row: row + dim, col : col+dim] = res
-    S_tilde_2t_decomposed[row:row + dim, col : col+dim] = res_2t
-
-
-print(f"S_tilde {S_tilde}")
-print(f"S_tilde_decomposed {S_tilde_decomposed}")
-print(f"S_tilde_2t {S_tilde_2t}")
-print(f"S_tilde_2t_decomposed {S_tilde_2t_decomposed}")
-
-
-assert False
-
-# eign_values = np.real(eign_values[eign_value_idx[1:n_eign+1]])
-# eign_vecs = np.real(eign_vecs[:,eign_value_idx[1:n_eign+1]])
-# eign_values = np.real(eign_values[eign_value_idx])
-# eign_vecs = np.real(eign_vecs[:,eign_value_idx])
-# eign_values_t = eign_values ** (2*t)
+# ignore decomposing:
+S_tilde_t2_decomposed = S_tilde_t2
 
 ################################# Vector diffusion mapping #################################
 # Vector diffusion mapping
@@ -285,41 +153,68 @@ assert False
 # V_t shape :(N * dim, N * dim)
 # # Equation 3.15
 
-V_t = np.zeros((N, N * dim, N * dim))
-
-for i in range (N):
-  i_evec_idx = i * dim
-  res = np.zeros((N * dim, N * dim))
-  for l in range(N * dim):
-    for r in range(N * dim):
-      idx = l * N + r
-      lambdas = (eign_values[l] * eign_values[r]) ** t 
-      vl_i = eign_vecs[l][i_evec_idx: i_evec_idx + dim]
-      vr_i = eign_vecs[r][i_evec_idx: i_evec_idx + dim]
-
-      vt_lr = lambdas * np.dot(vl_i, vr_i)
-      print (vt_lr)
-
-      V_t[i,l, r] = vt_lr
-
 # hs norm:
-hs_norm_estimated = np.zeros((N,N))
-hs_norm = np.zeros((N,N))
-vdm_distance = np.zeros((N,N))
-for i in range(N):
-  for j in range(N):
-    hs_norm[i,j] = np.linalg.norm(S_tilde_2t[i:i+dim, j:j+dim], ord='fro')
-    hs_norm_estimated = np.dot(V_t[i], V_t[j])
-    vdm_distance = euclidean_distances(V_t[i], V_t[j])
+hs_norm = calculate_hs_norm(S_tilde_t2, N, dim)
+hs_norm_decomposed = calculate_hs_norm(S_tilde_t2_decomposed, N, dim)
+
+vdm_distance = calculate_vdm_distance(hs_norm, N)
+vdm_distance_decomposed = calculate_vdm_distance(hs_norm_decomposed, N)
+
+diff_hs_norm = np.linalg.norm(hs_norm - hs_norm_decomposed) / np.linalg.norm(hs_norm)
+diff_vdm_distance = np.linalg.norm(vdm_distance - vdm_distance_decomposed) / np.linalg.norm(vdm_distance)
+
+print(f"Diff hs norm: {diff_hs_norm}")
+print(f"Diff vdm distance: {diff_vdm_distance}")
+
+# print(f"hs norm {hs_norm}")
+# print(f"vdm distance {vdm_distance}")
 
 
-print(f" HS norm : {hs_norm}")
-print(f" HS norm estimated : {hs_norm_estimated}")
-print(f"vdm_distance: {vdm_distance}")
+
+vdm_graph, classes = generate_knn_from_distances(vdm_distance, K, ordering='desc')
+# vdm_graph_laplacian = calc_graph_laplacian_nx(vdm_graph, embedDim=3)
+
+# plot_3d_scatter(vdm_graph_laplacian, title=f"VDM with t={t}")
+
+
+G_estimated = nx.convert_matrix.from_numpy_matrix(vdm_graph)
+
+G_true = nx.convert_matrix.from_numpy_matrix(create_adj_mat(clean_graph.classes) - np.identity(A_s.shape[0]))
+G_noisy_true = nx.convert_matrix.from_numpy_matrix(create_adj_mat(noisy_graph.classes) - np.identity(A_s.shape[0]))
+
+print(f"recovered edges: {G_estimated.edges}, # {len(G_estimated.edges)}")
+print(f"true edges: {G_true.edges}, # {len(G_true.edges)}")
+print(f"true noisy edges: {G_noisy_true.edges}, # {len(G_noisy_true.edges)}")
+
+# symmetric_differece: set of all the elements that are either in the first set or the second set but not in both.
+# difference: set of all the elements in first set that are not present in the second set
+# intersection: set of all the common elements of both the sets
+# union: set of all the elements of both the sets without duplicates
+
+set_diff_noisy = set(G_noisy_true.edges).symmetric_difference(set(G_estimated.edges))
+set_diff_true = set(G_true.edges).symmetric_difference(set(G_estimated.edges))
+set_diff_true_noisy = set(G_true.edges).symmetric_difference(set(G_noisy_true.edges))
+
+print(f"edges diff true and noisy: {set_diff_noisy}, # {len(set_diff_noisy)}")
+print(f"edges diff estimated noisy: {set_diff_noisy}, # {len(set_diff_noisy)}")
+print(f"edges diff estimated true: {set_diff_true}, # {len(set_diff_true)}")
+
+print(f"clean classes {clean_graph.classes}")
+print(f"noisy classes {noisy_graph.classes}")
+
+# print(f"clean A,  {create_adj_mat(clean_graph.classes)} ")
+# print(f"noisy A,  {create_adj_mat(noisy_graph.classes)} ")
+# print(f"A_S: {A_s}")
+
+# vdm_graph_laplacian = calc_graph_laplacian_nx(vdm_graph, embedDim=3)
+# print(vdm_graph_laplacian.shape)
+# plot_3d_scatter(vdm_graph_laplacian)
 
 
 def S_ij(S, i, j, dim):
-  return S[i:i+dim, j:j+dim]
+  ii = i * dim
+  jj = j * dim
+  return S[ii:ii+dim, jj:jj+dim]
 
 
 

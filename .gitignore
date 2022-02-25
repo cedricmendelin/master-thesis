@@ -555,6 +555,9 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/macos,linux,latex,windows,pycharm,jetbrains,git
 .vscode/settings.json
 wandb/*
+src/reconstruction/*
+
 src/data/*
 *.pyc
 *.map
+test_padding_bunny_projections.npz

@@ -17,17 +17,30 @@ def plot_imshow(data):
     plt.colorbar()
     plt.show()
 
-def plot_3d_scatter(data, figsize=(10,10)):
-    plot_3dscatter(data[:,0], data[:,1], data[:,2], figsize)
+def plot_2d_scatter(data, figsize=(10,10), title='', show=False):
+    fig = plt.figure(figsize=figsize)
+    
+    # Creating plot
+    plt.scatter(data[:,0], data[:,1], cmap='hsv')
+    plt.title(title)
 
-def plot_3dscatter(x,y,z, figsize=(10,10)):
+    if show:
+        plt.show()
+
+def plot_3d_scatter(data, figsize=(10,10), title='', show=False):
+    plot_3dscatter(data[:,0], data[:,1], data[:,2], figsize, title, show)
+
+def plot_3dscatter(x,y,z, figsize=(10,10), title='', show=False):
     #Plot with color to visualize the manifold.
     fig = plt.figure(figsize=figsize)
     ax = plt.axes(projection ="3d")
     
     # Creating plot
     ax.scatter3D(x, y, z, cmap='hsv')
-    plt.show()
+    ax.set_title(title)
+
+    if show:
+        plt.show()
 
 def draw_graph(A):
     g = nx.from_numpy_matrix(A)

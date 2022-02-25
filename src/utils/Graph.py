@@ -6,6 +6,7 @@ from aspire.basis import ffb_2d
 from aspire.classification.align2d import BFRAlign2D
 from aspire.classification import RIRClass2D
 from aspire.source import ArrayImageSource
+from sklearn import neighbors
 
 from .GraphAlign import GAlign
 
@@ -13,17 +14,20 @@ from .GraphAlign import GAlign
 """
 Create adjacency matrix from indices and optional weights.
 """
-def create_adj_mat(index_edge_array, reflections=None, weights=None):
+def create_adj_mat(index_edge_array, weights=None, sym=True):
   n = index_edge_array.shape[0]
   neighbors = index_edge_array.shape[1]
   A = np.zeros((n,n))
   for i in range(n):
     for j in range(neighbors):
-        if reflections is None or reflections[i,j]:
-          if weights is not None:
-              A[i, index_edge_array[i,j]] = weights[i,j]
-          else:
-              A[i, index_edge_array[i,j]] = 1
+      if weights is not None:
+        A[i, index_edge_array[i,j]] = weights[i,j]
+        if sym:
+          A[index_edge_array[i,j], i] = weights[i,j]
+      else:
+        A[i, index_edge_array[i,j]] = 1
+        if sym:
+          A[index_edge_array[i,j], i] = 1
 
   return A
 
@@ -83,7 +87,7 @@ def calc_graph_laplacian_nx(W, embedDim = 2):
     if not nx.is_connected(G):
         print("Graph is not connected!!")
     L = nx.laplacian_matrix(G)
-    eVals, eVecs = scipy.sparse.linalg.eigsh(L,k=embedDim,which='SM')
+    eVals, eVecs = scipy.sparse.linalg.eigsh(L,k=embedDim + 1,which='SM')
     return eVecs[:,1:embedDim+1]
 
 
@@ -169,18 +173,31 @@ def fibonacci_sphere(samples=1000):
 
 from aspire.basis import ffb_2d
 
-def generate_knn_from_distances(distanceMatrix, K, sym=True, dataType='float64'):
+def generate_knn_from_distances(distanceMatrix, K, sym=True, ordering='desc', dataType='float64', ignoreFirst=False):
     samples = distanceMatrix.shape[0]
-    neighbourMatrix = np.zeros_like(distanceMatrix)
+    A = np.zeros_like(distanceMatrix)
+    neighbors = np.zeros((samples, K))
 
     for i in range(samples):
         distanceRow = distanceMatrix[i, :]
-        index = np.argsort(distanceRow)
-        neighbourMatrix[i, index[:K+1]] = 1
-        if sym:
-            neighbourMatrix = (((neighbourMatrix + neighbourMatrix.T) > 0) * 1 ).astype(dataType)
 
-    return neighbourMatrix
+        if ordering == 'desc':
+          if ignoreFirst:
+            index = np.argsort(-distanceRow)[1:K+1]
+          else:
+            index = np.argsort(-distanceRow)[0:K]
+        else:
+          if ignoreFirst:
+            index = np.argsort(distanceRow)[1:K+1]
+          else:
+            index = np.argsort(distanceRow)[0:K]
+
+        A [i][index] = 1
+        neighbors[i] = index
+        if sym:
+            A  = (((A  + A .T) > 0) * 1 ).astype(dataType)
+
+    return A , neighbors.astype(np.int)
 
 """
 Compute the K-Nearest Neighbour distance matrix.

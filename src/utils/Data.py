@@ -1,3 +1,4 @@
+import dis
 import numpy as np
 from .Geometry import random_rotation_3d
 from .Normalization import *
@@ -156,7 +157,7 @@ def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr
     #found noise_variance: 0.12354835437561838
     print(f"found noise_variance: {noise_variance}")
 
-    noise_variance = 1e-10
+    # noise_variance = 1e-6
 
     # create aspire simulation
     sim = create_simulation(aspire_vol, n, rotation_angles, noise_variance, ctf=ctf)
@@ -186,7 +187,7 @@ def create_or_load_knn(filepath, images, k):
         reflection = loaded['reflection']
         print(f"graph loaded!{filepath}")
     else:
-        distance, classes, angles,reflection = rotation_invariant_knn(images, K=k)
+        distance, classes, angles, reflection = rotation_invariant_knn(images, K=k)
         np.savez_compressed(filepath, distance=distance, classes=classes, angles=angles, reflection=reflection)
     
     return Knn(distance, classes, angles, reflection)

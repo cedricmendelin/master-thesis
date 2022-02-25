@@ -33,13 +33,10 @@ def rotation3d(d3_points, phi, psi, theta, deg=True):
 def random_rotation_3d(N, deg=False):
     return R.random(N).as_euler("XYZ", degrees=deg)
 
-
+from skimage.transform import resize
 def downsample_voxels(voxels, resolution):
-    frac1 = resolution / voxels.shape[0]
-    frac2 = resolution / voxels.shape[1]
-    frac3 = resolution / voxels.shape[2]
-    return zoom(voxels, (frac1, frac2, frac3))
-
+    return resize(voxels, (resolution, resolution, resolution))
+    # fix with usage from skimage.transform import resize
 
 def rot_matrix_x(angle):
    return np.array(
@@ -126,10 +123,6 @@ def calc_rotation_from_points_on_sphere_ZYZ(points, n=None, debug=False, rotatio
 
 
 def rotate_volume(V, alpha, beta, gamma):
-    # we need Z Y Z!
-    # angle in degrees!
-    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.rotate.html
-
     alpha = np.rad2deg(alpha)
     beta = np.rad2deg(beta)
     gamma = np.rad2deg(gamma)
