@@ -1,34 +1,27 @@
 import time
 import argparse
 
-import os
+
 import torch
-import pickle
-import imageio
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib
+plt.ion()
+from utils.generateHelper import *
+from skimage.transform import resize
+from utils.helper import normalize, clip_to_uint8
+
+
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-matplotlib.use('TkAgg')
-if(not plt.isinteractive):
-    plt.ion()
-    
-from skimage.transform import resize
-from utils.helper import normalize, clip_to_uint8
-
-from utils.generateHelper import *
-
-
-import os
 import imageio
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-from utils.laplacianHelper import *
+from utils.helper import normalize, clip_to_uint8
+from  utils.laplacianHelper import *
 from scipy.spatial import distance_matrix
 
 
@@ -40,8 +33,8 @@ from tqdm import tqdm
 
 
 #Running Parameters
-generateVoxel=True
-generateProjection=True
+generateVoxel=False
+generateProjection=False
 computeLaplacian=True
 plotEmbedding=True
 
@@ -50,10 +43,10 @@ modelName="FLATFOOT_StanfordBunny_jmil_HIGH_RES_Smoothed.stl"
 voxelSize=0.02
 size=100
 
-N=50
+N=30
 sigmaPSF=0
-SNR=5
-Ntheta=1000
+SNR=-0
+Ntheta=5000
 dofAngle=4
 Nz=10
 K=6
@@ -134,7 +127,7 @@ else:
         P[k] = y
         P_[k] = P0
 
-x,y,z = sph2cart(thetaSet[:,0]/180*(np.pi), thetaSet[:,1]/180*(np.pi))
+x,y,z = sph2cart(thetaSet[:,0]/180*(np.pi),thetaSet[:,1]/180*(np.pi))
 color_RGBA=np.empty((Ntheta,3))
 color_RGBA[:,0]=x
 color_RGBA[:,1]=y
@@ -142,8 +135,11 @@ color_RGBA[:,2]=z
 color_RGBA = (color_RGBA-color_RGBA.min())/(color_RGBA.max()-color_RGBA.min())
 
 fig = plt.figure(1)
+plt.clf()
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(x,y,z,c=color_RGBA)
+plt.axis('off')
+plt.savefig("S2_display.pdf",bbox_inches='tight', pad_inches=0)
 
 fig = plt.figure(2)
 ax = fig.add_subplot(141)
@@ -191,6 +187,7 @@ dist_str = 'l2'
 # else:
 #     dist = distance_matrix(X,X)
 if dofAngle==4:
+    ## Rotations that are computed using a trick
     tmp = P_.reshape(Ntheta//Nz,Nz,n,n)
     dist=np.zeros((Ntheta//Nz,Ntheta//Nz))
     angles_est=np.zeros((Ntheta//Nz,Ntheta//Nz))
@@ -204,6 +201,33 @@ if dofAngle==4:
             angles_est[i,j] = d_tmp.argmin(0)/Nz*360
 
     dist /= dist.max() # to make epsilon almost adimensional
+
+
+    # # run PCA
+    # from src.aspire.basis import FSPCABasis
+    # from src.aspire.source import ArrayImageSource 
+    # from src.aspire.classification.align2d import BFRAlign2D
+
+    # x1 = P_.reshape(Ntheta//Nz,Nz,n,n)[:,0,:,:]
+
+    # source = ArrayImageSource(x1)
+    # pca_basis = FSPCABasis(source,components=10000)
+
+    
+    # align_ = BFRAlign2D(pca_basis, n_angles=Nz, dtype=None)
+    # classes = np.zeros((Ntheta//Nz,Ntheta//Nz),dtype=int)
+    # for k in range(Ntheta//Nz):
+    #     classes[k] = np.roll(np.arange(Ntheta//Nz),-k)
+    # reflections = (classes==-1)
+    # classes, reflections, rotations, _, corr4 = align_.align(classes, reflections,  pca_basis.spca_coef)
+
+    # dist = np.zeros((x1.shape[0],x1.shape[0]))
+    # for k in range(x1.shape[0]):
+    #     ind_sort = np.argsort(corr4[k])[::-1]
+    #     for kk in range(K):
+    #         dist[k,classes[k,ind_sort[kk]]] = 1/(corr4[k,classes[k,ind_sort[kk]]]+1e-16)
+    
+    
 if dofAngle==3:
     tmp = P_.reshape(Ntheta//Nz,Nz,n,n)
     dist_, ind, _, refl = rotation_invariant_knn(tmp[:,0],K=K+1,ell_max=None,refl_bool=False)
@@ -331,14 +355,11 @@ for i in tqdm(range(Ntheta//Nz)):
         R = np.array(((c, -s), (s, c)))
         S[i*2:i*2+2,j*2:j*2+2] = A_nl1[i,j]*R
         S[j*2:j*2+2,i*2:i*2+2] = A_nl1[i,j]*R.T
-        print(f"{A_nl1[i,j]}")
     Dinv[i,i] = 1/np.sum(A_nl1[i])
     Dinv[i*2,i*2] = 1/np.sum(A_nl1[i])
     Dinv[i*2+1,i*2+1] = 1/np.sum(A_nl1[i])
 D_inv_half = np.sqrt(Dinv)
 Stilde = np.matmul(np.matmul(D_inv_half,S),D_inv_half)
-
-
 
 t = 2
 Stilde_t = np.linalg.matrix_power(Stilde,t)
@@ -359,10 +380,7 @@ idx = np.argsort(eigenValues)
 Phi0 = eigenVectors[:,1:]
 
 
-fig = plt.figure(4)
+fig = plt.figure(3)
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(Phi0[:,0], Phi0[:,1], Phi0[:,2],c=color_RGBA)
     
-plt.show()
-
-

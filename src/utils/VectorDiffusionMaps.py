@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 import matplotlib.pyplot as plt
-
+# import tqdm
 
 #def vector_diffusion_map():
 
@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 
 
 def calculate_S(N, K, clean_graph, epsilon_vdm, dim = 2, sym = True):
-  O = np.zeros((N, K, dim, dim))
-  W = np.zeros((N, K, dim))
-  s_weights = np.zeros((N, K, dim, dim))
+  # O = np.zeros((N, K, dim, dim))
+  # W = np.zeros((N, K, dim))
+  # s_weights = np.zeros((N, K, dim, dim))
   S = np.zeros((N * dim, N * dim))
   D = np.zeros((N * dim, N * dim))
   A_s = np.zeros((N,N))
@@ -29,29 +29,30 @@ def calculate_S(N, K, clean_graph, epsilon_vdm, dim = 2, sym = True):
         continue
 
       # optimal alignment angle and rotation
-      theta = clean_graph.angles[i,j]
+      theta = clean_graph.angles[i,j] /180*np.pi
       c, s = np.cos(theta), np.sin(theta)
-      O[i,j] = np.array(((c, -s), (s, c)))
+      o_ij = np.array(((c, -s), (s, c)))
 
       # weights including gaussian kernel
       # Equation 2.6
       w_ij = np.exp(- clean_graph.distance[i,j] ** 2 / epsilon_vdm)
-      W[i,j] = w_ij
+      # w_ij = 1
 
       # weighted alignment
       # Equation 3.1
-      s_weights[i,j] = O[i,j] * w_ij
+      # s_weights[i,j] = o_ij * w_ij
 
       # assign values to S
       d_i = d_i + w_ij # Equation 3.3
       row = int(i * dim)
       col = int(clean_graph.classes[i,j] * dim)
-      S[row:row + dim, col : col+dim] = s_weights[i,j]
+      
+      S[row:row + dim, col : col+dim] = o_ij * w_ij
       A_s[i, clean_graph.classes[i,j]] = 1
       
       if sym:
-        S[col : col+dim, row:row + dim] = s_weights[i,j].T
-        A_s[clean_graph.classes[i,j],i] = 1
+        S[col : col+dim, row:row + dim] = o_ij.T * w_ij
+        A_s[clean_graph.classes[i,j], i] = 1
       
 
     # set values of D
@@ -62,15 +63,16 @@ def calculate_S(N, K, clean_graph, epsilon_vdm, dim = 2, sym = True):
   return S, D, A_s
 
 
-def calculate_hs_norm(S_tilde_t2, N, dim=2,):
-  hs_norm = np.zeros((N,N))
+def calculate_vdm_affinity(S_tilde_t2, N, dim=2,):
+  affinity = np.zeros((N,N))
   for i in range(N):
-    for j in range(N):
-      idx_i = i*dim
-      idx_j = j*dim
-      val = np.linalg.norm(S_tilde_t2[idx_i:idx_i+dim, idx_j:idx_j+dim], ord='fro')
-      hs_norm[i,j] =  val ** 2
-  return hs_norm
+    for j in range(i + 1, N):
+      ii = i*dim
+      jj = j*dim
+      affinity[i,j] = np.linalg.norm(S_tilde_t2[ii:ii+dim, jj:jj+dim], ord='fro') ** 2
+      affinity[j,i] = np.linalg.norm(S_tilde_t2[ii:ii+dim, jj:jj+dim], ord='fro') ** 2
+      
+  return affinity
 
 def calculate_vdm_distance(hs_norm, N):
   vdm_distance = np.zeros((N,N))

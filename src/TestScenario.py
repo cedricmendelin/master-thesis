@@ -87,10 +87,10 @@ from utils.generateHelper import forward_t, find_sigma_noise_t
 
 ################### Parameters #################
 # defines number of rotations points
-nu = 6  # or any other integer (10 leads to 1002 points, 4 to 162)
+nu = 10  # or any other integer (10 leads to 1002 points, 4 to 162)
 N_inplane = 8 # total with 4,8 : 1296
 resolution = 50
-K=6
+K=10
 recreate_data = True
 debug = False
 
@@ -220,6 +220,8 @@ distances /= distances.max()
 ################ Creating graph ###########################
 from utils.Data import Knn
 graph, classes = generate_knn_from_distances(distances, K, ordering='asc', ignoreFirst=True)
+print(f"graph A: {graph}")
+print(f"classes: {classes}")
 
 angle_per_node = np.zeros_like(classes, dtype=np.float)
 distance_per_node = np.zeros_like(classes, dtype=np.float)
@@ -233,7 +235,8 @@ for i in range(N):
 
 print(f"angles: {angles}")
 # print(f"distances: {distances}")
-# print(f"angles per node: {angle_per_node}")
+print(f"angles per node: {angle_per_node}")
+print(f"classes:", classes)
 # print(f"distances per node: {distance_per_node}")
 
 # graph=0.5*(graph+graph.T)
@@ -266,22 +269,21 @@ plot_3d_scatter(graph_laplacian, title=f"Graph Laplacian input graph")
 #   # graph_laplacian=sparse.csr_matrix(graph_laplacian)
 #   plot_3d_scatter(graph_laplacian_dm, title=f"Graph Laplacian DM t={t}")
 
-plt.show()
-
-assert False
 
 ######################### VDM ###############################
 from utils.VectorDiffusionMaps import *
+
+from scipy.sparse.linalg import eigsh
 clean_graph = Knn(distance_per_node, classes, angle_per_node, None)
 
 epsilon_vdm = 0.7
 # verify_epsilon(clean_graph.distance, [20000, 40000, 60000, 80000, 90000])
-verify_epsilon(distances, [0.25, 0.3, 0.325, 0.35, 0.375, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8, 0.9])
+# verify_epsilon(distances, [0.25, 0.3, 0.325, 0.35, 0.375, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8, 0.9])
 
 # other Parameters:
 dim = 2
 sym = True
-t = 1
+t = 2
 t_2 = 2 * t
 n_eign = N * 2
 
@@ -292,6 +294,65 @@ D_0_5 = fractional_matrix_power(D, -0.5)
 # print(f"D ^-.5: {D_0_5}")
 
 S_tilde = D_0_5 @ S @ D_0_5
+
+
+A_nl1=graph
+# A_nl2=(dist2>1e-7)*1
+# data=dist3.reshape(dist3.shape[0],-1)
+# A_nl3=neighbotFromX(data,n_neighbors=K)
+A_nl4 = distances
+
+S_me = S
+S_tilde_me = S_tilde
+
+### VDM 
+
+S = np.zeros((N*2,N*2))
+Dinv = np.zeros((N*2,N*2))
+
+for i in tqdm(range(N)):
+    for j in range(i+1,N):
+        theta = angles[i,j]/180*np.pi
+        c, s = np.cos(theta), np.sin(theta)
+        R = np.array(((c, -s), (s, c)))
+        S[i*2:i*2+2,j*2:j*2+2] = A_nl1[i,j]*R
+        S[j*2:j*2+2,i*2:i*2+2] = A_nl1[i,j]*R.T
+    Dinv[i,i] = 1/np.sum(A_nl1[i])
+    Dinv[i*2,i*2] = 1/np.sum(A_nl1[i])
+    Dinv[i*2+1,i*2+1] = 1/np.sum(A_nl1[i])
+
+D_inv_half = np.sqrt(Dinv)
+Stilde = np.matmul(np.matmul(D_inv_half,S),D_inv_half)
+
+t = 2
+Stilde_t = np.linalg.matrix_power(Stilde,t)
+
+aff = np.zeros((N,N))
+for i in tqdm(range(N)):
+    for j in range(i+1,N):
+        aff[i,j] = np.linalg.norm(Stilde_t[i*2:i*2+2,j*2:j*2+2],'fro')**2
+        aff[j,i] = np.linalg.norm(Stilde_t[i*2:i*2+2,j*2:j*2+2],'fro')**2
+
+D=np.diag(aff.sum(axis=1))
+L = D - aff
+# D_invdiv2=np.diag(np.sqrt(1/A_knn.sum(axis=1)))
+# L=np.eye(A_knn.shape[0])-D_invdiv2@A_knn@D_invdiv2
+L=sparse.csr_matrix(L)
+eigenValues, eigenVectors=eigsh(L,k=4,which='SM')
+idx = np.argsort(eigenValues)
+Phi0 = eigenVectors[:,1:]
+
+
+fig = plt.figure(4)
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(Phi0[:,0], Phi0[:,1], Phi0[:,2])
+
+print(f"Check S diff: {np.linalg.norm(S_me - S)}")
+print("S_me:", S_me)
+print("S:", S)
+print(f"Check S_tilde diff: {np.linalg.norm(S_tilde - Stilde)}")
+print(f"Check D inv half: {np.linalg.norm(D_0_5 - D_inv_half)}")
+
 
 # Equation 3.13
 eign_values, eign_vecs = np.linalg.eigh(S_tilde)
@@ -310,36 +371,54 @@ eign_vecs = eign_vecs[:,eign_value_idx[0:n_eign+1]]
 # for t in range (1, 40, 2):
 
 S_tilde_t2 = np.linalg.matrix_power(S_tilde, t_2) # fractional_matrix_power
-
-hs_norm_S = calculate_hs_norm(S_tilde_t2, N, dim)
-vdm_distance_S = calculate_vdm_distance(hs_norm_S, N)
-vdm_graph_S, vdm_classes_S = generate_knn_from_distances(vdm_distance_S, K, ordering='asc', ignoreFirst=True)
-print(f"try understand something norm: {hs_norm_S}")
-print(f"try understand something distance: {vdm_distance_S}")
-print(f"vdm S classes {vdm_classes_S}")
-print(f"evals: {eign_values}")
+affinity = calculate_vdm_affinity(S_tilde_t2, N, dim)
 
 
-hs_norm_trace = np.zeros_like(hs_norm_S)
-hs_norm_evals = np.zeros_like(hs_norm_S)
-for i in range(N):
-  for j in range(N):
-    hs_norm_trace[i,j] = np.trace(S_ij(S_tilde_t2, i,j) @ S_ij(S_tilde_t2, i,j).T)
-    res = 0
-    ii = i*dim
-    jj = j*dim
-    for l in range(N*dim):
-      for r in range(N*dim):
-        t = ((eign_values[l] * eign_values[r]) ** t_2) * np.dot(eign_vecs[l, ii:ii+dim], eign_vecs[r, ii:ii+dim]) * np.dot(eign_vecs[l, jj:jj+dim], eign_vecs[r, jj:jj+dim])
-        res = res + t
-    hs_norm_evals[i,j] = res
+D=np.diag(affinity.sum(axis=1))
+L = D - affinity
+# D_invdiv2=np.diag(np.sqrt(1/A_knn.sum(axis=1)))
+# L=np.eye(A_knn.shape[0])-D_invdiv2@A_knn@D_invdiv2
+L=sparse.csr_matrix(L)
+eigenValues, eigenVectors=eigsh(L,k=4,which='SM')
+idx = np.argsort(eigenValues)
+Phi0 = eigenVectors[:,1:]
 
 
-print(f"hs norm with Trace: {hs_norm_trace}")
-print(f"Should be zero: {np.linalg.norm(hs_norm_S- hs_norm_trace)}")
+fig = plt.figure(5)
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(Phi0[:,0], Phi0[:,1], Phi0[:,2])
 
-print(f"hs norm from evals: {hs_norm_evals}")
-print(f"Should be zero: {np.linalg.norm(hs_norm_S- hs_norm_evals)}")
+
+
+
+# vdm_distance_S = calculate_vdm_distance(hs_norm_S, N)
+# vdm_graph_S, vdm_classes_S = generate_knn_from_distances(vdm_distance_S, K, ordering='asc', ignoreFirst=True)
+# print(f"try understand something norm: {hs_norm_S}")
+# print(f"try understand something distance: {vdm_distance_S}")
+# print(f"vdm S classes {vdm_classes_S}")
+# print(f"evals: {eign_values}")
+
+
+# hs_norm_trace = np.zeros_like(hs_norm_S)
+# hs_norm_evals = np.zeros_like(hs_norm_S)
+# for i in range(N):
+#   for j in range(N):
+#     hs_norm_trace[i,j] = np.trace(S_ij(S_tilde_t2, i,j) @ S_ij(S_tilde_t2, i,j).T)
+#     res = 0
+#     ii = i*dim
+#     jj = j*dim
+#     for l in range(N*dim):
+#       for r in range(N*dim):
+#         t = ((eign_values[l] * eign_values[r]) ** t_2) * np.dot(eign_vecs[l, ii:ii+dim], eign_vecs[r, ii:ii+dim]) * np.dot(eign_vecs[l, jj:jj+dim], eign_vecs[r, jj:jj+dim])
+#         res = res + t
+#     hs_norm_evals[i,j] = res
+
+
+# print(f"hs norm with Trace: {hs_norm_trace}")
+# print(f"Should be zero: {np.linalg.norm(hs_norm_S- hs_norm_trace)}")
+
+# print(f"hs norm from evals: {hs_norm_evals}")
+# print(f"Should be zero: {np.linalg.norm(hs_norm_S- hs_norm_evals)}")
 
 
 
@@ -354,7 +433,7 @@ print(f"Should be zero: {np.linalg.norm(hs_norm_S- hs_norm_evals)}")
 # # Equation 3.15
 
 # hs norm:
-hs_norm = calculate_hs_norm(S_tilde_t2, N, dim)
+hs_norm = calculate_vdm_affinity(S_tilde_t2, N, dim)
 hs_norm_from_eign = np.zeros_like(hs_norm)
 
 # for i in range(N):
@@ -389,6 +468,11 @@ vdm_graph, vdm_classes = generate_knn_from_distances(vdm_distance, K, ordering='
 vdm_graph_laplacian = calc_graph_laplacian_nx(vdm_graph, embedDim=3)
 
 plot_3d_scatter(vdm_graph_laplacian, title=f"Laplacian VDM t={t}")
+
+plt.show()
+
+
+assert False
 
 # comparing graphs:
 
