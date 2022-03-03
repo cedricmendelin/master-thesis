@@ -22,7 +22,7 @@ def diffusion_map(X=None, alpha=0.15):
   P = np.diag(1/D) @ W # D^-1 W
   return P
 
-def diffusion_distance(P, n_eign=2, t=1):
+def diffusion_distance(P, n_eign=2, t=1, ignoreFirst=True):
   """
   Your task: given diffusion_map: P, time of diffuion: t, and number of eignvalue you need: n_eign
   
@@ -34,12 +34,14 @@ def diffusion_distance(P, n_eign=2, t=1):
   3. Compute the coordinate psi_i=[eigenValues_1^t eigenVectors_1[i],eigenValues_2^t eigenVectors_2[i]...]
   4. Compute the euclidean_distances matrix: D=euclidean_distances(psi, psi)
   """
-  eValues, eVectors = np.linalg.eig(P)
-  eValues = eValues.real
-  eVectors = eVectors.real
+  eValues, eVectors = np.linalg.eigh(P)
   eValueIndexOrder = np.argsort(-np.abs(eValues))
-  eValuesSorted = np.real(eValues[eValueIndexOrder[1:n_eign+1]])
-  eVectorsSorted = np.real(eVectors[:,eValueIndexOrder[1:n_eign+1]])
+  if ignoreFirst:
+    eValuesSorted = eValues[eValueIndexOrder[1:n_eign+1]]
+    eVectorsSorted = eVectors[:,eValueIndexOrder[1:n_eign+1]]
+  else:
+    eValuesSorted = eValues[eValueIndexOrder[0:n_eign]]
+    eVectorsSorted = eVectors[:,eValueIndexOrder[0:n_eign]]
 
   eValuesSortedT = eValuesSorted ** t
   psi   = eVectorsSorted @ np.diag(eValuesSortedT)

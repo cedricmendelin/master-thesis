@@ -128,7 +128,7 @@ def verfiy_spectral_decomposition(eign_values, eign_vecs, eign_value_idx, S_tild
   plt.show()
 
 import math
-def verify_epsilon(distances, epsilon_vdm_list, show=False):
+def verify_epsilon(distances, epsilon_vdm_list=[50, 5, 1, 0.5, 0.3, 0.1, 0.05, 0.005, 0.0005, 0.00005], show=False):
   number_of_plots = len(epsilon_vdm_list)
   dimy = math.ceil(number_of_plots / 2)
   dimx = 2
