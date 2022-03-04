@@ -65,11 +65,13 @@ DOUBLE_ANGLES = False
 DOUBLE_PROJECTIONS = True
 SEED = 2022
 
+ADD_CIRCLE_PADDING = True
+
 #graph
-K = 8
+K = 9
 
 #noise
-SNR=0
+SNR=10
 
 # kernel
 epsilon = 0.5
@@ -102,14 +104,27 @@ if use_wandb:
 
 
 # ############ Loading input image ###############
-phantom = shepp_logan_phantom() # 400, 400
-scaleX = RESOLUTION/ phantom.shape[0]
-scaleY = RESOLUTION/ phantom.shape[1]
-phantom = rescale(phantom, scale=(scaleX, scaleY), mode='reflect', multichannel=False)
-# phantom = phantom / np.linalg.norm(phantom)
+#input = shepp_logan_input() # 400, 400
+input = np.load("toyModel/bunny_2d.npy")
+scaleX = RESOLUTION/ input.shape[0]
+scaleY = RESOLUTION/ input.shape[1]
+input = rescale(input, scale=(scaleX, scaleY), mode='reflect', multichannel=False)
+
+
+if ADD_CIRCLE_PADDING:
+  r = np.ceil(np.sqrt(2 * (RESOLUTION ** 2)))
+  padding = int(np.ceil((r - RESOLUTION) / 2))
+  print("r:", r)
+  print("padding:", padding)
+  p = (padding, padding)
+  input = np.pad(input, [p,p], mode='constant', constant_values=0)
+
+  RESOLUTION += 2 * padding
+
+# input = input / np.linalg.norm(input)
 
 if debug_plot:
-  plot_imshow(phantom, title='Original Phantom rescaled', c_map=color_map)
+  plot_imshow(input, title='Original input rescaled', c_map=color_map)
 
 # ############### Angles for forward model ############
 if angle_generation == 'linear_spaced':
@@ -130,7 +145,7 @@ thetas_degree = np.degrees(thetas)
 # plot_2dscatter(np.cos(thetas_degree), np.sin(thetas_degree), title=f"Input angles")
 
 # ############### Forward model (Radon Transform) ###########
-Rf = radon(phantom, theta=thetas_degree, circle=True)
+Rf = radon(input, theta=thetas_degree, circle=True)
 sinogram_data = Rf.transpose()
 
 if DOUBLE_PROJECTIONS:
@@ -144,21 +159,21 @@ if DOUBLE_PROJECTIONS:
 sinogram_data_noisy = add_noise(SNR, sinogram_data)
 
 if debug_plot:
-  plot_imshow(sinogram_data[np.argsort(thetas_degree)], title='Sinogram original phantom', aspect='auto', c_map=reversed_color_map)
+  plot_imshow(sinogram_data[np.argsort(thetas_degree)], title='Sinogram original input', aspect='auto', c_map=reversed_color_map)
   plot_imshow(sinogram_data_noisy[np.argsort(thetas_degree)], title='Sinogram noisy', aspect='auto', c_map=reversed_color_map)
-
-plt.show()
-assert False
 
 ##################### Define distances ##########################
 # clean case
 sinogram_dist = sinogramm_l2_distances(sinogram_data)
 #dist = np.exp(- dist ** 2 /  epsilon)
 
-for k in range(2,12,1):
-  graph, classes = generate_knn_from_distances(sinogram_dist, K=k, ordering='asc', ignoreFirst=True)
-  graph_laplacian = calc_graph_laplacian(graph, embedDim=2)
-  plot_2d_scatter(graph_laplacian, title=f"Graph Laplacian sinogram graph K = {k}")
+# for k in range(2,12,1):
+#   graph, classes = generate_knn_from_distances(sinogram_dist, K=k, ordering='asc', ignoreFirst=True)
+#   graph_laplacian = calc_graph_laplacian(graph, embedDim=2)
+#   plot_2d_scatter(graph_laplacian, title=f"Graph Laplacian sinogram graph K = {k}")
+graph, classes = generate_knn_from_distances(sinogram_dist, K=K, ordering='asc', ignoreFirst=True)
+graph_laplacian = calc_graph_laplacian(graph, embedDim=2)
+plot_2d_scatter(graph_laplacian, title=f"Graph Laplacian sinogram graph K = {K}")
 
 
 # noisy case
@@ -175,8 +190,8 @@ noisy_angles_estimated, noisy_angles_estimated_indices, noisy_angles_estimated_s
 print("Diff sinogram angles:", np.linalg.norm(thetas_degree - angles_estimated))
 print("Diff noisy sinogram angles:", np.linalg.norm(thetas_degree - noisy_angles_estimated))
 
-print("angles estimated:", angles_estimated_sorted)
-print("noisy angles estimated", noisy_angles_estimated_sorted)
+# print("angles estimated:", angles_estimated_sorted)
+# print("noisy angles estimated", noisy_angles_estimated_sorted)
 
 ########################## Backward model ###########################
 # angle assumption, equally spaced:
@@ -185,13 +200,13 @@ angles = np.linspace(0, 360, N)
 # clean case
 sinogram_data_sorted = sinogram_data[angles_estimated_indices]
 out = iradon(sinogram_data_sorted.T, theta=angles,circle=True)
-plot_imshow(out, title='Original Phantom reconstructed estimated angles', c_map=color_map)
+plot_imshow(out, title='Original input reconstructed estimated angles', c_map=color_map)
 
 
 # noisy case
 sinogram_data_noisy_sorted = sinogram_data_noisy[noisy_angles_estimated_indices]
 out2 = iradon(sinogram_data_noisy_sorted.T, theta=angles,circle=True)
-plot_imshow(out2, title='Noisy Phantom reconstructed', c_map=color_map)
+plot_imshow(out2, title='Noisy input reconstructed', c_map=color_map)
 
 
 

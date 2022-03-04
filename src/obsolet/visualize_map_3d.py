@@ -13,16 +13,18 @@ from utils.Vedo import visualize_voxels_3d
 from aspire.volume import Volume
 from scipy.ndimage import zoom
 
+import mrcfile
+
 logger = logging.getLogger(__name__)
 
 # Parameters:
 #DATA_DIR = "src/maps/"  # Tutorial example data folder
-DATA_DIR = 'src/reconstruction/'  # Tutorial example data folder
-map_name = 'mean_estimated_vol.map'
+DATA_DIR = 'src/maps/'  # Tutorial example data folder
+map_name = 'padding_bunny.map'
 
 
 # Check if parameters suitable 
-normalize_data_min_max = True
+normalize_data_min_max = False
 cut_negatives_and_small_values = False
 invert_normalization = False
 
@@ -54,7 +56,14 @@ if invert_normalization:
 # v_npy = normalize_min_max(v_npy)
 
 
-plot_imshow(v_npy[:,:,25])
+plot_imshow(v_npy[:,:,50], show=True)
+from scipy.ndimage import rotate
+
+np.save("bunny_2d", rotate(v_npy.sum(axis = 0), 180))
+plot_imshow(rotate(v_npy.sum(axis = 0), 180), show=True)
+
+
+
 
 #threshold = int(input("enter threshold:"))
 
