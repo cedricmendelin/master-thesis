@@ -10,6 +10,8 @@ from sklearn import neighbors
 
 from .GraphAlign import GAlign
 
+from scipy import sparse
+from scipy.sparse.linalg import eigsh
 
 """
 Create adjacency matrix from indices and optional weights.
@@ -58,6 +60,12 @@ Gets the degree matrix of given matrix.
 def get_degree_matrix(M):
   return np.diag(M.sum(axis=1))
 
+def get_degree_matrix_inv(M):
+  return np.diag(1 / M.sum(axis=1))
+
+def get_degree_matrix_inv_half(M):
+  return np.diag(np.sqrt(1 / M.sum(axis=1)))
+
 """
 Gets the inverse of a given matrix.
 """
@@ -71,16 +79,43 @@ def calc_gaussian_kernel(M, epsilon=1):
   return np.exp(- M / epsilon)
 
 
+def extract_embedding(L, embedDim):
+  L=sparse.csr_matrix(L)
+  eigenValues, eigenVectors = eigsh(L,k=embedDim + 1,which='SM')
+  return eigenVectors[:, 1:embedDim + 1 ]
+
 """
 Calculate L = D - A and retuns first n smallest eigenvectors ignoring the first one.
 """
-def calc_graph_laplacian(A, numberOfEvecs=2):
+def calc_graph_laplacian(A, embedDim=2):
   # Laplacian:
   L = get_degree_matrix(A) - A
+  return extract_embedding(L, embedDim)
+
+def calc_graph_laplacian_symmetric(A, embedDim=2):
+  # Laplacian:
+  D_inv_half = get_degree_matrix_inv_half(A)
+  I = np.identity(A.shape[0])
+  L = I - D_inv_half @ A @ D_inv_half
   
-  #Extract the first n smallest eigenvector of the Laplace matrix.
-  eigenValues, eigenVectors = scipy.sparse.linalg.eigsh(L,k=numberOfEvecs + 1,which='SM')
-  return eigenVectors[:, 1 : numberOfEvecs+ 1 ]
+  return extract_embedding(L, embedDim)
+  
+def calc_graph_laplacian_rw(A, embedDim=2):
+  # Laplacian:
+  D_inv = get_degree_matrix_inv(A)
+  I = np.identity(A.shape[0])
+  L = I - D_inv @ A
+  
+  return extract_embedding(L, embedDim)
+
+def calc_graph_laplacian_density_invariant(A, embedDim=2):
+  # Laplacian:
+  D_inv = get_degree_matrix_inv(A)
+  W =  D_inv @ A @ D_inv
+  DW_inv = np.diag(1 / W.sum(axis=1))
+  L = DW_inv @ W - np.identity(A.shape[0])
+  
+  return extract_embedding(L, embedDim)
 
 def calc_graph_laplacian_nx(W, embedDim = 2):
     G = nx.convert_matrix.from_numpy_matrix(W)
@@ -95,9 +130,9 @@ def calc_graph_laplacian_nx(W, embedDim = 2):
 Calculate L = D - A and retuns first n smallest eigenvectors ignoring the first one.
 Create A from knn indices and optinal weights.
 """
-def calc_graph_laplacian_from_knn_indices(indices, weights=None, numberOfEvecs=2):
+def calc_graph_laplacian_from_knn_indices(indices, weights=None, embedDim=2):
   A = create_adj_mat(indices, weights)
-  return calc_graph_laplacian(A, numberOfEvecs)
+  return calc_graph_laplacian(A, embedDim)
   
 
 def align_3d_embedding_to_shpere(embedding, debug=False):

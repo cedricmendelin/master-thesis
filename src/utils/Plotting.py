@@ -9,19 +9,23 @@ if(not plt.isinteractive):
 color_map = plt.cm.get_cmap('gray')
 reversed_color_map = color_map.reversed()
 
-def plot_imshow(data):
-    if(not plt.isinteractive):
-        plt.ion()
+def plot_imshow(data, title='', show=False, colorbar=True, aspect=None, c_map = color_map):
     plt.figure()
-    plt.imshow(data, cmap=reversed_color_map)
-    plt.colorbar()
-    plt.show()
+    plt.imshow(data, cmap=c_map, aspect=aspect)
+    plt.title(title)
+    if colorbar:
+        plt.colorbar()
+    if show:
+        plt.show()
 
 def plot_2d_scatter(data, figsize=(10,10), title='', show=False):
+    plot_2dscatter(data[:,0], data[:,1], figsize, title, show)
+
+def plot_2dscatter(x, y, figsize=(10,10), title='', show=False):
     fig = plt.figure(figsize=figsize)
     
     # Creating plot
-    plt.scatter(data[:,0], data[:,1], cmap='hsv')
+    plt.scatter(x, y, cmap='hsv')
     plt.title(title)
 
     if show:

@@ -22,15 +22,16 @@ snr = 10
 # KNN
 K=6
 
-################### WAN initialization ###################
-wandb.init(project="bunny-dataset", entity="cedric-mendelin")
-
-wandb.config = {
+################### WAB initialization ###################
+config = {
   "samples": N,
   "sample size": (100, 100),
   "noise_snr": snr,
   "knn_K": K
 }
+
+wandb.init(project="bunny-dataset", entity="cedric-mendelin", config=config)
+
 
 
 ################ Data loading ##############
