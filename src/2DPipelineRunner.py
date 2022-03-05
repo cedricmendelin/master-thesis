@@ -112,7 +112,7 @@ input = rescale(input, scale=(scaleX, scaleY), mode='reflect', multichannel=Fals
 
 
 if ADD_CIRCLE_PADDING:
-  r = np.ceil(np.sqrt(2 * (RESOLUTION ** 2)))
+  r = np.ceil(np.sqrt(2 * (RESOLUTION ** 2)) / 2) 
   padding = int(np.ceil((r - RESOLUTION) / 2))
   print("r:", r)
   print("padding:", padding)
