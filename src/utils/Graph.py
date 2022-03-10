@@ -229,10 +229,43 @@ def generate_knn_from_distances(distanceMatrix, K, sym=True, ordering='desc', da
 
         A [i][index] = 1
         neighbors[i] = index
+
         if sym:
             A  = (((A  + A .T) > 0) * 1 ).astype(dataType)
 
     return A , neighbors.astype(np.int)
+
+def generate_knn_from_distances_with_edges(distanceMatrix, K, sym=True, ordering='desc', dataType='float64', ignoreFirst=False):
+    samples = distanceMatrix.shape[0]
+    A = np.zeros_like(distanceMatrix)
+    neighbors = np.zeros((samples, K))
+    edges = []
+
+    for i in range(samples):
+        distanceRow = distanceMatrix[i, :]
+
+        if ordering == 'desc':
+          if ignoreFirst:
+            index = np.argsort(-distanceRow)[1:K+1]
+          else:
+            index = np.argsort(-distanceRow)[0:K]
+        else:
+          if ignoreFirst:
+            index = np.argsort(distanceRow)[1:K+1]
+          else:
+            index = np.argsort(distanceRow)[0:K]
+
+        A [i][index] = 1
+        neighbors[i] = index
+
+        for j in index:
+          edges.append((i,j))
+
+        if sym:
+            A  = (((A  + A .T) > 0) * 1 ).astype(dataType)
+
+    return A , neighbors.astype(np.int), edges
+
 
 """
 Compute the K-Nearest Neighbour distance matrix.

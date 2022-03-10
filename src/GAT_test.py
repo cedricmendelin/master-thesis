@@ -6,10 +6,10 @@ from torch_geometric.datasets import Planetoid
 
 
 class GAT(torch.nn.Module):
-    def __init__(self, num_node_features, num_classes):
+    def __init__(self, num_node_features, hidden_layer_dimension=16, num_classes=2):
         super().__init__()
-        self.conv1 = GATConv(num_node_features, 16)
-        self.conv2 = GATConv(16, num_classes)
+        self.conv1 = GATConv(num_node_features, hidden_layer_dimension)
+        self.conv2 = GATConv(hidden_layer_dimension, num_classes)
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index

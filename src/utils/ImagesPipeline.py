@@ -52,7 +52,6 @@ class ImagesPipeline():
 
     for i in pipeline_ids:
       t = time.time()
-      # def run(self, snr=25, k=9, reconstruction_angles='linear_spaced', log_wandb=False, reset=False):
       self.pipelines[i].run(samples[i], angle_generation[i], double_angles[i], snr[i], k[i], reconstruction_angles[i], log_wandb=log_wandb)
 
   def _check_dim_enlarge(self, value, n, dtype):

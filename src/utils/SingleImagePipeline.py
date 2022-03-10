@@ -194,7 +194,7 @@ class SingleImagePipeline():
   def run(self, samples=1024, angle_generation='uniform', double_angles=True,snr=25, k=9, reconstruction_angles='linear_spaced', log_wandb=False, reset=False):
     t = time.time()
     self.setup_angles(samples, angle_generation, double_angles)
-    self.forward(snr, distances=True, knn=True, K=k, double_projections=False)
+    self.forward(snr, True, True, k, False)
     self.reconstruct_with_graph_laplacian_angles(reconstruction_angles)
     
     if log_wandb:
