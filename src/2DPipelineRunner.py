@@ -83,13 +83,13 @@ reversed_color_map = color_map.reversed()
 # angle_generation = 'linear_spaced'
 angle_generation = 'uniform'
 
-use_wandb = True
+use_wandb = False
 
 
 ################### WAB initialization ###################
 if use_wandb:
   import wandb
-  
+
   config = {
     "samples": N,
     "resolution": RESOLUTION,
@@ -104,21 +104,20 @@ if use_wandb:
 
 
 # ############ Loading input image ###############
-#input = shepp_logan_input() # 400, 400
-input = np.load("toyModel/bunny_2d.npy")
+input = shepp_logan_phantom() # 400, 400
+#input = np.load("toyModel/bunny_2d.npy")
 scaleX = RESOLUTION/ input.shape[0]
 scaleY = RESOLUTION/ input.shape[1]
 input = rescale(input, scale=(scaleX, scaleY), mode='reflect', multichannel=False)
 
 
 if ADD_CIRCLE_PADDING:
-  r = np.ceil(np.sqrt(2 * (RESOLUTION ** 2)) / 2) 
+  r = np.ceil(np.sqrt(2 * (RESOLUTION ** 2)) )
   padding = int(np.ceil((r - RESOLUTION) / 2))
   print("r:", r)
   print("padding:", padding)
   p = (padding, padding)
   input = np.pad(input, [p,p], mode='constant', constant_values=0)
-
   RESOLUTION += 2 * padding
 
 # input = input / np.linalg.norm(input)
@@ -150,9 +149,14 @@ sinogram_data = Rf.transpose()
 
 if DOUBLE_PROJECTIONS:
   thetas = np.concatenate((thetas, np.mod(thetas + np.pi , 2 * np.pi)))
-  # thetas = np.concatenate((thetas, thetas + np.pi))
+  #thetas = np.concatenate((thetas, thetas + np.pi))
   thetas_degree = np.degrees(thetas)
-  sinogram_data = np.concatenate((sinogram_data, np.flip(sinogram_data, 1)))
+  org_sino = sinogram_data
+  sinogram_data = np.concatenate((org_sino, np.flip(org_sino, 1)))
+  sinogram_data2 = np.concatenate((org_sino, -np.flip(org_sino, 0)))
+  sinogram_data3 = np.concatenate((org_sino, -org_sino))
+
+
   N = 2 * N
 
 # Add some noise to this projection.
@@ -160,7 +164,8 @@ sinogram_data_noisy = add_noise(SNR, sinogram_data)
 
 if debug_plot:
   plot_imshow(sinogram_data[np.argsort(thetas_degree)], title='Sinogram original input', aspect='auto', c_map=reversed_color_map)
-  plot_imshow(sinogram_data_noisy[np.argsort(thetas_degree)], title='Sinogram noisy', aspect='auto', c_map=reversed_color_map)
+  plot_imshow(sinogram_data2[np.argsort(thetas_degree)], title='Sinogram original input 2', aspect='auto', c_map=reversed_color_map)
+  plot_imshow(sinogram_data3[np.argsort(thetas_degree)], title='Sinogram original input 3', aspect='auto', c_map=reversed_color_map)
 
 ##################### Define distances ##########################
 # clean case
@@ -171,10 +176,15 @@ sinogram_dist = sinogramm_l2_distances(sinogram_data)
 #   graph, classes = generate_knn_from_distances(sinogram_dist, K=k, ordering='asc', ignoreFirst=True)
 #   graph_laplacian = calc_graph_laplacian(graph, embedDim=2)
 #   plot_2d_scatter(graph_laplacian, title=f"Graph Laplacian sinogram graph K = {k}")
+
+
+
 graph, classes = generate_knn_from_distances(sinogram_dist, K=K, ordering='asc', ignoreFirst=True)
 graph_laplacian = calc_graph_laplacian(graph, embedDim=2)
 plot_2d_scatter(graph_laplacian, title=f"Graph Laplacian sinogram graph K = {K}")
 
+plt.show()
+assert False
 
 # noisy case
 sinogram_noisy_dist = sinogramm_l2_distances(sinogram_data)

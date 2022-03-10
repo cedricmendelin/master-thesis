@@ -2,10 +2,10 @@ import networkx as nx
 import numpy as np
 import scipy
 
-from aspire.basis import ffb_2d
-from aspire.classification.align2d import BFRAlign2D
-from aspire.classification import RIRClass2D
-from aspire.source import ArrayImageSource
+# from aspire.basis import ffb_2d
+# from aspire.classification.align2d import BFRAlign2D
+# from aspire.classification import RIRClass2D
+# from aspire.source import ArrayImageSource
 from sklearn import neighbors
 
 from .GraphAlign import GAlign
@@ -152,34 +152,34 @@ def align_3d_embedding_to_shpere(embedding, debug=False):
   return result
 
 
-"""
-Compute the rotation invariant distance between two 2D images and define knn graph.
-Uses underlying aspire package.
-"""
-def aspire_knn_with_rotation_invariant_distance(X, K):
-  # # Define FB basis to express the data into the FB basis (to avoid approximation error)
-  fb = ffb_2d.FFBBasis2D((X.shape[1],X.shape[1]),ell_max=50,dtype=np.float64)
-  X_origin = X.copy()
-  c1 = fb.evaluate_t(X_origin)
-  X_approx = fb.evaluate(c1)
+# """
+# Compute the rotation invariant distance between two 2D images and define knn graph.
+# Uses underlying aspire package.
+# """
+# def aspire_knn_with_rotation_invariant_distance(X, K):
+#   # # Define FB basis to express the data into the FB basis (to avoid approximation error)
+#   fb = ffb_2d.FFBBasis2D((X.shape[1],X.shape[1]),ell_max=50,dtype=np.float64)
+#   X_origin = X.copy()
+#   c1 = fb.evaluate_t(X_origin)
+#   X_approx = fb.evaluate(c1)
 
-  sr = ArrayImageSource(X_approx)
-  rir = RIRClass2D(
-      sr,
-      fspca_components=400,
-      bispectrum_components=np.min([X.shape[0],300]),  # Compressed Features after last PCA stage.
-      n_nbor=K,
-      n_classes=X_approx.shape[0],
-      large_pca_implementation="legacy",
-      nn_implementation="legacy",
-      bispectrum_implementation="legacy"
-      #,    n_angles = M
-  )
-  # set angles=True to obtain the in-plane angles, but very long to obtain
-  # angles=True [not available] => does not compute rotations
-  # Watch out, when angles=True, the correlation is returned istead of the distance
-  classes, reflections, rotations, shifts, correlations = rir.classify() 
-  return classes, reflections, rotations, shifts, correlations
+#   sr = ArrayImageSource(X_approx)
+#   rir = RIRClass2D(
+#       sr,
+#       fspca_components=400,
+#       bispectrum_components=np.min([X.shape[0],300]),  # Compressed Features after last PCA stage.
+#       n_nbor=K,
+#       n_classes=X_approx.shape[0],
+#       large_pca_implementation="legacy",
+#       nn_implementation="legacy",
+#       bispectrum_implementation="legacy"
+#       #,    n_angles = M
+#   )
+#   # set angles=True to obtain the in-plane angles, but very long to obtain
+#   # angles=True [not available] => does not compute rotations
+#   # Watch out, when angles=True, the correlation is returned istead of the distance
+#   classes, reflections, rotations, shifts, correlations = rir.classify() 
+#   return classes, reflections, rotations, shifts, correlations
 
 
 def sampling_sphere(Ntheta):

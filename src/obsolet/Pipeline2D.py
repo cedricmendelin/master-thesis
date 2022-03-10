@@ -16,26 +16,22 @@ SEED = 2022
 color_map = plt.cm.get_cmap('gray')
 reversed_color_map = color_map.reversed()
 
-class Pipeline2D():
+class Pipeline2D_obsolet():
   def __init__(
     self,
     image,
+    name,
     resolution,
     add_circle_padding=True,
     verbose=True):
 
+    self.N = None
+    self.DOUBLE_ANGLES = False
+    self.DOUBLE_PROJECTIONS = False
     self.RESOLUTION = resolution
-    self.input_graph = None
-    self.noisy_graph = None
-    self.input_angles = None
-    self.input_angles_degrees = None
-    self.SNR = None
-    self.forward_image = None
-    self.forward_noisy_image = None
-    self.distances = None
-    self.noisy_distances = None
     self.verbose = verbose
-    self.time_dict = {}
+    self.name = name
+    self.reset()
 
     if self.verbose:
       t = time.time()
@@ -58,48 +54,58 @@ class Pipeline2D():
     if self.verbose:
       self.time_dict["init"] = time.time()-t
 
-  def get_forward_image(self):
+  def _get_forward_image(self):
     return self.forward_image[np.argsort(self.input_angles_degrees)]
 
-  def get_forward_image_noisy(self):
+  def _get_forward_image_noisy(self):
     return self.forward_noisy_image[np.argsort(self.input_angles_degrees)]
 
-  def plot_image(self, image, title='', c_map=color_map, show=True, aspect=None):
-    assert image != None, "Cannot plot image"
-    plot_imshow(image, title=title, c_map=c_map, show=True)
+  def _plot_image(self, image, title='', c_map=color_map, show=True, aspect=None):
+    assert image is not None, "Cannot plot image, it is set to None."
+    plot_imshow(image, title=title, c_map=c_map, show=show)
 
   def plot_original_image(self, show=True):
-    self.plot_image(self.input_image, title='Original image', c_map=color_map, show=show)
+    self._plot_image(self.input_image, title='Original image', c_map=color_map, show=show)
 
   def plot_forward_image(self, show=True):
-    self.plot_image(
-      self.get_forward_image(),
+    self._plot_image(
+      self._get_forward_image(),
       title='Sinogram original image', 
       c_map=reversed_color_map, 
       show=show, 
       aspect='auto')
 
   def plot_forward_noisy_image(self, show=True):
-    self.plot_image(
-      self.get_forward_image_noisy(), 
+    self._plot_image(
+      self._get_forward_image_noisy(), 
       title='Sinogram noisy image', 
       c_map=reversed_color_map, 
       show=show, 
       aspect='auto')
   
   def plot_reconstruction_noisy_image(self, show=True):
-    self.plot_image(
+    self._plot_image(
       self.reconstructed_noisy_image, 
       title='Reconstructed noisy image', 
       c_map=color_map, 
       show=show)
 
   def plot_reconstruction_image(self, show=True):
-    self.plot_image(
+    self._plot_image(
       self.reconstructed_image, 
       title='Reconstructed clean noisy image', 
       c_map=color_map, 
       show=show)
+
+  def _plot_2d_scatter(self, data, title, show=True):
+    assert data is not None, "Cannot plot data, it is set to None."
+    plot_2d_scatter(data, title=title, show=show)
+
+  def plot_forward_graph_laplacian(self, show=True):
+    self._plot_2d_scatter(self.forward_graph_laplacian, f"Graph Laplacian sinogram graph K = {self.K}", show=show)
+    
+  def plot_forward_noisy_graph_laplacian(self, show=True):
+    self._plot_2d_scatter(self.forward_noisy_graph_laplacian, f"Graph Laplacian noisy sinogram graph K = {self.K}", show=show)
 
   def setup_angles(self, samples=1024, angle_generation = 'uniform', double_angles=True):
     assert angle_generation == 'uniform' or angle_generation == 'linear_spaced', "Angle Generation method unknown"
@@ -126,7 +132,67 @@ class Pipeline2D():
     if self.verbose:
       self.time_dict["init"] = time.time()-t
 
-  def calc_forward(self):
+  def forward(self, snr=20, distances=True, knn=True, K=8, double_projections=False):
+    assert not double_projections or not self.DOUBLE_ANGLES , "Cannot double projections and angles"
+    
+    self.DOUBLE_PROJECTIONS = double_projections
+    self.SNR = snr
+
+    self._execute_and_log_time(lambda: self._calc_forward(), "forward")
+
+    if distances:
+      self._execute_and_log_time(lambda: self._calculate_forward_l2_distances(), "calc_distances")
+    if knn:
+      self._execute_and_log_time(lambda: self._calculate_input_knn(K), "calc_graphs" )
+
+
+  def reconstruct_with_graph_laplacian_angles(self, reconstruction_angles='linear_spaced'):
+    assert reconstruction_angles == 'linear_spaced', "Angle Generation method unknown"
+    self.reconstruction_angles = reconstruction_angles
+
+    self._execute_and_log_time(lambda: self._reconstruct_with_graph_laplacian_angles(), "reconstruction")
+
+   
+  def loss_clean(self):
+    assert self.input_image != None , "Cannot compute loss as input image is not available"
+    assert self.reconstructed_image != None , "Cannot compute loss as reconstruction image is not available"
+
+    return np.linalg.norm(self.input_image - self.reconstructed_image)
+    
+  def loss_noisy(self):
+    assert self.input_image != None , "Cannot compute loss as input image is not available"
+    assert self.reconstructed_noisy_image != None , "Cannot compute loss as reconstruction image is not available"
+
+    return np.linalg.norm(self.input_image - self.reconstructed_noisy_image)
+
+  def reset(self):
+    self.number_of_samples = self.N
+    if self.DOUBLE_ANGLES:
+      self.number_of_samples = int(self.number_of_samples * 2)
+
+    if self.DOUBLE_PROJECTIONS:
+      self.input_angles = self.input_angles[0:self.number_of_samples]
+      self.input_angles_degrees = np.degrees(self.input_angles)
+
+    self.DOUBLE_PROJECTIONS = False
+    self.SNR = None
+    self.forward_image = None
+    self.forward_noisy_image = None
+    self.distances = None
+    self.noisy_distances = None
+    self.K = None
+    self.input_graph, self.input_graph_classes = None, None
+    self.noisy_graph, self.noisy_graph_classes = None, None
+    self.reconstruction_angles = None
+    self.forward_graph_laplacian = None
+    self.forward_noisy_graph_laplacian = None
+    self.reconstructed_image = None
+    
+    self.reconstructed_noisy_image = None
+    self.time_dict = {}
+
+
+  def _calc_forward(self):
     Rf = radon(self.input_image, theta=self.input_angles_degrees, circle=True)
     self.forward_image = Rf.T
 
@@ -139,45 +205,32 @@ class Pipeline2D():
       self.number_of_samples = self.number_of_samples * 2
       self.input_angles_degrees = np.degrees(self.input_angles)
 
-    self.forward_noisy_image = self.add_noise(self.SNR, self.forward_image)
+    self.forward_noisy_image = self._add_noise(self.SNR, self.forward_image)
 
-  def forward(self, snr=20, distances=True, knn=True, K=8, double_projections=False):
-    assert not double_projections or not self.DOUBLE_ANGLES , "Cannot double projections and angles"
-    
-    self.DOUBLE_PROJECTIONS = double_projections
-    self.SNR = snr
-
-    self.execute_and_log_time(lambda: self.calc_forward(), "forward")
-
-    if distances:
-      self.execute_and_log_time(lambda: self.calculate_forward_l2_distances(), "calc_distances")
-    if knn:
-      self.execute_and_log_time(lambda: self.calculate_input_knn(K), "calc_graphs" )
-
-  def add_noise(self, SNR, sinogram):
+  def _add_noise(self, SNR, sinogram):
     self.SNR = SNR
     sinogram=np.array(sinogram)
     VARIANCE=10**(-SNR/10)*(np.std(sinogram)**2)
     noise = np.random.randn(sinogram.shape[0],sinogram.shape[1])*np.sqrt(VARIANCE)
     return sinogram + noise
 
-  def calculate_forward_l2_distances(self):
-    self.distances = self.calculate_l2_distances(self.forward_image)
-    self.noisy_distances = self.calculate_l2_distances(self.forward_noisy_image)
+  def _calculate_forward_l2_distances(self):
+    self.distances = self._calculate_l2_distances(self.forward_image)
+    self.noisy_distances = self._calculate_l2_distances(self.forward_noisy_image)
 
-  def calculate_input_knn(self, K):
+  def _calculate_input_knn(self, K):
     self.K = K
     self.input_graph, self.input_graph_classes = generate_knn_from_distances(self.distances, K=K, ordering='asc', ignoreFirst=True)
     self.noisy_graph, self.noisy_graph_classes = generate_knn_from_distances(self.noisy_distances, K=K, ordering='asc', ignoreFirst=True)
 
 
-  def calculate_l2_distances(self, sinogram):
+  def _calculate_l2_distances(self, sinogram):
     N = sinogram.shape[0]
     dist = np.array([ np.linalg.norm(sinogram[i] - sinogram[j]) for i in range(N) for j in range(N)]).reshape((N,N))
     dist /= dist.max()
     return dist
 
-  def estimate_angles(self, graph_laplacian, degree=False):
+  def _estimate_angles(self, graph_laplacian, degree=False):
     # arctan2 range [-pi, pi]
     angles = np.arctan2(graph_laplacian[:,0],graph_laplacian[:,1]) + np.pi
     # sort idc ascending, [0, 2pi]
@@ -188,38 +241,24 @@ class Pipeline2D():
     else:
       return angles, idx, angles[idx]
 
-
-  def reconstruct_image(self, image, idx, angles):
+  def _reconstruct_image(self, image, idx, angles):
     sinogram_sorted = image[idx]
     return iradon(sinogram_sorted.T, theta=angles, circle=True)
 
-    
-
-
   def _reconstruct_with_graph_laplacian_angles(self):
-    
     angles = np.linspace(0, 360, self.number_of_samples)
 
     # clean case:
     self.forward_graph_laplacian = calc_graph_laplacian(self.input_graph, embedDim=2)
-    _, clean_estimated_angles_indices, _  = self.estimate_angles(self.forward_graph_laplacian, degree=True)
-    self.reconstructed_image = self.reconstruct_image(self.forward_image, clean_estimated_angles_indices, angles )
+    _, clean_estimated_angles_indices, _  = self._estimate_angles(self.forward_graph_laplacian, degree=True)
+    self.reconstructed_image = self._reconstruct_image(self.forward_image, clean_estimated_angles_indices, angles )
 
     # noisy case:
     self.forward_noisy_graph_laplacian = calc_graph_laplacian(self.noisy_graph, embedDim=2)
-    _, noisy_estimated_angles_indices, _  = self.estimate_angles(self.forward_noisy_graph_laplacian, degree=True)
-    self.reconstructed_noisy_image = self.reconstruct_image(self.forward_noisy_image, noisy_estimated_angles_indices, angles )
+    _, noisy_estimated_angles_indices, _  = self._estimate_angles(self.forward_noisy_graph_laplacian, degree=True)
+    self.reconstructed_noisy_image = self._reconstruct_image(self.forward_noisy_image, noisy_estimated_angles_indices, angles )
 
-  def reconstruct_with_graph_laplacian_angles(self, reconstruction_angles='linear_spaced'):
-    assert reconstruction_angles == 'linear_spaced', "Angle Generation method unknown"
-    self.reconstruction_angles = reconstruction_angles
-
-    self.execute_and_log_time(lambda: self._reconstruct_with_graph_laplacian_angles(), "reconstruction")
-
-   
-
-
-  def execute_and_log_time(self, action, name):
+  def _execute_and_log_time(self, action, name):
       if self.verbose:
         t = time.time()
 
@@ -228,30 +267,31 @@ class Pipeline2D():
       if self.verbose:
         self.time_dict[name] = time.time()-t
 
-
   def log_wandb(self, entity="cedric-mendelin", project_name="2d-pipeline", execution_time=None):
     assert self.number_of_samples != None and self.SNR != None and self.K != None and self.ANGLE_GENERATION != None, "Pipeline not finished yet, cannot log."
     
     import wandb
   
+    k_val = self.K
     config = {
       "samples": self.number_of_samples,
       "resolution": self.RESOLUTION,
       "noise_SNR": self.SNR,
-      "k-nn": self.K,
+      "k-nn": k_val,
       "double_angles" : self.DOUBLE_ANGLES,
       "doube_projections" : self.DOUBLE_PROJECTIONS,
-      "angle_generation" : self.ANGLE_GENERATION
+      "angle_generation" : self.ANGLE_GENERATION, 
+      "name" : self.name
     }
     
-    wandb.init(project=project_name, entity=entity, config=config)
+    wandb.init(project=project_name, entity=entity, config=config, reinit=True)
 
     wandb.log({"input_image": wandb.Image(self.input_image)})
-    wandb.log({"forward_image": wandb.Image(self.get_forward_image())})
-    wandb.log({"forward_noisy_image": wandb.Image(self.get_forward_image_noisy())})
-
-    wandb.log({"noisy GL" : wandb.plot.scatter(wandb.Table(data=self.forward_noisy_graph_laplacian, columns = ["x", "y"]),"x","y", title=f"GL noisy sinogram N={self.number_of_samples}, K = {self.K}, SNR={self.SNR}")})
-    wandb.log({"clean GL" : wandb.plot.scatter(wandb.Table(data=self.forward_graph_laplacian, columns = ["x", "y"]),"x","y", title=f"GL noisy sinogram N={self.number_of_samples}, K = {self.K}, SNR={self.SNR}")})
+    wandb.log({"forward_image": wandb.Image(self._get_forward_image())})
+    wandb.log({"forward_noisy_image": wandb.Image(self._get_forward_image_noisy())})
+    
+    wandb.log({"noisy GL" : wandb.plot.scatter(wandb.Table(data=self.forward_noisy_graph_laplacian, columns = ["x", "y"]),"x","y", title=f"GL noisy sinogram")})
+    wandb.log({"clean GL" : wandb.plot.scatter(wandb.Table(data=self.forward_graph_laplacian, columns = ["x", "y"]),"x","y", title=f"GL sinogram")})
 
     wandb.log({"reconstruction_clean": wandb.Image(self.reconstructed_image)})
     wandb.log({"reconstruction_noisy": wandb.Image(self.reconstructed_noisy_image)})
@@ -261,6 +301,8 @@ class Pipeline2D():
     
     if self.verbose:
       wandb.log(self.time_dict)
+
+    wandb.run.name = f"{self.name}-{self.RESOLUTION}-{self.number_of_samples}-{self.SNR}-{k_val}-{self.DOUBLE_ANGLES}"
 
     wandb.finish()
 
