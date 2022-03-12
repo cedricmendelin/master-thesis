@@ -7,6 +7,7 @@ import torch.nn.functional as F
 
 from utils.Graph import *
 from utils.Plotting import *
+from utils.Normalization import *
 
 
 
@@ -100,7 +101,7 @@ if debug_print:
 
 print("Input Graph done!")
 
-from torch_geometric.nn import GCNConv, GATConv
+from torch_geometric.nn import GCNConv, GATConv, GATv2Conv
 ################### GAT class #############################
 class GAT(torch.nn.Module):
     def __init__(self, num_node_features, hidden_layer_dimension=16, num_classes=2):
@@ -110,13 +111,65 @@ class GAT(torch.nn.Module):
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
-
         x = self.conv1(x, edge_index)
-        x = F.relu(x)
-        x = F.dropout(x, training=self.training)
+        #x = F.relu(x)
+        # x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
 
-        return F.log_softmax(x, dim=1)
+        #return F.log_softmax(x, dim=1)
+        #return x
+        return 2 * ((x - torch.min(x)) / (torch.max(x) - torch.min(x)))  - 1
+
+
+import math
+import torch
+import torch.linalg as linalg
+
+def calculate_2_wasserstein_dist(X, Y):
+    '''
+    Calulates the two components of the 2-Wasserstein metric:
+    The general formula is given by: d(P_X, P_Y) = min_{X, Y} E[|X-Y|^2]
+    For multivariate gaussian distributed inputs z_X ~ MN(mu_X, cov_X) and z_Y ~ MN(mu_Y, cov_Y),
+    this reduces to: d = |mu_X - mu_Y|^2 - Tr(cov_X + cov_Y - 2(cov_X * cov_Y)^(1/2))
+    Fast method implemented according to following paper: https://arxiv.org/pdf/2009.14075.pdf
+    Input shape: [b, n] (e.g. batch_size x num_features)
+    Output shape: scalar
+    '''
+
+    if X.shape != Y.shape:
+        raise ValueError("Expecting equal shapes for X and Y!")
+
+    # the linear algebra ops will need some extra precision -> convert to double
+    X, Y = X.transpose(0, 1).double(), Y.transpose(0, 1).double()  # [n, b]
+    mu_X, mu_Y = torch.mean(X, dim=1, keepdim=True), torch.mean(Y, dim=1, keepdim=True)  # [n, 1]
+    n, b = X.shape
+    fact = 1.0 if b < 2 else 1.0 / (b - 1)
+
+    # Cov. Matrix
+    E_X = X - mu_X
+    E_Y = Y - mu_Y
+    cov_X = torch.matmul(E_X, E_X.t()) * fact  # [n, n]
+    cov_Y = torch.matmul(E_Y, E_Y.t()) * fact
+
+    # calculate Tr((cov_X * cov_Y)^(1/2)). with the method proposed in https://arxiv.org/pdf/2009.14075.pdf
+    # The eigenvalues for M are real-valued.
+    C_X = E_X * math.sqrt(fact)  # [n, n], "root" of covariance
+    C_Y = E_Y * math.sqrt(fact)
+    M_l = torch.matmul(C_X.t(), C_Y)
+    M_r = torch.matmul(C_Y.t(), C_X)
+    M = torch.matmul(M_l, M_r)
+    S = linalg.eigvals(M) + 1e-15  # add small constant to avoid infinite gradients from sqrt(0)
+    sq_tr_cov = S.sqrt().abs().sum()
+
+    # plug the sqrt_trace_component into Tr(cov_X + cov_Y - 2(cov_X * cov_Y)^(1/2))
+    trace_term = torch.trace(cov_X + cov_Y) - 2.0 * sq_tr_cov  # scalar
+
+    # |mu_X - mu_Y|^2
+    diff = mu_X - mu_Y  # [n, 1]
+    mean_term = torch.sum(torch.mul(diff, diff))  # scalar
+
+    # put it together
+    return (trace_term + mean_term).float()
 
 
 ####################### estimate angles ####################
@@ -142,19 +195,31 @@ for i in range(N_noisy_edges):
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+graph_laplacian_normalized = torch.tensor(normalize_range(graph_laplacian, -1, 1)).type(torch.float).to(device)
+graph_laplacian_noisy_normalized =  torch.tensor(normalize_range(graph_laplacian_noisy, -1, 1)).type(torch.float).to(device)
+
 # t_graph_laplacian_noisy = torch.tensor(graph_laplacian_noisy.copy()).type(torch.float).to(device)
 # t_noisy_distances = torch.tensor(noisy_distances.copy()).type(torch.float).to(device)
 # t_noisy_graph = torch.tensor(noisy_graph.copy()).type(torch.float).to(device)
 # t_noisy_edges = torch.tensor(noisy_edges.copy()).type(torch.float).to(device)
 
-t_y = torch.tensor(point_on_cricle.copy()).type(torch.float).to(device)
-t_x = torch.tensor(noisy_distances.copy()).type(torch.float).to(device)
+t_y = graph_laplacian_normalized
+#t_y = torch.tensor(point_on_cricle.copy()).type(torch.float).to(device)
+# angles = np.linspace(0, 2 * np.pi, N)
+# t_y = torch.tensor(np.array([np.cos(angles), np.sin(angles)]).T).type(torch.float).to(device)
+t_x =graph_laplacian_noisy_normalized
+#graph_laplacian_noisy_normalized = normalize_range(graph_laplacian_noisy, -1, 1)
+#angles = np.arctan2(graph_laplacian_noisy[:,0],graph_laplacian_noisy[:,1]) + np.pi
+#print(angles.shape)
+#t_x = torch.tensor(angles.reshape((N)).copy()).type(torch.float).to(device)
+#print("t x dim:", t_x.dim())
+
+
 t_edge_index = torch.tensor(edge_index.copy()).type(torch.long).to(device)
 t_edge_attribute = torch.tensor(edge_attribute.copy()).type(torch.float).to(device)
 
 
-
-data = Data(x=t_x,y=t_y, edge_index=t_edge_index, edge_attribute=align_3d_embedding_to_shpere)
+data = Data(x=t_x, y=t_y, edge_index=t_edge_index, edge_attribute=t_edge_attribute)
 # x (Tensor, optional) – Node feature matrix with shape [num_nodes, num_node_features]. (default: None)
 # edge_index (LongTensor, optional) – Graph connectivity in COO format with shape [2, num_edges]. (default: None)
 # edge_attr (Tensor, optional) – Edge feature matrix with shape [num_edges, num_edge_features]. (default: None)
@@ -162,14 +227,20 @@ data = Data(x=t_x,y=t_y, edge_index=t_edge_index, edge_attribute=align_3d_embedd
 # pos (Tensor, optional) – Node position matrix with shape [num_nodes, num_dimensions]. (default: None)
 print("number of features:", data.num_node_features)
 
-model = GAT(N,hidden_layer_dimension=int(N/2)).to(device)
+model = GAT(data.num_node_features, hidden_layer_dimension=2, num_classes=2).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
 
 model.train()
 for epoch in range(200):
+    #model.train()
     optimizer.zero_grad()
     out = model(data)
-    loss = F.cosine_embedding_loss(out, data.y)
+    #out =  2 * ((out - torch.min(out)) / (torch.max(out) - torch.min(out)))  - 1
+    
+    #loss = F.mse_loss(out, data.y)
+    #print(out)
+
+    loss = calculate_2_wasserstein_dist(out, data.y)
     print(f"epoch: {epoch} --- loss: {loss}")
     loss.backward()
     optimizer.step()
@@ -178,13 +249,25 @@ for epoch in range(200):
 
 model.eval()
 pred = model(data)
-print(pred)
-acc = torch.linalg.norm(pred - t_y)
 
-print(f'Accuracy: {acc:.4f}')
+
 
 angles = pred.cpu().detach().numpy()
 
 plot_2d_scatter(angles, title=f"Angle estimation GAT")
+# plot_2d_scatter(graph_laplacian_normalized, title=f"Normalized GL")
+
+
+acc = calculate_2_wasserstein_dist(pred, t_y)
+acc_org = calculate_2_wasserstein_dist(graph_laplacian_normalized ,  t_y)
+acc_gl = calculate_2_wasserstein_dist(graph_laplacian_noisy_normalized, t_y)
+
+print(f'Accuracy clean GL angles: {acc_org:.4f}')
+print(f'Accuracy noisy GL angles: {acc_gl:.4f}')
+print(f'Accuracy GAT angles: {acc:.4f}')
+
+# print("Prediction: ", pred)
+# print("True angles: ", t_y)
+
 
 plt.show()

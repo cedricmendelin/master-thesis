@@ -9,6 +9,16 @@ from .Normalization import *
 def my_euler_sequence():
     return 'ZYZ'
 
+def estimate_angles(graph_laplacian, degree=False):
+  # arctan2 range [-pi, pi]
+  angles = np.arctan2(graph_laplacian[:,0],graph_laplacian[:,1]) + np.pi
+  # sort idc ascending, [0, 2pi]
+  idx  = np.argsort(angles)
+
+  if degree:
+    return np.degrees(angles), idx, np.degrees(angles[idx])
+  else:
+    return angles, idx, angles[idx]
 
 def get_2d(d3_points, resolution=100, xlim=[-2, 2], ylim=[-2, 2]):
     [xlim_l, xlim_u] = xlim

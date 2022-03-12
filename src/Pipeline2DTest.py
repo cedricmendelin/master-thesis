@@ -29,20 +29,21 @@ SNR=25
 
 # angle_generation = 'linear_spaced'
 angle_generation = 'uniform'
-use_wandb = True
+use_wandb = False
 
 n_imgs = 10
 
-image_path = "src/data/val2017/"
-files = os.listdir(image_path)
-x = load_images_files(image_path, files, RESOLUTION,RESOLUTION, number=n_imgs, num_seed=5)
+# image_path = "src/data/val2017/"
+# files = os.listdir(image_path)
+# x = load_images_files(image_path, files, RESOLUTION,RESOLUTION, number=n_imgs, num_seed=5)
 
-plot_imshow(x[0].reshape((RESOLUTION, RESOLUTION)))
-
-names = np.array([f"image-{i}" for i in range(n_imgs) ])
-pipeline = ImagesPipeline(x, names, RESOLUTION, add_circle_padding=ADD_CIRCLE_PADDING, verbose=True, noise_only=False)
-pipeline.run(samples=N, angle_generation=angle_generation, double_angles=DOUBLE_ANGLES, snr=SNR, k=K, reconstruction_angles='linear_spaced', log_wandb=True)
-
+# plot_imshow(x[0].reshape((RESOLUTION, RESOLUTION)))
+x = shepp_logan_phantom()
+# names = np.array([f"image-{i}" for i in range(n_imgs) ])
+pipeline = ImagesPipeline(x, "phantom", RESOLUTION, add_circle_padding=ADD_CIRCLE_PADDING, verbose=True, noise_only=False)
+pipeline.run(samples=N, angle_generation=angle_generation, double_angles=DOUBLE_ANGLES, snr=SNR, k=K, reconstruction_angles='linear_spaced', log_wandb=use_wandb)
+pipeline.pipelines[0].plot_forward_noisy_graph_laplacian(show=False)
+plt.show()
 # plot_imshow(x[1].reshape((RESOLUTION, RESOLUTION)))
 
 
