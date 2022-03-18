@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-
+import torch.fft as torch_fft
 from .utils import PI, SQRT2, deg2rad, affine_grid, grid_sample
 from .filters import RampFilter
 
@@ -129,3 +129,98 @@ class IRadon(nn.Module):
             Y = self._xy_to_t(theta)
             all_grids.append(torch.stack((X, Y), dim=-1).unsqueeze(0))
         return all_grids
+
+
+
+def backprojection2D(sinogram,theta):
+    #sinogram: SAMPLES x dimension
+    #theta: SAMPLES in radon
+    samples = sinogram.shape[0]
+    dim = sinogram.shape[1]
+    xgrid,ygrid = create_yxgrid(dim,torch.float32)
+    xgrid = xgrid.to(sinogram.device)
+    ygrid = ygrid.to(sinogram.device)
+    
+    circle = xgrid**2 + ygrid**2 < 1 
+    
+    BPReconstruction = torch.zeros((dim,dim)).to(sinogram.device)
+    #print(sinogram.device)
+    #print(theta.device)
+    for theta, sino in zip(theta,sinogram):
+        sinoExpand =  sino.repeat(sino.shape[0],1)
+        sinoRotate =  rotateImage(sinoExpand,theta)
+        BPReconstruction = BPReconstruction + sinoRotate*circle
+        
+    return BPReconstruction
+        
+def filterBackprojection2D(sinogram,theta):
+    #sinogram: SAMPLES x dimension
+    #theta: SAMPLES in radon 
+
+
+    samples = sinogram.shape[0]
+    dim = sinogram.shape[1]
+    
+    impulseProjection = torch.zeros_like(sinogram).to(sinogram.device)
+    impulseProjection[:,int(dim/2)] = 1
+    
+    
+    #FilteringPart
+    #print(sinogram.device)
+    sinogramFilter = filterSignal(sinogram).type(torch.FloatTensor).to(sinogram.device)
+    #print(sinogramFilter.device)
+    sinBP = backprojection2D(sinogramFilter,theta)
+    #impulseBP = backprojection2D(impulseProjection,theta)
+    
+    #sinBPFFT  = torch_fft.fftn(sinBP)
+    #impulseBPFFT = torch_fft.fftn(impulseBP)
+    
+    #filteredImage = torch.roll(torch.fft.ifftn(sinBPFFT/impulseBPFFT),(int(dim/2),int(dim/2)), dims=(1,0))
+    
+    return sinBP#filteredImage.real, impulseBP
+
+def filterSignal(signal):
+    #signal of the form N x dim
+    #N : number of signals
+    #print(signal.device)
+    signalFFT = torch_fft.fft(signal)
+    #print(signalFFT.device)
+    filterCoef = ramp_filter(signal.shape[1]).real.to(signal.device)
+    #print(filterCoef.device)
+    return torch_fft.ifft(signalFFT*filterCoef).real
+    
+def ramp_filter(size):
+    image_n = torch.cat([
+        torch.arange(1, size / 2 + 1, 2, dtype=torch.int),
+        torch.arange(size / 2 - 1, 0, -2, dtype=torch.int),
+    ])
+    
+    
+    #print(image_n.shape)
+
+    image_filter = torch.zeros(size, dtype=torch.double)
+    image_filter[0] = 0.25
+    image_filter[1::2] = -1 / (PI * image_n) ** 2
+    fourier_filter = torch_fft.fft(image_filter)
+    #fourier_filter = torch.rfft(image_filter, 1, onesided=False)
+    #fourier_filter[:, 1] = fourier_filter[:, 0]
+    return 2*fourier_filter#,image_filter
+
+
+def create_yxgrid(in_size,dtype):
+    unitrange = torch.linspace(-1, 1, in_size, dtype=dtype)
+    return torch.meshgrid(unitrange, unitrange)
+
+
+def rotateImage(image, theta):
+    image = image.unsqueeze(0).unsqueeze(0)
+
+
+    piValue = 2*torch.arccos(torch.FloatTensor([0])).to(image.device)
+    angle_rad = -theta *piValue/180
+    rotation = torch.tensor([
+    [ torch.cos(angle_rad), torch.sin(angle_rad), 0],
+    [-torch.sin(angle_rad), torch.cos(angle_rad), 0],]).to(image.device)
+    grid = F.affine_grid(rotation.unsqueeze(0), size=image.size(),align_corners=False)
+    rotated = F.grid_sample(image, grid)
+    return rotated[0,0]

@@ -100,7 +100,7 @@ def calculate_2_wasserstein_dist(X, Y):
     M_l = torch.matmul(C_X.t(), C_Y)
     M_r = torch.matmul(C_Y.t(), C_X)
     M = torch.matmul(M_l, M_r)
-    S = linalg.eigvals(M) + 1e-15  # add small constant to avoid infinite gradients from sqrt(0)
+    S = torch.linalg.eigvals(M) + 1e-15  # add small constant to avoid infinite gradients from sqrt(0)
     sq_tr_cov = S.sqrt().abs().sum()
 
     # plug the sqrt_trace_component into Tr(cov_X + cov_Y - 2(cov_X * cov_Y)^(1/2))
@@ -202,10 +202,11 @@ plot_2d_scatter(graph_laplacian_noisy, title=f"Graph Laplacian noisy sinogram gr
 
 ################### GAT class #############################
 class GAT(torch.nn.Module):
-    def __init__(self, num_node_features, hidden_layer_dimension=16, num_classes=2):
+    def __init__(self, in_num_features, hidden_layer_dim, out_num_features):
         super().__init__()
-        self.conv1 = GATConv(num_node_features, hidden_layer_dimension)
-        self.conv2 = GATConv(hidden_layer_dimension, num_classes)
+        self.conv1 = GATConv(in_num_features, hidden_layer_dim)
+        self.conv2 = GATConv(hidden_layer_dim, hidden_layer_dim)
+        self.conv3 = GATConv(hidden_layer_dim, out_num_features)
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
@@ -213,27 +214,31 @@ class GAT(torch.nn.Module):
         x = self.conv1(x, edge_index)
         x = F.relu(x)
         x = F.dropout(x, training=self.training)
+
         x = self.conv2(x, edge_index)
-
-        #return F.log_softmax(x, dim=1)
-        return x
-
-class GAT_angles(torch.nn.Module):
-    def __init__(self, num_node_features, hidden_layer_dimension=16, num_classes=2):
-        super().__init__()
-        self.conv1 = GATConv(num_node_features, hidden_layer_dimension)
-        self.conv2 = GATConv(hidden_layer_dimension, num_classes)
-
-    def forward(self, data):
-        x, edge_index = data.x, data.edge_index
-
-        x = self.conv1(x, edge_index)
-        #x = F.relu(x)
+        x = F.relu(x)
         x = F.dropout(x, training=self.training)
-        x = self.conv2(x, edge_index)
 
-        #return F.log_softmax(x, dim=1)
+        x = self.conv3(x, edge_index)
         return x
+
+# class GAT_angles(torch.nn.Module):
+#     def __init__(self, in_num_features, hidden_layer_dim, out_num_features):
+#         super().__init__()
+#         self.conv1 = GATConv(in_num_features, hidden_layer_dim)
+#         self.conv2 = GATConv(hidden_layer_dim, hidden_layer_dim)
+#         self.conv3 = GATConv(hidden_layer_dim, out_num_features)
+
+#     def forward(self, data):
+#         x, edge_index = data.x, data.edge_index
+
+#         x = self.conv1(x, edge_index)
+#         #x = F.relu(x)
+#         x = F.dropout(x, training=self.training)
+#         x = self.conv2(x, edge_index)
+
+#         #return F.log_softmax(x, dim=1)
+#         return x
 
 ################ GAT #################
 # prep edges:
@@ -269,18 +274,20 @@ from torch_geometric.data import Data
 
 # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-data_sinogram = Data(x=t_x,y=t_y, edge_index=t_edge_index, edge_attribute=t_edge_attribute)
-model_sinogram = GAT(RESOLUTION, hidden_layer_dimension=RESOLUTION, num_classes=RESOLUTION).to(device)
+data_sinogram = Data(x=t_x, y=t_y, edge_index=t_edge_index, edge_attribute=t_edge_attribute)
+model_sinogram = GAT(in_num_features=RESOLUTION, hidden_layer_dim=int(RESOLUTION//2), out_num_features=RESOLUTION).to(device)
 optimizer_sinogram = torch.optim.Adam(model_sinogram.parameters(), lr=0.01, weight_decay=5e-4)
 
 
 ################## Estimate angles ###############################################
-#t_y_angles = torch.tensor(thetas.copy()).type(torch.float).to(device)
-t_y_angles = torch.tensor(np.linspace(0, 2 * np.pi, N)).type(torch.float).to(device)
-#t_x = torch.tensor(noisy_points_on_circle.copy()).type(torch.float).to(device)
-t_x_angles = torch.tensor(sinogram_noisy_dist.copy()).type(torch.float).to(device)
+point_on_cricle = np.array([np.cos(thetas), np.sin(thetas)]).T
+# t_y_angles = torch.tensor(thetas.copy()).type(torch.float).to(device)
+t_y_angles = torch.tensor(point_on_cricle.copy()).type(torch.float).to(device)
+#t_y_angles = torch.tensor(np.linspace(0, 2 * np.pi, N)).type(torch.float).to(device)
+t_x_angles = torch.tensor(graph_laplacian_noisy.copy()).type(torch.float).to(device)
+#t_x_angles = torch.tensor(sinogram_noisy_dist.copy()).type(torch.float).to(device)
 
-model_angles = GAT_angles(N, hidden_layer_dimension=int(N//2), num_classes=1).to(device)
+model_angles = GAT(in_num_features=2, hidden_layer_dim=int(N//2), out_num_features=2).to(device)
 optimizer_angles = torch.optim.Adam(model_angles.parameters(), lr=0.01, weight_decay=5e-4)
 data_angles = Data(x=t_x_angles,y=t_y_angles, edge_index=t_edge_index, edge_attribute=t_edge_attribute)
 
@@ -289,7 +296,7 @@ data_angles = Data(x=t_x_angles,y=t_y_angles, edge_index=t_edge_index, edge_attr
 
 model_angles.train()
 model_sinogram.train()
-for epoch in range(200):
+for epoch in range(100):
     model_angles.train()
     model_sinogram.train()
 
@@ -314,24 +321,36 @@ for epoch in range(200):
 model_angles.eval()
 model_sinogram.eval()
 
-pred_angles = model_angles(data_angles)
+pred_points = model_angles(data_angles)
 pred_sinogram = model_sinogram(data_sinogram)
+
+print("Prediction points shape:", pred_points.shape)
+pred_angles = torch.atan2(pred_points[:,0],pred_points[:,1]) + torch.pi
+print("Prediction angles shape:", pred_angles.shape)
+
 sinogram_idx_estimated = torch.argsort(pred_angles)
 
-estimated_angles = pred_angles.cpu().detach().numpy()
-plot_2d_scatter(np.array([np.cos(estimated_angles), np.sin(estimated_angles)]).T, title="Estimated angles")
+
+
+plot_2d_scatter(pred_points.cpu().detach().numpy(), title="Estimated angles")
+
+
+print("sino shape:", pred_sinogram.shape)
+print("sino idx shape:", sinogram_idx.shape)
+print("sino idx shape:", sinogram_idx_estimated.shape)
 
 plot_imshow(pred_sinogram[sinogram_idx].cpu().detach().numpy(), title='Denoised sinogram', c_map=color_map)
 plot_imshow(pred_sinogram[sinogram_idx_estimated].cpu().detach().numpy(), title='Denoised sinogram estimated angles', c_map=color_map)
 # correct = (pred[data.test_mask] == data.y[data.test_mask]).sum()
 # acc = int(correct) / int(data.test_mask.sum())
 # print(f'Accuracy: {acc:.4f}')
+
 angles = np.linspace(0, 360, N)
 out = iradon(pred_sinogram[sinogram_idx].T.cpu().detach().numpy(), theta=angles,circle=True)
 out2 = iradon(pred_sinogram[sinogram_idx_estimated].T.cpu().detach().numpy(), theta=angles,circle=True)
 
 plot_imshow(out, title='Reconstructed gat image', c_map=color_map)
-plot_imshow(out, title='Reconstructed gat image estimated angles', c_map=color_map)
+plot_imshow(out2, title='Reconstructed gat image estimated angles', c_map=color_map)
 plot_imshow(iradon(sinogram_data[np.argsort(thetas_degree)].T, theta=angles,circle=True), title='Reconstructed original image', c_map=color_map)
 plot_imshow(iradon(sinogram_data_noisy[np.argsort(thetas_degree)].T, theta=angles,circle=True), title='Reconstructed noisy image', c_map=color_map)
 
