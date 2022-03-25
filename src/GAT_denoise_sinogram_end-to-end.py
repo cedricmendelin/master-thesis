@@ -47,8 +47,11 @@ torch.manual_seed(2022)
 #graph
 # K = 8
 
+def normalize(x):
+    return ((x - torch.min(x)) / (torch.max(x) - torch.min(x))) 
 
-def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=512, K=8, RESOLUTION = 200, debug_plot = True, use_wandb = False):
+
+def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=512, K=8, RESOLUTION = 200, debug_plot = False, use_wandb=False):
     #noise
     SNR=snr
     EPOCHS = epochs
@@ -71,7 +74,6 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
         "gat-adam-learningrate" : GAT_ADAM_LR,
         "name" : image_name
         }
-
     if use_wandb:
         wandb.init(project=project_name, entity="cedric-mendelin", config=config, reinit=True)
 
@@ -89,7 +91,6 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
     input_t = torch.from_numpy(input).type(torch.float)#.to(device)
     if debug_plot:
         plot_imshow(input, title="Input image")
-
     if use_wandb:
         wandb.log({"input_image": wandb.Image(input)})
 
@@ -112,24 +113,24 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
     sinogram = radon_class.forward(input_t.view(1, 1, RESOLUTION, RESOLUTION))[0,0]
     noisy_sinogram = add_noise(SNR, sinogram)
 
-    print("Loss sinogramm noisy", torch.linalg.norm(sinogram - noisy_sinogram))
-    if use_wandb:
-        wandb.log({"loss_sinogramm_noisy_start": torch.linalg.norm(sinogram - noisy_sinogram)})
-
-
     sorted, idx = torch.sort(input_angles_degrees, 0)
     idx = idx.view(N)
 
     x_est_GL_t = filterBackprojection2D(sinogram.T[idx], reconstruction_angles_degrees)
-
     x_est_GL_t_noisy = filterBackprojection2D(noisy_sinogram.T[idx], reconstruction_angles_degrees)
+    
+    print("Loss noisy", torch.linalg.norm(x_est_GL_t_noisy - input_t))
+    print("Loss clean", torch.linalg.norm(x_est_GL_t - input_t))
+    # loss_sinogram = torch.linalg.norm(image_reconstructed - data_sinogram.y)
+    if use_wandb:
+        wandb.log({"loss_sinogramm_noisy_start": torch.linalg.norm(x_est_GL_t_noisy - input_t)})
 
     if debug_plot:
         plot_imshow(sinogram.T[idx], title="Sinogram uniform")
         plot_imshow(noisy_sinogram.T[idx], title="Sinogram noisy")
         plot_imshow(x_est_GL_t, title="reconstruction")
         plot_imshow(x_est_GL_t_noisy, title="reconstruction noisy sinogram")
-    
+
     if use_wandb:
         wandb.log({"sinogram": wandb.Image(sinogram.T[idx])})
         wandb.log({"noisy sinogram": wandb.Image(noisy_sinogram.T[idx])})
@@ -154,12 +155,6 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
     # gl:
     graph_laplacian = calc_graph_laplacian(graph, embedDim=2)
     noisy_graph_laplacian = calc_graph_laplacian(noisy_graph, embedDim=2)
-
-    _, noisy_gl_idx, _ = estimate_angles(noisy_graph_laplacian)
-    t_gl_idx = torch.from_numpy(noisy_gl_idx).type(torch.long)
-
-    x_est_GL_t_noisy = filterBackprojection2D(noisy_sinogram.T[t_gl_idx], reconstruction_angles_degrees)
-    plot_imshow(x_est_GL_t_noisy, title="reconstruction noisy sinogram GL angles")
 
     if debug_plot:
         plot_2d_scatter(graph_laplacian, title=f"GL clean case K={K}")
@@ -218,7 +213,10 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
         edge_index[1,i] = m
 
     # GAT setup:
-    t_y = sinogram.T.clone().to(device)
+    # t_y = sinogram.T.clone().to(device)
+    #x_est_GL_t = filterBackprojection2D(sinogram.T[idx], reconstruction_angles_degrees)
+    #t_y = torch.tensor(x_est_GL_t.clone()).to(device)
+    t_y = torch.tensor(input_t.clone()).to(device)
     print("t_y shape", t_y.shape)
     t_x = noisy_sinogram.T.clone().to(device)
     t_edge_index = torch.tensor(edge_index.copy()).type(torch.long).to(device)
@@ -230,7 +228,7 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
 
     # data_sinogram = Data(x=t_x, y=t_y, edge_index=t_edge_index, edge_attr=t_edge_attribute)
     data_sinogram = Data(x=t_x, y=t_y, edge_index=t_edge_index)
-
+    # torch.set_printoptions(edgeitems=15)
     # def __init__(self, in_dim, hidden_dim, num_layers, out_dim, heads = 1, dropout=0.5):
     model_sinogram = GAT(
         in_dim=RESOLUTION, 
@@ -249,16 +247,23 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
 
         optimizer_sinogram.zero_grad()
         out_sinogram = model_sinogram(data_sinogram)
-        loss_sinogram = torch.linalg.norm(out_sinogram - data_sinogram.y)
+        
+        image_reconstructed = filterBackprojection2D(out_sinogram[idx].clone(), reconstruction_angles_degrees)
+
+        loss_sinogram = torch.linalg.norm(image_reconstructed - data_sinogram.y)
+
+        if epoch % 5 == 0:
+            plot_imshow(image_reconstructed.cpu().detach().numpy(), title=f"Reconstruction epoch: {epoch}")
+
         if epoch % 50 == 0 and use_wandb:
             loss_sinogram_np = loss_sinogram.clone().cpu().detach()
-            epoch_out_np = out_sinogram[t_gl_idx].clone().cpu().detach().numpy()
+            epoch_out_np = out_sinogram[idx].clone().cpu().detach().numpy()
 
             wandb.log({
                 "epoch" : epoch,
                 "loss" : loss_sinogram_np,
                 "out_sinogram" :  wandb.Image(epoch_out_np, caption=epoch),
-                "out_reconstructed" : wandb.Image(filterBackprojection2D(out_sinogram[t_gl_idx], reconstruction_angles_degrees).cpu().detach().numpy(), caption=epoch)
+                "out_reconstructed" : wandb.Image(image_reconstructed.cpu().detach().numpy(), caption=epoch)
             })
             
 
@@ -272,12 +277,11 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
 
     # plot_imshow(pred_sinogram.cpu().detach().numpy(), title='Denoised sinogram unsorted', c_map=color_map)
 
-    x_est_GL_t = filterBackprojection2D(pred_sinogram[t_gl_idx], reconstruction_angles_degrees)
+    x_est_GL_t = filterBackprojection2D(pred_sinogram[idx], reconstruction_angles_degrees)
 
     if debug_plot:
-        plot_imshow(pred_sinogram[t_gl_idx].cpu().detach().numpy(), title='Denoised sinogram sorted', c_map=color_map)
+        plot_imshow(pred_sinogram[idx].cpu().detach().numpy(), title='Denoised sinogram sorted', c_map=color_map)
         plot_imshow(x_est_GL_t.cpu().detach().numpy(), title="reconstruction denoised sorted ")
-    
     if use_wandb:
         wandb.log({"Denoised sinogram": wandb.Image(pred_sinogram[idx].cpu().detach().numpy())})
         wandb.log({"Reconstruction denoised sinogram": wandb.Image(x_est_GL_t.cpu().detach().numpy())})
@@ -287,12 +291,12 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
         wandb.finish()
 
 layer_list = [2,3,4,5,6]
-head_list = [1,10,20]
+head_list = [1,20]
 epoch_list = [800,1000,1200,1400,1600,1800,2000]
 #snr_list = [25,20,15,10]
 dropout_list = [0.0, 0.03, 0.05, 0.08, 0.1, 0.2, 0.5, 0.6]
 weight_decay_list = [5e-5, 5e-4, 5e-3,5e-2,5e-1, 1e-5, 1e-4, 1e-3,1e-2, 1e-1,1]
-snr_list = [2,25]
+snr_list = [5,25]
 k_list = [4,5,8,11,12]
 
 #run(snr=25, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=512, K=8, RESOLUTION = 200):
@@ -315,13 +319,10 @@ k_list = [4,5,8,11,12]
 #     for heads in head_list:
 #         for snr in snr_list:
 #             run("denoise-sinogram-gat-snr",shepp_logan_phantom(), "phantom", epochs=1600, layers=layers, heads=heads, snr=snr)
-
-run("denoise-sinogram-gat-architecutre", shepp_logan_phantom(), "phantom", epochs=1600, layers=3, heads=10, snr=25,K=9, use_wandb=False, debug_plot=True)
-
+run("denoise-sinogram-gat", shepp_logan_phantom(), "phantom", epochs=50, layers=3, heads=10, snr=25, droput=0.1,  debug_plot=True, use_wandb=False)
 # for layers in layer_list:
 #     for heads in head_list:
-#         for snr in snr_list:
-            
+        
             
 
 # x_est_GL_t = filterBackprojection2D(pred_sinogram, reconstruction_angles_degrees)

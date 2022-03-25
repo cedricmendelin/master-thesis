@@ -4,6 +4,7 @@ from skimage.transform import  rescale, radon, iradon
 
 from utils.Graph import *
 from utils.Plotting import *
+from utils.Normalization import normalize_range
 from utils.pytorch_radon.radon import *
 import matplotlib.pyplot as plt
 
@@ -74,6 +75,17 @@ def calculate_2_wasserstein_dist(X, Y):
     # put it together
     return (trace_term + mean_term).float()
 
+def estimate_angles(graph_laplacian, degree=False):
+  # arctan2 range [-pi, pi]
+  angles = np.arctan2(graph_laplacian[:,0],graph_laplacian[:,1]) + np.pi
+  # sort idc ascending, [0, 2pi]
+  idx  = np.argsort(angles)
+
+  if degree:
+    return np.degrees(angles), idx, np.degrees(angles[idx])
+  else:
+    return angles, idx, angles[idx]
+
 ################## Parameters ########################
 RESOLUTION = 200
 N = 512
@@ -81,7 +93,8 @@ N = 512
 SEED = 2022
 
 #graph
-K = 6
+#K = 8 # good one
+K = 8
 
 #noise
 SNR=25
@@ -126,29 +139,29 @@ reconstruction_points = torch.stack((x,y)).T
 radon_class = Radon(RESOLUTION, input_angles_degrees, circle=True)
 
 sinogram = radon_class.forward(input_t.view(1, 1, RESOLUTION, RESOLUTION))[0,0]
-noisy_angles = add_noise(SNR, sinogram)
+noisy_sinogram = add_noise(SNR, sinogram)
 
-print("Loss sinogramm", torch.linalg.norm(sinogram - noisy_angles))
-print("Loss sinogramm.T", torch.linalg.norm(sinogram.T - noisy_angles.T))
+print("Loss sinogramm", torch.linalg.norm(sinogram - noisy_sinogram))
+print("Loss sinogramm.T", torch.linalg.norm(sinogram.T - noisy_sinogram.T))
 
 
 sorted, idx = torch.sort(input_angles_degrees, 0)
 idx = idx.view(N)
 
 plot_imshow(sinogram.T[idx], title="Sinogram uniform")
-plot_imshow(noisy_angles.T[idx], title="Sinogram noisy")
+plot_imshow(noisy_sinogram.T[idx], title="Sinogram noisy")
 
 ############################## Distances ###########################
 # distances:
 distances = distance_matrix(sinogram.T, sinogram.T)
 distances /= distances.max()
 
-noisy_distances = distance_matrix(noisy_angles.T, noisy_angles.T)
+noisy_distances = distance_matrix(noisy_sinogram.T, noisy_sinogram.T)
 noisy_distances /= noisy_distances.max()
 
 # k-nn:
 
-#for k in range(5, 12):
+# for k in range(5, 12):
 #K = k
 graph, classes, edges = generate_knn_from_distances_with_edges(distances, K, ordering='asc', ignoreFirst=True)
 
@@ -160,10 +173,26 @@ noisy_graph_laplacian = calc_graph_laplacian(noisy_graph, embedDim=2)
 
 plot_2d_scatter(graph_laplacian, title=f"GL clean case K={K}")
 plot_2d_scatter(noisy_graph_laplacian, title="GL noisy case")
+plot_2d_scatter(reconstruction_points.numpy(), title='reconstruction points')
+
+print(graph_laplacian.max())
+print(graph_laplacian.min())
+
+_, gl_idx, _ = estimate_angles(graph_laplacian)
+_, noisy_gl_idx, _ = estimate_angles(noisy_graph_laplacian)
+
+t_gl_idx = torch.from_numpy(gl_idx).type(torch.long)
+t_noisy_gl_idx = torch.from_numpy(noisy_gl_idx).type(torch.long)
+
+x_est_GL_t = filterBackprojection2D(sinogram.T[t_gl_idx], reconstruction_angles_degrees)
+plot_imshow(x_est_GL_t.cpu().detach().numpy(), title="Reconstruction clean with gl angles")
+
+x_est_GL_t = filterBackprojection2D(noisy_sinogram.T[t_noisy_gl_idx], reconstruction_angles_degrees)
+plot_imshow(x_est_GL_t.cpu().detach().numpy(), title="Reconstruction noisy with gl angles")
 
 
 ################### GAT class #############################
-class GAT2(torch.nn.Module):
+class GAT(torch.nn.Module):
     def __init__(self, in_dim, hidden_dim, num_layers, out_dim, heads = 1, dropout=0.5):
         super().__init__()
         
@@ -194,6 +223,36 @@ class GAT2(torch.nn.Module):
 
         return x
 
+class GAT2(torch.nn.Module):
+    def __init__(self, in_dim, hidden_dim, num_layers, out_dim=2, heads = 1, dropout=0.5):
+        super().__init__()
+        
+        #assert num_layers > 0
+        # in_dim = hidden_dim * heads
+        self.convs =  torch.nn.ModuleList()
+        self.in_dim = in_dim
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.out_dim = out_dim
+        self.dropout = dropout
+
+        # layer 1:
+        for _ in range(num_layers - 1):
+            self.convs.append(GATConv(in_dim, hidden_dim, heads))
+
+        # last layer:
+        self.convs.append(GATConv(hidden_dim * heads, out_dim, 1))
+
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
+
+        for layer, conv in enumerate(self.convs):
+            x = conv(x, edge_index)
+            if len(self.convs) - 1 != layer:
+                x = F.elu(x)
+                x = F.dropout(x, self.dropout)
+
+        return x
 ################ GAT #################
 
 # prep edges:
@@ -208,49 +267,96 @@ for i in range(N_noisy_edges):
   edge_attribute[i] = noisy_distances[n,m]
 
 # GAT setup:
-#t_y = sinogram.T.clone().to(device)
-# point_on_cricle = np.array([np.cos(thetas), np.sin(thetas)]).T
-# t_y_angles = torch.tensor(thetas.copy()).type(torch.float).to(device)
-#t_y_angles = torch.tensor(point_on_cricle.copy()).type(torch.float).to(device)
 t_y = reconstruction_points.clone().to(device)
+#t_y = reconstruction_angles.clone().view(N,1).to(device)
 print("t_y shape", t_y.shape)
-#t_x = noisy_angles.T.clone().to(device)
-t_x = torch.tensor(noisy_graph_laplacian).type(torch.float).to(device)
+#norm_laplacian = normalize_range(noisy_graph_laplacian, -1, 1)
+#norm_laplacian = noisy_graph_laplacian * (1/ noisy_graph_laplacian.max())
+#t_x = torch.tensor(norm_laplacian).type(torch.float).to(device)
+#laplacian_angles, _, laplacian_angles_sorted = estimate_angles(noisy_graph_laplacian)
+#t_x = torch.tensor(laplacian_angles).type(torch.float).view(N,1).to(device)
+t_x = torch.tensor(noisy_distances).type(torch.float).to(device)
+print("t_x shape", t_x.shape)
+
+
+# plot_2d_scatter(pred_angles.cpu().detach().numpy(), title=f"Angles denoised")
+# plot_2d_scatter(np.array([np.cos(laplacian_angles), np.sin(laplacian_angles)]).T, title=f" Laplacian Angles")
+# plot_2d_scatter(np.array([np.cos(laplacian_angles_sorted), np.sin(laplacian_angles_sorted)]).T, title=f" Laplacian Angles sorted")
+
+
+
+#t_x = torch.tensor()
 t_edge_index = torch.tensor(edge_index.copy()).type(torch.long).to(device)
 t_edge_attribute = torch.tensor(edge_attribute.copy()).type(torch.float).to(device)
 
 from torch_geometric.data import Data
 
 
-print("Loss angles:", calculate_2_wasserstein_dist(t_x, t_y))
+
+# print("Loss angles non-normalized:", calculate_2_wasserstein_dist(torch.tensor(graph_laplacian).type(torch.float).to(device), t_y))
+# print("Loss angles:", calculate_2_wasserstein_dist(t_x, t_y)) #angles: 0.0240
 
 # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # data_angles = Data(x=t_x, y=t_y, edge_index=t_edge_index, edge_attr=t_edge_attribute)
 data_angles = Data(x=t_x, y=t_y, edge_index=t_edge_index)
 #h = 1
+# GATdef __init__(self, in_dim, hidden_dim, num_layers, out_dim, heads = 1, dropout=0.5):
 # def __init__(self, in_dim, hidden_dim, num_layers, out_dim, heads = 1, dropout=0.5):
-model_angles = GAT2(in_dim=2, hidden_dim=2, num_layers=2, out_dim=2,  heads=1, dropout=0.05).to(device)
+# model_angles = GAT2(in_dim=data_angles.num_node_features, hidden_dim=2, num_layers=2, out_dim=2, dropout=0.03).to(device)
+model_angles = GAT2(
+    in_dim=data_angles.num_node_features, 
+    hidden_dim=data_angles.num_node_features, 
+    num_layers=3,
+    out_dim=2, dropout=0.03).to(device)
+#heads = 4
+#model_angles = GAT2(in_dim=N, hidden_dim=N // heads,num_layers=2, out_dim=2, heads=heads, dropout=0.05).to(device)
 optimizer_angles = torch.optim.Adam(model_angles.parameters(), lr=0.01, weight_decay=5e-4)
 
+# GET with 1d angle:
+# AssertionError: Static graphs not supported in 'GATConv'
+
+ab = torch.ones(N) / N
+ab.to(device)
+
+from ot import emd2, dist
 model_angles.train()
-for epoch in range(100):
+for epoch in range(50):
     #model_angles.train()
     
     optimizer_angles.zero_grad()
     out_angles = model_angles(data_angles)
     # loss_angles = torch.linalg.norm(out_angles - data_angles.y)
     loss_angles = calculate_2_wasserstein_dist(out_angles, data_angles.y)
+    # M = dist(out_angles, data_angles.y)#.to(device)
+    # loss_angles2 = emd2(ab.clone().to(device), ab.clone().to(device), M, numItermax=120000)
+    # loss_angles.to(device)
+    #loss_angles = torch.linalg.norm(out_angles - data_angles.y)
+    if epoch % 5 == 0:
+        plot_2d_scatter(out_angles.cpu().detach().numpy(), title=f"Angles denoised - {epoch}")
+    # print(loss_angles)
+    #loss_angles = ot.wasserstein_1d(out_angles, data_angles.y)
     #loss_angles = scipy.stats.wasserstein_distance(out_angles, data_angles.y)
     
-    print(f"epoch: {epoch} --- loss angles: {loss_angles} ")
+    print(f"epoch: {epoch} --- loss angles: {loss_angles}  ") # --- loss angles2: {loss_angles2}
     loss_angles.backward()
     
     optimizer_angles.step()
 
 model_angles.eval()
 pred_angles = model_angles(data_angles)
+
+# x = torch.cos(reconstruction_angles)
+# y = torch.sin(reconstruction_angles)
+
+# print(x.shape)
+# print(y.shape)
+
+# reconstruction_points = torch.stack((x,y)).T
+#pred_points = np.array([np.cos(pred_angles.cpu().detach().numpy()), np.sin(pred_angles.cpu().detach().numpy())]).T
+
 plot_2d_scatter(pred_angles.cpu().detach().numpy(), title=f"Angles denoised")
+#plot_2d_scatter(pred_points, title=f"Angles denoised")
 
 # x_est_GL_t = filterBackprojection2D(pred_angles[idx], reconstruction_angles_degrees)
 # plot_imshow(x_est_GL_t.cpu().detach().numpy(), title="reconstruction denoised sorted ")

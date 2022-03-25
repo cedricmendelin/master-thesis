@@ -112,13 +112,13 @@ class GAT(torch.nn.Module):
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
         x = self.conv1(x, edge_index)
-        #x = F.relu(x)
+        x = F.elu(x)
         # x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
 
         #return F.log_softmax(x, dim=1)
-        #return x
-        return 2 * ((x - torch.min(x)) / (torch.max(x) - torch.min(x)))  - 1
+        return x
+        #return 2 * ((x - torch.min(x)) / (torch.max(x) - torch.min(x)))  - 1
 
 
 import math
@@ -186,8 +186,9 @@ from torch_geometric.data import Data
 N_noisy_edges = len(noisy_edges)
 edge_index = np.zeros((2, N_noisy_edges))
 edge_attribute = np.zeros((N_noisy_edges, 1))
+noisy_edges_list = list(noisy_edges)
 for i in range(N_noisy_edges):
-  (n,m) = noisy_edges[i]
+  (n,m) = noisy_edges_list[i]
   edge_index[0,i] = n
   edge_index[1,i] = m
   edge_attribute[i] = noisy_distances[n,m]
@@ -199,15 +200,16 @@ graph_laplacian_normalized = torch.tensor(normalize_range(graph_laplacian, -1, 1
 graph_laplacian_noisy_normalized =  torch.tensor(normalize_range(graph_laplacian_noisy, -1, 1)).type(torch.float).to(device)
 
 # t_graph_laplacian_noisy = torch.tensor(graph_laplacian_noisy.copy()).type(torch.float).to(device)
-# t_noisy_distances = torch.tensor(noisy_distances.copy()).type(torch.float).to(device)
+t_noisy_distances = torch.tensor(noisy_distances.copy()).type(torch.float).to(device)
 # t_noisy_graph = torch.tensor(noisy_graph.copy()).type(torch.float).to(device)
 # t_noisy_edges = torch.tensor(noisy_edges.copy()).type(torch.float).to(device)
 
-t_y = graph_laplacian_normalized
-#t_y = torch.tensor(point_on_cricle.copy()).type(torch.float).to(device)
+# t_y = graph_laplacian_normalized
+t_y = torch.tensor(point_on_cricle.copy()).type(torch.float).to(device)
 # angles = np.linspace(0, 2 * np.pi, N)
 # t_y = torch.tensor(np.array([np.cos(angles), np.sin(angles)]).T).type(torch.float).to(device)
-t_x =graph_laplacian_noisy_normalized
+#t_x =graph_laplacian_noisy_normalized
+t_x = t_noisy_distances
 #graph_laplacian_noisy_normalized = normalize_range(graph_laplacian_noisy, -1, 1)
 #angles = np.arctan2(graph_laplacian_noisy[:,0],graph_laplacian_noisy[:,1]) + np.pi
 #print(angles.shape)
