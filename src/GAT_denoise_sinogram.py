@@ -101,6 +101,12 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
     N = N * 2
 
     input_angles_degrees = torch.rad2deg(input_angles).type(torch.float)
+    x = torch.cos(input_angles)
+    y = torch.sin(input_angles)
+    p = torch.stack((x,y)).T
+    print(p.shape)
+    plot_2d_scatter( p.view(1024, 2).numpy())
+
 
     reconstruction_angles_degrees =  torch.linspace(0, 360, N).type(torch.float)
     reconstruction_angles =  torch.linspace(0, 2 * torch.pi, N).type(torch.float)
