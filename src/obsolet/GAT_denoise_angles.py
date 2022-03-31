@@ -237,8 +237,10 @@ class GAT2(torch.nn.Module):
         self.dropout = dropout
 
         # layer 1:
-        for _ in range(num_layers - 1):
-            self.convs.append(GATConv(in_dim, hidden_dim, heads))
+        self.convs.append(GATConv(in_dim, hidden_dim, heads))
+
+        for _ in range(num_layers - 2):
+            self.convs.append(GATConv(hidden_dim, hidden_dim, heads))
 
         # last layer:
         self.convs.append(GATConv(hidden_dim * heads, out_dim, 1))
@@ -267,6 +269,7 @@ for i in range(N_noisy_edges):
   edge_attribute[i] = noisy_distances[n,m]
 
 # GAT setup:
+#t_y = torch.tensor(noisy_graph).to(device)
 t_y = reconstruction_points.clone().to(device)
 #t_y = reconstruction_angles.clone().view(N,1).to(device)
 print("t_y shape", t_y.shape)
@@ -275,7 +278,7 @@ print("t_y shape", t_y.shape)
 #t_x = torch.tensor(norm_laplacian).type(torch.float).to(device)
 #laplacian_angles, _, laplacian_angles_sorted = estimate_angles(noisy_graph_laplacian)
 #t_x = torch.tensor(laplacian_angles).type(torch.float).view(N,1).to(device)
-t_x = torch.tensor(noisy_distances).type(torch.float).to(device)
+t_x = torch.tensor(noisy_graph).type(torch.float).to(device)
 print("t_x shape", t_x.shape)
 
 

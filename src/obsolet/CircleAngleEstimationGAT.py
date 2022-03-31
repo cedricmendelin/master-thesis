@@ -221,7 +221,7 @@ t_edge_index = torch.tensor(edge_index.copy()).type(torch.long).to(device)
 t_edge_attribute = torch.tensor(edge_attribute.copy()).type(torch.float).to(device)
 
 
-data = Data(x=t_x, y=t_y, edge_index=t_edge_index, edge_attribute=t_edge_attribute)
+data = Data(x=t_x, y=t_y, edge_index=t_edge_index)
 # x (Tensor, optional) – Node feature matrix with shape [num_nodes, num_node_features]. (default: None)
 # edge_index (LongTensor, optional) – Graph connectivity in COO format with shape [2, num_edges]. (default: None)
 # edge_attr (Tensor, optional) – Edge feature matrix with shape [num_edges, num_edge_features]. (default: None)
