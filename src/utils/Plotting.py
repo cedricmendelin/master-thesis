@@ -18,6 +18,13 @@ def plot_imshow(data, title='', show=False, colorbar=True, aspect=None, c_map = 
     if show:
         plt.show()
 
+def plot_image_grid(images, titles, col=2, row= 1, colorbar=True, aspect=None, c_map = color_map):
+    fig = plt.figure(figsize=(8, 8))
+    for i in range(0, col*row):
+        fig.add_subplot(row, col, i+1)
+        plt.imshow(images[i], cmap=c_map, aspect=aspect)
+        plt.title(titles[i])
+
 def plot_2d_scatter(data, figsize=(10,10), title='', show=False):
     plot_2dscatter(data[:,0], data[:,1], figsize, title, show)
 

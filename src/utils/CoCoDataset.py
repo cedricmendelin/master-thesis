@@ -12,8 +12,9 @@ def load_images_files(path,files, N1, N2, number=1, num_seed = None):
         M1 = 0
         M2 = 0
         while M1<N1 or M2<N2:
-            d=random.choice(files)
-            im = imageio.imread(path+d)
+            file = random.choice(files)
+            im = imageio.imread(path + file)
+            files.remove(file)
             if im.ndim > 2: # passes to grayscale if color
                 im = im[:,:,0]
             [M1,M2] = im.shape
