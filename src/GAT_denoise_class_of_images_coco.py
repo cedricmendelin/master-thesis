@@ -72,8 +72,22 @@ torch.manual_seed(2022)
 #graph
 # K = 8
 
+def rescale_image(image, resolution, circle_padding):
+    # scaling
+    if circle_padding:
+        r = np.ceil(np.sqrt(2 * (image.shape[0] ** 2)) )
+        padding = int(np.ceil((r - image.shape[0]) / 2))
+        p = (padding, padding)
+        image = np.pad(image, [p,p], mode='constant', constant_values=0)
+        #resolution += 2 * padding
+    
+    scaleX = resolution/ image.shape[0]
+    scaleY = resolution/ image.shape[1]
+    return rescale(image, scale=(scaleX, scaleY), mode='reflect', multichannel=False)
 
-def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False):
+    
+
+def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False, circle_padding=True):
     #noise
     # SNR=snr
     EPOCHS = epochs
@@ -110,13 +124,13 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 
     #################### Input #####################
     #input = imageio.imread('src/maps/toy_image.png')
-    input = images
-
-    input_t = torch.from_numpy(input).type(torch.float)#.to(device)
-    validation_t = torch.from_numpy(input).type(torch.float)
+    input_t = torch.from_numpy(images).type(torch.float)#.to(device)
     if debug_plot:
         for i in range(M):
-            plot_imshow(input[i], title=f"Input image - {i}")
+            plot_imshow(images[i], title=f"Input image - {i}")
+
+        for i in range(V):
+            plot_imshow(images[i], title=f"Input image - {i}")
 
     if use_wandb:
          wandb.log({"input images": [wandb.Image(img) for img in images]})
@@ -308,58 +322,28 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 from utils.CoCoDataset import *
 import time
 t = time.time()
-image_path = "src/toyimages/64/"
+image_path = "src/data/val2017/"
 files = os.listdir(image_path)
 
 
-validation_image_path = "src/toyimages/notseen/64/"
-validation_files = os.listdir(validation_image_path)
-print(validation_files)
 N = 1024
-RESOLUTION = 64 #64
+RESOLUTION = 128
+
+image_count = 20
+validation_image_count = 2
 
 
-validation_image_count = len(validation_files)
-
-# count_list = [1,2,3,4,5,6,7,8]
-
-input_images = load_images_files(image_path, files, RESOLUTION, RESOLUTION , number=10, num_seed=5)
-validation_images = load_images_files(validation_image_path, validation_files, RESOLUTION, RESOLUTION , number=validation_image_count, num_seed=5)
-print(validation_images.shape)
-
-validation_images = np.append(np.append(validation_images, input_images[0]), input_images[1]).reshape((validation_image_count + 2, RESOLUTION, RESOLUTION))
-
-# count_list = [1,2,3,4,5,6,7,8]
-# for image_count in count_list:
-#     x_input = input_images[0:image_count]
-#     #def run(project_name, images, validation_images, validation_snr, snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False):
-#     model, t_edge_index = run("toy-images-advanced-validation", x_input, validation_images, validation_snr=[-5,2,10,25], snr_lower=-5, snr_upper=30, epochs=2000, layers=3, heads=4, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
-
-image_count = 6
-count_list = [6]
-layers_list = [2,3,4,5]
-heads_list = [2,4,8]
-x_input = input_images[0:image_count]
-# for image_count in count_list:
-#     for layer in layers_list:
-#         for head in heads_list:
-#             model, t_edge_index = run("toy-images-advanced-validation-gat", x_input, validation_images, validation_snr=[-5,2,10,25], snr_lower=-5, snr_upper=30, epochs=2000, layers=layer, heads=head, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
+x = load_images_files(image_path, files, 300, 300 , number=image_count + validation_image_count, num_seed=5)
 
 
-upper_snr_list = [30, 0, 30, -15, 0, 15, 30]
-lower_snr_list = [0, -30, -30, -30, -15, 0, 15]
+x_rescaled = [rescale_image(x[i], RESOLUTION, True) for i in range(len(x))]
 
-for low, up in zip(lower_snr_list, upper_snr_list):
-    model, t_edge_index = run("toy-images-snr-range2", x_input, validation_images, validation_snr=[-30,-25,-20,-15,-10, -5,0, 5, 10, 15, 20, 25, 30], snr_lower=low, snr_upper=up, epochs=2000, layers=3, heads=4, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
+plt.show()
 
-
-
-
-
-# x_input = x[0:image_count]
-# x_validation = x[image_count: image_count+validation_image_count]
+x_input = np.array(x_rescaled[0:image_count])
+x_validation = np.array(x_rescaled[image_count-1: image_count+validation_image_count])
 #def run(project_name, images, validation_images, validation_snr, snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False):
-
+model, t_edge_index = run("coco-images-test", x_input, x_validation, validation_snr=[-5,2,10,25], snr_lower=-5, snr_upper=30, epochs=2000, layers=3, heads=4, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = True, use_wandb = False)
 
 
 # ########### fancy validation images ##################
