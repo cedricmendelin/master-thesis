@@ -346,8 +346,8 @@ x_input = input_images[0:image_count]
 #             model, t_edge_index = run("toy-images-advanced-validation-gat", x_input, validation_images, validation_snr=[-5,2,10,25], snr_lower=-5, snr_upper=30, epochs=2000, layers=layer, heads=head, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
 
 
-upper_snr_list = [30, 0, 30, -15, 0, 15, 30]
-lower_snr_list = [0, -30, -30, -30, -15, 0, 15]
+upper_snr_list = [5, 10, 15, 20, 25]
+lower_snr_list = [-5,-10,-15,-20, -25]
 
 for low, up in zip(lower_snr_list, upper_snr_list):
     model, t_edge_index = run("toy-images-snr-range2", x_input, validation_images, validation_snr=[-30,-25,-20,-15,-10, -5,0, 5, 10, 15, 20, 25, 30], snr_lower=low, snr_upper=up, epochs=2000, layers=3, heads=4, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)

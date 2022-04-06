@@ -213,6 +213,35 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
 
             return x
 
+    class MLP(torch.nn.Module):
+        def __init__(self, in_dim, hidden_dim,  out_dim, dropout=0.5):
+            super().__init__()
+            
+            #assert num_layers > 0
+            # in_dim = hidden_dim * heads
+            self.convs =  torch.nn.ModuleList()
+            self.in_dim = in_dim
+            self.hidden_dim = hidden_dim
+            self.out_dim = out_dim
+            self.dropout = dropout
+
+            # layer 1:
+            self.convs.append(torch.nn.Linear(self.in_dim, self.hidden_dim))
+            # self.convs.append(torch.nn.Linear(self.hidden_dim, self.hidden_dim))
+
+            # last layer:
+            self.convs.append(torch.nn.Linear(hidden_dim , out_dim))
+
+        def forward(self, data):
+            x =  data.x
+            for layer, conv in enumerate(self.convs):
+                x = conv(x)
+                if len(self.convs) - 1 != layer:
+                    x = F.elu(x)
+                    x = F.dropout(x, self.dropout)
+
+            return x
+
     ################ GAT #################
     # prep edges:
     N_noisy_edges = len(noisy_edges)
@@ -238,12 +267,10 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
     data_sinogram = Data(x=t_x, y=t_y, edge_index=t_edge_index)
 
     # def __init__(self, in_dim, hidden_dim, num_layers, out_dim, heads = 1, dropout=0.5):
-    model_sinogram = GAT(
+    model_sinogram = MLP(
         in_dim=RESOLUTION, 
         hidden_dim=RESOLUTION // GAT_HEADS,
-        num_layers=GAT_LAYERS, 
         out_dim=RESOLUTION,  
-        heads=GAT_HEADS, 
         dropout=GAT_DROPOUT).to(device)
 
     optimizer_sinogram = torch.optim.Adam(model_sinogram.parameters(), lr=GAT_ADAM_LR, weight_decay=GAT_ADAM_WEIGHTDECAY)
@@ -322,30 +349,7 @@ k_list = [4,5,8,11,12]
 #         for snr in snr_list:
 #             run("denoise-sinogram-gat-snr",shepp_logan_phantom(), "phantom", epochs=1600, layers=layers, heads=heads, snr=snr)
 
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("--samples", type=int, default=1024)
-parser.add_argument("--resolution", type=int, default=64)
-parser.add_argument("--input_image_count", type=int, default=10)
-parser.add_argument("--image_path", type=str, default="src/data/val2017/")
-parser.add_argument("--validation_image_path", type=str, default="src/data/val2017/")
-parser.add_argument("--validation_image_count", type=int, default=10)
-parser.add_argument("--use_wandb", type=bool, default=False)
-parser.add_argument("--debug_plots", type=bool, default=False)
-parser.add_argument("--wandb_project", type=str)
-parser.add_argument("--save_model", type=bool, default=True)
-parser.add_argument("--gat_layers", type=int, default=3)
-parser.add_argument("--gat_heads", type=int, default=1)
-parser.add_argument("--gat_dropout", type=float, default=0.05)
-parser.add_argument("--epochs", type=int, default=2000)
-parser.add_argument("--gat_snr_lower", type=int, default=-5)
-parser.add_argument("--gat_snr_upper", type=int, default=20)
-parser.add_argument("--validation_snrs", nargs="+", type=int, default=[-5,2,10,25])
-
-
-args = parser.parse_args()
-
-run(args.wandb_project, shepp_logan_phantom(), "phantom", epochs=args.epochs, layers=args.gat_layers, heads=args.gat_heads, snr=25, K=9, use_wandb=args.use_wandb, debug_plot=args.debug_plots)
+run("denoise-sinogram-gat-architecutre", shepp_logan_phantom(), "phantom", epochs=1600, layers=3, heads=1, snr=5,K=8, use_wandb=False, debug_plot=True)
 
 # for layers in layer_list:
 #     for heads in head_list:
@@ -381,6 +385,6 @@ run(args.wandb_project, shepp_logan_phantom(), "phantom", epochs=args.epochs, la
 
 
 
-if args.debug_plots:
-    plt.show()
+
+plt.show()
 

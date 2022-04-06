@@ -72,22 +72,8 @@ torch.manual_seed(2022)
 #graph
 # K = 8
 
-def rescale_image(image, resolution, circle_padding):
-    # scaling
-    if circle_padding:
-        r = np.ceil(np.sqrt(2 * (image.shape[0] ** 2)) )
-        padding = int(np.ceil((r - image.shape[0]) / 2))
-        p = (padding, padding)
-        image = np.pad(image, [p,p], mode='constant', constant_values=0)
-        #resolution += 2 * padding
-    
-    scaleX = resolution/ image.shape[0]
-    scaleY = resolution/ image.shape[1]
-    return rescale(image, scale=(scaleX, scaleY), mode='reflect', multichannel=False)
 
-    
-
-def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False, circle_padding=True):
+def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False):
     #noise
     # SNR=snr
     EPOCHS = epochs
@@ -124,13 +110,13 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 
     #################### Input #####################
     #input = imageio.imread('src/maps/toy_image.png')
-    input_t = torch.from_numpy(images).type(torch.float)#.to(device)
+    input = images
+
+    input_t = torch.from_numpy(input).type(torch.float)#.to(device)
+    validation_t = torch.from_numpy(input).type(torch.float)
     if debug_plot:
         for i in range(M):
-            plot_imshow(images[i], title=f"Input image - {i}")
-
-        for i in range(V):
-            plot_imshow(images[i], title=f"Input image - {i}")
+            plot_imshow(input[i], title=f"Input image - {i}")
 
     if use_wandb:
          wandb.log({"input images": [wandb.Image(img) for img in images]})
@@ -175,8 +161,8 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
         edge_index[1,i] = m
    
     ################### GAT class #############################
-    class GAT(torch.nn.Module):
-        def __init__(self, in_dim, hidden_dim, num_layers, out_dim, heads = 1, dropout=0.5):
+    class MLP(torch.nn.Module):
+        def __init__(self, in_dim, hidden_dim,  out_dim, dropout=0.5):
             super().__init__()
             
             #assert num_layers > 0
@@ -184,22 +170,20 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
             self.convs =  torch.nn.ModuleList()
             self.in_dim = in_dim
             self.hidden_dim = hidden_dim
-            self.num_layers = num_layers
             self.out_dim = out_dim
-            self.dropout = dropout
+            self.dropout = dropout.py
 
             # layer 1:
-            for _ in range(num_layers - 1):
-                self.convs.append(GATConv(in_dim, hidden_dim, heads))
+            self.convs.append(torch.nn.Linear(self.in_dim, self.hidden_dim))
+            # self.convs.append(torch.nn.Linear(self.hidden_dim, self.hidden_dim))
 
             # last layer:
-            self.convs.append(GATConv(hidden_dim * heads, out_dim, 1))
+            self.convs.append(torch.nn.Linear(hidden_dim , out_dim))
 
         def forward(self, data):
-            x, edge_index = data.x, data.edge_index
-
+            x =  data.x
             for layer, conv in enumerate(self.convs):
-                x = conv(x, edge_index)
+                x = conv(x)
                 if len(self.convs) - 1 != layer:
                     x = F.elu(x)
                     x = F.dropout(x, self.dropout)
@@ -207,7 +191,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
             return x
 
     ################ GAT #################
-    model_sinogram = GAT(
+    model_sinogram = MLP(
         in_dim=RESOLUTION, 
         hidden_dim=RESOLUTION // GAT_HEADS,
         num_layers=GAT_LAYERS, 
@@ -318,69 +302,116 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 #    - different image_count with new validation set
 #    - different GAT architecutre
 
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("--samples", type=int, default=1024)
-parser.add_argument("--resolution", type=int, default=64)
-parser.add_argument("--input_image_count", type=int, default=10)
-parser.add_argument("--image_path", type=str, default="src/data/val2017/")
-parser.add_argument("--validation_image_path", type=str, default="src/data/val2017/")
-parser.add_argument("--validation_image_count", type=int, default=10)
-parser.add_argument("--use_wandb", type=bool, default=False)
-parser.add_argument("--debug_plots", type=bool, default=False)
-parser.add_argument("--wandb_project", type=str)
-parser.add_argument("--save_model", type=bool, default=True)
-parser.add_argument("--gat_layers", type=int, default=3)
-parser.add_argument("--gat_heads", type=int, default=1)
-parser.add_argument("--gat_dropout", type=float, default=0.05)
-parser.add_argument("--epochs", type=int, default=2000)
-parser.add_argument("--gat_snr_lower", type=int, default=-5)
-parser.add_argument("--gat_snr_upper", type=int, default=20)
-parser.add_argument("--validation_snrs", nargs="+", type=int, default=[-5,2,10,25])
-
-
-args = parser.parse_args()
-
 
 from utils.CoCoDataset import *
 import time
 t = time.time()
-image_path = args.image_path
+image_path = "src/toyimages/64/"
 files = os.listdir(image_path)
 
 
-N = args.samples
-RESOLUTION = args.resolution
+validation_image_path = "src/toyimages/notseen/64/"
+validation_files = os.listdir(validation_image_path)
+print(validation_files)
+N = 1024
+RESOLUTION = 64 #64
 
-image_count = args.input_image_count
-validation_image_count = args.validation_image_count
+
+validation_image_count = len(validation_files)
+
+# count_list = [1,2,3,4,5,6,7,8]
+
+input_images = load_images_files(image_path, files, RESOLUTION, RESOLUTION , number=10, num_seed=5)
+validation_images = load_images_files(validation_image_path, validation_files, RESOLUTION, RESOLUTION , number=validation_image_count, num_seed=5)
+print(validation_images.shape)
+
+validation_images = np.append(np.append(validation_images, input_images[0]), input_images[1]).reshape((validation_image_count + 2, RESOLUTION, RESOLUTION))
+
+# count_list = [1,2,3,4,5,6,7,8]
+# for image_count in count_list:
+#     x_input = input_images[0:image_count]
+#     #def run(project_name, images, validation_images, validation_snr, snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False):
+#     model, t_edge_index = run("toy-images-advanced-validation", x_input, validation_images, validation_snr=[-5,2,10,25], snr_lower=-5, snr_upper=30, epochs=2000, layers=3, heads=4, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
+
+image_count = 6
+count_list = [6]
+layers_list = [2,3,4,5]
+heads_list = [2,4,8]
+x_input = input_images[0:image_count]
+# for image_count in count_list:
+#     for layer in layers_list:
+#         for head in heads_list:
+#             model, t_edge_index = run("toy-images-advanced-validation-gat", x_input, validation_images, validation_snr=[-5,2,10,25], snr_lower=-5, snr_upper=30, epochs=2000, layers=layer, heads=head, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
 
 
-x = load_images_files(image_path, files, RESOLUTION, RESOLUTION , number=image_count + validation_image_count, num_seed=5)
-x_input = np.array(x[0:image_count])
-x_validation = np.array(x[image_count-1: image_count+validation_image_count])
+upper_snr_list = [5, 10, 15, 20, 25]
+lower_snr_list = [-5,-10,-15,-20, -25]
+
+for low, up in zip(lower_snr_list, upper_snr_list):
+    model, t_edge_index = run("toy-images-snr-range2", x_input, validation_images, validation_snr=[-30,-25,-20,-15,-10, -5,0, 5, 10, 15, 20, 25, 30], snr_lower=low, snr_upper=up, epochs=2000, layers=3, heads=4, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
+
+
+
+
+
+# x_input = x[0:image_count]
+# x_validation = x[image_count: image_count+validation_image_count]
 #def run(project_name, images, validation_images, validation_snr, snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False):
-model, t_edge_index = run(
-    args.wandb_project, 
-    x_input, x_validation, 
-    validation_snr=args.validation_snrs, 
-    snr_lower=args.gat_snr_lower, 
-    snr_upper=args.gat_snr_upper, 
-    epochs=args.epochs, 
-    layers=args.gat_layers, 
-    heads=args.gat_heads, 
-    droput=args.gat_dropout, 
-    weight_decay=5e-4, 
-    lr=0.01, 
-    N=args.samples, 
-    RESOLUTION = RESOLUTION, 
-    debug_plot = args.debug_plots, 
-    use_wandb = args.use_wandb)
 
 
-if args.save_model:
-    torch.save(model.state_dict(), "out_torch_state_dict")
 
-if args.debug_plots:
-    plt.show()
+# ########### fancy validation images ##################
+
+
+# V=len(validation_files)
+
+
+# angles_degrees =  torch.linspace(0, 360, N).type(torch.float)
+# # validation_snr = [-5,2,10,25]
+# validation_t = torch.from_numpy(validation_images).type(torch.float)#.to(device)
+# radon_class = Radon(RESOLUTION, angles_degrees , circle=True)
+# validation_sinograms = radon_class.forward(validation_t.view(V, 1, RESOLUTION, RESOLUTION))
+
+# validation_snr=[-5,2,10,25]
+
+# for snr in validation_snr:
+#     for i in range(V):
+#         t_y = validation_sinograms[i,0].T.to(device)
+#         t_x = add_noise(snr, validation_sinograms[i,0].clone()).T.to(device)
+#         pred_sinogram = model(Data(x=t_x, y=t_y, edge_index=t_edge_index))
+#         loss_sinogram = torch.linalg.norm(pred_sinogram - t_y)
+#         loss_sinogram_noisy = torch.linalg.norm(t_x - t_y)
+
+#         denoised_reconstruction = filterBackprojection2D(pred_sinogram, angles_degrees)
+#         noisy_reconstruction = filterBackprojection2D(t_x, angles_degrees)
+
+#         print(f"Validation loss: {loss_sinogram} -- loss noisy: {loss_sinogram_noisy}")
+
+#         reconstructions = np.array([denoised_reconstruction.cpu().detach().numpy(), noisy_reconstruction.cpu().detach().numpy()])
+#         titles = [f"Rec denoised - SNR: {snr} - image {i}", f"Rec noisy - SNR: {snr} - image {i}" ]
+#         plot_image_grid(reconstructions, titles)
+
+
+
+# for image_count in count_list:
+#     validation_image_count = 2
+#     x_input = x[0:image_count]
+#     x_validation = x[image_count: image_count+validation_image_count]
+#     #def run(project_name, images, validation_images, validation_snr, snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False):
+#     _ = run("toy-images-input-size", x_input, x_validation, validation_snr=[-5,2,10,25], snr_lower=-5, snr_upper=30, epochs=2000, layers=3, heads=4, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
+
+# heads_list = [1,2,4,8,16]
+# count_list = [4,5,6]
+# for image_count in count_list:
+#     for gat_heads in heads_list:
+#         validation_image_count = 2
+#         x_input = x[0:image_count]
+#         x_validation = x[image_count: image_count+validation_image_count]
+#         #def run(project_name, images, validation_images, validation_snr, snr_lower=0, snr_upper=25,K =2, epochs=1000, layers=3, heads=2, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = 200, debug_plot = True, use_wandb = False):
+#         _ = run("toy-images-heads", x_input, x_validation, validation_snr=[-5,2,10,25], snr_lower=-5, snr_upper=30, epochs=2000, layers=3, heads=gat_heads, droput=0.05, weight_decay=5e-4, lr=0.01, N=1024, RESOLUTION = RESOLUTION, debug_plot = False, use_wandb = True)
+
+        
+print("execution time", time.time() - t)
+
+plt.show()
 
