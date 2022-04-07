@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from skimage.transform import  rescale, radon, iradon
 
 import torch
+torch.pi = torch.acos(torch.zeros(1)).item() * 2
 from torch_geometric.nn import GCNConv, GATConv, GATv2Conv
 from scipy.spatial import distance_matrix
 import torch.nn.functional as F
@@ -90,8 +91,8 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
     if debug_plot:
         plot_imshow(input, title="Input image")
 
-    if use_wandb:
-        wandb.log({"input_image": wandb.Image(input)})
+    # if use_wandb:
+    #     wandb.log({"input_image": wandb.Image(input)})
 
     ################# Angles ##########################
     from torch.distributions.uniform import Uniform
@@ -136,11 +137,11 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
         plot_imshow(x_est_GL_t, title="reconstruction")
         plot_imshow(x_est_GL_t_noisy, title="reconstruction noisy sinogram")
     
-    if use_wandb:
-        wandb.log({"sinogram": wandb.Image(sinogram.T[idx])})
-        wandb.log({"noisy sinogram": wandb.Image(noisy_sinogram.T[idx])})
-        wandb.log({"reconstruction": wandb.Image(x_est_GL_t)})
-        wandb.log({"reconstruction noisy sinogram": wandb.Image(x_est_GL_t_noisy)})
+    # if use_wandb:
+    #     wandb.log({"sinogram": wandb.Image(sinogram.T[idx])})
+    #     wandb.log({"noisy sinogram": wandb.Image(noisy_sinogram.T[idx])})
+    #     wandb.log({"reconstruction": wandb.Image(x_est_GL_t)})
+    #     wandb.log({"reconstruction noisy sinogram": wandb.Image(x_est_GL_t_noisy)})
 
     ############################## Distances ###########################
     # distances:
@@ -263,8 +264,8 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
             wandb.log({
                 "epoch" : epoch,
                 "loss" : loss_sinogram_np,
-                "out_sinogram" :  wandb.Image(epoch_out_np, caption=epoch),
-                "out_reconstructed" : wandb.Image(filterBackprojection2D(out_sinogram[t_gl_idx], reconstruction_angles_degrees).cpu().detach().numpy(), caption=epoch)
+                # "out_sinogram" :  wandb.Image(epoch_out_np, caption=epoch),
+                # "out_reconstructed" : wandb.Image(filterBackprojection2D(out_sinogram[t_gl_idx], reconstruction_angles_degrees).cpu().detach().numpy(), caption=epoch)
             })
             
 
@@ -285,8 +286,8 @@ def run(project_name, image, image_name, snr=25, epochs=1000, layers=3, heads=2,
         plot_imshow(x_est_GL_t.cpu().detach().numpy(), title="reconstruction denoised sorted ")
     
     if use_wandb:
-        wandb.log({"Denoised sinogram": wandb.Image(pred_sinogram[idx].cpu().detach().numpy())})
-        wandb.log({"Reconstruction denoised sinogram": wandb.Image(x_est_GL_t.cpu().detach().numpy())})
+        # wandb.log({"Denoised sinogram": wandb.Image(pred_sinogram[idx].cpu().detach().numpy())})
+        # wandb.log({"Reconstruction denoised sinogram": wandb.Image(x_est_GL_t.cpu().detach().numpy())})
 
         wandb.log({"loss_sinogramm_noisy_end": torch.linalg.norm(pred_sinogram.cpu() - sinogram.T)})
 
