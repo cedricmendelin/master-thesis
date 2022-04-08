@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 if(not plt.isinteractive):
     plt.ion()
 

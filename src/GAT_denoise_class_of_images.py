@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from skimage.transform import  rescale, radon, iradon
 from sklearn.metrics.pairwise import haversine_distances
 import torch
+torch.pi = torch.acos(torch.zeros(1)).item() * 2
 from torch_geometric.nn import GCNConv, GATConv, GATv2Conv
 from scipy.spatial import distance_matrix
 import torch.nn.functional as F
@@ -302,7 +303,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--samples", type=int, default=1024)
 parser.add_argument("--resolution", type=int, default=128)
-parser.add_argument("--input_image_count", type=int, default=10)
+parser.add_argument("--input_image_count", type=int, default=8)
 parser.add_argument("--image_path", type=str, default="src/toyimages/128/")
 parser.add_argument("--validation_image_path", type=str, default="src/toyimages/notseen/128/")
 parser.add_argument("--validation_image_count", type=int, default=5)
