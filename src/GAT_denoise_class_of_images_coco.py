@@ -338,7 +338,6 @@ parser.add_argument("--gat_snr_lower", type=int, default=-5)
 parser.add_argument("--gat_snr_upper", type=int, default=20)
 parser.add_argument("--validation_snrs", nargs="+", type=int, default=[-5,2,10,25])
 
-
 args = parser.parse_args()
 
 
