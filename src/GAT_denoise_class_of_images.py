@@ -20,7 +20,7 @@ import wandb
 
 import numpy as np
 from numpy.random import default_rng
-from torch_geometric.data import Data
+from torch_geometric.data import Data, Dataset, DataLoader
 from torch_geometric.data.batch import Batch
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -193,6 +193,19 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 
             return x
 
+    class CustomSinogramDataset(Dataset):
+        def __init__(self, M, sinograms, noisy_sinograms, graph):
+            self.M = M
+            self.sinograms = sinograms
+            self.noisy_sinograms = noisy_sinograms
+            self.graph = graph
+
+        def __len__(self):
+            return M
+
+        def __getitem__(self, idx):
+            return Data(x=self.noisy_sinograms[idx,0].T, y=self.sinograms[idx,0].T, edge_index=self.graph)
+
     ################ GAT #################
     model_sinogram = GAT(
         in_dim=RESOLUTION, 
@@ -200,7 +213,13 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
         num_layers=GAT_LAYERS, 
         out_dim=RESOLUTION,  
         heads=GAT_HEADS, 
-        dropout=GAT_DROPOUT).to(device)
+        dropout=GAT_DROPOUT)
+
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model_sinogram = nn.DataParallel(model_sinogram)
+    
+    model_sinogram.to(device)
 
     optimizer_sinogram = torch.optim.Adam(model_sinogram.parameters(), lr=GAT_ADAM_LR, weight_decay=GAT_ADAM_WEIGHTDECAY)
 
@@ -218,19 +237,35 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
         # print(sinograms.shape)
         # print(noisy_sinograms.shape)
         loss = 0
-        data = []
-        for i in range(M):
-            data = Data(x=noisy_sinograms[i,0].T.to(device), y=sinograms[i,0].T.to(device), edge_index=t_edge_index)
+        #data = []
+        dataset = CustomSinogramDataset(M, sinograms, noisy_sinograms, t_edge_index)
+
+        loader = DataLoader(dataset=dataset, batch_size=1, shuffle=True)
+
+        for data in loader:
             optimizer_sinogram.zero_grad()
-
-            out_sinograms = model_sinogram(data)
-            loss_sinogram = torch.linalg.norm(out_sinograms - data.y)
-
-            print(f"epoch: {epoch} img: {i} --- loss sino: {loss_sinogram} with snr: {snr}")
-            
-            loss += loss_sinogram
+            input = data.to(device)
+            out_sinograms = model_sinogram(input)
+            #print(out_sinograms.shape)
+            loss_sinogram = torch.linalg.norm(out_sinograms - input.y)
+            print("Outside: input size", input.size(), "output_size", out_sinograms.size())
+            #print(loss_sinogram.shape)
             loss_sinogram.backward()
             optimizer_sinogram.step()
+
+
+        # for i in range(M):
+        #     data = Data(x=noisy_sinograms[i,0].T.to(device), y=sinograms[i,0].T.to(device), edge_index=t_edge_index)
+        #     optimizer_sinogram.zero_grad()
+
+        #     out_sinograms = model_sinogram(data)
+        #     loss_sinogram = torch.linalg.norm(out_sinograms - data.y)
+
+        #     print(f"epoch: {epoch} img: {i} --- loss sino: {loss_sinogram} with snr: {snr}")
+            
+        #     loss += loss_sinogram
+        #     loss_sinogram.backward()
+        #     optimizer_sinogram.step()
         
         if use_wandb:
             wandb.log({
