@@ -239,8 +239,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
         loss = 0
         #data = []
         dataset = CustomSinogramDataset(M, sinograms, noisy_sinograms, t_edge_index)
-
-        loader = DataLoader(dataset=dataset, batch_size=1, shuffle=True)
+        loader = DataLoader(dataset=dataset, batch_size=M, shuffle=True)
 
         for data in loader:
             optimizer_sinogram.zero_grad()
