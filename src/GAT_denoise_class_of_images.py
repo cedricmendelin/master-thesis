@@ -11,7 +11,8 @@ from skimage.transform import  rescale, radon, iradon
 from sklearn.metrics.pairwise import haversine_distances
 import torch
 torch.pi = torch.acos(torch.zeros(1)).item() * 2
-from torch_geometric.nn import GCNConv, GATConv, GATv2Conv
+from torch_geometric.nn import GCNConv, GATConv, GATv2Conv, DataParallel
+from torch_geometric.loader import DataLoader
 from scipy.spatial import distance_matrix
 import torch.nn.functional as F
 import math
@@ -20,7 +21,7 @@ import wandb
 
 import numpy as np
 from numpy.random import default_rng
-from torch_geometric.data import Data, Dataset, DataLoader
+from torch_geometric.data import Data, Dataset
 from torch_geometric.data.batch import Batch
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -217,7 +218,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 
     if torch.cuda.device_count() > 1:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
-        model_sinogram = nn.DataParallel(model_sinogram)
+        model_sinogram = DataParallel(model_sinogram)
     
     model_sinogram.to(device)
 
