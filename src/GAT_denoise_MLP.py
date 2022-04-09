@@ -7,9 +7,12 @@ from utils.Plotting import *
 from utils.pytorch_radon.radon import *
 import matplotlib.pyplot as plt
 
+
 from skimage.transform import  rescale, radon, iradon
 from sklearn.metrics.pairwise import haversine_distances
 import torch
+
+torch.pi = torch.acos(torch.zeros(1)).item() * 2
 from torch_geometric.nn import GCNConv, GATConv, GATv2Conv
 from scipy.spatial import distance_matrix
 import torch.nn.functional as F
@@ -171,7 +174,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
             self.in_dim = in_dim
             self.hidden_dim = hidden_dim
             self.out_dim = out_dim
-            self.dropout = dropout.py
+            self.dropout = dropout
 
             # layer 1:
             self.convs.append(torch.nn.Linear(self.in_dim, self.hidden_dim))
@@ -182,6 +185,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 
         def forward(self, data):
             x =  data.x
+            print(x.device)
             for layer, conv in enumerate(self.convs):
                 x = conv(x)
                 if len(self.convs) - 1 != layer:
@@ -194,16 +198,18 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
     model_sinogram = MLP(
         in_dim=RESOLUTION, 
         hidden_dim=RESOLUTION // GAT_HEADS,
-        num_layers=GAT_LAYERS, 
+        #num_layers=GAT_LAYERS, 
         out_dim=RESOLUTION,  
-        heads=GAT_HEADS, 
-        dropout=GAT_DROPOUT).to(device)
+        #heads=GAT_HEADS, 
+        dropout=GAT_DROPOUT)#.to(device)
+
+    model_sinogram = nn.DataParallel(model_sinogram).to(device)
 
     optimizer_sinogram = torch.optim.Adam(model_sinogram.parameters(), lr=GAT_ADAM_LR, weight_decay=GAT_ADAM_WEIGHTDECAY)
 
     model_sinogram.train()
     
-    t_edge_index = torch.tensor(edge_index.copy()).type(torch.long).to(device)
+    t_edge_index = torch.tensor(edge_index.copy()).type(torch.long)#.to(device)
 
     for epoch in range(EPOCHS):
         snr = torch.randint(snr_lower, snr_upper, (1,))
@@ -217,7 +223,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
         loss = 0
         data = []
         for i in range(M):
-            data = Data(x=noisy_sinograms[i,0].T.to(device), y=sinograms[i,0].T.to(device), edge_index=t_edge_index)
+            data = Data(x=noisy_sinograms[i,0].T.to(device), y=sinograms[i,0].T.to(device), edge_index=t_edge_index.to(device))
             optimizer_sinogram.zero_grad()
 
             out_sinograms = model_sinogram(data)

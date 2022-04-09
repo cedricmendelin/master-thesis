@@ -225,7 +225,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 
     model_sinogram.train()
     
-    t_edge_index = torch.tensor(edge_index.copy()).type(torch.long).to(device)
+    t_edge_index = torch.tensor(edge_index.copy()).type(torch.long)#.to(device)
 
     for epoch in range(EPOCHS):
         snr = torch.randint(snr_lower, snr_upper, (1,))
