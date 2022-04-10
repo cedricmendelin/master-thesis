@@ -1,5 +1,5 @@
 from vedo import Mesh, dataurl, mesh2Volume
-from .Data import *
+from .obsolete.Data import *
 from aspire.volume import Volume
 import vedo
 

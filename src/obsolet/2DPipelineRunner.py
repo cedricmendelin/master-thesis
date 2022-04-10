@@ -8,7 +8,7 @@ import time
 
 from utils.Plotting import *
 from utils.Graph import *
-from utils.Data import find_sigma_noise
+from utils.obsolete.Data import find_sigma_noise
 
 import math
 

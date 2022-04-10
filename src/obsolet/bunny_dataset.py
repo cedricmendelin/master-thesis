@@ -1,4 +1,4 @@
-from utils.Data import *
+from utils.obsolete.Data import *
 
 import matplotlib.pyplot as plt
 import utils.Plotting as plot

@@ -1,5 +1,5 @@
 from utils.Graph import *
-from utils.Data import *
+from utils.obsolete.Data import *
 from utils.Plotting import *
 from utils.DiffusionMaps import *
 from utils.VectorDiffusionMaps import *

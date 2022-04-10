@@ -1,7 +1,7 @@
 import numpy as np
 from utils.Plotting import *
 from utils.Geometry import *
-from utils.Data import voxelSaveAsMap
+from utils.obsolete.Data import voxelSaveAsMap
 from scipy.spatial.transform import Rotation as R
 from numpy.random import default_rng
 from scipy.ndimage.interpolation import rotate

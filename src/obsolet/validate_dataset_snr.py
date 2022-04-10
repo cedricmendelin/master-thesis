@@ -3,7 +3,7 @@ import numpy as np
 from utils.Geometry import *
 from utils.Graph import *
 from utils.AspireHelpers import *
-from utils.Data import *
+from utils.obsolete.Data import *
 from utils.Plotting import *
 import os.path as path
 from os import mkdir

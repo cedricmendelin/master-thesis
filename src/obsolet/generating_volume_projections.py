@@ -32,7 +32,7 @@ from aspire.utils import eigs
 from aspire.utils.random import Random
 from aspire.volume import Volume
 
-from utils.Data import *
+from utils.obsolete.Data import *
 
 logger = logging.getLogger(__name__)
 

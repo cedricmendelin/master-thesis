@@ -3,7 +3,7 @@ from vedo import dataurl, Mesh, mesh2Volume
 from aspire.volume import Volume
 import numpy as np
 import matplotlib.pyplot as plt
-from utils.Data import voxelSaveAsMap, normalize_min_max
+from utils.obsolete.Data import voxelSaveAsMap, normalize_min_max
 from utils.Vedo import visualize_voxels_3d
 from utils.Geometry import downsample_voxels
 import torch

@@ -6,7 +6,7 @@ import logging
 
 from aspire.volume import Volume
 
-from utils.Data import *
+from utils.obsolete.Data import *
 from utils.AspireHelpers import *
 from utils.Plotting import *
 import time

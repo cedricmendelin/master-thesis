@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils.Data import sampling_sphere, set_small_values_to
+from utils.obsolete.Data import sampling_sphere, set_small_values_to
 from utils.Geometry import calc_rotation_from_points_on_sphere_ZYZ
 
 from scipy.spatial.transform import Rotation as R

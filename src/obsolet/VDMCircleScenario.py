@@ -116,7 +116,7 @@ if calculate_DM:
 ############################ Vector Diffusion Maps ##############################
 from utils.VectorDiffusionMaps import *
 from scipy.sparse.linalg import eigsh
-from utils.Data import Knn
+from utils.obsolete.Data import Knn
 from scipy import sparse
 
 if calculate_VDM:

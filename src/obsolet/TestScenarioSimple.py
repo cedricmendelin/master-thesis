@@ -224,7 +224,7 @@ for i in tqdm(range(N), "Computing distances"):
 distances /= distances.max()
 
 ################ Creating graph ###########################
-from utils.Data import Knn
+from utils.obsolete.Data import Knn
 graph, classes = generate_knn_from_distances(distances, K, ordering='asc', ignoreFirst=True)
 
 angle_per_node = np.zeros_like(classes, dtype=np.float)

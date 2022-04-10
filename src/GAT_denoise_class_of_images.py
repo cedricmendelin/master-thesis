@@ -12,7 +12,7 @@ from sklearn.metrics.pairwise import haversine_distances
 import torch
 torch.pi = torch.acos(torch.zeros(1)).item() * 2
 from torch_geometric.nn import GCNConv, GATConv, GATv2Conv, DataParallel
-from torch_geometric.loader import DataLoader
+from torch_geometric.loader import DataLoader, DataListLoader
 from scipy.spatial import distance_matrix
 import torch.nn.functional as F
 import math
@@ -184,6 +184,8 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
             self.convs.append(GATConv(hidden_dim * heads, out_dim, 1))
 
         def forward(self, data):
+            print(data[0])
+            print(len(data))
             x, edge_index = data.x, data.edge_index
 
             for layer, conv in enumerate(self.convs):
@@ -219,7 +221,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
     if torch.cuda.device_count() > 1:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
         model_sinogram = DataParallel(model_sinogram)
-    
+    model_sinogram = DataParallel(model_sinogram)
     model_sinogram.to(device)
 
     optimizer_sinogram = torch.optim.Adam(model_sinogram.parameters(), lr=GAT_ADAM_LR, weight_decay=GAT_ADAM_WEIGHTDECAY)
@@ -240,15 +242,15 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
         loss = 0
         #data = []
         dataset = CustomSinogramDataset(M, sinograms, noisy_sinograms, t_edge_index)
-        loader = DataLoader(dataset=dataset, batch_size=M, shuffle=True)
+        loader = DataListLoader(dataset=dataset, batch_size=1, shuffle=True)
 
         for data in loader:
             optimizer_sinogram.zero_grad()
-            input = data.to(device)
-            out_sinograms = model_sinogram(input)
+            out_sinogram = model_sinogram(data)
+            y = torch.cat([d.y for d in data]).to(out_sinograms.device)
             #print(out_sinograms.shape)
-            loss_sinogram = torch.linalg.norm(out_sinograms - input.y)
-            print("Outside: input size", input.size(), "output_size", out_sinograms.size())
+            loss_sinogram = torch.linalg.norm(out_sinogram - y)
+            print("Outside: input size", input.size(), "output_size", out_sinogram.size())
             #print(loss_sinogram.shape)
             loss_sinogram.backward()
             optimizer_sinogram.step()

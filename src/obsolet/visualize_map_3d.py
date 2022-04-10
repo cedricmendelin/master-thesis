@@ -7,7 +7,7 @@ from matplotlib.pyplot import plot
 import mrcfile
 import numpy as np
 import logging
-from utils.Data import *
+from utils.obsolete.Data import *
 from utils.Plotting import *
 from utils.Vedo import visualize_voxels_3d
 from aspire.volume import Volume

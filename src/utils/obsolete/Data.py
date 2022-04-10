@@ -1,8 +1,8 @@
 import dis
 import numpy as np
-from .Geometry import random_rotation_3d
-from .Normalization import *
-from .Graph import *
+from ..Geometry import random_rotation_3d
+from ..Normalization import *
+from ..Graph import *
 #from .AspireHelpers import *
 import os.path as path
 from os import mkdir
