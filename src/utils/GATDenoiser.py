@@ -96,11 +96,11 @@ class CustomValidationSinogramDataset(Dataset):
         return self.V * len(self.validation_snrs)
 
     def __getitem__(self, idx):
-        snr_idx = int(idx / len(self.validation_snrs))
+        snr_idx = int(idx / self.V)
         sinogram_idx = idx % self.V
         snr = self.validation_snrs[snr_idx]
         noisy_sinogram = _add_noise(snr, self.sinograms[sinogram_idx, 0].T)
-        return snr, Data(x=noisy_sinogram, y=self.sinograms[sinogram_idx, 0].T, edge_index=self.graph)
+        return snr, sinogram_idx, Data(x=noisy_sinogram, y=self.sinograms[sinogram_idx, 0].T, edge_index=self.graph)
 
 
 class GatDenoiser():
@@ -120,7 +120,8 @@ class GatDenoiser():
         snr_upper=None,
         use_wandb=False,
         debug_plot=True,
-        verbose=False
+        verbose=False,
+        wandb_project=None,
     ):
         self.verbose = verbose
 
@@ -156,9 +157,11 @@ class GatDenoiser():
             self.SNR_LOWER = snr_lower
             self.SNR_UPPER = snr_upper
 
+        if self.USE_WANDB:
+            self.init_wandb(wandb_project)
+
         if self.verbose:
           self.time_dict["init"] = time.time()-t
-
           self._execute_and_log_time(lambda: self._prepare_images(), "prep_images")
           self._execute_and_log_time(lambda: self._prepare_angles(), "prep_angles")
           self._execute_and_log_time(lambda: self._forward(), "forward")
@@ -259,7 +262,7 @@ class GatDenoiser():
             return loader, snr
 
     def _prepare_validation_data(self, validation_snrs):
-      validation_dataset = CustomValidationSinogramDataset(self.V, validation_snrs, self.validation_sinograms, self.graph_edges)
+      validation_dataset = CustomValidationSinogramDataset(self.V, validation_snrs, self.validation_sinograms, torch.tensor(self.graph_edges).type(torch.long))
       loader = DataListLoader(dataset=validation_dataset, batch_size=1, shuffle=False)
       return loader
 
@@ -268,6 +271,8 @@ class GatDenoiser():
         self._execute_and_log_time(lambda: self._train(batch_size), "training")
       else:
         self._train(batch_size)
+      return self.model_sinogram
+      
 
     def _train(self, batch_size):
         self.model_sinogram.train()
@@ -317,18 +322,21 @@ class GatDenoiser():
             validation_loss_per_snr = 0
             validation_loss_noisy_per_snr = 0
             for i in range(self.V):
-                snr_l, data = next(loader)  
+                next_loader = next(loader)
+                snr_l, i_l, validation_data = next_loader[0]
                 assert snr == snr_l, "validation SNR do not correpond!"
-                validation_data = data.to(self.device)
-                pred_sinogram = self.model_sinogram(validation_data)
+                assert i == i_l, "image idx do not correpond!"
 
-                loss_sinogram = torch.linalg.norm(pred_sinogram - validation_data.y)
-                loss_sinogram_noisy = torch.linalg.norm(validation_data.x - validation_data.y)
+                pred_sinogram = self.model_sinogram([validation_data]).to(self.device)
+                data = validation_data.to(self.device)
+
+                loss_sinogram = torch.linalg.norm(pred_sinogram - data.y)
+                loss_sinogram_noisy = torch.linalg.norm(data.x - data.y)
 
                 denoised_reconstruction = filterBackprojection2D(
                     pred_sinogram, self.angles_degrees)
                 noisy_reconstruction = filterBackprojection2D(
-                    validation_data.x, self.angles_degrees)
+                    data.x, self.angles_degrees)
 
                 validation_loss_score += loss_sinogram
                 validation_loss_noisy_score += loss_sinogram_noisy

@@ -9,7 +9,7 @@ parser.add_argument("--samples", type=int, default=1024)
 parser.add_argument("--resolution", type=int, default=128)
 parser.add_argument("--input_image_count", type=int, default=8)
 parser.add_argument("--image_path", type=str, default="src/toyimages/128/")
-parser.add_argument("--validation_image_path", type=str, default="src/toyimages/notseen/128/")
+parser.add_argument("--validation_image_path", type=str, default=None)
 parser.add_argument("--validation_image_count", type=int, default=5)
 parser.add_argument("--use_wandb", type=bool, default=False)
 parser.add_argument("--debug_plots", type=bool, default=False)
@@ -29,6 +29,8 @@ parser.add_argument("--append_validation_images", type=int, default=0)
 parser.add_argument("--add_circle_padding", type=bool, default=True)
 parser.add_argument("--k_nn", type=int, default=2)
 parser.add_argument("--batch_size", type=int, default=256)
+
+parser.add_argument("--verbose", type=bool, default=False)
 
 args = parser.parse_args()
 
@@ -103,10 +105,9 @@ denoiser = GatDenoiser(
   snr_upper=args.gat_snr_upper, 
   debug_plot = args.debug_plots, 
   use_wandb = args.use_wandb,
-  verbose=False)
+  verbose=args.verbose,
+  wandb_project=args.wandb_project)
 
-if args.use_wandb:
-  denoiser.init_wandb(args.wandb_project)
 
 model = denoiser.train(args.batch_size)
 denoiser.validate(x_validation, args.validation_snrs)
@@ -115,7 +116,7 @@ if args.use_wandb:
   denoiser.finish_wandb(time.time()-t)
 
 if args.save_model:
-    torch.save(model.state_dict(), "out_torch_state_dict_model")
+    torch.save(model.module.state_dict(), "out_torch_state_dict_model")
 
 if args.debug_plots:
     plt.show()
