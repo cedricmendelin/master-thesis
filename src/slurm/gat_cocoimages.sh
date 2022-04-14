@@ -7,8 +7,8 @@
 #SBATCH --qos=1day                 #Selected queue to allocate your job
 #SBATCH --partition=pascal
 #SBATCH --gres=gpu:3
-#SBATCH --output=sinogram_toyimages_out.%j   #Path and name to the file for the STDOUT
-#SBATCH --error=sinogram_toyimages_error_out.%j    #Path and name to the file for the STDERR
+#SBATCH --output=log/cocoimages_out.%j   #Path and name to the file for the STDOUT
+#SBATCH --error=log/cocoimages_error_out.%j    #Path and name to the file for the STDERR
 
 ml Python/3.6.6-fosscuda-2018b
 
