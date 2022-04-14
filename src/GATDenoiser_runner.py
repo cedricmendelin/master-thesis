@@ -6,7 +6,7 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--samples", type=int, default=1024)
-parser.add_argument("--resolution", type=int, default=128)
+parser.add_argument("--resolution", type=int, default=192)
 parser.add_argument("--input_image_count", type=int, default=30)
 parser.add_argument("--image_path", type=str, default="src/data/val2017/")
 parser.add_argument("--validation_image_path", type=str, default=None)
