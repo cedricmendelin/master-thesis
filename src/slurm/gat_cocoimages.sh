@@ -21,9 +21,9 @@ python ./src/GATDenoiser_runner.py  \
         --samples 1024 \
         --resolution 196 \
         --image_path "src/data/val2017/" \
-        --input_image_count 2000 \
-        --validation_image_count 200 \
-        --append_validation_images 50 \
+        --input_image_count 512 \
+        --validation_image_count 256 \
+        --append_validation_images 64 \
         --use_wandb True \
         --wandb_project "cocoimages scicore" \
         --verbose True \
@@ -32,9 +32,12 @@ python ./src/GATDenoiser_runner.py  \
         --k_nn 2 \
         --add_circle_padding False \
         --validation_snrs -5 2 10 25 \
-        --epochs 2000    \
+        --epochs 200    \
         --gat_heads 4 \
         --gat_layers 3 \
         --gat_dropout 0.03 \
         --gat_weight_decay 0.0005 \
         --gat_learning_rate 0.01 \
+        --gat_snr_lower 10 \
+        --gat_snr_upper 10 \
+        --batch_size 256 \

@@ -124,6 +124,7 @@ class GatDenoiser():
         wandb_project=None,
     ):
         self.verbose = verbose
+        self.loader = None
 
         if self.verbose:
             t = time.time()
@@ -148,6 +149,8 @@ class GatDenoiser():
             'cuda' if torch.cuda.is_available() else 'cpu')
 
         if snr_upper is None or snr_lower == snr_upper:
+            if verbose:
+                print("Using fixed snr!")
             self.SNR = snr_lower
             self.FIXED_SNR = True
             self.SNR_LOWER = snr_lower
@@ -178,12 +181,20 @@ class GatDenoiser():
         self.T_input_images = torch.from_numpy(
             self.INPUT_IMAGES).type(torch.float)
         if self.DEBUG_PLOT:
-            for i in range(self.M):
-                plot_imshow(self.INPUT_IMAGES[i], title=f"Input image - {i}")
+            if self.M < 10:            
+                for i in range(self.M):
+                    plot_imshow(self.INPUT_IMAGES[i], title=f"Input image - {i}")
+            else:
+                for i in range(10):
+                    plot_imshow(self.INPUT_IMAGES[i], title=f"Input image - {i}")
 
         if self.USE_WANDB:
-            wandb.log({"input images": [wandb.Image(img)
-                      for img in self.INPUT_IMAGES]})
+            if self.M < 10:
+                wandb.log({"input images": [wandb.Image(img)
+                        for img in self.INPUT_IMAGES]})
+            else:
+                wandb.log({"input images": [wandb.Image(img)
+                        for img in self.INPUT_IMAGES[0:100]]})
 
     def _prepare_validation_images(self, validation_images):
         self.V: int = validation_images.shape[0]
@@ -193,14 +204,21 @@ class GatDenoiser():
             self.T_validation_images.view(self.V, 1, self.RESOLUTION, self.RESOLUTION))
 
         if self.DEBUG_PLOT:
-            for i in range(self.V):
-                plot_imshow(validation_images[i],
-                            title=f"Validation image - {i}")
+            if self.V < 10:            
+                for i in range(self.V):
+                     plot_imshow(validation_images[i], title=f"Validation image - {i}")
+            else:
+                for i in range(10):
+                     plot_imshow(validation_images[i], title=f"Validation image - {i}")
+               
 
         if self.USE_WANDB:
-            wandb.log(
-                {"validation images": [wandb.Image(img) for img in validation_images]})
+            if self.V < 10:
+                wandb.log({"validation images": [wandb.Image(img) for img in validation_images]})
+            else:
+                  wandb.log({"validation images": [wandb.Image(img) for img in validation_images[0:100]]})
 
+          
     def _prepare_angles(self):
         self.angles_degrees = torch.linspace(0, 360, self.N).type(torch.float)
         # angles =  torch.linspace(0, 2 * torch.pi, N).type(torch.float)
@@ -413,3 +431,4 @@ class GatDenoiser():
 
         if self.verbose:
             self.time_dict[name] = time.time()-t
+            print(f"{name} finished in :", self.time_dict[name])

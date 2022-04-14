@@ -52,7 +52,7 @@ if args.validation_image_path is None:
                           validation_image_count, num_seed=5, circle_padding=args.add_circle_padding)
     x_input = np.array(x[0:image_count])
     x_validation = np.array(
-        x[image_count-1: image_count+validation_image_count])
+        x[image_count: image_count+validation_image_count])
 
 else:
     validation_image_path = args.validation_image_path

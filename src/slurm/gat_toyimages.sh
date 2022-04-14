@@ -39,4 +39,6 @@ python ./src/GATDenoiser_runner.py  \
         --gat_dropout 0.03 \
         --gat_weight_decay 0.0005 \
         --gat_learning_rate 0.01 \
+        --gat_snr_lower 10 \
+        --gat_snr_upper 10 \
         --batch_size 512 \
