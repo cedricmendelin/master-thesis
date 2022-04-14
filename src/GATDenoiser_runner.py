@@ -18,7 +18,7 @@ parser.add_argument("--save_model", type=bool, default=True)
 parser.add_argument("--gat_layers", type=int, default=3)
 parser.add_argument("--gat_heads", type=int, default=1)
 parser.add_argument("--gat_dropout", type=float, default=0.05)
-parser.add_argument("--gat_weight_decay", type=float, default=5e-4)
+parser.add_argument("--gat_weight_decay", type=float, default=0.0005)
 parser.add_argument("--gat_learning_rate", type=float, default=0.01)
 parser.add_argument("--epochs", type=int, default=2000)
 parser.add_argument("--gat_snr_lower", type=int, default=-5)
@@ -68,27 +68,6 @@ if args.append_validation_images > 0:
         x_validation = np.append(x_validation, x_input[i])
     x_validation = x_validation.reshape(
         (validation_image_count + args.append_validation_images, RESOLUTION, RESOLUTION))
-
-
-# (
-#         self,
-#         input_images,
-#         graph_size,
-#         resolution,
-#         k,
-#         epochs,
-#         layers,
-#         heads,
-#         dropout,
-#         weight_decay,
-#         learning_rate,
-#         snr_lower,
-#         snr_upper=None,
-#         use_wandb=False,
-#         wandb_name=None,
-#         debug_plot=True,
-#         verbose=False
-#     )
 
 denoiser = GatDenoiser(
   x_input, 
