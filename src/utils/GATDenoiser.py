@@ -92,8 +92,6 @@ class CustomValidationSinogramDataset(Dataset):
         self.graph = graph
         self.snr = snr
 
-        print(sinograms.size())
-
     def __len__(self):
         return self.V
 
@@ -121,11 +119,12 @@ class GatDenoiser():
         debug_plot=True,
         verbose=False,
         wandb_project=None,
+        args=None
     ):
-        self.verbose = verbose
+        self.VERBOSE = verbose
         self.loader = None
 
-        if self.verbose:
+        if self.VERBOSE:
             t = time.time()
             self.time_dict = {}
 
@@ -147,8 +146,11 @@ class GatDenoiser():
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
 
+        self.device0 = self.device = torch.device(
+            'cuda:0' if torch.cuda.is_available() else 'cpu')
+
         if snr_upper is None or snr_lower == snr_upper:
-            if verbose:
+            if self.VERBOSE:
                 print("Using fixed snr!")
             self.SNR = snr_lower
             self.FIXED_SNR = True
@@ -160,21 +162,18 @@ class GatDenoiser():
             self.SNR_UPPER = snr_upper
 
         if self.USE_WANDB:
-            self.init_wandb(wandb_project)
+            self.init_wandb(wandb_project, args)
 
-        if self.verbose:
-          self.time_dict["init"] = time.time()-t
-          self._execute_and_log_time(lambda: self._prepare_images(), "prep_images")
-          self._execute_and_log_time(lambda: self._prepare_angles(), "prep_angles")
-          self._execute_and_log_time(lambda: self._forward(), "forward")
-          self._execute_and_log_time(lambda: self._prepare_graph(), "prep_graph")
-          self._execute_and_log_time(lambda: self._prepare_model(), "prep_model")
-        else:
-          self._prepare_images()
-          self._prepare_angles()
-          self._forward()
-          self._prepare_graph()
-          self._prepare_model()
+        if self.VERBOSE:
+            self.time_dict["init"] = time.time()-t
+
+        self._execute_and_log_time(
+            lambda: self._prepare_images(), "prep_images")
+        self._execute_and_log_time(
+            lambda: self._prepare_angles(), "prep_angles")
+        self._execute_and_log_time(lambda: self._forward(), "forward")
+        self._execute_and_log_time(lambda: self._prepare_graph(), "prep_graph")
+        self._execute_and_log_time(lambda: self._prepare_model(), "prep_model")
 
     def _prepare_images(self):
         self.T_input_images = torch.from_numpy(
@@ -182,18 +181,20 @@ class GatDenoiser():
         if self.DEBUG_PLOT:
             if self.M < 10:
                 for i in range(self.M):
-                    plot_imshow(self.INPUT_IMAGES[i], title=f"Input image - {i}")
+                    plot_imshow(
+                        self.INPUT_IMAGES[i], title=f"Input image - {i}")
             else:
                 for i in range(10):
-                    plot_imshow(self.INPUT_IMAGES[i], title=f"Input image - {i}")
+                    plot_imshow(
+                        self.INPUT_IMAGES[i], title=f"Input image - {i}")
 
         if self.USE_WANDB:
             if self.M < 10:
                 wandb.log({"input images": [wandb.Image(img)
-                        for img in self.INPUT_IMAGES]})
+                                            for img in self.INPUT_IMAGES]})
             else:
                 wandb.log({"input images": [wandb.Image(img)
-                        for img in self.INPUT_IMAGES[0:100]]})
+                                            for img in self.INPUT_IMAGES[0:100]]})
 
     def _prepare_validation_images(self, validation_images):
         self.V: int = validation_images.shape[0]
@@ -205,18 +206,20 @@ class GatDenoiser():
         if self.DEBUG_PLOT:
             if self.V < 10:
                 for i in range(self.V):
-                     plot_imshow(validation_images[i], title=f"Validation image - {i}")
+                    plot_imshow(
+                        validation_images[i], title=f"Validation image - {i}")
             else:
                 for i in range(10):
-                     plot_imshow(validation_images[i], title=f"Validation image - {i}")
-
+                    plot_imshow(
+                        validation_images[i], title=f"Validation image - {i}")
 
         if self.USE_WANDB:
             if self.V < 10:
-                wandb.log({"validation images": [wandb.Image(img) for img in validation_images]})
+                wandb.log(
+                    {"validation images": [wandb.Image(img) for img in validation_images]})
             else:
-                  wandb.log({"validation images": [wandb.Image(img) for img in validation_images[0:100]]})
-
+                wandb.log({"validation images": [wandb.Image(
+                    img) for img in validation_images[0:100]]})
 
     def _prepare_angles(self):
         self.angles_degrees = torch.linspace(0, 360, self.N).type(torch.float)
@@ -279,17 +282,15 @@ class GatDenoiser():
             return loader, snr
 
     def _prepare_validation_data(self, snr, batch_size):
-      validation_dataset = CustomValidationSinogramDataset(self.V, snr, self.validation_sinograms, torch.tensor(self.graph_edges).type(torch.long))
-      loader = DataListLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=False)
-      return loader
+        validation_dataset = CustomValidationSinogramDataset(
+            self.V, snr, self.validation_sinograms, torch.tensor(self.graph_edges).type(torch.long))
+        loader = DataListLoader(
+            dataset=validation_dataset, batch_size=batch_size, shuffle=False)
+        return loader
 
     def train(self, batch_size):
-      if self.verbose:
         self._execute_and_log_time(lambda: self._train(batch_size), "training")
-      else:
-        self._train(batch_size)
-      return self.model_sinogram
-
+        return self.model_sinogram
 
     def _train(self, batch_size):
         self.model_sinogram.train()
@@ -308,7 +309,8 @@ class GatDenoiser():
                 self.optimizer_sinogram.step()
                 loss_epoch += loss_sinogram
 
-            print(f"epoch : {epoch} , epoch-snr: {snr}, epoch_loss : {loss_epoch}")
+            print(
+                f"epoch : {epoch} , epoch-snr: {snr}, epoch_loss : {loss_epoch}")
             if self.USE_WANDB:
                 wandb.log({
                     "epoch": epoch,
@@ -319,17 +321,14 @@ class GatDenoiser():
         return self.model_sinogram
 
     def validate(self, validation_images, validation_snrs, batch_size):
-      if self.verbose:
-        self._execute_and_log_time(lambda: self._validate(validation_images, validation_snrs, batch_size), "validation")
-      else:
-        self._validate(validation_images, validation_snrs, batch_size)
+        self._execute_and_log_time(lambda: self._validate(
+            validation_images, validation_snrs, batch_size), "validation")
 
     def _validate(self, validation_images, validation_snrs, batch_size):
         self._prepare_validation_images(validation_images)
 
-        print(validation_images.shape)
-
         self.model_sinogram.eval()
+        self.model_sinogram.to(self.device0)
 
         validation_loss_score = 0
         validation_loss_noisy_score = 0
@@ -342,20 +341,23 @@ class GatDenoiser():
 
             for validation_data in loader:
                 pred_sinograms = self.model_sinogram(validation_data)
-                y = torch.cat([d.y for d in validation_data]).to(pred_sinograms.device)
-                x = torch.cat([d.x for d in validation_data]).to(pred_sinograms.device)
+                y = torch.cat([d.y for d in validation_data]
+                              ).to(pred_sinograms.device)
+                x = torch.cat([d.x for d in validation_data]
+                              ).to(pred_sinograms.device)
 
-                validation_loss_per_snr += torch.linalg.norm(pred_sinograms - y)
+                validation_loss_per_snr += torch.linalg.norm(
+                    pred_sinograms - y)
                 validation_loss_noisy_per_snr += torch.linalg.norm(x - y)
 
                 batch_n = int(pred_sinograms.size(dim=0) / self.N)
-                print(batch_n)
-                pred_sinograms = pred_sinograms.view(batch_n, self.N, self.RESOLUTION)
-                print(pred_sinograms.size())
+                pred_sinograms = pred_sinograms.view(
+                    batch_n, self.N, self.RESOLUTION)
                 for i in range(batch_n):
-                    
-                    denoised_reconstruction = filterBackprojection2D(pred_sinograms[i], self.angles_degrees)
-                    noisy_reconstruction = filterBackprojection2D(validation_data[i].x, self.angles_degrees)
+                    denoised_reconstruction = filterBackprojection2D(
+                        pred_sinograms[i], self.angles_degrees)
+                    noisy_reconstruction = filterBackprojection2D(
+                        validation_data[i].x, self.angles_degrees)
 
                     if self.USE_WANDB:
                         wandb.log({
@@ -363,16 +365,19 @@ class GatDenoiser():
                             "val_noisy reconstruction": wandb.Image(noisy_reconstruction.cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}"),
                         })
 
-            print(f"Validation loss snr {snr} : {validation_loss_per_snr} -- loss noisy: {validation_loss_noisy_per_snr}")
+            print(
+                f"Validation loss snr {snr} : {validation_loss_per_snr} -- loss noisy: {validation_loss_noisy_per_snr}")
             validation_loss_score += validation_loss_per_snr
             validation_loss_noisy_score += validation_loss_noisy_per_snr
+            
             if self.USE_WANDB:
                 wandb.log({
                     "val_snr": snr,
                     "val_snr_loss_score": validation_loss_per_snr,
                     "val_snr_loss_noisy_score": validation_loss_noisy_per_snr})
+            
             torch.cuda.empty_cache()
-        
+
         if self.USE_WANDB:
             wandb.log({
                 "val_loss_score": validation_loss_score,
@@ -429,41 +434,48 @@ class GatDenoiser():
             #         "val_snr_loss_noisy_score": validation_loss_noisy_per_snr})
 
     def finish_wandb(self, execution_time=None):
-      if self.verbose:
-        wandb.log(self.time_dict)
+        if execution_time != None:
+            wandb.log({"execution_time": execution_time})
 
-      if execution_time != None:
-        wandb.log({"execution_time" : execution_time})
+        wandb.finish()
 
-      wandb.finish()
+    def init_wandb(self, wandb_name, args):
+        if self.USE_WANDB:
+            if args is None:
+                config = {
+                    "samples": self.N,
+                    "resolution": self.RESOLUTION,
+                    "k-nn": self.K,
+                    "gat-epochs": self.EPOCHS,
+                    "gat-layers": self.GAT_LAYERS,
+                    "gat-heads": self.GAT_HEADS,
+                    "gat-DROPOUT": self.GAT_DROPOUT,
+                    "gat-adam-weightdecay": self.GAT_ADAM_WEIGHTDECAY,
+                    "gat-adam-learningrate": self.GAT_ADAM_LR,
+                    "gat_snr_lower_bound": self.SNR_LOWER,
+                    "gat_snr_upper_bound": self.SNR_UPPER,
+                    "M": self.M,
+                    # "name" : image_name
+                }
+            else:
+                config = args
 
-    def init_wandb(self, wandb_name):
-       if self.USE_WANDB:
-            config = {
-                "samples": self.N,
-                "resolution": self.RESOLUTION,
-                "k-nn": self.K,
-                "gat-epochs": self.EPOCHS,
-                "gat-layers": self.GAT_LAYERS,
-                "gat-heads": self.GAT_HEADS,
-                "gat-DROPOUT": self.GAT_DROPOUT,
-                "gat-adam-weightdecay": self.GAT_ADAM_WEIGHTDECAY,
-                "gat-adam-learningrate": self.GAT_ADAM_LR,
-                "gat_snr_lower_bound": self.SNR_LOWER,
-                "gat_snr_upper_bound": self.SNR_UPPER,
-                "M": self.M,
-                # "name" : image_name
-            }
+            gpus = torch.cuda.device_count()
+            config.gpu_count = gpus
+
             wandb.init(project=wandb_name, entity="cedric-mendelin",
                        config=config, reinit=False)
-            wandb.run.name = f"{wandb_name}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}"
+            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}"
 
     def _execute_and_log_time(self, action, name):
-        if self.verbose:
+        if self.VERBOSE:
             t = time.time()
 
         action()
 
-        if self.verbose:
+        if self.VERBOSE:
             self.time_dict[name] = time.time()-t
             print(f"{name} finished in :", self.time_dict[name])
+
+            if self.USE_WANDB:
+                wandb.log({f"{name}": self.time_dict[name]})

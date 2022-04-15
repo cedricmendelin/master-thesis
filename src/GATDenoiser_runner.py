@@ -49,7 +49,7 @@ RESOLUTION = args.resolution
 # get images
 if args.validation_image_path is None:
     x = load_images_files_rescaled(image_path, files, RESOLUTION, RESOLUTION, number=image_count +
-                          validation_image_count, num_seed=5, circle_padding=args.add_circle_padding)
+                                   validation_image_count, num_seed=5, circle_padding=args.add_circle_padding)
     x_input = np.array(x[0:image_count])
     x_validation = np.array(
         x[image_count: image_count+validation_image_count])
@@ -59,9 +59,9 @@ else:
     validation_files = os.listdir(validation_image_path)
 
     x_input = load_images_files_rescaled(image_path, files, RESOLUTION, RESOLUTION,
-                                     number=image_count, num_seed=5, circle_padding=args.add_circle_padding)
+                                         number=image_count, num_seed=5, circle_padding=args.add_circle_padding)
     x_validation = load_images_files_rescaled(validation_image_path, validation_files, RESOLUTION,
-                                          RESOLUTION, number=validation_image_count, num_seed=5, circle_padding=args.add_circle_padding)
+                                              RESOLUTION, number=validation_image_count, num_seed=5, circle_padding=args.add_circle_padding)
 
 if args.append_validation_images > 0:
     for i in range(args.append_validation_images):
@@ -70,30 +70,32 @@ if args.append_validation_images > 0:
         (validation_image_count + args.append_validation_images, RESOLUTION, RESOLUTION))
 
 denoiser = GatDenoiser(
-  x_input, 
-  N,
-  RESOLUTION,
-  args.k_nn,
-  args.epochs,
-  layers=args.gat_layers, 
-  heads=args.gat_heads, 
-  dropout=args.gat_dropout,
-  weight_decay=args.gat_weight_decay,
-  learning_rate=args.gat_learning_rate,
-  snr_lower=args.gat_snr_lower, 
-  snr_upper=args.gat_snr_upper, 
-  debug_plot = args.debug_plots, 
-  use_wandb = args.use_wandb,
-  verbose=args.verbose,
-  wandb_project=args.wandb_project)
+    x_input,
+    N,
+    RESOLUTION,
+    args.k_nn,
+    args.epochs,
+    args=args,
+    layers=args.gat_layers,
+    heads=args.gat_heads,
+    dropout=args.gat_dropout,
+    weight_decay=args.gat_weight_decay,
+    learning_rate=args.gat_learning_rate,
+    snr_lower=args.gat_snr_lower,
+    snr_upper=args.gat_snr_upper,
+    debug_plot=args.debug_plots,
+    use_wandb=args.use_wandb,
+    verbose=args.verbose,
+    wandb_project=args.wandb_project)
 
 
 model = denoiser.train(args.batch_size)
 denoiser.validate(x_validation, args.validation_snrs, args.batch_size)
 
 if args.use_wandb:
-  model_name = wandb.run.name + "torch_state_dict"
-  denoiser.finish_wandb(time.time()-t)
+    model_name = wandb.run.name + "-" + \
+        str(args.batch_size) + "_torch_state_dict"
+    denoiser.finish_wandb(time.time()-t)
 
 if args.save_model:
     if not args.use_wandb:
@@ -106,4 +108,3 @@ if args.save_model:
 
 if args.debug_plots:
     plt.show()
-

@@ -561,3 +561,4 @@ src/data/*
 *.pyc
 *.map
 test_padding_bunny_projections.npz
+denoiser/*

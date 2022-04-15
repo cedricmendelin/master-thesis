@@ -19,11 +19,11 @@ wandb offline
 
 python ./src/GATDenoiser_runner.py  \
         --samples 1024 \
-        --resolution 196 \
+        --resolution 192 \
         --image_path "src/data/val2017/" \
-        --input_image_count 512 \
-        --validation_image_count 256 \
-        --append_validation_images 64 \
+        --input_image_count 1024 \
+        --validation_image_count 5 \
+        --append_validation_images 5 \
         --use_wandb True \
         --wandb_project "cocoimages scicore" \
         --verbose True \
@@ -31,8 +31,8 @@ python ./src/GATDenoiser_runner.py  \
         --save_model True \
         --k_nn 2 \
         --add_circle_padding False \
-        --validation_snrs -5 2 10 25 \
-        --epochs 200    \
+        --validation_snrs 10 \
+        --epochs 2000    \
         --gat_heads 4 \
         --gat_layers 3 \
         --gat_dropout 0.03 \
