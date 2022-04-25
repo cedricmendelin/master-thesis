@@ -15,12 +15,12 @@ traingle_x2_s = range(110, 291, 20)
 
 my_dpi = 100
 counter = 0
+
+plt.style.use('dark_background')
+
 for rect_x in rect_x_s:
     for circle_x in circle_x_s:
         for (triangle_x1, triangle_x2) in zip(traingle_x1_s, traingle_x2_s):
-            if counter < 700:
-                counter = counter + 1
-                continue
             # print("Rectangle:", rect_x, rect_y)
             
             # print("Circle:", circle_y, circle_x)
@@ -28,14 +28,14 @@ for rect_x in rect_x_s:
             # print("Triangle", triangle_x1, triangle_x2 )
             plt.figure(figsize=(5.2, 5.2), dpi=my_dpi)
             #plt.axes()
-            circle = plt.Circle((circle_x, circle_y), radius=circle_r, fc='gray')
+            circle = plt.Circle((circle_x, circle_y), radius=circle_r, fc='white')
             plt.gca().add_patch(circle)
 
-            rectangle = plt.Rectangle((rect_x, rect_y), rect_w_h, rect_w_h, fc='gray')
+            rectangle = plt.Rectangle((rect_x, rect_y), rect_w_h, rect_w_h, fc='white')
             plt.gca().add_patch(rectangle)
 
             points = [[triangle_x1, triangle_y1_y3], [triangle_x2, triangle_y2], [triangle_x1 +80, triangle_y1_y3]]
-            polygon = plt.Polygon(points, fc='gray')
+            polygon = plt.Polygon(points, fc='white')
             plt.gca().add_patch(polygon)
 
             plt.axis('scaled')
@@ -43,7 +43,7 @@ for rect_x in rect_x_s:
             plt.xlim([0, 400])
             plt.ylim([0, 400])
             plt.plot()
-            plt.savefig(f'src/auto_toyimages/image_{counter}', dpi=my_dpi, bbox_inches='tight',transparent=True, pad_inches=0)
-            # plt.show()
+            plt.savefig(f'src/auto_toyimages/image_{counter}', dpi=my_dpi, bbox_inches='tight', pad_inches=0)
+            #plt.show()
             plt.close()
             counter = counter + 1
