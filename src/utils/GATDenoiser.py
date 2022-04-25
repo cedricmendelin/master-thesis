@@ -103,45 +103,19 @@ class CustomValidationSinogramDataset(Dataset):
 class GatDenoiser():
     def __init__(
         self,
-        input_images,
-        graph_size,
-        resolution,
-        k,
-        epochs,
-        layers,
-        heads,
-        dropout,
-        weight_decay,
-        learning_rate,
-        snr_lower,
-        snr_upper=None,
-        use_wandb=False,
-        debug_plot=True,
-        verbose=False,
-        wandb_project=None,
-        args=None
+        args,
+        type
     ):
-        self.VERBOSE = verbose
+        self.args = args
+        self.VERBOSE = args.verbose
         self.loader = None
+        self.type = type
+
+        self.USE_WANDB = args.use_wandb
+        self.DEBUG_PLOT = args.debug_plots
 
         if self.VERBOSE:
-            t = time.time()
             self.time_dict = {}
-
-        self.INPUT_IMAGES: list = input_images
-        self.M: int = input_images.shape[0]
-        self.N: int = graph_size
-        self.RESOLUTION: int = resolution
-        self.K: int = k
-        self.EPOCHS: int = epochs
-        self.GAT_LAYERS: int = layers
-        self.GAT_HEADS: int = heads
-        self.GAT_DROPOUT: float = dropout
-        self.GAT_ADAM_WEIGHTDECAY: float = weight_decay
-        self.GAT_ADAM_LR: float = learning_rate
-
-        self.USE_WANDB = use_wandb
-        self.DEBUG_PLOT = debug_plot
 
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
@@ -149,33 +123,75 @@ class GatDenoiser():
         self.device0 = self.device = torch.device(
             'cuda:0' if torch.cuda.is_available() else 'cpu')
 
-        if snr_upper is None or snr_lower == snr_upper:
+    @classmethod
+    def create_validator(cls, args, model_state):
+        validator =  GatDenoiser(args, 'validator')
+        validator.__initialize_validator__(args, model_state)
+        return validator
+
+    def __initialize_validator__(self, args, model_state):
+        self.N: int = args.samples
+        self.RESOLUTION: int = args.resolution
+        self.GAT_LAYERS: int = args.gat_layers
+        self.GAT_HEADS: int = args.gat_heads
+        self.GAT_DROPOUT: float = args.gat_dropout
+
+        self.model_sinogram = GAT(
+            in_dim=self.RESOLUTION,
+            hidden_dim=self.RESOLUTION // self.GAT_HEADS,
+            num_layers=self.GAT_LAYERS,
+            out_dim=self.RESOLUTION,
+            heads=self.GAT_HEADS,
+            dropout=self.GAT_DROPOUT)
+
+        self.model_sinogram.load_state_dict(model_state)
+
+
+    @classmethod
+    def create(cls, args, input_images):
+        denoiser =  GatDenoiser(args, 'denoiser')
+        denoiser.__initialize_denoiser__(input_images, args)
+        return denoiser
+
+    def __initialize_denoiser__(self, input_images, args):
+        self.INPUT_IMAGES: list = input_images
+        self.M: int = input_images.shape[0]
+        self.N: int = args.samples
+        self.RESOLUTION: int = args.resolution
+        self.K: int = args.k_nn
+        self.EPOCHS: int = args.epochs
+        self.GAT_LAYERS: int = args.gat_layers
+        self.GAT_HEADS: int = args.gat_heads
+        self.GAT_DROPOUT: float = args.gat_dropout
+        self.GAT_ADAM_WEIGHTDECAY: float = args.gat_weight_decay
+        self.GAT_ADAM_LR: float = args.gat_learning_rate
+
+        if args.gat_snr_upper is None or args.gat_snr_lower == args.gat_snr_upper:
             if self.VERBOSE:
                 print("Using fixed snr!")
-            self.SNR = snr_lower
+            self.SNR = args.gat_snr_lower
             self.FIXED_SNR = True
-            self.SNR_LOWER = snr_lower
-            self.SNR_UPPER = snr_upper
+            self.SNR_LOWER = args.gat_snr_lower
+            self.SNR_UPPER = args.gat_snr_upper
         else:
             self.FIXED_SNR = False
-            self.SNR_LOWER = snr_lower
-            self.SNR_UPPER = snr_upper
+            self.SNR_LOWER = args.gat_snr_lower
+            self.SNR_UPPER = args.gat_snr_upper
 
         if self.USE_WANDB:
-            self.init_wandb(wandb_project, args)
+            self.init_wandb(args.wandb_project, args)
 
-        if self.VERBOSE:
-            self.time_dict["init"] = time.time()-t
+        self.__execute_and_log_time__(
+            lambda: self.__prepare_images__(), "prep_images")
+        self.__execute_and_log_time__(
+            lambda: self.__prepare_angles__(), "prep_angles")
+        self.__execute_and_log_time__(lambda: self.__forward__(), "forward")
+        self.__execute_and_log_time__(lambda: self.__prepare_graph__(), "prep_graph")
+        self.__execute_and_log_time__(lambda: self.__prepare_model__(), "prep_model")
 
-        self._execute_and_log_time(
-            lambda: self._prepare_images(), "prep_images")
-        self._execute_and_log_time(
-            lambda: self._prepare_angles(), "prep_angles")
-        self._execute_and_log_time(lambda: self._forward(), "forward")
-        self._execute_and_log_time(lambda: self._prepare_graph(), "prep_graph")
-        self._execute_and_log_time(lambda: self._prepare_model(), "prep_model")
+    
 
-    def _prepare_images(self):
+    def __prepare_images__(self):
         self.T_input_images = torch.from_numpy(
             self.INPUT_IMAGES).type(torch.float)
         if self.DEBUG_PLOT:
@@ -196,7 +212,7 @@ class GatDenoiser():
                 wandb.log({"input images": [wandb.Image(img)
                                             for img in self.INPUT_IMAGES[0:100]]})
 
-    def _prepare_validation_images(self, validation_images):
+    def __prepare_validation_images__(self, validation_images):
         self.V: int = validation_images.shape[0]
         self.T_validation_images = torch.from_numpy(
             validation_images).type(torch.float)
@@ -221,19 +237,19 @@ class GatDenoiser():
                 wandb.log({"validation images": [wandb.Image(
                     img) for img in validation_images[0:100]]})
 
-    def _prepare_angles(self):
+    def __prepare_angles__(self):
         self.angles_degrees = torch.linspace(0, 360, self.N).type(torch.float)
         # angles =  torch.linspace(0, 2 * torch.pi, N).type(torch.float)
         # angles_degrees_np = np.linspace(0,360,N)
         self.angles_np = np.linspace(0, 2 * np.pi, self.N)
 
-    def _forward(self):
+    def __forward__(self):
         self.radon_class = Radon(
             self.RESOLUTION, self.angles_degrees, circle=True)
         self.sinograms = self.radon_class.forward(
             self.T_input_images.view(self.M, 1, self.RESOLUTION, self.RESOLUTION))
 
-    def _prepare_graph(self):
+    def __prepare_graph__(self):
         points_np = np.array(
             [np.cos(self.angles_np), np.sin(self.angles_np)]).T
         distances = haversine_distances(points_np, points_np)
@@ -247,7 +263,7 @@ class GatDenoiser():
             self.graph_edges[0, i] = n
             self.graph_edges[1, i] = m
 
-    def _prepare_model(self):
+    def __prepare_model__(self):
         self.model_sinogram = GAT(
             in_dim=self.RESOLUTION,
             hidden_dim=self.RESOLUTION // self.GAT_HEADS,
@@ -289,10 +305,13 @@ class GatDenoiser():
         return loader
 
     def train(self, batch_size):
-        self._execute_and_log_time(lambda: self._train(batch_size), "training")
+        if self.type != 'denoiser':
+            raise RuntimeError("Only denoiser instance can be trained")
+
+        self.__execute_and_log_time__(lambda: self.__train__(batch_size), "training")
         return self.model_sinogram
 
-    def _train(self, batch_size):
+    def __train__(self, batch_size):
         self.model_sinogram.train()
 
         for epoch in range(self.EPOCHS):
@@ -321,11 +340,11 @@ class GatDenoiser():
         return self.model_sinogram
 
     def validate(self, validation_images, validation_snrs, batch_size):
-        self._execute_and_log_time(lambda: self._validate(
+        self.__execute_and_log_time__(lambda: self.__validate__(
             validation_images, validation_snrs, batch_size), "validation")
 
-    def _validate(self, validation_images, validation_snrs, batch_size):
-        self._prepare_validation_images(validation_images)
+    def __validate__(self, validation_images, validation_snrs, batch_size):
+        self.__prepare_validation_images__(validation_images)
 
         self.model_sinogram.eval()
         self.model_sinogram.to(self.device0)
@@ -467,7 +486,7 @@ class GatDenoiser():
                        config=config, reinit=False)
             wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}"
 
-    def _execute_and_log_time(self, action, name):
+    def __execute_and_log_time__(self, action, name):
         if self.VERBOSE:
             t = time.time()
 
