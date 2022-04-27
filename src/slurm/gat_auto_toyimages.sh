@@ -22,7 +22,7 @@ python ./src/GATDenoiser_runner.py  \
         --resolution 128 \
         --image_path "src/auto_toyimages/" \
         --input_image_count 960 \
-        # --validation_image_path None \
+        --validation_image_path "src/toyimages_uniform/" \
         --validation_image_count 10 \
         --append_validation_images 5 \
         --use_wandb True \
