@@ -1,0 +1,91 @@
+%% ----------------------------------------------------------------
+%% Thesis.tex -- main
+%% ---------------------------------------------------------------- 
+
+\documentclass[a4paper, 10pt, oneside]{memoir}
+%% Use the option citeauthor to be able to use citet. The default cite will still work.
+\usepackage[citeauthor]{basilea}
+
+
+\usepackage{pdflscape}
+\usepackage{tikz}
+\usepackage{changepage}
+
+\usepackage{pgfgantt}
+
+\usepackage{tikz,lipsum,lmodern}
+\usepackage[most]{tcolorbox}
+
+
+\usepackage{afterpage} % footnote in image
+\usepackage{float} % float with H
+\usepackage{wrapfig} % wrap text around figures
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+%% ----------------------------------------------------------------
+
+\title				{Application of Graph Learning to inverse problems}
+\thesistype			{Master Thesis Preperation}
+
+\department 		{Department of Mathematics and Computer Science}
+\faculty			{Natural Science Faculty of the University of Basel}
+\research		    {Data-Analytics}
+
+\examiner    		{Prof. Dr. Ivan Dokmanić}
+\supervisor  		{Dr. Valentin Debarnot}
+
+\authors     		{Cédric Mendelin}
+\email				{cedric.mendelin@stud.unibas.ch}
+\immatriculnr		{2014-469-274}
+
+\date				{28.11.2021}
+
+% switch here for the German logo to logo-de
+\ulogo				{Template/logo-en} 
+
+
+%% ----------------------------------------------------------------
+\begin{document}
+
+\selectlanguage{english}
+
+\thesisfront
+\maketitle
+\pagestyle{thesis}
+%% ----------------------------------------------------------------
+% \input{./Front/Acknowledgment}
+%% ----------------------------------------------------------------
+%\input{./Front/Abstract}
+%% ----------------------------------------------------------------
+\thesistoc
+%% ----------------------------------------------------------------
+%\thesisnomencl
+%% ----------------------------------------------------------------
+\thesismain
+
+%\input{./Chapters/Notes}
+\input{./Chapters/Introduction.tex}
+\input{./Chapters/Imaging.tex}
+\input{./Chapters/GraphDenoising.tex}
+%\input{./Chapters/Foundation.tex}
+%\input{./Chapters/PriliminariesProblem.tex}
+%\input{./Chapters/RelatedWork.tex}
+%\input{./Chapters/Evaluation.tex}
+\input{./Chapters/MasterThesisProject.tex}
+
+%% ----------------------------------------------------------------
+%\thesisappendix
+\thesisbib
+\begin{appendices}
+	\input{./Back/AppendixA} 
+\end{appendices}
+%% ----------------------------------------------------------------
+%\thesisback
+%\iflanguage{english}
+%  {\includepdf{./Back/wissensch_Redlichkeit_E_Aug_21.pdf}}
+%  {\includepdf{./Back/wissensch_Redlichkeit_D_Aug_21.pdf}}
+%% ----------------------------------------------------------------
+\end{document}
+%% ----------------------------------------------------------------
