@@ -1,0 +1,71 @@
+% !TEX root = ../Thesis.tex
+\chapter{Mathematical tools}
+
+\section{3D rotation matrix}
+\label{app:3DrotationMatrix}
+A rotation matrix is a transformation matrix used to perform rotations.
+In 3D case, matrix for rotating one single axis can be described as:
+\begin{equation}
+    R_{e_x} (\theta)
+    \begin{bmatrix}
+        1 & 0 & 0\\
+        0 & \cos \theta & - \sin \theta \\
+        0 & \sin \theta & cos \theta \\
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    R_{e_y} (\theta)
+    \begin{bmatrix}
+        \cos \theta & 0 & \sin \theta\\
+        0 & 1 & 0 \\
+        - \sin \theta & 0 & cos \theta \\
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    R_{e_z} (\theta)
+    \begin{bmatrix}
+        \cos \theta & - \sin \theta\\
+        \sin \theta & \cos \theta & 0 \\
+        0 & 0 & 1 \\
+    \end{bmatrix}
+\end{equation}
+
+where $e_x, e_y, e_z$ corresponds to the axis unit-vector (for x: $(1,0,0)$, etc.) and $\theta \in \mathbb{R}$.
+To combine the single axis rotations, matrices can be multiplied with each other:
+
+\begin{equation}
+    \label{eq:3d-rotation}
+    R (\theta) = R_{e_x} (\theta) R_{e_y} (\theta) R_{e_z} (\theta)
+\end{equation}
+
+In equation~\ref{eq:3d-rotation}, angle $\theta$ is the same for all axis, which does not have to be.
+
+
+\section{Power Iterations}
+\label{sec:powerIterations}
+
+Power iteration, also called power method, is an iterative method
+that approximates largest eigenvalue of a diagonalizable matrix $A$.
+
+The algorithm starts with a random vector $b_0$ or an approximation of the dominant eigenvector.
+
+\begin{equation}
+    \label{eq:powerIterations}
+    b_{k+1} = \frac{Ab_k}{||Ab_k||}
+\end{equation}
+
+The algorithm not necessarily converges. The algorithm will converge if $A$ has an eigenvalue strictly grater than its other eigenvalues
+and initial vector $b_0$ is not orthogonal to the eigenvector associated with the largest eigenvalue.
+
+\section{Wasserstein metric}
+\label{sec:wasserstein-metric}
+
+The Wasserstein metric is a distance measure between two probability distributions and it is used in ML as a loss function\cite{learningWithWasserstein}. 
+Intuitively, it can can be understood as the minimum cost to transfer the mass of one distribution to the other.
+Therefore, it is also known as the \textit{earth mover's distance}.
+
+As \citet{wassersteinGAN} could show that ordinary distance measurements like \textit{Total Variation}, \textit{Kullback-Leibler divergence}
+and \textit{Jensen-Shannon divergence} are not sensible when learning with distributions supported by manifolds.
+On the contrary, Wasserstein metric does a good job as loss function in such scenarios.
