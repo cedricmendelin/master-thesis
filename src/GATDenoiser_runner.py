@@ -84,7 +84,7 @@ denoiser.validate(x_validation, args.validation_snrs, args.batch_size)
 
 ################# Finish Run: ################
 if args.use_wandb:
-    model_name = wandb.run.name + "-" + \
+    model_name = wandb.run.name.replace(" ", "_") + "-" + \
         str(args.batch_size) + "_torch_state_dict"
     denoiser.finish_wandb(time.time()-t)
 

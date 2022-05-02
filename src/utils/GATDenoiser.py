@@ -37,7 +37,7 @@ def _find_SNR(ref, x):
     return 10*torch.log10((nref+1e-16)/(dif+1e-16))
 
 
-################### GAT class #############################
+################### GAT class ##############################
 class GAT(torch.nn.Module):
     def __init__(self, in_dim, hidden_dim, num_layers, out_dim, heads=1, dropout=0.5):
         super().__init__()
@@ -68,9 +68,8 @@ class GAT(torch.nn.Module):
                 x = F.dropout(x, self.dropout)
 
         return x
-#################### Sinogram custom Dataset #################
 
-
+#################### Sinogram custom Dataset ###############
 class CustomSinogramDataset(Dataset):
     def __init__(self, M, sinograms, noisy_sinograms, graph):
         self.M = M
@@ -83,7 +82,6 @@ class CustomSinogramDataset(Dataset):
 
     def __getitem__(self, idx):
         return Data(x=self.noisy_sinograms[idx, 0].T, y=self.sinograms[idx, 0].T, edge_index=self.graph)
-
 
 class CustomValidationSinogramDataset(Dataset):
     def __init__(self, V, snr, sinograms, graph):
@@ -99,7 +97,7 @@ class CustomValidationSinogramDataset(Dataset):
         noisy_sinogram = _add_noise(self.snr, self.sinograms[idx, 0].T)
         return Data(x=noisy_sinogram, y=self.sinograms[idx, 0].T, edge_index=self.graph)
 
-
+################### Denoiser class #########################
 class GatDenoiser():
     def __init__(
         self,
@@ -135,6 +133,10 @@ class GatDenoiser():
         self.GAT_LAYERS: int = args.gat_layers
         self.GAT_HEADS: int = args.gat_heads
         self.GAT_DROPOUT: float = args.gat_dropout
+        self.K : int = args.k_nn
+
+        self.__prepare_angles__()
+        self.__prepare_graph__()
 
         self.model_sinogram = GAT(
             in_dim=self.RESOLUTION,
@@ -146,6 +148,8 @@ class GatDenoiser():
 
         self.model_sinogram.load_state_dict(model_state)
 
+        self.model_sinogram = DataParallel(self.model_sinogram)
+        self.model_sinogram.to(self.device)
 
     @classmethod
     def create(cls, args, input_images):
@@ -239,13 +243,10 @@ class GatDenoiser():
 
     def __prepare_angles__(self):
         self.angles_degrees = torch.linspace(0, 360, self.N).type(torch.float)
-        # angles =  torch.linspace(0, 2 * torch.pi, N).type(torch.float)
-        # angles_degrees_np = np.linspace(0,360,N)
         self.angles_np = np.linspace(0, 2 * np.pi, self.N)
+        self.radon_class = Radon(self.RESOLUTION, self.angles_degrees, circle=True)
 
     def __forward__(self):
-        self.radon_class = Radon(
-            self.RESOLUTION, self.angles_degrees, circle=True)
         self.sinograms = self.radon_class.forward(
             self.T_input_images.view(self.M, 1, self.RESOLUTION, self.RESOLUTION))
 
@@ -352,6 +353,8 @@ class GatDenoiser():
         validation_loss_score = 0
         validation_loss_noisy_score = 0
 
+        counter = 0
+
         for snr in validation_snrs:
             loader = iter(self._prepare_validation_data(snr, batch_size))
 
@@ -365,24 +368,27 @@ class GatDenoiser():
                 x = torch.cat([d.x for d in validation_data]
                               ).to(pred_sinograms.device)
 
-                validation_loss_per_snr += torch.linalg.norm(
-                    pred_sinograms - y)
+                validation_loss_per_snr += torch.linalg.norm(pred_sinograms - y)
                 validation_loss_noisy_per_snr += torch.linalg.norm(x - y)
 
                 batch_n = int(pred_sinograms.size(dim=0) / self.N)
                 pred_sinograms = pred_sinograms.view(
                     batch_n, self.N, self.RESOLUTION)
                 for i in range(batch_n):
-                    denoised_reconstruction = filterBackprojection2D(
-                        pred_sinograms[i], self.angles_degrees)
-                    noisy_reconstruction = filterBackprojection2D(
-                        validation_data[i].x, self.angles_degrees)
+                    denoised_reconstruction = filterBackprojection2D(pred_sinograms[i], self.angles_degrees)
+                    noisy_reconstruction = filterBackprojection2D(validation_data[i].x, self.angles_degrees)
 
                     if self.USE_WANDB:
                         wandb.log({
+                            "val_indx" : counter,
+                            "val_loss": torch.linalg.norm(pred_sinograms[i].cpu().detach() - validation_data[i].y.cpu().detach()),
+                            "val_loss_noisy": torch.linalg.norm(validation_data[i].x.cpu().detach() - validation_data[i].y.cpu().detach()),
+                            "val_input_snr_calculated": _find_SNR(validation_data[i].y.cpu().detach(), validation_data[i].x.cpu().detach()),
+                            "val_denoised_snr_calculated": _find_SNR(validation_data[i].y.cpu().detach(), pred_sinograms[i].cpu().detach()),
                             "val_denoised_reconstruction": wandb.Image(denoised_reconstruction.cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} "),
                             "val_noisy reconstruction": wandb.Image(noisy_reconstruction.cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}"),
                         })
+                        counter += 1
 
             print(
                 f"Validation loss snr {snr} : {validation_loss_per_snr} -- loss noisy: {validation_loss_noisy_per_snr}")
@@ -402,63 +408,13 @@ class GatDenoiser():
                 "val_loss_score": validation_loss_score,
                 "val_loss_noisy_score": validation_loss_noisy_score})
 
-            # # for i in range(self.V):
-            #     next_loader = next(loader)
-            #     snr_l, i_l, validation_data = next_loader[0]
-            #     assert snr == snr_l, "validation SNR do not correpond!"
-            #     assert i == i_l, "image idx do not correpond!"
-
-            #     pred_sinogram = self.model_sinogram([validation_data])
-            #     data = validation_data
-
-            #     loss_sinogram = torch.linalg.norm(pred_sinogram - data.y)
-            #     loss_sinogram_noisy = torch.linalg.norm(data.x - data.y)
-
-            #     for
-
-            #     denoised_reconstruction = filterBackprojection2D(
-            #         pred_sinogram, self.angles_degrees)
-            #     noisy_reconstruction = filterBackprojection2D(
-            #         data.x, self.angles_degrees)
-
-            #     validation_loss_score += loss_sinogram
-            #     validation_loss_noisy_score += loss_sinogram_noisy
-            #     validation_loss_per_snr += loss_sinogram
-            #     validation_loss_noisy_per_snr += loss_sinogram_noisy
-            #     print(f"Validation loss: {loss_sinogram} -- loss noisy: {loss_sinogram_noisy}")
-
-            #     if self.USE_WANDB:
-            #         wandb.log({
-            #             "val_index": validation_index,
-            #             "val_input_snr": snr,
-            #             "val_loss": loss_sinogram,
-            #             "val_loss_noisy": loss_sinogram_noisy,
-            #             "val_input_snr_calculated": _find_SNR(validation_data.y, validation_data.x),
-            #             "val_denoised_snr_calculated": _find_SNR(validation_data.y, pred_sinogram),
-            #             "val_denoised_reconstruction": wandb.Image(denoised_reconstruction.cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} - image {i}"),
-            #             "val_noisy reconstruction": wandb.Image(noisy_reconstruction.cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr} - image {i}"),
-            #         })
-            #         validation_index += 1
-            #     if self.DEBUG_PLOT:
-            #         reconstructions = np.array([denoised_reconstruction.cpu(
-            #         ).detach().numpy(), noisy_reconstruction.cpu().detach().numpy()])
-            #         titles = [
-            #             f"Rec denoised - SNR: {snr} - image {i}", f"Rec noisy - SNR: {snr} - image {i}"]
-            #         plot_image_grid(reconstructions, titles)
-
-            # if self.USE_WANDB:
-            #     wandb.log({
-            #         "val_snr": snr,
-            #         "val_snr_loss_score": validation_loss_per_snr,
-            #         "val_snr_loss_noisy_score": validation_loss_noisy_per_snr})
-
     def finish_wandb(self, execution_time=None):
         if execution_time != None:
             wandb.log({"execution_time": execution_time})
 
         wandb.finish()
 
-    def init_wandb(self, wandb_name, args):
+    def init_wandb(self, wandb_name, args, run_name = None):
         if self.USE_WANDB:
             if args is None:
                 config = {
@@ -484,7 +440,11 @@ class GatDenoiser():
 
             wandb.init(project=wandb_name, entity="cedric-mendelin",
                        config=config, reinit=False)
-            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}"
+
+            if self.type == 'denoiser':
+                wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}"
+            elif run_name is not None :
+                wandb.run.name = run_name
 
     def __execute_and_log_time__(self, action, name):
         if self.VERBOSE:

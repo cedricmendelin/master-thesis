@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--samples", type=int, default=1024)
 parser.add_argument("--resolution", type=int, default=192)
 
-parser.add_argument("--validation_image_path", type=str, default=None)
+parser.add_argument("--validation_image_path", type=str, default="src/data/val2017/")
 parser.add_argument("--validation_image_count", type=int, default=5)
 parser.add_argument("--use_wandb", type=bool, default=False)
 parser.add_argument("--debug_plots", type=bool, default=False)
@@ -28,16 +28,13 @@ parser.add_argument("--batch_size", type=int, default=256)
 
 parser.add_argument("--verbose", type=bool, default=True)
 
-parser.add_argument("--model_state_path", type=str)
+parser.add_argument("--model_state_path", type=str, default="denoiser/out_torch_state_dict_model")
 
 args = parser.parse_args()
 
 
-
-if args.model_path is None:
+if args.model_state_path is None:
   raise RuntimeError("No model available to validate")
-
-
 
 
 N = args.samples
@@ -54,26 +51,18 @@ x_validation = load_images_files_rescaled(validation_image_path, validation_file
 
 model_state = torch.load(args.model_state_path)
 
+################# Initialize Validator: ################
 validator = GatDenoiser.create_validator(
     args,
     model_state)
 
+if args.use_wandb:
+    validator.init_wandb(args.wandb_project, args)
 
 validator.validate(x_validation, args.validation_snrs, args.batch_size)
 
 if args.use_wandb:
-    model_name = wandb.run.name + "-" + \
-        str(args.batch_size) + "_torch_state_dict"
-    denoiser.finish_wandb(time.time()-t)
-
-if args.save_model:
-    if not args.use_wandb:
-        model_name = "out_torch_state_dict_model"
-
-    if args.model_dir is None:
-        torch.save(model.module.state_dict(), model_name)
-    else:
-        torch.save(model.module.state_dict(), args.model_dir + model_name)
+    validator.finish_wandb()
 
 if args.debug_plots:
     plt.show()
