@@ -21,7 +21,7 @@ parser.add_argument("--gat_heads", type=int, default=1)
 parser.add_argument("--gat_dropout", type=float, default=0.05)
 parser.add_argument("--gat_weight_decay", type=float, default=0.0005)
 parser.add_argument("--gat_learning_rate", type=float, default=0.01)
-parser.add_argument("--epochs", type=int, default=2000)
+parser.add_argument("--epochs", type=int, default=20)
 parser.add_argument("--gat_snr_lower", type=int, default=10)
 parser.add_argument("--gat_snr_upper", type=int, default=10)
 parser.add_argument("--validation_snrs", nargs="+", type=int, default=[10])
@@ -35,8 +35,10 @@ parser.add_argument("--verbose", type=bool, default=True)
 args = parser.parse_args()
 
 
+############### Start exection #################
 t = time.time()
 
+################## load images##################
 image_count = args.input_image_count
 validation_image_count = args.validation_image_count
 
@@ -69,31 +71,20 @@ if args.append_validation_images > 0:
     x_validation = x_validation.reshape(
         (validation_image_count + args.append_validation_images, RESOLUTION, RESOLUTION))
 
-denoiser = GatDenoiserEndToEnd(
-    x_input,
-    N,
-    RESOLUTION,
-    args.k_nn,
-    args.epochs,
-    args=args,
-    layers=args.gat_layers,
-    heads=args.gat_heads,
-    dropout=args.gat_dropout,
-    weight_decay=args.gat_weight_decay,
-    learning_rate=args.gat_learning_rate,
-    snr_lower=args.gat_snr_lower,
-    snr_upper=args.gat_snr_upper,
-    debug_plot=args.debug_plots,
-    use_wandb=args.use_wandb,
-    verbose=args.verbose,
-    wandb_project=args.wandb_project)
+################# Initialize Denoiser: ################
 
+denoiser = GatDenoiserEndToEnd.create(args, x_input)
 
+################# Train Denoiser: ################
 model = denoiser.train(args.batch_size)
+
+################# Validate Denoiser: ################
 denoiser.validate(x_validation, args.validation_snrs, args.batch_size)
 
+
+################# Finish Run: ################
 if args.use_wandb:
-    model_name = wandb.run.name + "-" + \
+    model_name = wandb.run.name.replace(" ", "_") + "-" + \
         str(args.batch_size) + "_torch_state_dict"
     denoiser.finish_wandb(time.time()-t)
 
