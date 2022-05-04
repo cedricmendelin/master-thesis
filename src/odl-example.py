@@ -18,20 +18,28 @@ import numpy as np
 import odl
 import torch
 
+import matplotlib as plt
+from utils.Plotting import *
+
 
 # --- Set up geometry of the problem --- #
 
+def _add_noise(SNR, sinogram):
+    VARIANCE = 10 ** (-SNR/10) * (torch.std(sinogram) ** 2)
+    noise = torch.randn(
+        sinogram.shape[0], sinogram.shape[1]) * torch.sqrt(VARIANCE)
+    return sinogram + noise
 
 # Reconstruction space: discretized functions on the rectangle
 # [-20, 20]^2 with 300 samples per dimension.
 reco_space = odl.uniform_discr(
-    min_pt=[-20, -20], max_pt=[20, 20], shape=[192, 192], dtype='float32')
+    min_pt=[-20, -20], max_pt=[20, 20], shape=[200, 200], dtype='float32')
 
 # Angles: uniformly spaced, n = 1000, min = 0, max = pi
-angle_partition = odl.uniform_partition(0, np.pi, 1024)
+angle_partition = odl.uniform_partition(0, np.pi, 1000)
 
 # Detector: uniformly sampled, n = 500, min = -30, max = 30
-detector_partition = odl.uniform_partition(-30, 30, 192)
+detector_partition = odl.uniform_partition(-30, 30, 200)
 
 # Make a parallel beam geometry with flat detector
 geometry = odl.tomo.Parallel2dGeometry(angle_partition, detector_partition)
@@ -62,39 +70,74 @@ fbp = ray_trafo.adjoint * ramp_filter
 
 # Create a discrete Shepp-Logan phantom (modified version)
 phantom = odl.phantom.shepp_logan(reco_space, modified=True)
+noisy_phantom = _add_noise(10, torch.from_numpy(phantom.data))
 
-print(phantom.shape)
+sino = ray_trafo(phantom).data
+sino_noisy_phantom = ray_trafo(noisy_phantom).data
+sino_noisy = _add_noise(10, torch.from_numpy(sino))
 
-# phantoms = torch.cat((phantom, phantom)).view(2,1,300,300)
-# self.T_input_images.view(self.M, 1, self.RESOLUTION, self.RESOLUTION))
+import bm3d
+denoised_sino = bm3d.bm3d(sino_noisy, sigma_psd=30/255, stage_arg=bm3d.BM3DStages.ALL_STAGES)
 
-print("phantoms done")
-# Create projection data by calling the ray transform on the phantom
-proj_data = ray_trafo(phantom)
 
-print("projections done")
+plot_imshow(sino, "Clean sino")
+plot_imshow(sino_noisy_phantom, "Sino from noisy phantom")
+plot_imshow(sino_noisy, "Noisy sino")
+plot_imshow(denoised_sino , "BM3D denoised sino")
 
-print(proj_data)
+print(torch.linalg.norm(torch.from_numpy(sino) - sino_noisy_phantom), "sino noisy phantom loss")
+print(torch.linalg.norm(torch.from_numpy(sino) - sino_noisy), "sino noisy loss")
+print(torch.linalg.norm(torch.from_numpy(sino) - torch.from_numpy(denoised_sino)), "sino denoised loss")
 
-t_proj_data = torch.from_numpy(proj_data.data)
+phantom_rec = fbp(sino)
+phantom_rec_noisy_phantom = fbp(sino_noisy_phantom)
+phantom_rec_noisy = fbp(sino_noisy)
+phantom_denoised_bm3d = fbp(denoised_sino)
 
-print(t_proj_data.size())
+phantom_rec.show(title="Clean FBP")
+phantom_rec_noisy_phantom.show(title="noisy phantom FBP")
+phantom_rec_noisy.show(title="noisy sino FBP")
+phantom_denoised_bm3d.show(title="Denoised bm3d FBP")
 
-print("tensor done")
+(phantom_rec - phantom_rec_noisy_phantom).show(title="Error noisy phantom")
+(phantom_rec - phantom_rec_noisy).show(title="Error noisy sino")
 
-# sinos = torch.cat([torch.tensor(ray_trafo(phantom)) for i in range(5)])
+print(np.linalg.norm(phantom_rec - phantom_rec_noisy_phantom))
+print(np.linalg.norm(phantom_rec - phantom_rec_noisy))
 
-sinos = torch.cat([t_proj_data, t_proj_data])
 
-print("cat sinos")
+plt.show()
 
-sinos = sinos.view(2,1, 1024, 192)
+# # phantoms = torch.cat((phantom, phantom)).view(2,1,300,300)
+# # self.T_input_images.view(self.M, 1, self.RESOLUTION, self.RESOLUTION))
 
-# Calculate filtered back-projection of data
-fbp_reconstruction = fbp(sinos[0,0])
+# print("phantoms done")
+# # Create projection data by calling the ray transform on the phantom
+# proj_data = ray_trafo(phantom)
 
-# Shows a slice of the phantom, projections, and reconstruction
-phantom.show(title='Phantom')
-proj_data.show(title='Projection Data (Sinogram)')
-fbp_reconstruction.show(title='Filtered Back-projection')
-(phantom - fbp_reconstruction).show(title='Error', force_show=True)
+# print("projections done")
+
+# print(proj_data)
+
+# t_proj_data = torch.from_numpy(proj_data.data)
+
+# print(t_proj_data.size())
+
+# print("tensor done")
+
+# # sinos = torch.cat([torch.tensor(ray_trafo(phantom)) for i in range(5)])
+
+# sinos = torch.cat([t_proj_data, t_proj_data])
+
+# print("cat sinos")
+
+# sinos = sinos.view(2,1, 1024, 192)
+
+# # Calculate filtered back-projection of data
+# fbp_reconstruction = fbp(sinos[0,0])
+
+# # Shows a slice of the phantom, projections, and reconstruction
+# phantom.show(title='Phantom')
+# proj_data.show(title='Projection Data (Sinogram)')
+# fbp_reconstruction.show(title='Filtered Back-projection')
+# (phantom - fbp_reconstruction).show(title='Error', force_show=True)

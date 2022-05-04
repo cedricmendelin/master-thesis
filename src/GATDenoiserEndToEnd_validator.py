@@ -6,29 +6,29 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--samples", type=int, default=1024)
-parser.add_argument("--resolution", type=int, default=192)
+parser.add_argument("--resolution", type=int, default=128)
 
-parser.add_argument("--validation_image_path", type=str, default="src/data/val2017/")
-parser.add_argument("--validation_image_count", type=int, default=5)
+parser.add_argument("--validation_image_path", type=str, default="src/toyimages_uniform/")
+parser.add_argument("--validation_image_count", type=int, default=10)
 parser.add_argument("--use_wandb", type=bool, default=False)
-parser.add_argument("--debug_plots", type=bool, default=False)
+parser.add_argument("--debug_plots", type=bool, default=True)
 parser.add_argument("--wandb_project", type=str)
 
 
-parser.add_argument("--gat_layers", type=int, default=3)
-parser.add_argument("--gat_heads", type=int, default=1)
+parser.add_argument("--gat_layers", type=int, default=4)
+parser.add_argument("--gat_heads", type=int, default=16)
 parser.add_argument("--gat_dropout", type=float, default=0.05)
 
 
-parser.add_argument("--validation_snrs", nargs="+", type=int, default=[10, 25])
+parser.add_argument("--validation_snrs", nargs="+", type=int, default=[0, 10])
 
-parser.add_argument("--add_circle_padding", type=bool, default=True)
-parser.add_argument("--k_nn", type=int, default=4)
+parser.add_argument("--add_circle_padding", type=bool, default=False)
+parser.add_argument("--k_nn", type=int, default=8)
 parser.add_argument("--batch_size", type=int, default=256)
 
 parser.add_argument("--verbose", type=bool, default=True)
 
-parser.add_argument("--model_state_path", type=str, default="denoiser/out_torch_state_dict_model")
+parser.add_argument("--model_state_path", type=str, default="denoiser/end-to-end_uniform_generated_toyimages_scicore-3-128-1024-960-8-3000-4-16-0.03-0.0005-320_torch_state_dict")
 
 args = parser.parse_args()
 
@@ -52,9 +52,7 @@ x_validation = load_images_files_rescaled(validation_image_path, validation_file
 model_state = torch.load(args.model_state_path)
 
 ################# Initialize Validator: ################
-validator = GatDenoiserEndToEnd.create_validator(
-    args,
-    model_state)
+validator = GatDenoiserEndToEnd.create_validator(args,model_state)
 
 if args.use_wandb:
     validator.init_wandb(args.wandb_project, args)
