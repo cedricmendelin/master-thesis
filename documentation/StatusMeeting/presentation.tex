@@ -94,6 +94,19 @@
     \end{block}    
     
     \pause
+    \begin{alertblock}{Input Graph}
+        \begin{itemize}
+            \item Learning does work with circle graph
+            \item Learning does not work with random (Erdős–Rényi) graph
+        \end{itemize}
+    \end{alertblock}
+
+\end{frame}
+
+\begin{frame}{GAT Denoiser - 2}
+    \begin{block}{GAT - Graph Attention Network}
+        $$ GAT (A, \text{GAT args}) : \to \text{fixed angles} \to \text{k-nn circle graph} $$
+    \end{block}    
 
     \begin{block}{GAT Loss}
         $$ \mathcal{L}_1 = || forward(i) - denoiser_{sino}(forward(i) + \eta) ||_2 $$ 
@@ -104,46 +117,26 @@
 
 \end{frame}
 
-\begin{frame}{GAT Denoiser - 2}
-    \begin{block}{GAT - Graph Attention Network}
-        $$ GAT (A, \text{GAT args}) : \to \text{fixed angles} \to \text{k-nn circle graph} $$
-    \end{block}    
 
-    \begin{alertblock}{Input Graph}
-        \begin{itemize}
-            \item Learning does work with circle graph
-            \item Learning does not work with random (Erdős–Rényi) graph
-        \end{itemize}
-    \end{alertblock}
-
-\end{frame}
-
-
-\begin{frame}{Toy images}
+\begin{frame}{Current experiments - Toy images}
     \begin{itemize}
-        \item Uniformly places shapes on image
+        \item Input images uniformly position shapes on image.
+        \item Mostly fixed SNR, validation with same SNR
+        \item Graph size = 1024 nodes, k-nn = 8
+        \item Results with $\mathcal{L}_1$ available, few with $\mathcal{L}_2$.
     \end{itemize}
 
     \begin{figure}
-        \includegraphics[width=0.2\textwidth]{toyimage_01}
-        \includegraphics[width=0.2\textwidth]{toyimage_02}
-        \includegraphics[width=0.2\textwidth]{toyimage_03}
-        \includegraphics[width=0.2\textwidth]{toyimage_04}
+        \includegraphics[width=0.15\textwidth]{toyimage_01}
+        \includegraphics[width=0.15\textwidth]{toyimage_02}
+        \includegraphics[width=0.15\textwidth]{toyimage_03}
+        \includegraphics[width=0.15\textwidth]{toyimage_04}
         \caption{Example Toy images}
     \end{figure}
     
 \end{frame}
 
-\begin{frame}{Current Results}
-    \begin{itemize}
-        \item Results with $\mathcal{L}_1$ available.
-        \item Results with $\mathcal{L}_2$ calculating.
-        \item If time, add some comparison with BM3d
-        \item Currently, network trained with fixed SNR.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Current Results - 2}
+\begin{frame}{Current Results - $\mathcal{L}_1$ vs $\mathcal{L}_2$}
     
     \begin{figure}
         \includegraphics[width=0.15\textwidth]{noisy_fbp_5}
@@ -165,12 +158,26 @@
     
 \end{frame}
 
+\begin{frame}{Current Results - $\mathcal{L}_1$ vs $\mathcal{L}_2$ vs BM3D }
+
+    \begin{figure}
+        \includegraphics[width=0.15\textwidth]{noisy_fbp_n5}
+        \includegraphics[width=0.15\textwidth]{denoised_fbp_n5}
+        \includegraphics[width=0.15\textwidth]{denoised_ete_fbp_n5}
+        \includegraphics[width=0.15\textwidth]{bm3d_noisy_sino}
+        \includegraphics[width=0.15\textwidth]{bm3d_noisy_input}
+        
+        \caption{SNR -5 : noisy, denoised model $\mathcal{L}_1$, denoised model $\mathcal{L}_2$, BM3d noisy sinogram, BM3D noisy input}
+    \end{figure}
+    
+\end{frame}
+
 \begin{frame}{Some wandb reports}
     \begin{itemize}
+        \item end-to-end: \url{https://wandb.ai/cedric-mendelin/end-to-end uniform generated toyimages scicore?workspace=user-cedric-mendelin}
         \item K-nn: \url{https://wandb.ai/cedric-mendelin/auto generated toyimages scicore knn/reports/Auto-toyimages-knn--VmlldzoxOTA4MjM2}
         \item 3d-Model: \url{https://wandb.ai/cedric-mendelin/bunnies scicore?workspace=user-cedric-mendelin}
         \item GAT parameters: \url{https://wandb.ai/cedric-mendelin/toy-images-input-size/reports/Toy-Images-Overview-Advanced-GAT--VmlldzoxNzczNDc0}
-        \item Denoiser can adopt to slight changes 
     \end{itemize}
     
     

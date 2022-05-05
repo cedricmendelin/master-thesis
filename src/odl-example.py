@@ -33,13 +33,13 @@ def _add_noise(SNR, sinogram):
 # Reconstruction space: discretized functions on the rectangle
 # [-20, 20]^2 with 300 samples per dimension.
 reco_space = odl.uniform_discr(
-    min_pt=[-20, -20], max_pt=[20, 20], shape=[200, 200], dtype='float32')
+    min_pt=[-20, -20], max_pt=[20, 20], shape=[128, 128], dtype='float32')
 
 # Angles: uniformly spaced, n = 1000, min = 0, max = pi
-angle_partition = odl.uniform_partition(0, np.pi, 1000)
+angle_partition = odl.uniform_partition(0, np.pi, 1024)
 
 # Detector: uniformly sampled, n = 500, min = -30, max = 30
-detector_partition = odl.uniform_partition(-30, 30, 200)
+detector_partition = odl.uniform_partition(-30, 30, 128)
 
 # Make a parallel beam geometry with flat detector
 geometry = odl.tomo.Parallel2dGeometry(angle_partition, detector_partition)
@@ -66,44 +66,54 @@ fbp = ray_trafo.adjoint * ramp_filter
 
 
 # --- Show some examples --- #
+import imageio
+val_image = imageio.imread("src/val_image.png")
+if val_image.ndim > 2:  # passes to grayscale if color
+    val_image = val_image[:, :, 0]
 
+val_image = val_image[0:128, 0:128]/255
+noisy_val = _add_noise(-5, torch.from_numpy(val_image))
 
-# Create a discrete Shepp-Logan phantom (modified version)
-phantom = odl.phantom.shepp_logan(reco_space, modified=True)
-noisy_phantom = _add_noise(10, torch.from_numpy(phantom.data))
+sino_val = ray_trafo(val_image).data
+sino_noisy_val = ray_trafo(noisy_val).data
+sino_noisy = _add_noise(-5, torch.from_numpy(sino_val))
 
-sino = ray_trafo(phantom).data
-sino_noisy_phantom = ray_trafo(noisy_phantom).data
-sino_noisy = _add_noise(10, torch.from_numpy(sino))
+# # Create a discrete Shepp-Logan phantom (modified version)
+# #phantom = odl.phantom.shepp_logan(reco_space, modified=True)
+# noisy_phantom = _add_noise(10, torch.from_numpy(phantom.data))
+
+# sino = ray_trafo(phantom).data
+# sino_noisy_phantom = ray_trafo(noisy_phantom).data
+# sino_noisy = _add_noise(10, torch.from_numpy(sino))
 
 import bm3d
 denoised_sino = bm3d.bm3d(sino_noisy, sigma_psd=30/255, stage_arg=bm3d.BM3DStages.ALL_STAGES)
+denoised_val = bm3d.bm3d(noisy_val, sigma_psd=30/255, stage_arg=bm3d.BM3DStages.ALL_STAGES)
 
+plot_imshow(val_image)
+plot_imshow(denoised_val, "BM3D on noisy input image")
+# plot_imshow(sino, "Clean sino")
+# plot_imshow(sino_noisy_phantom, "Sino from noisy phantom")
+# plot_imshow(sino_noisy, "Noisy sino")
+# plot_imshow(denoised_sino , "BM3D denoised sino")
 
-plot_imshow(sino, "Clean sino")
-plot_imshow(sino_noisy_phantom, "Sino from noisy phantom")
-plot_imshow(sino_noisy, "Noisy sino")
-plot_imshow(denoised_sino , "BM3D denoised sino")
+# print(torch.linalg.norm(torch.from_numpy(sino) - sino_noisy_phantom), "sino noisy phantom loss")
+# print(torch.linalg.norm(torch.from_numpy(sino) - sino_noisy), "sino noisy loss")
+# print(torch.linalg.norm(torch.from_numpy(sino) - torch.from_numpy(denoised_sino)), "sino denoised loss")
 
-print(torch.linalg.norm(torch.from_numpy(sino) - sino_noisy_phantom), "sino noisy phantom loss")
-print(torch.linalg.norm(torch.from_numpy(sino) - sino_noisy), "sino noisy loss")
-print(torch.linalg.norm(torch.from_numpy(sino) - torch.from_numpy(denoised_sino)), "sino denoised loss")
-
-phantom_rec = fbp(sino)
-phantom_rec_noisy_phantom = fbp(sino_noisy_phantom)
+# phantom_rec = fbp(sino)
+phantom_rec_noisy_phantom = fbp(sino_noisy_val)
 phantom_rec_noisy = fbp(sino_noisy)
 phantom_denoised_bm3d = fbp(denoised_sino)
 
-phantom_rec.show(title="Clean FBP")
+
 phantom_rec_noisy_phantom.show(title="noisy phantom FBP")
 phantom_rec_noisy.show(title="noisy sino FBP")
-phantom_denoised_bm3d.show(title="Denoised bm3d FBP")
+plot_imshow(phantom_denoised_bm3d, title="Denoised bm3d FBP")
 
-(phantom_rec - phantom_rec_noisy_phantom).show(title="Error noisy phantom")
-(phantom_rec - phantom_rec_noisy).show(title="Error noisy sino")
 
-print(np.linalg.norm(phantom_rec - phantom_rec_noisy_phantom))
-print(np.linalg.norm(phantom_rec - phantom_rec_noisy))
+print(np.linalg.norm(val_image - phantom_rec_noisy_phantom))
+print(np.linalg.norm(val_image - phantom_rec_noisy))
 
 
 plt.show()
