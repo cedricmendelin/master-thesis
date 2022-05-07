@@ -4,7 +4,7 @@ from skimage.transform import  rescale, radon, iradon
 
 from utils.Graph import *
 from utils.Plotting import *
-from utils.Normalization import normalize_range
+from utils.obsolete.Normalization import normalize_range
 from utils.pytorch_radon.radon import *
 import matplotlib.pyplot as plt
 

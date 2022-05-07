@@ -16,7 +16,7 @@ from utils.DiffusionMaps import *
 from utils.VectorDiffusionMaps import *
 
 
-from utils.Normalization import normalize_min_max
+from utils.obsolete.Normalization import normalize_min_max
 # from utils.Geometry import *
 from scipy.spatial.transform import Rotation as R
 from numpy.random import default_rng

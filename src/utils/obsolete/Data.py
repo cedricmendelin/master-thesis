@@ -1,7 +1,7 @@
 import dis
 import numpy as np
 from ..Geometry import random_rotation_3d
-from ..Normalization import *
+from .Normalization import *
 from ..Graph import *
 #from .AspireHelpers import *
 import os.path as path

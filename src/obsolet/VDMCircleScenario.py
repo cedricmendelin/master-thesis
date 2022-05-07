@@ -7,7 +7,7 @@ from utils.Graph import *
 from utils.Plotting import *
 from utils.VectorDiffusionMaps import *
 from utils.DiffusionMaps import *
-from utils.Normalization import *
+from utils.obsolete.Normalization import *
 
 np.set_printoptions(precision=4)
 

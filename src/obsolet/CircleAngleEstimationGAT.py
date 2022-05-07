@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 from utils.Graph import *
 from utils.Plotting import *
-from utils.Normalization import *
+from utils.obsolete.Normalization import *
 
 
 
