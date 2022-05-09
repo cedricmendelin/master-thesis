@@ -557,7 +557,8 @@ $RECYCLE.BIN/
 wandb/*
 src/reconstruction/*
 
-src/data/*
+data/maps/*
+src/obsolet/data/*
 *.pyc
 *.map
 test_padding_bunny_projections.npz
