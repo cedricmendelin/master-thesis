@@ -342,7 +342,7 @@ parser.add_argument("--validation_snrs", nargs="+", type=int, default=[-5,2,10,2
 args = parser.parse_args()
 
 
-from utils.CoCoDataset import *
+from utils.ImageHelper import *
 import time
 t = time.time()
 image_path = args.image_path

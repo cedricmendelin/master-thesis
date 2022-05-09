@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
-from utils.CoCoDataset import *
+from utils.ImageHelper import *
 from utils.Plotting import *
 
 # ########### Parameters #############

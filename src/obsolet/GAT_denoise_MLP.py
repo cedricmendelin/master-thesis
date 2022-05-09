@@ -309,7 +309,7 @@ def run(project_name, images, validation_images, validation_snr=[-5,2,10,25], sn
 #    - different GAT architecutre
 
 
-from utils.CoCoDataset import *
+from utils.ImageHelper import *
 import time
 t = time.time()
 image_path = "src/toyimages/64/"
