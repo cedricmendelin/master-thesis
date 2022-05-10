@@ -41,28 +41,20 @@ class GatBase():
         self.VERBOSE = args.verbose
         self.loader = None
 
-        # parameters for forward and backward operatior
-        # Currently radon and filter_back_projection is used.
-        self.N: int = args.graph_size
-        self.RESOLUTION: int = args.resolution
-        self.radon, self.fbp = setup_forward_and_backward(self.RESOLUTION, self.N)
-        
-        # Parameters for seeting up graph.
-        # Currently a circle graph with k neighoburs is used.
-        self.K : int = args.k_nn
-        self.graph = self.__prepare_graph__()
+        if self.VERBOSE:
+            self.time_dict = {}
 
         # Log to wandb
         self.USE_WANDB = args.use_wandb
-
-        if self.VERBOSE:
-            self.time_dict = {}
 
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
 
         self.device0 = self.device = torch.device(
             'cuda:0' if torch.cuda.is_available() else 'cpu')
+
+        self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
+        
     
     ######################## Initializer for child classes ############################
 
@@ -146,6 +138,18 @@ class GatBase():
         self.__prepare_optimizer()
 
     ################## Graph - setup during initialization #############
+    def __init_graph_and_forward_backward(self, args):
+        # parameters for forward and backward operatior
+        # Currently radon and filter_back_projection is used.
+        self.N: int = args.graph_size
+        self.RESOLUTION: int = args.resolution
+        self.radon, self.fbp = setup_forward_and_backward(self.RESOLUTION, self.N)
+        
+        # Parameters for seeting up graph.
+        # Currently a circle graph with k neighoburs is used.
+        self.K : int = args.k_nn
+        self.graph = self.__prepare_graph__()
+
     def __prepare_graph__(self):
         # sample equally spaced points on unit-circle
         angles_np = np.linspace(0, 2 * np.pi, self.N)
@@ -197,7 +201,7 @@ class GatBase():
             weight_decay=self.GAT_ADAM_WEIGHTDECAY)
 
     @abstractmethod
-    def _prepare_training_data(self, batch_size, loss, ):
+    def _prepare_training_data(self, batch_size, loss):
         pass
 
     @abstractmethod 
@@ -292,7 +296,6 @@ class GatBase():
 
             validation_loss_fbp_denoised_per_snr = 0
             validation_loss_fbp_noisy_per_snr = 0
-
             validation_loss_sino_denoised_per_snr = 0
             validation_loss_sino_noisy_per_snr = 0
 
@@ -374,7 +377,7 @@ class GatBase():
 
         wandb.finish()
 
-    def init_wandb(self, wandb_name, args, run_name = None):
+    def init_wandb(self, wandb_name, args, wandb_user = "cedric-mendelin", run_name = None):
         if self.USE_WANDB:
             if args is None:
                 config = {
@@ -390,7 +393,6 @@ class GatBase():
                     "gat_snr_lower_bound": self.SNR_LOWER,
                     "gat_snr_upper_bound": self.SNR_UPPER,
                     "M": self.M,
-                    # "name" : image_name
                 }
             else:
                 config = args
@@ -398,8 +400,7 @@ class GatBase():
             gpus = torch.cuda.device_count()
             config.gpu_count = gpus
 
-            wandb.init(project=wandb_name, entity="cedric-mendelin",
-                       config=config, reinit=False)
+            wandb.init(project=wandb_name, entity=wandb_user, config=config, reinit=False)
 
             if isinstance(self, GatDenoiserImagesFixed) or isinstance(self, GatDenoiserToyImagesDynamic):
                 wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}"
@@ -423,6 +424,9 @@ class GatBase():
 
 
 class GatDenoiserToyImagesDynamic(GatBase):
+    """ Special toy images denoiser. 
+        This denoiser will generate new images in every epoch.
+    """
     def _prepare_training_images(self, images):
         return
 
@@ -448,6 +452,11 @@ class GatDenoiserToyImagesDynamic(GatBase):
         return loader, snr
 
 class GatDenoiserImagesFixed(GatBase):
+    """ GatDenoiser for fixed images during training.
+        During training, in every epoch the same images are passed to the model.
+        Clean sinograms need to be only calculated once, if SNR is fixed, 
+        noisy sinograms are calculated only once as well.
+    """
     def _prepare_training_images(self, images):
         self.training_images = torch.tensor(images).type(torch.float)
         self.training_sinos = self.__forward__(self.training_images)
@@ -482,6 +491,9 @@ class GatDenoiserImagesFixed(GatBase):
             return loader, snr
 
 class GatValidator(GatBase):
+    """ GatValidator class which is only able to run validator from given trained model.
+        Validator can be logged to wandb as well.
+    """
     def _prepare_training_images(self, images):
          raise RuntimeError("Validator cannot be trained")
 

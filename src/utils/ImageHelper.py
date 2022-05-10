@@ -1,7 +1,6 @@
 import numpy as np
 import random
 import imageio
-import os
 
 from skimage.transform import rescale
 
