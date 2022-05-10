@@ -37,26 +37,54 @@ class GatBase():
     """ Abstract base class for GatDenoisers and GatValidator
     """
     def __init__(self, args):
-        self.args = args
-        self.VERBOSE = args.verbose
+        self.consumeArgs(args)
         self.loader = None
 
         if self.VERBOSE:
             self.time_dict = {}
-
-        # Log to wandb
-        self.USE_WANDB = args.use_wandb
 
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
 
         self.device0 = self.device = torch.device(
             'cuda:0' if torch.cuda.is_available() else 'cpu')
-
-        self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
-        
     
     ######################## Initializer for child classes ############################
+    def consumeArgs(self, args):
+        self.args = args
+        self.VERBOSE = args.verbose
+        self.USE_WANDB = args.use_wandb
+
+        self.N: int = args.graph_size
+        self.K : int = args.k_nn
+        
+        self.RESOLUTION: int = args.resolution
+        
+        self.Loss = Loss[args.loss.upper()]
+
+        self.GAT_LAYERS: int = args.gat_layers
+        self.GAT_HEADS: int = args.gat_heads
+        self.GAT_DROPOUT: float = args.gat_dropout
+
+    def consumeDenoiserArgs(self, args):
+        self.M = args.samples
+        self.EPOCHS: int = args.epochs
+        
+        self.GAT_ADAM_WEIGHTDECAY: float = args.gat_weight_decay
+        self.GAT_ADAM_LR: float = args.gat_learning_rate
+
+        # check if snr is fixed
+        if args.gat_snr_upper is None or args.gat_snr_lower == args.gat_snr_upper:
+            if self.VERBOSE:
+                print("Using fixed snr!")
+            self.SNR = args.gat_snr_lower
+            self.FIXED_SNR = True
+            self.SNR_LOWER = args.gat_snr_lower
+            self.SNR_UPPER = args.gat_snr_upper
+        else:
+            self.FIXED_SNR = False
+            self.SNR_LOWER = args.gat_snr_lower
+            self.SNR_UPPER = args.gat_snr_upper
 
     @classmethod
     def create_validator(cls, args, model_state):
@@ -104,50 +132,43 @@ class GatBase():
         return denoiser
     
     def __initialize_validator__(self, args, model_state):
-        self.GAT_LAYERS: int = args.gat_layers
-        self.GAT_HEADS: int = args.gat_heads
-        self.GAT_DROPOUT: float = args.gat_dropout
-        self.__prepare_model__(model_state)
+        if self.USE_WANDB:
+            self.__init_wandb__(args.wandb_project, args)
+
+        self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
+        self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
 
     def __initialize_denoiser__(self, args):
-        self.M = args.samples
-        self.EPOCHS: int = args.epochs
-        self.GAT_LAYERS: int = args.gat_layers
-        self.GAT_HEADS: int = args.gat_heads
-        self.GAT_DROPOUT: float = args.gat_dropout
-        self.GAT_ADAM_WEIGHTDECAY: float = args.gat_weight_decay
-        self.GAT_ADAM_LR: float = args.gat_learning_rate
-
-        # check if snr is fixed
-        if args.gat_snr_upper is None or args.gat_snr_lower == args.gat_snr_upper:
-            if self.VERBOSE:
-                print("Using fixed snr!")
-            self.SNR = args.gat_snr_lower
-            self.FIXED_SNR = True
-            self.SNR_LOWER = args.gat_snr_lower
-            self.SNR_UPPER = args.gat_snr_upper
-        else:
-            self.FIXED_SNR = False
-            self.SNR_LOWER = args.gat_snr_lower
-            self.SNR_UPPER = args.gat_snr_upper
+        self.consumeDenoiserArgs(args)
 
         if self.USE_WANDB:
-            self.init_wandb(args.wandb_project, args)
+            self.__init_wandb__(args.wandb_project, args)
+        
+        self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
+        self.__execute_and_log_time__(lambda: self.__prepare_model__(), "prep model")
+        self.__execute_and_log_time__(lambda: self.__prepare_optimizer__(), "prep optimizer")
 
-        self.__prepare_model__()
-        self.__prepare_optimizer()
+    def __init_wandb__(self, wandb_name, args, wandb_user ="cedric-mendelin", run_name = None):
+        config = args
+
+        gpus = torch.cuda.device_count()
+        config.gpu_count = gpus
+
+        wandb.init(project=wandb_name, entity=wandb_user, config=config, reinit=False)
+
+        if isinstance(self, GatDenoiserImagesFixed) or isinstance(self, GatDenoiserToyImagesDynamic):
+            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}"
+        elif run_name is not None :
+            wandb.run.name = run_name
 
     ################## Graph - setup during initialization #############
     def __init_graph_and_forward_backward(self, args):
         # parameters for forward and backward operatior
         # Currently radon and filter_back_projection is used.
-        self.N: int = args.graph_size
-        self.RESOLUTION: int = args.resolution
         self.radon, self.fbp = setup_forward_and_backward(self.RESOLUTION, self.N)
         
         # Parameters for seeting up graph.
         # Currently a circle graph with k neighoburs is used.
-        self.K : int = args.k_nn
         self.graph = self.__prepare_graph__()
 
     def __prepare_graph__(self):
@@ -194,7 +215,7 @@ class GatBase():
         # ODL operator module to apply model to multiply sinograms
         self.model_fbp = OperatorModule(self.fbp)
 
-    def __prepare_optimizer(self):
+    def __prepare_optimizer__(self):
         self.optimizer = torch.optim.Adam(
             self.model.parameters(), 
             lr=self.GAT_ADAM_LR, 
@@ -377,35 +398,7 @@ class GatBase():
 
         wandb.finish()
 
-    def init_wandb(self, wandb_name, args, wandb_user = "cedric-mendelin", run_name = None):
-        if self.USE_WANDB:
-            if args is None:
-                config = {
-                    "samples": self.N,
-                    "resolution": self.RESOLUTION,
-                    "k-nn": self.K,
-                    "gat-epochs": self.EPOCHS,
-                    "gat-layers": self.GAT_LAYERS,
-                    "gat-heads": self.GAT_HEADS,
-                    "gat-DROPOUT": self.GAT_DROPOUT,
-                    "gat-adam-weightdecay": self.GAT_ADAM_WEIGHTDECAY,
-                    "gat-adam-learningrate": self.GAT_ADAM_LR,
-                    "gat_snr_lower_bound": self.SNR_LOWER,
-                    "gat_snr_upper_bound": self.SNR_UPPER,
-                    "M": self.M,
-                }
-            else:
-                config = args
-
-            gpus = torch.cuda.device_count()
-            config.gpu_count = gpus
-
-            wandb.init(project=wandb_name, entity=wandb_user, config=config, reinit=False)
-
-            if isinstance(self, GatDenoiserImagesFixed) or isinstance(self, GatDenoiserToyImagesDynamic):
-                wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}"
-            elif run_name is not None :
-                wandb.run.name = run_name
+   
 
     def __execute_and_log_time__(self, action, name):
         if self.VERBOSE:

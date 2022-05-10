@@ -10,7 +10,7 @@ parser.add_argument("--graph_size", type=int, default=1024)
 parser.add_argument("--samples", type=int, default=1024)
 parser.add_argument("--resolution", type=int, default=64)
 
-parser.add_argument("--validation_image_path", type=str, default="src/toyimages_validation/")
+parser.add_argument("--validation_image_path", type=str, default="data/toyimages_validation/")
 parser.add_argument("--validation_image_count", type=int, default=18)
 parser.add_argument("--use_wandb", type=bool, default=False)
 parser.add_argument("--wandb_project", type=str, default="Some Test")
@@ -35,7 +35,6 @@ parser.add_argument('--loss', type=str, default='SINO',
 
 args = parser.parse_args()
 
-
 ############### Start exection #################
 t = time.time()
 
@@ -55,7 +54,7 @@ x_validation = load_images_files_rescaled(validation_image_path, validation_file
 denoiser = GatBase.create_toyimage_dynamic_denoiser(args)
 
 ################# Train Denoiser: ################
-model = denoiser.train(batch_size=args.batch_size, loss=Loss[args.loss.upper()])
+model = denoiser.train(batch_size=args.batch_size)
 
 ################# Validate Denoiser: ################
 denoiser.validate(x_validation, args.validation_snrs, args.batch_size)
