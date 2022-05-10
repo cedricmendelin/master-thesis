@@ -17,11 +17,11 @@ cd ~/master-thesis-git-nobackup
 
 wandb offline
 
-python ./src/GATDenoiser_runner.py  \
+python ./src/GATDenoiserFixedImages_runner.py  \
+        --graph_size 1024
         --samples 1024 \
         --resolution 100 \
-        --image_path "src/bunnies/" \
-        --input_image_count 960 \
+        --image_path "data/bunnies/" \
         --validation_image_count 40 \
         --append_validation_images 10 \
         --use_wandb True \
@@ -29,7 +29,7 @@ python ./src/GATDenoiser_runner.py  \
         --verbose True \
         --debug_plots False \
         --save_model True \
-        --k_nn 5 \
+        --k_nn 8 \
         --add_circle_padding False \
         --validation_snrs 10 \
         --epochs 2000    \
@@ -41,3 +41,4 @@ python ./src/GATDenoiser_runner.py  \
         --gat_snr_lower 10 \
         --gat_snr_upper 10 \
         --batch_size 320 \
+        --loss "SINO" \

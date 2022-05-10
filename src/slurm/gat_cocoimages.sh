@@ -17,23 +17,23 @@ cd ~/master-thesis-git-nobackup
 
 wandb offline
 
-python ./src/GATDenoiser_runner.py  \
+python ./src/GATDenoiserFixedImages_runner.py  \
+        --graph_size 1024 \
         --samples 1024 \
         --resolution 192 \
-        --image_path "src/data/val2017/" \
-        --input_image_count 1024 \
-        --validation_image_count 5 \
+        --image_path "data/val2017/" \
+        --validation_image_count 10 \
         --append_validation_images 5 \
         --use_wandb True \
         --wandb_project "cocoimages scicore" \
         --verbose True \
         --debug_plots False \
         --save_model True \
-        --k_nn 2 \
+        --k_nn 8 \
         --add_circle_padding False \
         --validation_snrs 10 \
         --epochs 2000    \
-        --gat_heads 4 \
+        --gat_heads 16 \
         --gat_layers 3 \
         --gat_dropout 0.03 \
         --gat_weight_decay 0.0005 \
@@ -41,3 +41,4 @@ python ./src/GATDenoiser_runner.py  \
         --gat_snr_lower 10 \
         --gat_snr_upper 10 \
         --batch_size 256 \
+        --loss "SINO" \
