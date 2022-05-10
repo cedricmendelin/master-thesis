@@ -60,8 +60,6 @@ class GatBase():
         
         self.RESOLUTION: int = args.resolution
         
-        self.Loss = Loss[args.loss.upper()]
-
         self.GAT_LAYERS: int = args.gat_layers
         self.GAT_HEADS: int = args.gat_heads
         self.GAT_DROPOUT: float = args.gat_dropout
@@ -72,6 +70,7 @@ class GatBase():
         
         self.GAT_ADAM_WEIGHTDECAY: float = args.gat_weight_decay
         self.GAT_ADAM_LR: float = args.gat_learning_rate
+        self.Loss = Loss[args.loss.upper()]
 
         # check if snr is fixed
         if args.gat_snr_upper is None or args.gat_snr_lower == args.gat_snr_upper:
@@ -157,7 +156,7 @@ class GatBase():
         wandb.init(project=wandb_name, entity=wandb_user, config=config, reinit=False)
 
         if isinstance(self, GatDenoiserImagesFixed) or isinstance(self, GatDenoiserToyImagesDynamic):
-            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}"
+            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}-{self.Loss}"
         elif run_name is not None :
             wandb.run.name = run_name
 
