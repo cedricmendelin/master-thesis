@@ -19,17 +19,15 @@ wandb offline
 
 python ./src/GATDenoiserToyImages_runner.py  \
         --samples 1024 \
-        --graph_size 1024
+        --graph_size 1024 \
         --resolution 64 \
         --validation_image_path "src/toyimages_validation/" \
         --validation_image_count 10 \
-        --append_validation_images 0 \
         --use_wandb True \
         --wandb_project "Dynamic toyimages scicore" \
         --verbose True \
         --save_model True \
         --k_nn 8 \
-        --add_circle_padding False \
         --validation_snrs 10 \
         --epochs 2000    \
         --gat_heads 16 \
