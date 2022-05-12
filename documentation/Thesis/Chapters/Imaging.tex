@@ -37,13 +37,12 @@ Mathematically, observations are defined as follows:
 
 with
 \begin{itemize}
-    \item $y_i \in \mathbb{R}^M$:  $i$-th observation with $y_i[j] \in \mathbb{R}$: $j$-th element of observation
     \item $N$: number of observations
     \item $M$: observation dimension
+    \item $y_i \in \mathbb{R}^M$:  $i$-th observation with $y_i[j] \in \mathbb{R}$: $j$-th element of observation
     \item $x \in L^2(\Omega)$: original object with $\Omega \subset \mathbb{R}^2 $ and $L^2$: Lebesgue space
-    \item $R(\cdot; \theta, s): L^2(\Omega) \to L^2(\tilde{\Omega}) , x \mapsto R(x; \theta,s)$: Radon Transform \cite{radonTransform}
-    \item $\tilde{\Omega} \subset \mathbb{R}$, $\theta_i \in \mathbb{R}$: observation angle
-    \item $s_j \in \mathbb{R}$: sampling point 
+    \item $R(\cdot; \theta, s): L^2(\Omega) \to L^2(\tilde{\Omega}) , x \mapsto R(x; \theta,s)$: Radon Transform \cite{radonTransform} with,\\
+        $\tilde{\Omega} \subset \mathbb{R}$, $\theta_i \in \mathbb{R}$: observation angle and $s_j \in \mathbb{R}$: sampling point 
     \item $\eta_i \in \mathbb{R}^M$: gaussian noise with $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$
 \end{itemize}
 
@@ -57,6 +56,19 @@ with
 % with $\tilde{\Omega} \subset \mathbb{R}$, $\theta_i \in \mathbb{R}$ as observation angle and $s_j \in \mathbb{R}$ 
 % as sampling point. Finally, $\eta_i \in \mathbb{R}^M$ refers to gaussian noise and 
 % is defined as $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$.
+The data of Radon Transform is often called a \textit{sinogram}.
+In figure~\ref{fig:phantom} the Shepp-Logan phantom can be seen. 
+It is often used as an image for simulating a brain CT.
+Further, in figure~\ref{fig:phantom_sinogram} the observation sinogram can be seen and well as a noisy version (figure~\ref{fig:phantom_sinogram_noisy}) of it.
+
+\begin{figure}[H]
+    \label{fig:phantom_and_sinos}
+    \centering
+    \subbottom[Shepp-Logan phantom          \label{fig:phantom}]{\includegraphics[width=0.25\textwidth]{phantom.png}}
+    \subbottom[Clean Sinogram            \label{fig:phantom_sinogram}]{\includegraphics[width=0.25\textwidth]{phantom_sinogram.png}}
+    \subbottom[Noisy sinogram               \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.25\textwidth]{phantom_sinogram_noisy_high.png}}
+    \caption{Shepp-Logan phantom and sinogram}
+\end{figure}
 
 \textbf{TODO: Add some first images}
 
@@ -159,11 +171,6 @@ where $h_i$ is the PSF of the microscope and $\circ$ defines the convolution.
 Further, $x_i \in X$ where $X$ is the set of all possible molecule structures.
 
 
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    During Master Thesis, equation~\ref{eq:cryoEmSimpleDiscrete} is used, not the extended version.
-\end{tcolorbox}
-
-
 \subparagraph{Difference to tomographic reconstruction:}
 The problems are highly related, but cryo-EM reconstruct is more challenging.
 While CT observation, patient is asked to not move and therefore, angles of projection are known.
@@ -228,11 +235,11 @@ Another way is to find a low-dimensional embedding which maps our observations $
 When talking from low-dimensional embeddings, there is no way around Graph Learning, which will be introduced
 in the following chapter.
 
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    During the Master Thesis, high-noise regime is domain of interest.
-    Main practical application is cryo-EM, where an algorithm for denoising is expected to boost
-    quality of the overall 3D-reconstruction. As cryo-EM is a 3D problem, computed tomography will
-    be considered as well which allows to test on a corresponding 2D problem.
-    The goal of the Master Thesis is to introduce a denoising algorithm, which is able to work well even 
-    on highly noisy data. Reconstruction of original object is not in the scope of the project.
-\end{tcolorbox}
+% \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+%     During the Master Thesis, high-noise regime is domain of interest.
+%     Main practical application is cryo-EM, where an algorithm for denoising is expected to boost
+%     quality of the overall 3D-reconstruction. As cryo-EM is a 3D problem, computed tomography will
+%     be considered as well which allows to test on a corresponding 2D problem.
+%     The goal of the Master Thesis is to introduce a denoising algorithm, which is able to work well even 
+%     on highly noisy data. Reconstruction of original object is not in the scope of the project.
+% \end{tcolorbox}

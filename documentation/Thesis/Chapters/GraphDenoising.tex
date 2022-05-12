@@ -122,10 +122,6 @@ From $E$ some edges are removed (denoted by $E^{-}_0$) and some are added
 Graph Denoising can therefore be written as $GD: A_0 \mapsto \tilde{A} \approx A$,
 where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from noisy input graph, denoised graph and original graph respectively.
 
- \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    The goal of the Master Thesis is to introduce a method to estimate 
-    original graph $G$ with corresponding $A$ based on observed noisy graph $G_0$ with $A_0$.
-\end{tcolorbox}
 
 \paragraph{Connection to link prediction:}
 Link prediction is a task in Graph Learning. 
@@ -264,7 +260,7 @@ the manifold for $\sigma=100$ is plotted. In all plots, k-NN graphs have been co
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     In the field of classical tomography and cryo-EM, the underlying low-dimensional manifold is well defined for none-noisy data.
     In the 2D case of classical tomography, the underlying manifold is a circle, whereas in 3D case of cryo-EM the manifold
-    if defined as a sphere.
+    is defined as a sphere.
     This fact can be exploited during learning (e.g. by using Wasserstein loss function (see \ref{sec:wasserstein-metric})).
 \end{tcolorbox}
 
@@ -274,14 +270,6 @@ Graph Laplacian is used for dimensionality reduction for high-dimensional data, 
 \citet{LaplaceRandomProjections} used Graph Laplacian in a complete other domain, namely in tomography. 
 They showed that Graph Laplacian approximates the Laplace-Beltrami operator.
 Further, Graph Laplacian is depended on the adjacency matrix $A$, if $A$ is noisy, Graph Laplacian will be noisy as well.
-
-
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    In the Master Thesis, further experience of Graph Laplacian in the domain of tomography and denoising
-    should be gained. Additionally, connection with Machine Learning will be explored, hopefully allowing to learn a denoised 
-    adjacency matrix to fully enable the power of Graph Laplacian.
-\end{tcolorbox}
-
 
 \subsection{Graph Deep Learning}
 As already mentioned, Graph Denoising can be seen as a way of link predication. 
@@ -303,10 +291,4 @@ activation function between layers do not contribute to much to the success of G
 Therefore, it can be seen as a way of power iteration (see \ref{sec:powerIterations} for further information) over the adjacency matrix with normalization in every layer.
 \citet{dynamicGCN} proposed an extension to GCN by not operating on the same graph in every layer but adopting
 underlying graph topology layer by layer.
-
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    In the Master Thesis, connection between Graph Laplacian and GNNs should be further studied.
-    The fact, that \citet{simpleGCN} could simplify the existing GCN algorithm is motivation enough
-    that similar connections can be drawn in other fields of Graph Deep Learning.
-\end{tcolorbox}
 
