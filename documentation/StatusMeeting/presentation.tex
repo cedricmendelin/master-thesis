@@ -19,7 +19,7 @@
 \email				{cedric.mendelin@stud.unibas.ch}
 \institute          {Department of Mathematics and Computer Science, University of Basel}
 
-\date               {05.05.2022}
+\date               {13.05.2022}
 
 \ulogo        		{Template/header}
 \ulistelement    	{Template/listelement}
@@ -60,20 +60,19 @@
     \end{itemize}
 
     \pause
-    \begin{block}{Input}
-        $\mathcal{I}$: class of images (where $i \in \mathbb{R}^M$ with $M$ as image dimension.)
+    \begin{block}{Problem}
+        $\mathcal{Y}$: observation (where $y_i \in \mathbb{R}^M$ with $M$ as observation dimension.) \\
+        $y_i$ not observable directly only $y_i + \eta$ is observable, where $\eta \sim \mathcal{N}(0,\sigma^2)$.
     \end{block}
 
-    \begin{block}{Output}
-        $$ denoiser:   (i + \eta) \mapsto i^* \approx i $$ 
-        \center
-        Where $i \in \mathcal{I}$ and $\eta \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$.
+    \begin{block}{Goal}
+        $$ denoiser:   (y_i + \eta) \mapsto y_i^* \approx y_i $$ 
     \end{block}
 
 \end{frame}
 
 \begin{frame}{Sinogram Denoiser}
-    \begin{block}{}
+    \begin{block}{Forward and backward domain}
         $$ forward : \text{radon transform} $$
         $$ backward : \text{filter back projection} $$
     \end{block}    
@@ -81,10 +80,10 @@
     \pause
 
     \begin{block}{Sinogram Denoiser}
-        $$ denoiser_{sino}:  forward(i) + \eta \mapsto forward(i)^* \approx forward(i) $$ 
-        $$ denoiser = backward ( denoiser_{sino}(forward(i) + \eta)) $$
+        $$ Goal:  denoiser:   (y_i + \eta) \mapsto y_i^* \approx y_i $$         
+        $$ denoiser:  forward(x_i) + \eta \mapsto forward(x_i)^* \approx forward(x_i) $$ 
         \center
-        Where $i \in \mathcal{I}$ and $\eta \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$.
+        Where $x \in \mathbb{R}^N$ is original object with $N$ as original object dimension. \\
     \end{block}
 \end{frame}
 
@@ -105,14 +104,15 @@
 
 \begin{frame}{GAT Denoiser - 2}
     \begin{block}{GAT - Graph Attention Network}
-        $$ GAT (A, \text{GAT args}) : \to \text{fixed angles} \to \text{k-nn circle graph} $$
+        $$ GAT (A, \text{GAT args}) : \to \text{fixed angles} \to \text{k-nn circle graph} $$ \\
+        Train it with class of input images, enables denoising of class of images.
     \end{block}    
 
     \begin{block}{GAT Loss}
-        $$ \mathcal{L}_1 = || forward(i) - denoiser_{sino}(forward(i) + \eta) ||_2 $$ 
-        $$ \mathcal{L}_2 = || i - backward (denoiser_{sino}(forward(i) + \eta)) ||_2 $$ 
-        \center
-        Where $i \in \mathcal{I}$ and $\eta \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$.
+        $$ \mathcal{L}_1 = || forward(x_i) - denoiser(forward(x_i) + \eta) ||_2 $$ 
+        $$ \mathcal{L}_1 = || y_i - y_i^* ||_2 $$ 
+        $$ \mathcal{L}_2 = || x_i - backward (denoiser(forward(x_i) + \eta)) ||_2 $$ 
+        $$ \mathcal{L}_2 = || x_i - backward (y_i^*) ||_2 $$
     \end{block}
 
 \end{frame}
