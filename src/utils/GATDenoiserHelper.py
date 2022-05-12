@@ -423,7 +423,7 @@ class GatDenoiserToyImagesDynamic(GatBase):
         return
 
     def _prepare_training_data(self, batch_size, loss):
-        images = draw_uniform_toyimages(self.RESOLUTION, 16, self.M)
+        images = draw_uniform_toyimages(self.RESOLUTION, 13, self.M)
         sinos = self.__forward__(torch.tensor(images).type(torch.float))
 
         if self.FIXED_SNR:
