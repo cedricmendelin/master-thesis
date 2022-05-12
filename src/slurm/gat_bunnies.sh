@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=train_gat_mendel #Name of your job
+#SBATCH --job-name=train_bunny        #Name of your job
 #SBATCH --cpus-per-task=4           #Number of cores to reserve
 #SBATCH --mem-per-cpu=12G           #Amount of RAM/core to reserve
 #SBATCH --time=24:00:00             #Maximum allocated time
@@ -18,7 +18,7 @@ cd ~/master-thesis-git-nobackup
 wandb offline
 
 python ./src/GATDenoiserFixedImages_runner.py  \
-        --graph_size 1024
+        --graph_size 1024 \
         --samples 1024 \
         --resolution 100 \
         --image_path "data/bunnies/" \

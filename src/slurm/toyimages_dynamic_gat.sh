@@ -21,7 +21,7 @@ python ./src/GATDenoiserToyImages_runner.py  \
         --samples 1024 \
         --graph_size 1024 \
         --resolution 64 \
-        --validation_image_path "src/toyimages_validation/" \
+        --validation_image_path "data/toyimages_validation/" \
         --validation_image_count 10 \
         --use_wandb True \
         --wandb_project "Dynamic toyimages scicore" \
