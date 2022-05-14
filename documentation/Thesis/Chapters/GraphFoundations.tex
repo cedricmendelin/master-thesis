@@ -1,5 +1,5 @@
-\chapter{Graph Denoising}
-\label{sec:graphDenoising}
+\chapter{Graph Foundations}
+\label{sec:graphFoundations}
     
 
 Following chapter establishes connection between graphs and denoising in high-noise 
@@ -83,9 +83,9 @@ Further, the graph $G$ can be constructed by using:
 
 where $x_i$, $x_j$ are nodes from indices $i,j$, $d$ corresponds to a similarity measure and $\tau$ is a threshold, 
 when to consider two nodes to be adjacent.
-K-NN is one possible implementation of a graph construction algorithm, 
+K nearest neighbours (K-NN) is one possible implementation of a graph construction algorithm, 
 where for every node, $k$ neighbours will be defined.
-The neighbourhood $\mathcal{N}_i$ of node $i$ is defined as $k$ nodes with smallest similarity measured.
+The neighbourhood $\mathcal{N}_i$ of node $i$ is defined as $k$ nodes with smallest similarity measure.
 
 \paragraph{Noise regime}
 In the case of noise, observation of $x$ it not possible.
@@ -187,16 +187,17 @@ In figure~\ref{fig:circle_sampling}, 200 samples are drawn from a uniform distri
 and in figure~\ref{fig:sphere_sampling}, 400 samples are drawn from a uniform distribution of the unit-sphere manifold,
 as well as the sphere itself.
 
-\begin{figure}[H]
-    \centering
-    \subtop[Circle samples
-        \label{fig:circle_sampling}]
-        {\includegraphics[width=0.4\textwidth]{circle_sampling.png}}
-    \subtop[Sphere samples      
-    \label{fig:sphere_sampling}]
-        {\includegraphics[width=0.4\textwidth]{sphere_sampling.png}}
-    \caption{Samples drawn from 1D and 2D manifold.}
-\end{figure}
+\textbf{TODO: Figure}
+% \begin{figure}[H]
+%     \centering
+%     \subtop[Circle samples
+%         \label{fig:circle_sampling}]
+%         {\includegraphics[width=0.4\textwidth]{circle_sampling.png}}
+%     \subtop[Sphere samples      
+%     \label{fig:sphere_sampling}]
+%         {\includegraphics[width=0.4\textwidth]{sphere_sampling.png}}
+%     \caption{Samples drawn from 1D and 2D manifold.}
+% \end{figure}
 
 One popular algorithm for calculating manifolds is diffusion maps \cite{diffusionMaps}, 
 which is a non-linear approach for calculating low-dimensional manifolds
@@ -231,14 +232,16 @@ In the following, the Shepp-Logan phantom (figure~\ref{fig:phantom}) is used as 
 In figure~\ref{fig:phantom_sinogram}, figure~\ref{fig:phantom_sinogram_noisy} and figure~\ref{fig:phantom_sinogram_noisy_high} 
 sinogram of the original phantom and phantoms, where gaussian noise was added, are shown.
 
-\begin{figure}[H]
-    \centering
-    \subbottom[Shepp-Logan phantom          \label{fig:phantom}]{\includegraphics[width=0.18\textwidth]{phantom.png}}
-    \subbottom[Original sinogram            \label{fig:phantom_sinogram}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram.png}}
-    \subbottom[Noisy sinogram               \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram_noisy.png}}
-    \subbottom[Highly noisy sinogram               \label{fig:phantom_sinogram_noisy_high}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram_noisy_high.png}}
-    \caption{Shepp-Logan phantom and sinograms}
-\end{figure}
+
+\textbf{TODO: fix figures}
+% \begin{figure}[H]
+%     \centering
+%     \subbottom[Shepp-Logan phantom          \label{fig:phantom}]{\includegraphics[width=0.18\textwidth]{phantom.png}}
+%     \subbottom[Original sinogram            \label{fig:phantom_sinogram}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram.png}}
+%     \subbottom[Noisy sinogram               \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram_noisy.png}}
+%     \subbottom[Highly noisy sinogram               \label{fig:phantom_sinogram_noisy_high}]{\includegraphics[width=0.18\textwidth]{phantom_sinogram_noisy_high.png}}
+%     \caption{Shepp-Logan phantom and sinograms}
+% \end{figure}
 
 In Figure~\ref{fig:phantom_second_third_evec} the manifold calculated from original phantom Graph Laplacian
 can be seen and it is a perfect circle. 
@@ -248,13 +251,14 @@ noisy version with $\sigma=2$ is plotted and the manifold is not a perfect circl
 The more noise is added, the less manifold looks like a circle. In figure~\ref{fig:phantom_second_third_evec_noisy_high}
 the manifold for $\sigma=100$ is plotted. In all plots, k-NN graphs have been constructed with $k=10$. 
 
-\begin{figure}[H]
-    \centering
-    \subbottom[Original phantom manifold      \label{fig:phantom_second_third_evec}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec.png}}
-    \subbottom[Noisy phantom manifold\label{fig:phantom_second_third_evec_noisy}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy.png}}
-    \subbottom[Highly-noisy phantom manifold \label{fig:phantom_second_third_evec_noisy_high}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy_high.png}}
-    \caption{Shepp-Logan phantom manifolds}
-\end{figure}
+\textbf{TODO: fix figures}
+% \begin{figure}[H]
+%     \centering
+%     \subbottom[Original phantom manifold      \label{fig:phantom_second_third_evec}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec.png}}
+%     \subbottom[Noisy phantom manifold\label{fig:phantom_second_third_evec_noisy}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy.png}}
+%     \subbottom[Highly-noisy phantom manifold \label{fig:phantom_second_third_evec_noisy_high}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy_high.png}}
+%     \caption{Shepp-Logan phantom manifolds}
+% \end{figure}
 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]

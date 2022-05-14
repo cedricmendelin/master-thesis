@@ -1,14 +1,13 @@
 \chapter{Molecular Imaging methods}
 \label{sec:imaging}
 
-In current chapter, molecular imaging methods \textit{computed tomography} and 
+In current chapter molecular imaging methods \textit{computed tomography} and 
 \textit{cryo-electron microscopy} (cryo-EM) will be introduced. 
 Further, their observation model is defined in a mathematic way and reconstruction is presented.
 Application of cryo-EM is a major motivation for the Master Thesis, 
 as the problem is not easy to solve due to dealing with enormous noise and unknown observation angles.
 Computed Tomography is a similar problem and is therefore well suited as a
 first step to make an algorithm work for cryo-EM. 
-
 
 
 \section{Computed tomography}
@@ -56,28 +55,48 @@ with
 % with $\tilde{\Omega} \subset \mathbb{R}$, $\theta_i \in \mathbb{R}$ as observation angle and $s_j \in \mathbb{R}$ 
 % as sampling point. Finally, $\eta_i \in \mathbb{R}^M$ refers to gaussian noise and 
 % is defined as $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$.
-The data of Radon Transform is often called a \textit{sinogram}.
+Data of Radon Transform is often called a \textit{sinogram}.
 In figure~\ref{fig:phantom} the Shepp-Logan phantom can be seen. 
 It is often used as an image for simulating a brain CT.
-Further, in figure~\ref{fig:phantom_sinogram} the observation sinogram can be seen and well as a noisy version (figure~\ref{fig:phantom_sinogram_noisy}) of it.
+Further, in figure~\ref{fig:phantom_sinogram} and figure~\ref{fig:phantom_sinogram_noisy} 
+observation sinograms can be seen with and without noise respectively. 
+To apply Radon Transform, parameter $\theta$ and $s$ need to be specified.
+In this case, $\theta \in \mathbb{R}^{500}$ was evenly spaced
+between $[0, 2 \pi]$ and $s$ was set to $400$, which is the Shepp-Logan phantom image resolution.
+Further, noise was added to reach a signal-to-noise-ratio (SNR) of 10dB.
 
 \begin{figure}[H]
     \label{fig:phantom_and_sinos}
-    \centering
-    \subbottom[Shepp-Logan phantom          \label{fig:phantom}]{\includegraphics[width=0.25\textwidth]{phantom.png}}
-    \subbottom[Clean Sinogram            \label{fig:phantom_sinogram}]{\includegraphics[width=0.25\textwidth]{phantom_sinogram.png}}
-    \subbottom[Noisy sinogram               \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.25\textwidth]{phantom_sinogram_noisy_high.png}}
-    \caption{Shepp-Logan phantom and sinogram}
+    % \centering
+    \hfill
+    \subbottom[Shepp-Logan phantom: $x$ \label{fig:phantom}]{\includegraphics[width=0.22\textwidth]{phantom.png}}
+    \hfill
+    \subbottom[Clean Sinogram: $R(x, \theta, s) = y$   \label{fig:phantom_sinogram}]{\includegraphics[width=0.22\textwidth]{phantom_sino.png}}
+    \hfill
+    \subbottom[Noisy sinogram: $R(x, \theta, s) + \eta = y + \eta$ \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.22\textwidth]{phantom_sino_noisy_snr10.png}}
+    \hfill
+	\caption{Shepp-Logan phantom and sinogram}
 \end{figure}
 
-\textbf{TODO: Add some first images}
-
 \subparagraph{Filter Backprojection:}
-Filter Backprojection \cite{tomographicReconstruction} is a reconstruction method, typically used in classical tomography.
-It allows to inverse the Radon Transform and enables reconstruction of the original object $x$. 
+Filter Backprojection \cite{tomographicReconstruction} (FBP), mathematically $FBP(\cdot; \theta, s)$, is a reconstruction method, typically used in classical tomography.
+It allows to inverse the Radon Transform and enables reconstruction of the original object $x$, further $\theta$ corresponds to 
+projection angle and $s$ to sampling points. 
 The algorithm fails when working with noisy data \cite{cryoEmMath2}.
 
-\textbf{TODO: Add some further images and show that reconstruction fails.}
+\begin{figure}[H]
+    \label{fig:phantom_fbps}
+    % \centering
+    \hfill
+    \subbottom[Clean reconstruction: $FBP(y, \theta, s)$  \label{fig:fbp_phantom}]{\includegraphics[width=0.22\textwidth]{fbp_phantom_clean.png}}
+    \hfill
+    \subbottom[Noisy reconstruction: $FBP(y + \eta, \theta, s)$ \label{fig:fbp_phantom_noisy}]{\includegraphics[width=0.22\textwidth]{fbp_phantom_snr_10.png}}
+    \hfill
+	\caption{Shepp-Logan sinograms and filter-back projection reconstructions}
+\end{figure}
+
+In figure~\ref{fig:fbp_phantom} and figure~\ref{fig:fbp_phantom_noisy} reconstruction using FBP can be seen from 
+Shepp-Logan phantom sinogram (figure~\ref{fig:phantom_sinogram}) and its noisy version (figure~\ref{fig:phantom_sinogram_noisy}).
 
 \section{Cryo-EM}
 Cryo-EM is another molecular imaging method, that enables the view of molecules in near-atomic resolution.
@@ -90,19 +109,18 @@ but freezing allows observation in a stable state where molecules are not moving
 With an electron microscope, two-dimensional tomographic projection images of molecules in the ice are observed,
 which are called \textit{micrograph}. 
 Frozen molecules are fragile and electron microscope needs to work with
-very low power (electron dose), resulting in highly noisy images. The resulting signal-to-noise ration (SNR)
+very low power (electron dose), resulting in highly noisy images. The resulting (SNR)
 is typically smaller than 1, which indicates that there is more noise than signal \cite{cryoEmMath2}.
-
-\textbf{TODO: Add illustration of cryo-EM projection with negative SNR.}
 
 Further, observed molecules are not equal in the sense that there are some structural varieties between
 molecules (isotopes). Wile observing the same molecule in ice many times, single observation could be from different isotopes.
 
-
 \paragraph{3D cryo-EM reconstruction:}
 Similar to tomographic reconstruction, cryo-EM reconstruction problem \cite{cryoEmMath} is defined.
 It can be seen as a 3D reconstruction problem as the original object $x \in L^2(\Omega)$ to be reconstructed is in 3D.
-% To follow notation from previous section, now $\Omega \subset \mathbb{R}^3 $ and $\tilde{\Omega} \subset \mathbb{R}^2 $.
+Based on many observed micrographs, collected by the electorn microscope, the original object $x$ will be estimated.
+
+Cryo-EM reconstruction is computational intensive and multiple steps are needed to get from observed, raw data to the final structure \cite{singleParticleCryoEm}.
 
 Mathematically, observation is defined as follows:
 \begin{equation}
@@ -112,14 +130,16 @@ Mathematically, observation is defined as follows:
 
 where 
 \begin{itemize}
-    \item $y_i \in \mathbb{R}^M$:  $i$-th observation with $y_i[j] \in \mathbb{R}$: $j$-th element of observation
     \item $N$: number of observations
-    \item $\Pi_z : L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto  \int x(\cdot,\cdot,z) dz$: Z-axis projection operator
-    \item $Rot : L^2(\Omega) \to L^2(\Omega), Rot(x, \theta_i) = \left((x_1,x_2,x_3) \mapsto x( x_1R^1_{\theta_i}, x_2R^2_{\theta_i}, x_3R^3_{\theta_i})\right)$: rotation operator
+    \item $M$: observation dimension
+    \item $y_i \in \mathbb{R}^M$:  $i$-th observation with $y_i[j] \in \mathbb{R}$: $j$-th element of observation
     \item $x \in L^2(\Omega)$: original object with $\Omega \subset \mathbb{R}^3 $ and $L^2$: Lebesgue space
-    \item  $\theta_i = [\theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} ] $: 3D rotation matrix with $ \theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} \in \mathbb{R}$ and \\
-        $R_{\theta_i} =  R_{e_x} (\theta_i^{(1)}) R_{e_y} (\theta_i^{(2)}) R_{e_z} (\theta_i^{(3)}) = [R^1_{\theta_i}, R^2_{\theta_i}, R^3_{\theta_i}] \in SO(3)$ \\
-        (see \ref{app:3DrotationMatrix} for further details)
+    \item $\Pi_z : L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto  \int x(\cdot,\cdot,z) dz$: Z-axis projection operator,
+          with $\tilde{\Omega} \subset \mathbb{R}^2$
+    \item $\theta_i = [\theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} ] $: 3D rotation matrix with $ \theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} \in \mathbb{R}$ and \\
+          $R_{\theta_i} =  R_{e_x} (\theta_i^{(1)}) R_{e_y} (\theta_i^{(2)}) R_{e_z} (\theta_i^{(3)}) = [R^1_{\theta_i}, R^2_{\theta_i}, R^3_{\theta_i}] \in SO(3)$ \\
+          (see \ref{app:3DrotationMatrix} for further details)
+    \item $Rot : L^2(\Omega) \to L^2(\Omega), Rot(x, \theta_i) = \left((x_1,x_2,x_3) \mapsto x( x_1R^1_{\theta_i}, x_2R^2_{\theta_i}, x_3R^3_{\theta_i})\right)$: rotation operator
     \item $\eta_i \in \mathbb{R}^M$: gaussian noise with $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$
 \end{itemize}
 
@@ -144,7 +164,6 @@ As $y_i$ is not observable directly, discretization is needed:
 
 where 
 \begin{itemize}
-    \item $M$: observation dimension
     \item $\Delta \subset \tilde{\Omega}^{M^2}$: sampling grid with dimension $M^2$
     \item Further, $y[j,k]$, $\eta[j,k]$ and $\Pi_z(\cdot)_{j,k}$ $ \in \mathbb{R}$ with $j,k$ as indices of the sampling grid.
 \end{itemize}
@@ -152,6 +171,21 @@ where
 % Further, $y[j,k]$, $\eta[j,k]$ and $\Pi_z(\cdot)_{j,k}$ $ \in \mathbb{R}$ with $j,k$ as indices of 
 % the sampling grid.
 
+
+\begin{figure}[H]
+    \label{fig:cryo-em-omicron}
+    % \centering
+    \hfill
+    \subbottom[COVID-19 Omicron spike: $x$ \label{fig:omicron}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xsurface.jpeg}}
+    \hfill
+    \subbottom[Projection along X-Axis   \label{fig:omicron-x}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xprojection.jpeg}}
+    \hfill
+    \subbottom[Projection along Y-Axis   \label{fig:omicron-y}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_yprojection.jpeg}}
+    \hfill
+    \subbottom[Projection along Z-Axis   \label{fig:omicron-z}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_zprojection.jpeg}}
+    \hfill
+	\caption{Cryo-EM reconstruction and clean projections of COVID-19 Omicron spike \protect\footnote{https://www.ebi.ac.uk/emdb/EMD-32500}}
+\end{figure}
 
 
 \subparagraph{Extended formula:} 
@@ -194,34 +228,36 @@ and $\tilde{\Omega} \subset \mathbb{R}^{D-1}$ as the dimension of the space of o
     \end{aligned}
 \end{equation}
 
-where $y_i \in \tilde{\Omega}^M$ is the $i$-th observation, $M$ observation dimension,
-$x \in L^2(\Omega)$ original object, $A$ a non-linear operator 
-$A: L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto A(x; \theta_i)$, 
-$\theta_i \in \mathbb{R}^P$ projection angle vector with $P$ the projection dimension
-and
-$\eta \sim \mathcal{N}(O, \sigma^2 I) \in \tilde{\Omega}^M$ gaussian noise. 
-$\Delta \subset \tilde{\Omega}^{M}$ is a term for discretization.
+\begin{itemize}
+    \item $N$: number of observations
+    \item $M$: observation dimension
+    \item $y_i \in \tilde{\Omega}^M$: the $i$-th observation
+    \item $x \in L^2(\Omega)$: original object
+    \item $A: L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto A(x; \theta_i)$: a non-linear operator 
+    \item $\theta_i \in \mathbb{R}^P$: projection angle vector with $P$ the projection dimension
+    \item $\eta \sim \mathcal{N}(O, \sigma^2 I) \in \tilde{\Omega}^M$: gaussian noise
+    \item $\Delta \subset \tilde{\Omega}^{M}$: term for discretization
+\end{itemize}
 
 \paragraph{Classical tomography reconstruction:}
 
-Classical tomography parameters are defined with $D=2$, $P=1$..
+Classical tomography parameters are defined with $D=2$, $P=1$.
 Further, $A(\cdot)$ is the Radon Transform (see equation~\ref{eq:2Dreconstruction}).
 A distance measure between observations can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
 
 \paragraph{Cryo-Em reconstruction:}
-Cryo-EM parameters are defined with $D=3$, $P=3$ and $\theta_i$ not only corresponds to
+Cryo-EM parameters are defined with $D=3$ and $P=3$ as $\theta_i$ not only corresponds to
 a projection angle vector but also some rotation.
 Further, $A(\cdot)$ can be defined as $\Pi_z \left(\; Rot(\;x; \theta) \right)$ 
-where $Rot$ is the 3D rotation and $\Pi_z$ the tomographic projection.
+where $Rot$ is the 3D rotation and $\Pi_z$ the tomographic projection (see equation~\ref{eq:cryoEmSimpleDiscrete}).
 
 As observations are drawn with some random 3D rotation and projection, 
 it can happen that two samples are equivalent up to 2D rotation. 
 Consider a first observation $y_1$, which has no 3D rotation and 
 a second observation $y_2$ with a rotation in x-y plane by 45°.
 The two observations have a defined in-plane rotation $g$, such that $g \; y_1 = y_2$.
-Therefore, in distance measure term of in-plan rotation is added: $min_{g \in SO(1)}\norm{g \;y_i - y_j}$, 
+Therefore, a term of in-plan rotation is added to the $\ell2$-norm: $min_{g \in SO(1)}\norm{g \;y_i - y_j}$, 
 which is inspired by \cite{multiDiffusionMaps}. 
-
 
 \paragraph{High noise regime:}
 Cryo-EM observations are highly noisy, which makes reconstruction challenging. 
@@ -233,7 +269,7 @@ But how can it be achieved?
 One idea would be to measure distances between observation.
 Another way is to find a low-dimensional embedding which maps our observations $y$ to some $\theta$.
 When talking from low-dimensional embeddings, there is no way around Graph Learning, which will be introduced
-in the following chapter.
+in the following chapter~\ref{sec:graphFoundations}.
 
 % \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
 %     During the Master Thesis, high-noise regime is domain of interest.

@@ -9,10 +9,12 @@ if(not plt.isinteractive):
 color_map = plt.cm.get_cmap('gray')
 reversed_color_map = color_map.reversed()
 
-def plot_imshow(data, title='', show=False, colorbar=True, aspect=None, c_map = color_map):
-    plt.figure()
+def plot_imshow(data, title='', xlabel='', ylabel='', show=False, colorbar=True, aspect=None, c_map = reversed_color_map, size=(5,5)):
+    plt.figure(figsize=size)
     plt.imshow(data, cmap=c_map, aspect=aspect)
     plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     if colorbar:
         plt.colorbar()
     if show:
