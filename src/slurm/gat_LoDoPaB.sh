@@ -24,7 +24,6 @@ python ./src/GATDenoiserLoDoPaB-CT.py  \
         --validation_image_count 10 \
         --use_wandb True \
         --verbose True \
-        --debug_plots False \
         --save_model True \
         --k_nn 8 \
         --validation_snrs 10 \

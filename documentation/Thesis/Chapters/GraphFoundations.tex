@@ -1,4 +1,4 @@
-\chapter{Graph Foundations}
+\chapter{Graph Denoising}
 \label{sec:graphFoundations}
     
 
@@ -18,7 +18,7 @@ A general framework for graph construction is introduced in section~\ref{sec:gra
 \paragraph{Graph Learning:} Graph Learning is a hot research area and got a lot of attention in recent years.
 It is a way of applying ML on graphs and algorithms emerged from ML but also other fields.
 When a graph is available, one can start using Graph Learning algorithms for solving tasks.
-Popular tasks are \textit{node classification} or \textit{link prediction} within a graph, where model is learned from node and edge features 
+Popular tasks are \textit{node classification} or \textit{link prediction}, where model is learned from node and edge features 
 as well as topology. The model can than be used for prediction or classification.
 Another common task is \textit{community detection}, where the aim is to identify cluster of nodes within the input graph.
 Further, graphs are highly favoured for \textit{dimensionality-reduction}, where 
@@ -34,7 +34,7 @@ the index of vertices in the graph.
 \paragraph{Graph properties:}
 A graph can be either \textit{directed} or \textit{undirected}. 
 In a directed one, an edge connects explicitly from one node to another, which means that edge $(i, j) \neq (j, i)$. 
-In undirected graphs ordering does not matter and $(i, j) = (j, i)$.
+In undirected graphs, the edge was no direction and ordering does not matter, therefore $(i, j) = (j, i)$.
 
 The \textit{neighbourhood}, denoted by $\mathcal{N}(i)$, of a node $i$  is defined as all adjacent nodes.
 In other words, there is an edge between neighbourhood nodes and $i$. 
@@ -69,28 +69,28 @@ Eigenvalues of $A$ are called \textit{spectrum} of the graph.
 \label{sec:graphConstruction}
 When data is not available as a graph, it can be easily constructed.
 Consider data from space $\Omega \subset \mathbb{R}^M $, but could basically be any arbitrary space.
-Then, each node is associated with some element $x \in \Omega$.
-Further, the graph $G$ can be constructed by using:
+Then, each node is associated with some element $p \in \Omega$. 
+Further, graph $G$ can be constructed by using:
 
 \begin{equation}
     \label{eq:graphConstruction}
     A_{ij} =    
     \begin{cases}
-        1  & \text{if } d(x_i, x_j) < \tau\\
+        1  & \text{if } d(p_i, p_j) < \tau\\
         0, & \text{otherwise}
     \end{cases}
 \end{equation}
 
-where $x_i$, $x_j$ are nodes from indices $i,j$, $d$ corresponds to a similarity measure and $\tau$ is a threshold, 
+where $p_i$, $p_j$ are nodes from indices $i,j$, $d$ corresponds to a similarity measure and $\tau$ is a threshold, 
 when to consider two nodes to be adjacent.
-K nearest neighbours (K-NN) is one possible implementation of a graph construction algorithm, 
+K-NN is one possible implementation of a graph construction algorithm, 
 where for every node, $k$ neighbours will be defined.
 The neighbourhood $\mathcal{N}_i$ of node $i$ is defined as $k$ nodes with smallest similarity measure.
 
 \paragraph{Noise regime}
-In the case of noise, observation of $x$ it not possible.
-Measurements will give access to $y = x + \eta$ where $y,x \in \Omega$ and the noise $\eta$ is assumed to be drawn from gaussian distribution $\mathcal{N} \sim (0,\sigma^2)$.
-The \textit{noisy graph} $G_0$ can be constructed as in equation~\ref{eq:graphConstruction}, but replacing $y$ with $x$:
+In the case of noise, $p$ is not available directly.
+Measurements will give access to $y = p + \eta$ where $y,p \in \Omega$ and the noise $\eta$ is assumed to be drawn from gaussian distribution $\mathcal{N} \sim (0,\sigma^2)$.
+The \textit{noisy graph} $G_0$ can be constructed as in equation~\ref{eq:graphConstruction}, but replacing $y$ with $p$:
 \begin{equation}
     \label{eq:graphConstructionNoise}
     A_{0_{ij}} =    
@@ -199,16 +199,16 @@ as well as the sphere itself.
 %     \caption{Samples drawn from 1D and 2D manifold.}
 % \end{figure}
 
-One popular algorithm for calculating manifolds is diffusion maps \cite{diffusionMaps}, 
-which is a non-linear approach for calculating low-dimensional manifolds
-for (high-dimensional) datasets, using Graph Laplacian.
-Vector diffusion maps \cite{vectorDiffusionMaps} generalize the concept of diffusion maps for vector fields.
-Multi-frequency vector diffusion maps \cite{multiDiffusionMaps} 
-can be seen as an extension to vector diffusion maps, which works well even on highly noisy environments.
-\citet{cryoEmMutliDM} successfully applied multi-frequency vector diffusion Maps in cryo-EM setting,
- where it was used for denoising purpose.
+% One popular algorithm for calculating manifolds is diffusion maps \cite{diffusionMaps}, 
+% which is a non-linear approach for calculating low-dimensional manifolds
+% for (high-dimensional) datasets, using Graph Laplacian.
+% Vector diffusion maps \cite{vectorDiffusionMaps} generalize the concept of diffusion maps for vector fields.
+% Multi-frequency vector diffusion maps \cite{multiDiffusionMaps} 
+% can be seen as an extension to vector diffusion maps, which works well even on highly noisy environments.
+% \citet{cryoEmMutliDM} successfully applied multi-frequency vector diffusion Maps in cryo-EM setting,
+%  where it was used for denoising purpose.
 
-\paragraph{Manifold assumption:}
+\subsection{Manifold assumption}
 \label{sec:manifoldAssumption}
 Manifold assumption is a popular assumption for high-dimensional datasets.
 For a given dataset in high-dimension, one can assume that data points are samples drawn from a low-dimensional manifold,
@@ -226,6 +226,8 @@ Manifold of a dataset can be calculated the following:
     \item Calculate the (normalized) Graph Laplacian.
     \item Extract the second, third (and fourth) smallest eigenvectors.
 \end{enumerate}
+
+\subsection{Manifold of computed tomography and cryo-EM}
 
 Therefore, it can be observed how the manifold of classical tomography and cryo-EM objects look like.
 In the following, the Shepp-Logan phantom (figure~\ref{fig:phantom}) is used as an example of classical tomography.

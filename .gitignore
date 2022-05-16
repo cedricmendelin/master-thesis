@@ -563,3 +563,7 @@ src/obsolet/data/*
 *.map
 test_padding_bunny_projections.npz
 denoiser/*
+data/limited-CT/horizontal_snr25.0.npz
+data/limited-CT/vertical_snr25.0.npz
+denoiser/out_torch_state_dict_model
+documentation/Thesis/Thesis.pdf
