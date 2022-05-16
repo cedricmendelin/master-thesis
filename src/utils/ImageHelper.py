@@ -67,3 +67,27 @@ def load_images_files_rescaled(path, files, N1, N2, number=1, circle_padding=Fal
             im = np.pad(im, [p, p], mode='constant', constant_values=0)
         result[i, :, :] = im
     return result
+
+
+def add_circle_padding_to_images(images):
+    res = images.shape[1]
+    _res: int = int(np.sqrt(res ** 2 / 2))
+    diff = (res - _res)
+
+    scaleX = _res / res
+    scaleY = _res / res
+
+    result = np.zeros_like(images)
+
+    for i in range(images.shape[0]):
+        im = rescale(images[i], scale=(scaleX, scaleY), mode='reflect', multichannel=False)
+        padding = np.floor( diff / 2).astype(np.int)
+        if padding + padding + _res - res == -1:
+            p = (padding + 1, padding)
+        else:
+            p = (padding, padding)
+
+        im = np.pad(im, [p, p], mode='constant', constant_values=0)
+        result[i] = im
+
+    return result
