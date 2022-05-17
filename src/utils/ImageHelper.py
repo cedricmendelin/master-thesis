@@ -10,6 +10,9 @@ def load_images_files(path, files, N1, N2, number=1, circle_padding=False, num_s
     random.seed(a=num_seed)  # if None, system clock
     result = np.zeros((number, N1, N2))
     assert N1 == N2, "resolution of images need to be same"
+    lin = np.linspace(-1,1, N1)
+    XX, YY = np.meshgrid(lin,lin)
+    circle = ((XX**2+YY**2)<=1)*1.
 
     for i in range(number):
         M1 = 0
@@ -24,14 +27,7 @@ def load_images_files(path, files, N1, N2, number=1, circle_padding=False, num_s
         im = im[0:N1, 0:N2]/255
 
         if circle_padding:
-            _res: int = int(np.sqrt(N1 ** 2 / 2))
-            scaleX = _res / N1
-            scaleY = _res / N2
-            im = rescale(im, scale=(scaleX, scaleY),
-                         mode='reflect', multichannel=False)
-            padding = int((N1 - _res) / 2)
-            p = (padding, padding)
-            im = np.pad(im, [p, p], mode='constant', constant_values=0)
+           im = im * circle
 
         result[i, :, :] = im
     return result
@@ -41,6 +37,9 @@ def load_images_files_rescaled(path, files, N1, N2, number=1, circle_padding=Fal
     random.seed(a=num_seed)  # if None, system clock
     result = np.zeros((number, N1, N2))
     assert N1 == N2, "resolution of images need to be same"
+    lin = np.linspace(-1,1, N1)
+    XX, YY = np.meshgrid(lin,lin)
+    circle = ((XX**2+YY**2)<=1)*1.
 
     for i in range(number):
         file = files[i]
@@ -53,41 +52,20 @@ def load_images_files_rescaled(path, files, N1, N2, number=1, circle_padding=Fal
                      mode='reflect', multichannel=False)
 
         if circle_padding:
-            _res: int = int(np.sqrt(N1 ** 2 / 2))
-            scaleX = _res / N1
-            scaleY = _res / N2
-            im = rescale(im, scale=(scaleX, scaleY),
-                         mode='reflect', multichannel=False)
-
-            padding = int((N1 - _res) / 2)
-            p = (padding, padding)
-            if padding + padding + _res - N1 == -1:
-                p = (padding + 1, padding)
-
-            im = np.pad(im, [p, p], mode='constant', constant_values=0)
+           im = im * circle
         result[i, :, :] = im
     return result
 
 
 def add_circle_padding_to_images(images):
     res = images.shape[1]
-    _res: int = int(np.sqrt(res ** 2 / 2))
-    diff = (res - _res)
-
-    scaleX = _res / res
-    scaleY = _res / res
+    lin = np.linspace(-1,1,res)
+    XX, YY = np.meshgrid(lin,lin)
+    circle = ((XX**2+YY**2)<=1)*1.
 
     result = np.zeros_like(images)
 
     for i in range(images.shape[0]):
-        im = rescale(images[i], scale=(scaleX, scaleY), mode='reflect', multichannel=False)
-        padding = np.floor( diff / 2).astype(np.int)
-        if padding + padding + _res - res == -1:
-            p = (padding + 1, padding)
-        else:
-            p = (padding, padding)
-
-        im = np.pad(im, [p, p], mode='constant', constant_values=0)
-        result[i] = im
+        result[i] = images[i] * circle
 
     return result

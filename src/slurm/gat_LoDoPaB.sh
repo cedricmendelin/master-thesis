@@ -17,11 +17,13 @@ cd ~/master-thesis-git-nobackup
 
 wandb offline
 
-python ./src/GATDenoiserLoDoPaB-CT.py  \
+python ./src/GATDenoiserFixedImages_runner.py  \
         --graph_size 1024 \
         --samples 8192 \
-        --resolution 192 \
-        --validation_image_count 10 \
+        --resolution 64 \
+        --image_path "src/data/limited-CT/data_png_train/" \
+        --validation_image_path "src/data/limited-CT/data_png_test/" \
+        --validation_image_count 50 \
         --use_wandb True \
         --verbose True \
         --save_model True \
@@ -37,3 +39,4 @@ python ./src/GATDenoiserLoDoPaB-CT.py  \
         --gat_snr_upper 10 \
         --batch_size 64 \
         --loss "SINO" \
+        --wandb_project "LoDoPaB-CT"
