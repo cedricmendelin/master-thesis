@@ -1,24 +1,93 @@
 \chapter{Contribution}
 \label{sec:contribution}
 
+\textbf{TODO: Boost fbp with \cite{ct-reconstruction-comparison}}
+
 In the following chapter, contribution during Master Thesis is presented.
-As result, a GNN can be presented and it is called \textit{GAT-Denoiser}.
+As result, a GNN can be presented which is called \textit{GAT-Denoiser}.
 The idea of GAT was applied to create an observation denoiser and therefore, GAT
 will be shortly explained in more detailed way.
 
 The focus during practical part was on classical computed tomography in 2D but
-can be generalized to cryo-EM and 3D. The base structure 
+can be generalized to cryo-EM and 3D.
 
 \section{Graph Attention Networks}
+As mentioned in section~\ref{sec:graph_depp_learning}, GAT is an extension to GCN and 
+adds attention (or weights) to node features. Again, the topology of the graph will no
+change but some averaging over the neighbourhood will take place and this is what 
+in denoising is a good idea.
 
-\subsection{Heads}
+\subsection{Single Layer}
+Input of the layer are the node features $h = \{ h_1, h_2, \dots , h_N \} \in \mathbb{R}^F$, 
+where $N$ is the number of nodes and $F$ the number of features per node. 
+The layer will map the input to the output, which can potentially have different dimensions: 
+$h^{\prime} = \{ h_1^{\prime}, h_2^{\prime}, \dots, h_N^{\prime} \} \in \mathbb{R}^{F^{\prime}} $
+
+As is other GNNs, input features are initially 
+linearly transformed and parametrized by a learnable weight matrix $W \in \mathbb{R}^{F^{\prime} \times F}$.
+This allows, to add enough expressiveness to the neural network and weights are learned during training.
+
+Further, attention coefficiants are computed, which indicate the importance of node $j$ to node $i$:
+
+\begin{equation}
+  e_{ij} = a(Wh_i, Wh_j),
+\end{equation}
+
+with $a$ as the shared attentional meachanism $a : \mathbb{R}^{F^{\prime}} \times \mathbb{R}^{F^{\prime}} \mapsto \mathbb{R}$.
+\citet{GAT} proposed to use a single-layer feedforward neural network, paremetrized by a weight vector $a \in \mathbb{R}^{2F^{\prime}}$
+and LeakyReLu as activation function, which is what we used as well.
+ 
+The coefficients $e$ need to be normalized, such that all attention coefficient of one node sum up to 1 and therefore are comparable nicely.
+Therefore, softmax is used as normalization and the normalized attention coefficient are defined as:
+\begin{equation}
+  \alpha_{ij} = softmax_j(e_{ij})
+\end{equation}
+
+
+Finally, the new node embedding is calculated as:
+
+\begin{equation}
+  h_i^{\prime} = \sigma \left( \sum_{j \in \mathcal{N}_i} \alpha_{ij} W h_j \right),
+\end{equation}
+
+with $\sigma$ as some arbitrary activation function.
+
+\subsection{Multi-Head attention}
+Motivated by \citet{transformer}, multi-head attention can be beneficial to stabilize the learning process.
+Therefore, not only single weight matrix is learned but it is splitted up in several part, all learned individually but simultanously.
+
+
+\begin{equation}
+  h_i^{\prime} = \bigparallel^K_{k=1} \sigma \left(\sum_{j \in \mathcal{N}_i} \alpha_{ij}^k W^k h_j \right),  
+\end{equation}
+
+where $\parallel$ corresponds to concatenation, $\alpha_{ij}^k$ the $k$-th attention mechanism and $W^k$ the linear
+transformation's weight matrix. The final output will consists of $KF^{\prime}$ output features.
+
+\paragraph{Last layer:}
+If working with multiple heads, in the last layer of our neural network, concatenation is not the desired 
+way to prepare for predication and therefore, averaging instead of concatenation is used.
 
 \subsection{Connection to molecular imaging}
+Exploit the fact that we know how manifold look like.
+Fix graph
 
 \section{GAT-Denoiser}
+In the following section, the Graph neural network GAT-Denoiser will be introduced.
+
 \subsection{Architecture}
+
 \subsection{Convolution with U-NET}
+Expect that it will boost performance.
+
+
 \subsection{Loss}
+
+
+$$ \mathcal{L}_1 = || forward(x_i) - denoiser(forward(x_i) + \eta) ||_2 $$ 
+$$ \mathcal{L}_1 = || y_i - y_i^* ||_2 $$ 
+$$ \mathcal{L}_2 = || x_i - backward (denoiser(forward(x_i) + \eta)) ||_2 $$ 
+$$ \mathcal{L}_2 = || x_i - backward (y_i^*) ||_2 $$
 
 
 Motivation:

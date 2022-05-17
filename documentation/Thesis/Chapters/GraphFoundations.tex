@@ -8,7 +8,6 @@ First, a broad definition of graphs is given and further, the term "Graph Denois
 introduced and explained. Finally, connection to Graph Laplacian is established
 and different opportunities exploiting for a good denoising algorithms are shown.
 
-
 \section{Graph Foundations}
 Real world data can be in graph structure, like social networks, citation networks,
 protein interaction networks or google search. 
@@ -155,7 +154,8 @@ But, it uses a neighbourhood for averaging, which shows great potential of graph
 as a data structure for denoising, as graphs can represent neighbours and neighbourhoods really well.
 
 
-\section{Graph Laplacian}
+\section{Graph Laplacian \& Manifolds}
+\subsection{Graph Laplacian}
 Graph Laplacian is a matrix that represents a graph and can be used to find many important properties.
 It is a very powerful tool and therefore, a complete section is dedicated to it.
 A good introduction and overview can be found by \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
@@ -215,7 +215,8 @@ Therefore, if underlying manifold can be approximated, a dimensionality reductio
 is established as one can embed data points in the low-dimensional manifold space.
 There is a complete area of research devoted to this manifold assumption called Manifold Learning\cite{ManifoldLearning}.
 
-\paragraph{Manifold calculation:}
+\subsection{Manifold calculation}
+\label{sec:manifold_calculation}
 Manifold of a dataset can be calculated the following:
 
 \begin{enumerate}
@@ -224,10 +225,15 @@ Manifold of a dataset can be calculated the following:
     \item Extract the second, third (and fourth) smallest eigenvectors.
 \end{enumerate}
 
+
+
 \subsection{Manifold of computed tomography and cryo-EM}
 
 Therefore, it can be observed how the manifold of classical tomography and cryo-EM objects look like.
-In the following, the Shepp-Logan phantom is again used as an example of classical tomography.
+In the following, the Shepp-Logan phantom is again used as an example of classical tomography
+and the low-dimensional embedding is calculated from the sinogram.
+
+
 
 \textbf{TODO: fix figures}
 \begin{itemize}
@@ -272,7 +278,8 @@ Graph Laplacian is used for dimensionality reduction for high-dimensional data, 
 They showed that Graph Laplacian approximates the Laplace-Beltrami operator.
 Further, Graph Laplacian is depended on the adjacency matrix $A$, if $A$ is noisy, Graph Laplacian will be noisy as well.
 
-\subsection{Graph Deep Learning}
+\section{Graph Deep Learning}
+\label{sec:graph_depp_learning}
 As already mentioned, Graph Denoising can be seen as a way of link predication. 
 The state-of-the-art method for solving link prediction are \textit{Graph Deep Learning} approaches.
 Graph Deep Learning is a fast evolving field in research. With Graph Neural Networks (GNN) \cite{GNN} the framework
