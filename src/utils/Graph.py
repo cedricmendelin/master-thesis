@@ -1,5 +1,6 @@
 import numpy as np
-
+from scipy import sparse
+from scipy.sparse.linalg import eigsh
 
 def generate_knn_from_distances_with_edges(distanceMatrix, K, sym=True, ordering='desc', dataType='float64', ignoreFirst=False):
     """ Generates k-nn graph for given distances.
@@ -47,3 +48,23 @@ def generate_knn_from_distances_with_edges(distanceMatrix, K, sym=True, ordering
             A = (((A + A .T) > 0) * 1).astype(dataType)
 
     return A.astype(dataType), neighbors.astype(np.int), np.array(list(edges))
+
+"""
+Gets the degree matrix of given matrix.
+"""
+def get_degree_matrix(M):
+  return np.diag(M.sum(axis=1))
+
+
+"""
+Calculate L = D - A and retuns first n smallest eigenvectors ignoring the first one.
+"""
+def calc_graph_laplacian(A, embedDim=2):
+  # Laplacian:
+  L = get_degree_matrix(A) - A
+  return extract_embedding(L, embedDim)
+
+def extract_embedding(L, embedDim):
+  L=sparse.csr_matrix(L)
+  eigenValues, eigenVectors = eigsh(L,k=embedDim + 1,which='SM')
+  return eigenVectors[:, 1:embedDim + 1 ]
