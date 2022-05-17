@@ -100,6 +100,7 @@ class MyDataset(Dataset):
         return len(self.files)
 
     def __getitem__(self, idx):
+        
         label = (imageio.imread(self.data_CT+os.sep+self.files[idx])/255)*self.circle
         label = torch.from_numpy(label)
         data = OperatorFunction.apply(self.radon, label).data
@@ -123,51 +124,50 @@ test_loader = DataLoader(dataset=MyDataset(data_CT_test),
 
 
 
-# data_CT = data_CT_test
-# files = os.listdir(data_CT)
+data_CT = data_CT_test
+files = os.listdir(data_CT)
+reco_space = odl.uniform_discr(
+    min_pt=[-20, -20], max_pt=[20, 20], shape=[resolution, resolution], dtype='float32')
 
-# reco_space = odl.uniform_discr(
-#     min_pt=[-20, -20], max_pt=[20, 20], shape=[resolution, resolution], dtype='float32')
+# Angles: uniformly spaced, n = 1000, min = 0, max = pi
+angle_partition = odl.uniform_partition(0, np.pi, samples)
 
-# # Angles: uniformly spaced, n = 1000, min = 0, max = pi
-# angle_partition = odl.uniform_partition(0, np.pi, samples)
+# Detector: uniformly sampled, n = 500, min = -30, max = 30
+detector_partition = odl.uniform_partition(-30, 30, resolution)
 
-# # Detector: uniformly sampled, n = 500, min = -30, max = 30
-# detector_partition = odl.uniform_partition(-30, 30, resolution)
+# Make a parallel beam geometry with flat detector
+geometry = odl.tomo.Parallel2dGeometry(angle_partition,detector_partition)
 
-# # Make a parallel beam geometry with flat detector
-# geometry = odl.tomo.Parallel2dGeometry(angle_partition,detector_partition)
+# Ray transform (= forward projection).
+radon = odl.tomo.RayTransform(reco_space, geometry)
 
-# # Ray transform (= forward projection).
-# radon = odl.tomo.RayTransform(reco_space, geometry)
+# Fourier transform in detector direction
+fourier = odl.trafos.FourierTransform(radon.range, axes=[1])
+# Create ramp in the detector direction
+ramp_function = fourier.range.element(lambda x: np.abs(x[1]) / (2 * np.pi))
+# Create ramp filter via the convolution formula with fourier transforms
+ramp_filter = fourier.inverse * ramp_function * fourier
 
-# # Fourier transform in detector direction
-# fourier = odl.trafos.FourierTransform(radon.range, axes=[1])
-# # Create ramp in the detector direction
-# ramp_function = fourier.range.element(lambda x: np.abs(x[1]) / (2 * np.pi))
-# # Create ramp filter via the convolution formula with fourier transforms
-# ramp_filter = fourier.inverse * ramp_function * fourier
+# Create filtered back-projection by composing the back-projection (adjoint)
+# with the ramp filter.
+fbp = radon.adjoint * ramp_filter
 
-# # Create filtered back-projection by composing the back-projection (adjoint)
-# # with the ramp filter.
-# fbp = radon.adjoint * ramp_filter
+lin = np.linspace(-1,1,resolution)
+XX, YY = np.meshgrid(lin,lin)
+circle = ((XX**2+YY**2)<=1)*1.
 
-# lin = np.linspace(-1,1,resolution)
-# XX, YY = np.meshgrid(lin,lin)
-# circle = ((XX**2+YY**2)<=1)*1.
+label = torch.zeros((len(files),resolution,resolution)).type(torch_type).to(device)
+for idx in range(len(files)):
+    label[idx] = torch.from_numpy((imageio.imread(data_CT_test+os.sep+files[idx])/255)*circle)
+    data = OperatorFunction.apply(radon, label).data
 
-# label = torch.zeros((len(files),resolution,resolution)).type(torch_type).to(device)
-# for idx in range(len(files)):
-#     label[idx] = torch.from_numpy((imageio.imread(data_CT_test+os.sep+files[idx])/255)*circle)
-#     data = OperatorFunction.apply(radon, label).data
+    # add noise
+    SNR = np.random.rand()*(SNR_max-SNR_min)+SNR_min
+    sigma = find_sigma_noise(SNR, data)
+    data = data + torch.randn_like(data)*sigma
 
-#     # add noise
-#     SNR = np.random.rand()*(SNR_max-SNR_min)+SNR_min
-#     sigma = find_sigma_noise(SNR, data)
-#     data = data + torch.randn_like(data)*sigma
-
-# # reconstruct
-# data = OperatorFunction.apply(self.fbp,data.view(1, samples, resolution))
+# reconstruct
+data = OperatorFunction.apply(self.fbp,data.view(1, samples, resolution))
 
 
 
