@@ -32,7 +32,7 @@ class GAT(torch.nn.Module):
         for _ in range(num_layers - 1):
             self.convs.append(GATConv(in_dim, hidden_dim, heads))
 
-        # last layer:
+        # last layer, averaging with one head:
         self.convs.append(GATConv(hidden_dim * heads, out_dim, 1))
 
     def forward(self, data):
