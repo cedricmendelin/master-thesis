@@ -22,6 +22,7 @@ class GAT(torch.nn.Module):
 
         # in_dim = hidden_dim * heads
         self.convs = torch.nn.ModuleList()
+        # self.convs_signal = torch.nn.ModuleList()
         self.in_dim = in_dim
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
@@ -39,6 +40,8 @@ class GAT(torch.nn.Module):
         x, edge_index = data.x, data.edge_index
 
         for layer, conv in enumerate(self.convs):
+            ## TODO: add a Conv1d layer here
+            # x = self.convs_signal(x)
             x = conv(x, edge_index)
             if len(self.convs) - 1 != layer:
                 x = self.activation(x)

@@ -27,13 +27,13 @@ data_CT_test = "data/limited-CT/data_png_test"
 data_CT_train = "data/limited-CT/data_png_train"
 resolution = 64
 samples = 1024
-SNR_min = -15
+SNR_min = -20
 SNR_max = 0
 save_dir = "results/Unet"
 
 batch_size = 32
 lr = 1e-3
-epochs = 500
+epochs = 10000
 
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
@@ -257,7 +257,7 @@ for ep in range(epochs):
         loss_tot.append(loss.item())
 
         if i%Ndisp==0 and i!=0:
-            print("Loss over last {0} iter: {1}".format(Ndisp,np.mean(loss_tot[-Ndisp:])))
+            print("{0}/{1} -- Loss over last {1} iter: {2}".format(ep,epochs,Ndisp,np.mean(loss_tot[-Ndisp:])))
 
             out = y_est[0,0].detach().cpu().numpy()
             inp = input[0].detach().cpu().numpy()
