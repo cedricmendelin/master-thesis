@@ -1,4 +1,6 @@
 
+# import os
+# os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -14,7 +16,7 @@ import odl
 from tqdm import tqdm
 import models
 from utils.ODLHelper import OperatorFunction, OperatorModule
-
+from utils.Plotting import plot_imshow
 
 if torch.cuda.device_count()>1:
     torch.cuda.set_device(1)
@@ -98,7 +100,9 @@ circle = ((XX**2+YY**2)<=1)*1.
 
 for idx in range(1): # len(files)
     label = torch.from_numpy((imageio.imread(data_CT+os.sep+files[idx])/255)*circle)
+    plot_imshow(label)
     data = OperatorFunction.apply(radon, label).data
+    plot_imshow(data)
 
     # add noise
     SNR = np.random.rand()*(SNR_max-SNR_min)+SNR_min
@@ -106,10 +110,18 @@ for idx in range(1): # len(files)
     data_ = data.clone()
     data = data + torch.randn_like(data)*sigma
     print("SNR:",find_SNR(data_, data).detach().cpu().numpy())
+    plot_imshow(data)
 
     # reconstruct
-    data = OperatorFunction.apply(fbp,data.view(1, samples, resolution))
-    data = data.view(resolution,resolution).type(torch_type)
+    data_fbp = OperatorFunction.apply(fbp, data.view(1, samples, resolution))
+    data_fbp = data_fbp.view(resolution,resolution).type(torch_type)
+
+    plot_imshow(data_fbp)
+
+    data_fbp2 = OperatorFunction.apply(fbp, data_.view(1, samples, resolution))
+    data_fbp2 = data_fbp2.view(resolution,resolution).type(torch_type)
+
+    plot_imshow(data_fbp2)
 
     out = data.detach().cpu().numpy()
     out = (out-out.min())/(out.max()-out.min())
@@ -117,6 +129,7 @@ for idx in range(1): # len(files)
 
 
 # Test dataset
+plt.show()
 data_CT = data_CT_test
 save_dir = "data/limited-CT/data_png_test_out"
 if not os.path.exists(save_dir):
