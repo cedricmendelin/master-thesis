@@ -27,13 +27,13 @@ data_CT_test = "data/limited-CT/data_png_test"
 data_CT_train = "data/limited-CT/data_png_train"
 resolution = 64
 samples = 1024
-SNR_min = 5
-SNR_max = 10
+SNR_min = -15
+SNR_max = 0
 save_dir = "results/Unet"
 
-batch_size = 8
+batch_size = 32
 lr = 1e-3
-epochs = 5
+epochs = 500
 
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
@@ -123,6 +123,56 @@ test_loader = DataLoader(dataset=MyDataset(data_CT_test),
 
 
 
+# data_CT = data_CT_test
+# files = os.listdir(data_CT)
+
+# reco_space = odl.uniform_discr(
+#     min_pt=[-20, -20], max_pt=[20, 20], shape=[resolution, resolution], dtype='float32')
+
+# # Angles: uniformly spaced, n = 1000, min = 0, max = pi
+# angle_partition = odl.uniform_partition(0, np.pi, samples)
+
+# # Detector: uniformly sampled, n = 500, min = -30, max = 30
+# detector_partition = odl.uniform_partition(-30, 30, resolution)
+
+# # Make a parallel beam geometry with flat detector
+# geometry = odl.tomo.Parallel2dGeometry(angle_partition,detector_partition)
+
+# # Ray transform (= forward projection).
+# radon = odl.tomo.RayTransform(reco_space, geometry)
+
+# # Fourier transform in detector direction
+# fourier = odl.trafos.FourierTransform(radon.range, axes=[1])
+# # Create ramp in the detector direction
+# ramp_function = fourier.range.element(lambda x: np.abs(x[1]) / (2 * np.pi))
+# # Create ramp filter via the convolution formula with fourier transforms
+# ramp_filter = fourier.inverse * ramp_function * fourier
+
+# # Create filtered back-projection by composing the back-projection (adjoint)
+# # with the ramp filter.
+# fbp = radon.adjoint * ramp_filter
+
+# lin = np.linspace(-1,1,resolution)
+# XX, YY = np.meshgrid(lin,lin)
+# circle = ((XX**2+YY**2)<=1)*1.
+
+# label = torch.zeros((len(files),resolution,resolution)).type(torch_type).to(device)
+# for idx in range(len(files)):
+#     label[idx] = torch.from_numpy((imageio.imread(data_CT_test+os.sep+files[idx])/255)*circle)
+#     data = OperatorFunction.apply(radon, label).data
+
+#     # add noise
+#     SNR = np.random.rand()*(SNR_max-SNR_min)+SNR_min
+#     sigma = find_sigma_noise(SNR, data)
+#     data = data + torch.randn_like(data)*sigma
+
+# # reconstruct
+# data = OperatorFunction.apply(self.fbp,data.view(1, samples, resolution))
+
+
+
+
+
 #######################################
 ### Define network
 #######################################
@@ -135,7 +185,14 @@ optimizer = torch.optim.Adam(net.parameters(), lr, weight_decay=5e-6)
 ### Define network
 #######################################
 loss_tot = []
-Ndisp = 10
+# Load previously trained model
+if os.path.exists('net.pt'):
+    print("### Load previous model")
+    checkpoint = torch.load("net.pt",map_location=device)
+    net.load_state_dict(checkpoint['model_state_dict']) 
+    loss_tot = checkpoint['loss_tot']
+
+Ndisp = 500
 for ep in range(epochs):
     for i, data in enumerate(train_loader):  # Iterate in batches over the training dataset.
         if ep%1==0 and ep!=0:
@@ -146,9 +203,9 @@ for ep in range(epochs):
         label = data['label'].to(device)
 
         optimizer.zero_grad()
-        y_est = net(input.view(batch_size,1,resolution,resolution))
+        y_est = net(input.view(-1,1,resolution,resolution))
         
-        loss = criterion(y_est.view(batch_size,resolution,resolution),label)
+        loss = criterion(y_est.view(-1,resolution,resolution),label)
 
         loss.backward()
         optimizer.step()
