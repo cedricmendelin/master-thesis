@@ -257,7 +257,7 @@ for ep in range(epochs):
         loss_tot.append(loss.item())
 
         if i%Ndisp==0 and i!=0:
-            print("{0}/{1} -- Loss over last {1} iter: {2}".format(ep,epochs,Ndisp,np.mean(loss_tot[-Ndisp:])))
+            print("{0}/{1} -- Loss over last {2} iter: {3}".format(ep,epochs,Ndisp,np.mean(loss_tot[-Ndisp:])))
 
             out = y_est[0,0].detach().cpu().numpy()
             inp = input[0].detach().cpu().numpy()
