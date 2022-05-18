@@ -23,20 +23,26 @@ python ./src/GATDenoiserFixedImages_runner.py  \
         --resolution 64 \
         --image_path "src/data/limited-CT/data_png_train/" \
         --validation_image_path "src/data/limited-CT/data_png_test/" \
-        --validation_image_count 50 \
+        --validation_image_count 100 \
         --use_wandb True \
         --verbose True \
         --save_model True \
         --k_nn 8 \
-        --validation_snrs 10 \
+        --validation_snrs 0 \
         --epochs 200    \
         --gat_heads 8 \
-        --gat_layers 3 \
+        --gat_layers 4 \
         --gat_dropout 0.03 \
         --gat_weight_decay 0.0005 \
         --gat_learning_rate 0.01 \
-        --gat_snr_lower 10 \
-        --gat_snr_upper 10 \
+        --gat_snr_lower 0 \
+        --gat_snr_upper 0 \
         --batch_size 64 \
-        --loss "SINO" \
+        --loss "FBP" \
+        --unet_refinement True \
+        --gat_use_conv True \
+        --gat_conv_kernel 3 \
+        --gat_conv_padding 1 \
+        --gat_conv_N_latent \
+        --unet_path "models/unet.pt" \
         --wandb_project "LoDoPaB-CT"
