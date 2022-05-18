@@ -8,7 +8,7 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument("--graph_size", type=int, default=1024)
 parser.add_argument("--resolution", type=int, default=64)
-parser.add_argument("--samples", type=int, default=16384)
+parser.add_argument("--samples", type=int, default=8)
 
 parser.add_argument("--image_path", type=str, default="src/data/limited-CT/data_png_train/")
 
@@ -17,24 +17,32 @@ parser.add_argument("--validation_image_count", type=int, default=5)
 
 parser.add_argument("--use_wandb", type=bool, default=True)
 parser.add_argument("--debug_plots", type=bool, default=True)
-parser.add_argument("--wandb_project", type=str, default="LoDoPaB-CT")
+parser.add_argument("--wandb_project", type=str, default="LoDoPaB-CT FBP")
 parser.add_argument("--save_model", type=bool, default=True)
 parser.add_argument("--model_dir", type=str, default="denoiser/")
-parser.add_argument("--gat_layers", type=int, default=3)
-parser.add_argument("--gat_heads", type=int, default=1)
+
+parser.add_argument("--gat_layers", type=int, default=4)
+parser.add_argument("--gat_heads", type=int, default=8)
 parser.add_argument("--gat_dropout", type=float, default=0.05)
 parser.add_argument("--gat_weight_decay", type=float, default=0.0005)
 parser.add_argument("--gat_learning_rate", type=float, default=0.01)
-parser.add_argument("--epochs", type=int, default=20)
-parser.add_argument("--gat_snr_lower", type=int, default=10)
-parser.add_argument("--gat_snr_upper", type=int, default=10)
-parser.add_argument("--validation_snrs", nargs="+", type=int, default=[10])
+parser.add_argument("--gat_use_conv", type=bool, default=False)
+parser.add_argument("--gat_conv_kernel", type=int, default=3)
+parser.add_argument("--gat_conv_padding", type=int, default=1)
+parser.add_argument("--gat_conv_N_latent", type=int, default=1)
+parser.add_argument("--unet_refinement", type=bool, default=True)
+parser.add_argument("--unet_path", type=str, default="models/unet.pt")
+
+parser.add_argument("--epochs", type=int, default=200)
+parser.add_argument("--gat_snr_lower", type=int, default=0)
+parser.add_argument("--gat_snr_upper", type=int, default=0)
+parser.add_argument("--validation_snrs", nargs="+", type=int, default=[0])
 parser.add_argument("--append_validation_images", type=int, default=0)
 parser.add_argument("--add_circle_padding", type=bool, default=True)
 parser.add_argument("--k_nn", type=int, default=8)
-parser.add_argument("--batch_size", type=int, default=256)
+parser.add_argument("--batch_size", type=int, default=128)
 
-parser.add_argument('--loss', type=str, default='sino',
+parser.add_argument('--loss', type=str, default='FBP',
                     choices=[i.name.upper() for i in Loss])
 
 parser.add_argument("--verbose", type=bool, default=True)
