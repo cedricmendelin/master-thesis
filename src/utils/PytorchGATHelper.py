@@ -20,10 +20,8 @@ class GAT(torch.nn.Module):
         """
         super().__init__()
 
-        # in_dim = hidden_dim * heads
         self.gat_layers = torch.nn.ModuleList()
         self.convs = torch.nn.ModuleList()
-        # self.convs_signal = torch.nn.ModuleList()
         self.in_dim = in_dim
         self.hidden_dim = in_dim // heads
         self.num_layers = num_layers
@@ -33,16 +31,25 @@ class GAT(torch.nn.Module):
         self.use_conv = add_conv_before_gat
         self.conv_N_latent = conv_N_latent
 
+        # setup GAT:
         for _ in range(num_layers - 1):
-            if self.use_conv:
-                self.convs.append(Conv1d(in_channels=self.conv_N_latent, out_channels=self.conv_N_latent, kernel_size=conv_kernel, padding=conv_padding))
             self.gat_layers.append(GATConv(in_dim, self.hidden_dim, heads))
-
-        # last layer: 
-        self.convs.append(Conv1d(in_channels=self.conv_N_latent, out_channels=self.conv_N_latent, kernel_size=conv_kernel, padding=conv_padding))
         
+        # last layer GAT:
         # GAT averaging with one head:
         self.gat_layers.append(GATConv(self.hidden_dim * heads, out_dim, 1))
+
+        # setup convs:
+        if self.use_conv:
+            # first layer:
+            self.convs.append(Conv1d(in_channels=1, out_channels=self.conv_N_latent, kernel_size=conv_kernel, padding=conv_padding))
+            
+            # layer 2 - (n-1)
+            if num_layers > 2:
+                for _ in range(1, num_layers - 1):
+                    self.convs.append(Conv1d(in_channels=self.conv_N_latent, out_channels=self.conv_N_latent, kernel_size=conv_kernel, padding=conv_padding))
+            # last layer: 
+            self.convs.append(Conv1d(in_channels=self.conv_N_latent, out_channels=1, kernel_size=conv_kernel, padding=conv_padding))
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
