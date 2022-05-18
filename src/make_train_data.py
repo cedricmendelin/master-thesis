@@ -1,6 +1,4 @@
 
-# import os
-# os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -16,10 +14,14 @@ import odl
 from tqdm import tqdm
 import models
 from utils.ODLHelper import OperatorFunction, OperatorModule
-from utils.Plotting import plot_imshow
 
 if torch.cuda.device_count()>1:
     torch.cuda.set_device(1)
+
+
+"""
+This script generate noisy reconstruction to train the Unet to remot arctefact and denoise.
+"""
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -29,8 +31,8 @@ data_CT_test = "data/limited-CT/data_png_test"
 data_CT_train = "data/limited-CT/data_png_train"
 resolution = 64
 samples = 1024
-SNR_min = 5
-SNR_max = 5
+SNR_min = -20
+SNR_max = 0
 
 batch_size = 32
 lr = 1e-3
@@ -39,49 +41,36 @@ epochs = 500
 
 
 #######################################
-### Prepare dataset
+### SNR functions
 #######################################
 def find_SNR(ref, x):
-    dif = torch.mean((ref-x)**2)
-    nref = torch.mean(ref**2)
+    dif = torch.std((ref-x))
+    nref = torch.std(ref)
     return 10 * torch.log10((nref+1e-16)/(dif+1e-16))
 
 def find_sigma_noise(SNR_value, x_ref):
-    nref = torch.mean(x_ref**2)
+    nref = torch.std(x_ref)
     sigma_noise = (10**(-SNR_value/10)) * nref
     return torch.sqrt(sigma_noise)
 
-# def add_noise_np(SNR, sinogram):
-#     nref = np.mean(sinogram**2)
-#     sigma_noise = (10**(-SNR/10)) * nref
-#     sigma = np.sqrt(sigma_noise)
-#     print("noise sigma:", sigma)
-#     noise = np.random.randn(sinogram.shape[0], sinogram.shape[1]) * sigma
-#     noisy_sino = sinogram + noise
-#     return noisy_sino
-
-# Train dataset
-data_CT = data_CT_train
-save_dir = "data/limited-CT/data_png_train_out"
-if not os.path.exists(save_dir):
-    os.makedirs(save_dir)
-
-files = os.listdir(data_CT)
-
+#######################################
+### Prepare Forward
+#######################################
 reco_space = odl.uniform_discr(
-    min_pt=[-20, -20], max_pt=[20, 20], shape=[resolution, resolution], dtype='float32')
+    min_pt=[-resolution//2+1, -resolution//2+1], max_pt=[resolution//2, resolution//2], shape=[resolution, resolution], dtype='float32')
 
 # Angles: uniformly spaced, n = 1000, min = 0, max = pi
 angle_partition = odl.uniform_partition(0, np.pi, samples)
 
 # Detector: uniformly sampled, n = 500, min = -30, max = 30
-detector_partition = odl.uniform_partition(-30, 30, resolution)
+# detector_partition = odl.uniform_partition(-30, 30, resolution)
 
 # Make a parallel beam geometry with flat detector
-geometry = odl.tomo.Parallel2dGeometry(angle_partition,detector_partition)
+# geometry = odl.tomo.Parallel2dGeometry(angle_partition,detector_partition)
+geometry = odl.tomo.parallel_beam_geometry(reco_space, samples)
 
 # Ray transform (= forward projection).
-radon = odl.tomo.RayTransform(reco_space, geometry)
+radon = odl.tomo.RayTransform(reco_space, geometry, impl='astra_cuda')
 
 # Fourier transform in detector direction
 fourier = odl.trafos.FourierTransform(radon.range, axes=[1])
@@ -93,45 +82,71 @@ ramp_filter = fourier.inverse * ramp_function * fourier
 # Create filtered back-projection by composing the back-projection (adjoint)
 # with the ramp filter.
 fbp = radon.adjoint * ramp_filter
+model_fbp = OperatorModule(fbp)
 
 lin = np.linspace(-1,1,resolution)
 XX, YY = np.meshgrid(lin,lin)
 circle = ((XX**2+YY**2)<=1)*1.
 
-for idx in range(1): # len(files)
-    label = torch.from_numpy((imageio.imread(data_CT+os.sep+files[idx])/255)*circle)
-    plot_imshow(label)
-    data = OperatorFunction.apply(radon, label).data
-    plot_imshow(data)
 
-    # add noise
-    SNR = np.random.rand()*(SNR_max-SNR_min)+SNR_min
-    sigma = find_sigma_noise(SNR, data)
-    data_ = data.clone()
-    data = data + torch.randn_like(data)*sigma
-    print("SNR:",find_SNR(data_, data).detach().cpu().numpy())
-    plot_imshow(data)
 
-    # reconstruct
-    data_fbp = OperatorFunction.apply(fbp, data.view(1, samples, resolution))
-    data_fbp = data_fbp.view(resolution,resolution).type(torch_type)
+# Train dataset
+data_CT = data_CT_train
+save_dir = "data/limited-CT/data_png_train_out"
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
 
-    plot_imshow(data_fbp)
+files = os.listdir(data_CT)
 
-    data_fbp2 = OperatorFunction.apply(fbp, data_.view(1, samples, resolution))
-    data_fbp2 = data_fbp2.view(resolution,resolution).type(torch_type)
+label = np.zeros((len(files),resolution,resolution))
+for idx in tqdm(range(len(files))): # len(files)
+    file = data_CT+os.sep+files[idx]
+    label[idx] = (imageio.imread(file)/255)*circle
 
-    plot_imshow(data_fbp2)
+label = torch.from_numpy(label).type(torch_type).to(device)
+data = OperatorFunction.apply(radon, label).data
+# TODO: make sure it's one by one
+SNR = np.random.rand(data.shape[0])*(SNR_max-SNR_min)+SNR_min
+nref = torch.std(data,(1,2))
+sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
+proj = data + torch.randn_like(data)*sigma_noise[:,None,None]
+recon = model_fbp(proj.view(-1, samples, proj.shape[2]))
 
-    out = data.detach().cpu().numpy()
+
+for idx in tqdm(range(len(files))): # len(files)
+    file = data_CT+os.sep+files[idx]
+    out = recon[idx].detach().cpu().numpy()
     out = (out-out.min())/(out.max()-out.min())
     imageio.imwrite(save_dir+os.sep+files[idx],np.clip(out*255,0,255).astype(np.uint8))
 
 
-# Test dataset
-plt.show()
+
+
+# # Test dataset
 data_CT = data_CT_test
 save_dir = "data/limited-CT/data_png_test_out"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
-## TODO: same for test
+files = os.listdir(data_CT)
+
+label = np.zeros((len(files),resolution,resolution))
+for idx in tqdm(range(len(files))): # len(files)
+    file = data_CT+os.sep+files[idx]
+    label[idx] = (imageio.imread(file)/255)*circle
+
+label = torch.from_numpy(label).type(torch_type).to(device)
+data = OperatorFunction.apply(radon, label).data
+# TODO: make sure it's one by one
+SNR = np.random.rand(data.shape[0])*(SNR_max-SNR_min)+SNR_min
+nref = torch.std(data,(1,2))
+sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
+proj = data + torch.randn_like(data)*sigma_noise[:,None,None]
+recon = model_fbp(proj.view(-1, samples, proj.shape[2]))
+
+
+for idx in tqdm(range(len(files))): # len(files)
+    file = data_CT+os.sep+files[idx]
+    out = recon[idx].detach().cpu().numpy()
+    out = (out-out.min())/(out.max()-out.min())
+    imageio.imwrite(save_dir+os.sep+files[idx],np.clip(out*255,0,255).astype(np.uint8))
+

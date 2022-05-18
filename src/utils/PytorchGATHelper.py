@@ -23,6 +23,7 @@ class GAT(torch.nn.Module):
         # in_dim = hidden_dim * heads
         self.gat_layers = torch.nn.ModuleList()
         self.convs = torch.nn.ModuleList()
+        # self.convs_signal = torch.nn.ModuleList()
         self.in_dim = in_dim
         self.hidden_dim = in_dim // heads
         self.num_layers = num_layers
@@ -58,7 +59,6 @@ class GAT(torch.nn.Module):
             
             # do not do activation and dropout in last GAT-layer
             if i < self.num_layers - 1:
-
                 x = self.activation(x)
                 x = F.dropout(x, self.dropout)
 
