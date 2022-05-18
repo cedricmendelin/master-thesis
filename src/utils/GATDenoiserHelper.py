@@ -164,7 +164,7 @@ class GatBase():
         wandb.init(project=wandb_name, entity=wandb_user, config=config, reinit=False)
 
         if isinstance(self, GatDenoiserImagesFixed) or isinstance(self, GatDenoiserToyImagesDynamic):
-            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}-{self.Loss}"
+            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}-{self.Loss}-{self.GAT_USE_CONV}-{self.UNET_REFINEMENT}"
         elif run_name is not None :
             wandb.run.name = run_name
 
@@ -439,8 +439,6 @@ class GatBase():
             wandb.log({"execution_time": execution_time})
 
         wandb.finish()
-
-   
 
     def __execute_and_log_time__(self, action, name):
         if self.VERBOSE:
