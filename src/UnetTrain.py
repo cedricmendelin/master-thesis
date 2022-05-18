@@ -30,6 +30,7 @@ samples = 1024
 SNR_min = -20
 SNR_max = 0
 save_dir = "results/Unet"
+train = False
 
 batch_size = 32
 lr = 1e-3
@@ -237,46 +238,70 @@ if os.path.exists('net.pt'):
     loss_tot = checkpoint['loss_tot']
 
 Ndisp = 500
-for ep in range(epochs):
-    for i, data in enumerate(train_loader):  # Iterate in batches over the training dataset.
-        if ep%1==0 and ep!=0:
-            for param_group in optimizer.param_groups:
-                param_group["lr"] = lr*(1-(1-0.1)*ep/epochs)
+if train:
+    for ep in range(epochs):
+        for i, data in enumerate(train_loader):  # Iterate in batches over the training dataset.
+            if ep%1==0 and ep!=0:
+                for param_group in optimizer.param_groups:
+                    param_group["lr"] = lr*(1-(1-0.1)*ep/epochs)
 
+            input = data['data'].to(device)
+            label = data['label'].to(device)
+
+            optimizer.zero_grad()
+            y_est = net(input.view(-1,1,resolution,resolution))
+            
+            loss = criterion(y_est.view(-1,resolution,resolution),label)
+
+            loss.backward()
+            optimizer.step()
+
+            loss_tot.append(loss.item())
+
+            if i%Ndisp==0 and i!=0:
+                print("{0}/{1} -- Loss over last {2} iter: {3}".format(ep,epochs,Ndisp,np.mean(loss_tot[-Ndisp:])))
+
+                out = y_est[0,0].detach().cpu().numpy()
+                inp = input[0].detach().cpu().numpy()
+                tru = label[0].detach().cpu().numpy()
+                out = (out-out.min())/(out.max()-out.min())
+                inp = (inp-inp.min())/(inp.max()-inp.min())
+                tru = (tru-tru.min())/(tru.max()-tru.min())
+                imageio.imwrite(save_dir+os.sep+"ep_"+str(ep)+"_i_"+str(i)+"_out.png", np.clip(out*255,0,255).astype(np.uint8) )
+                imageio.imwrite(save_dir+os.sep+"ep_"+str(ep)+"_i_"+str(i)+"_input.png", np.clip(inp*255,0,255).astype(np.uint8) )
+                imageio.imwrite(save_dir+os.sep+"ep_"+str(ep)+"_i_"+str(i)+"_true.png", np.clip(tru*255,0,255).astype(np.uint8) )
+
+                torch.save({
+                    'ep': ep,
+                    'i': i,
+                    'model_state_dict': net.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'loss_tot': loss_tot,
+                    }, "net.pt")
+
+else:
+    save_dir_test = save_dir+os.sep+"test"
+    if not os.path.exists(save_dir_test):
+        os.makedirs(save_dir_test)
+    checkpoint = torch.load("net.pt",map_location=device)
+    net.load_state_dict(checkpoint['model_state_dict'])
+    cpt = 0 
+    for i, data in enumerate(test_loader):
         input = data['data'].to(device)
         label = data['label'].to(device)
-
-        optimizer.zero_grad()
         y_est = net(input.view(-1,1,resolution,resolution))
-        
         loss = criterion(y_est.view(-1,resolution,resolution),label)
 
-        loss.backward()
-        optimizer.step()
+        print("{0} -- Loss: {1}".format(i,loss.item() ))
 
-        loss_tot.append(loss.item())
-
-        if i%Ndisp==0 and i!=0:
-            print("{0}/{1} -- Loss over last {2} iter: {3}".format(ep,epochs,Ndisp,np.mean(loss_tot[-Ndisp:])))
-
-            out = y_est[0,0].detach().cpu().numpy()
-            inp = input[0].detach().cpu().numpy()
-            tru = label[0].detach().cpu().numpy()
+        for k in range(y_est.shape[0]):
+            out = y_est[k,0].detach().cpu().numpy()
+            inp = input[k].detach().cpu().numpy()
+            tru = label[k].detach().cpu().numpy()
             out = (out-out.min())/(out.max()-out.min())
             inp = (inp-inp.min())/(inp.max()-inp.min())
             tru = (tru-tru.min())/(tru.max()-tru.min())
-            imageio.imwrite(save_dir+os.sep+"ep_"+str(ep)+"_i_"+str(i)+"_out.png", np.clip(out*255,0,255).astype(np.uint8) )
-            imageio.imwrite(save_dir+os.sep+"ep_"+str(ep)+"_i_"+str(i)+"_input.png", np.clip(inp*255,0,255).astype(np.uint8) )
-            imageio.imwrite(save_dir+os.sep+"ep_"+str(ep)+"_i_"+str(i)+"_true.png", np.clip(tru*255,0,255).astype(np.uint8) )
-
-            torch.save({
-                'ep': ep,
-                'i': i,
-                'model_state_dict': net.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss_tot': loss_tot,
-                }, "net.pt")
-
-# checkpoint = torch.load("net.pt",map_location=device)
-# net = models.UNet(nfilter=64).to(device).eval()
-# net.load_state_dict(checkpoint['model_state_dict'])         
+            imageio.imwrite(save_dir_test+os.sep+str(cpt)+"_out.png", np.clip(out*255,0,255).astype(np.uint8) )
+            imageio.imwrite(save_dir_test+os.sep+str(cpt)+"_input.png", np.clip(inp*255,0,255).astype(np.uint8) )
+            imageio.imwrite(save_dir_test+os.sep+str(cpt)+"_true.png", np.clip(tru*255,0,255).astype(np.uint8) )
+            cpt += 1
