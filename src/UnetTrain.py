@@ -17,7 +17,7 @@ from utils.ODLHelper import OperatorFunction, OperatorModule
 
 
 if torch.cuda.device_count()>1:
-    torch.cuda.set_device(1)
+    torch.cuda.set_device(2)
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -221,10 +221,10 @@ test_loader = DataLoader(dataset=MyDataset(data_test,label_test),
 #######################################
 ### Define network
 #######################################
-net = models.UNet(nfilter=64).to(device).train()
+net = models.UNet(nfilter=128).to(device).train()
 net.summary()
 criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(net.parameters(), lr, weight_decay=5e-6)
+optimizer = torch.optim.Adam(net.parameters(), lr, weight_decay=1e-6)
 
 #######################################
 ### Define network
