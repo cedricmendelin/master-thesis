@@ -154,6 +154,28 @@ But, it uses a neighbourhood for averaging, which shows great potential of graph
 as a data structure for denoising, as graphs can represent neighbours and neighbourhoods really well.
 
 
+\section{Graph Deep Learning}
+\label{sec:graph_depp_learning}
+As already mentioned, Graph Denoising can be seen as a way of link predication. 
+The state-of-the-art method for solving link prediction are \textit{Graph Deep Learning} approaches.
+Graph Deep Learning is a fast evolving field in research. With Graph Neural Networks (GNN) \cite{GNN} the framework
+for neural networks with graphs has been established. 
+
+Using Graph Convolutional Networks (GCN) \cite{GCN} for graph feature extraction is a popular way. 
+With GCN a new feature representation is iteratively learned for the node features (edge features are not considered).
+It can be seen as an averaging of nodes over their neighbourhood where all neighbours get the same weight combined with some non-linear activation (e.g. ReLU). 
+To consider the node itself in averaging they apply the so-called "Renormalization trick", where self-loops are added to the 
+adjacency matrix and after every layer, a normalization step is applied. 
+The topology of the graph will not be adjusted during  learning process.
+
+\citet{GAT} extended the concept of GCN with attention and not all the neighbouring nodes get the same weight (attention).
+Simple Graph Convolutional Network \cite{simpleGCN} proposed a simplified version of GCN.
+They could verify their hypothesis that GCN is dominated by local averaging step and non-linear 
+activation function between layers do not contribute to much to the success of GCN. 
+Therefore, it can be seen as a way of power iteration (see \ref{sec:powerIterations} for further information) over the adjacency matrix with normalization in every layer.
+\citet{dynamicGCN} proposed an extension to GCN by not operating on the same graph in every layer but adopting
+underlying graph topology layer by layer.
+
 \section{Graph Laplacian \& Manifolds}
 \subsection{Graph Laplacian}
 Graph Laplacian is a matrix that represents a graph and can be used to find many important properties.
@@ -234,7 +256,6 @@ In the following, the Shepp-Logan phantom is again used as an example of classic
 and the low-dimensional embedding is calculated from the sinogram.
 
 
-
 \textbf{TODO: fix figures}
 \begin{itemize}
     
@@ -278,25 +299,6 @@ Graph Laplacian is used for dimensionality reduction for high-dimensional data, 
 They showed that Graph Laplacian approximates the Laplace-Beltrami operator.
 Further, Graph Laplacian is depended on the adjacency matrix $A$, if $A$ is noisy, Graph Laplacian will be noisy as well.
 
-\section{Graph Deep Learning}
-\label{sec:graph_depp_learning}
-As already mentioned, Graph Denoising can be seen as a way of link predication. 
-The state-of-the-art method for solving link prediction are \textit{Graph Deep Learning} approaches.
-Graph Deep Learning is a fast evolving field in research. With Graph Neural Networks (GNN) \cite{GNN} the framework
-for neural networks with graphs has been established. 
 
-Using Graph Convolutional Networks (GCN) \cite{GCN} for graph feature extraction is a popular way. 
-With GCN a new feature representation is iteratively learned for the node features (edge features are not considered).
-It can be seen as an averaging of nodes over their neighbourhood where all neighbours get the same weight combined with some non-linear activation (e.g. ReLU). 
-To consider the node itself in averaging they apply the so-called "Renormalization trick", where self-loops are added to the 
-adjacency matrix and after every layer, a normalization step is applied. 
-The topology of the graph will not be adjusted during  learning process.
-
-\citet{GAT} extended the concept of GCN with attention and not all the neighbouring nodes get the same weight (attention).
-Simple Graph Convolutional Network \cite{simpleGCN} proposed a simplified version of GCN.
-They could verify their hypothesis that GCN is dominated by local averaging step and non-linear 
-activation function between layers do not contribute to much to the success of GCN. 
-Therefore, it can be seen as a way of power iteration (see \ref{sec:powerIterations} for further information) over the adjacency matrix with normalization in every layer.
-\citet{dynamicGCN} proposed an extension to GCN by not operating on the same graph in every layer but adopting
-underlying graph topology layer by layer.
-
+\section{Constructing Graphs for molecular-imaging}
+\textbf{TODO: How can we construct a graph (distance between observations, distance between low-dimensional manifold / angles).}

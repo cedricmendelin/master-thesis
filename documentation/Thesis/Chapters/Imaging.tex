@@ -115,6 +115,12 @@ The algorithm fails when working with noisy data \cite{cryoEmMath2}.
 In figure~\ref{fig:fbp_phantom} and figure~\ref{fig:fbp_phantom_noisy} reconstruction using FBP can be seen from 
 Shepp-Logan phantom sinogram (figure~\ref{fig:phantom_sinogram}) and its noisy version (figure~\ref{fig:phantom_sinogram_noisy}).
 
+\subparagraph{U-Net}
+\ref{ct-reconstruction-comparison} compared different reconstruction methods for computed tomography. 
+Deep Learning approaches have great potential in CT reconstruction and \ref{unet-tomography} performed much better than FBP.
+\textbf{TODO: Few words about how u-net works}
+\textbf{TODO: Add some figures with final u-net pre trained model.}
+
 \section{Cryo-EM}
 Cryo-EM is another molecular imaging method, that enables the view of molecules in near-atomic resolution.
 In the Master Thesis, only single-particle cryo-EM \cite{singleParticleCryoEm} is considered, 
@@ -261,6 +267,15 @@ with,
     \item $\eta \sim \mathcal{N}(O, \sigma^2 I) \in \tilde{\Omega}^M$: gaussian noise
     \item $\Delta \subset \tilde{\Omega}^{M}$: term for discretization
 \end{itemize}
+
+Further, an abstract form of the reconstruction operator is defined as 
+\textbf{TODO: Abstract from of reconstruction}
+
+\begin{equation}
+    Recon : L^2(\tilde{\Omega}) \to L^2(\Omega), y \mapsto Recon(y; \theta_i)
+\end{equation}
+
+
 
 \paragraph{Classical tomography reconstruction:}
 
