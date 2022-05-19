@@ -30,7 +30,7 @@ samples = 1024
 SNR_min = -20
 SNR_max = 0
 save_dir = "results/Unet"
-train = False
+train = True
 
 batch_size = 32
 lr = 1e-3
@@ -231,11 +231,11 @@ optimizer = torch.optim.Adam(net.parameters(), lr, weight_decay=1e-6)
 #######################################
 loss_tot = []
 # Load previously trained model
-# if os.path.exists('net.pt'):
-#     print("### Load previous model")
-#     checkpoint = torch.load("net.pt",map_location=device)
-#     net.load_state_dict(checkpoint['model_state_dict']) 
-#     loss_tot = checkpoint['loss_tot']
+if os.path.exists('net.pt'):
+    print("### Load previous model")
+    checkpoint = torch.load("net.pt",map_location=device)
+    net.load_state_dict(checkpoint['model_state_dict']) 
+    loss_tot = checkpoint['loss_tot']
 
 Ndisp = 500
 if train:
