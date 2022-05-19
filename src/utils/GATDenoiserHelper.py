@@ -20,7 +20,7 @@ import torch
 torch.pi = torch.acos(torch.zeros(1)).item() * 2
 
 import odl
-
+import models
 
 ################### Loss Enum ##############################
 from enum import Enum
@@ -70,6 +70,14 @@ class GatBase():
         
         self.GAT_ADAM_WEIGHTDECAY: float = args.gat_weight_decay
         self.GAT_ADAM_LR: float = args.gat_learning_rate
+        self.GAT_USE_CONV: bool = args.gat_use_conv
+        self.UNET_REFINEMENT: bool = args.unet_refinement
+
+        if self.GAT_USE_CONV:
+            self.GAT_CONV_KERNEL = args.gat_conv_kernel
+            self.GAT_CONV_PADDING = args.gat_conv_padding
+            self.GAT_CONV_N_LATENT = args.gat_conv_N_latent
+        
         self.Loss = Loss[args.loss.upper()]
 
         # check if snr is fixed
@@ -156,7 +164,7 @@ class GatBase():
         wandb.init(project=wandb_name, entity=wandb_user, config=config, reinit=False)
 
         if isinstance(self, GatDenoiserImagesFixed) or isinstance(self, GatDenoiserToyImagesDynamic):
-            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}-{self.Loss}"
+            wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}-{self.Loss}-{self.GAT_USE_CONV}-{self.UNET_REFINEMENT}"
         elif run_name is not None :
             wandb.run.name = run_name
 
@@ -165,6 +173,11 @@ class GatBase():
         # parameters for forward and backward operatior
         # Currently radon and filter_back_projection is used.
         self.radon, self.fbp = setup_forward_and_backward(self.RESOLUTION, self.N)
+
+        if self.UNET_REFINEMENT:
+            checkpoint = torch.load(args.unet_path, map_location=self.device)
+            self.unet = models.UNet(nfilter=self.RESOLUTION).to(self.device).eval()
+            self.unet.load_state_dict(checkpoint['model_state_dict'])    
         
         # Parameters for seeting up graph.
         # Currently a circle graph with k neighoburs is used.
@@ -192,16 +205,47 @@ class GatBase():
             numpy.array: sinograms of input images.
         """
         return OperatorFunction.apply(self.radon, images).data
+    
+    ################## Forward operator Operators ######################
+    def __backward__(self, sinograms, with_gradient=False):
+        """ Uses odl for forwarding images.
+
+        Args:
+            images: images, shape: (batch_size, N, Resolution)
+        Returns:
+            numpy.array: denoised sinograms of input images.
+        """
+        if with_gradient:
+            fbp = self.fbp_with_gradient(sinograms)
+        else:
+            fbp = OperatorFunction.apply(self.fbp, sinograms).data
+        
+        if self.UNET_REFINEMENT:
+            fbp = self.unet(fbp.view(-1, 1, self.RESOLUTION, self.RESOLUTION))
+
+        return fbp
 
     ################### Model - setup during initialization ############
     def __prepare_model__(self, state=None):
-        self.model = GAT(
-            in_dim=self.RESOLUTION,
-            hidden_dim=self.RESOLUTION // self.GAT_HEADS,
-            num_layers=self.GAT_LAYERS,
-            out_dim=self.RESOLUTION,
-            heads=self.GAT_HEADS,
-            dropout=self.GAT_DROPOUT)
+        if self.GAT_USE_CONV:
+            self.model = GAT(
+                in_dim=self.RESOLUTION,
+                out_dim=self.RESOLUTION,
+                num_layers=self.GAT_LAYERS,
+                heads=self.GAT_HEADS,
+                dropout=self.GAT_DROPOUT,
+                add_conv_before_gat=self.GAT_USE_CONV,
+                conv_kernel=self.GAT_CONV_KERNEL,
+                conv_padding=self.GAT_CONV_PADDING,
+                conv_N_latent=self.GAT_CONV_N_LATENT)
+        else:
+            self.model = GAT(
+                in_dim=self.RESOLUTION,
+                out_dim=self.RESOLUTION,
+                num_layers=self.GAT_LAYERS,
+                heads=self.GAT_HEADS,
+                dropout=self.GAT_DROPOUT,
+                add_conv_before_gat=False)
 
         if state != None:
             self.model.load_state_dict(state)
@@ -211,8 +255,7 @@ class GatBase():
         self.model = DataParallel(self.model)
         self.model.to(self.device)
 
-        # ODL operator module to apply model to multiply sinograms
-        self.model_fbp = OperatorModule(self.fbp)
+        self.fbp_with_gradient = OperatorModule(self.fbp)
 
     def __prepare_optimizer__(self):
         self.optimizer = torch.optim.Adam(
@@ -273,8 +316,8 @@ class GatBase():
                 if loss == Loss.SINO:
                     loss_training = torch.linalg.norm(out_sinograms - y)
                 elif loss == Loss.FBP:
-                    fbps = self.model_fbp(out_sinograms.view(batch_n, self.N, self.RESOLUTION))
-                    loss_training = torch.linalg(fbps.view(batch_n, self.RESOLUTION, self.RESOLUTION) - y.view(batch_n, self.RESOLUTION, self.RESOLUTION))
+                    fbps = self.__backward__(out_sinograms.view(batch_n, self.N, self.RESOLUTION), True)
+                    loss_training = torch.linalg.norm(fbps.view(batch_n, self.RESOLUTION, self.RESOLUTION) - y.view(batch_n, self.RESOLUTION, self.RESOLUTION))
                 else:
                     raise RuntimeError("Unknown loss type!")
 
@@ -327,8 +370,8 @@ class GatBase():
                 noisy_sinograms = torch.cat([d.x for d in validation_data]).view(batch_n, self.N, self.RESOLUTION).to(denoised_sinograms.device) # noisy sino
                 clean_sinograms = torch.cat([d.y for d in validation_data]).view(batch_n, self.N, self.RESOLUTION).to(denoised_sinograms.device)
                 
-                fbps_denoised = self.model_fbp(denoised_sinograms).to(denoised_sinograms.device)
-                fbps_noisy = self.model_fbp(noisy_sinograms).to(denoised_sinograms.device)
+                fbps_denoised = self.__backward__(denoised_sinograms).to(denoised_sinograms.device)
+                fbps_noisy = self.__backward__(noisy_sinograms).to(denoised_sinograms.device)
                 
                 clean_images = self.T_validation_images[image_index: image_index + batch_n,:,:].to(denoised_sinograms.device)
                 image_index = image_index + batch_n
@@ -396,8 +439,6 @@ class GatBase():
             wandb.log({"execution_time": execution_time})
 
         wandb.finish()
-
-   
 
     def __execute_and_log_time__(self, action, name):
         if self.VERBOSE:

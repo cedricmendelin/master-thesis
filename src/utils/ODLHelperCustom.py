@@ -7,7 +7,7 @@ def setup_forward_and_backward(resolution, samples):
         min_pt=[-20, -20], max_pt=[20, 20], shape=[resolution, resolution], dtype='float32')
 
     # Angles: uniformly spaced, n = 1000, min = 0, max = pi
-    angle_partition = odl.uniform_partition(0, np.pi, samples)
+    angle_partition = odl.uniform_partition(0, 2 * np.pi, samples)
 
     # Detector: uniformly sampled, n = 500, min = -30, max = 30
     detector_partition = odl.uniform_partition(-30, 30, resolution)

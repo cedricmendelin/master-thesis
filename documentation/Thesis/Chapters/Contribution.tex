@@ -1,8 +1,6 @@
 \chapter{Contribution}
 \label{sec:contribution}
 
-\textbf{TODO: Boost fbp with \cite{ct-reconstruction-comparison}}
-
 In the following chapter, contribution during Master Thesis is presented.
 As result, a GNN can be presented which is called \textit{GAT-Denoiser}.
 The idea of GAT was applied to create an observation denoiser and therefore, GAT
@@ -11,13 +9,61 @@ will be shortly explained in more detailed way.
 The focus during practical part was on classical computed tomography in 2D but
 can be generalized to cryo-EM and 3D.
 
-\section{Graph Attention Networks}
+\paragraph{Goal}
+As introduced in chapter~\ref{sec:imaging}, molecular imaging methods computed tomography and cryo-EM are the problems
+to tackle. Further, the high-noise regime is the domain of interest, to be precise SNR between $[-20, 0]$.
+
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+  To start solving the problem, an algorithm was designed and tested on a dataset for computed tomography, further
+  projection angles are assumed to be known and $\theta$ was defined as equally spaced points on the unit-circle. \\
+
+  Therfore, in the following chapters the main focus will be on computed tomography. 
+  But, the concept of the algorithm would work in 3D, so for cryo-EM as well.
+\end{tcolorbox}
+
+
+\section{Components}
+In the following section, the concept of the presented algorithm is introduced, which is called \textit{GAT-Denoiser}. 
+GAT-Denoiser is a graph neural network and the main component is a GAT. 
+The main idea of GAT-Denoiser is to enable denoising of observations:
+\begin{equation}
+  \text{GAT-Denoiser} (\cdot) : L^2(\tilde{\Omega}) \to  L^2(\tilde{\Omega}) , y \mapsto \text{GAT-Denoiser} (y) 
+\end{equation}
+
+The GAT is expected to denoise observation signal with its neighbours by averaging. 
+Further, 1D convolution is used to denoise single observations.
+
+But the main goal is to get the best possible original object $x$ based from noisy observation $y$ and not just denoise observation $y$ to approximate 
+noiseless observation $p$:
+
+\begin{equation}
+  x \approx   Recon \left( \text{GAT-Denoiser} \left( y \right) \right)
+\end{equation}
+
+Therefore, a End-to-End learning approach is used where quality of reconstruction is 
+compared in the Loss during GAT-Denoiser training.
+
+In the following chapter, the components and architecutre of GAT-Denoiser is explained in more detail:
+
+\paragraph{Fixed projection angles}
+As already mentioned, the projection angles are assumend to be fixed and equally spaced on the unit-circle.
+This assumption is pretty strong, but good to start with developing an algorithm.
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+  For our GNN, this means that graph is fixed. A K-NN graph can be built from points, equally spaced on the unit-circle.
+  As the signal of our observations is assumed to process the low-dimensional manifold.
+\end{tcolorbox}
+
+
+
+\subsection{Graph Attention Networks}
 As mentioned in section~\ref{sec:graph_depp_learning}, GAT is an extension to GCN and 
 adds attention (or weights) to node features. Again, the topology of the graph will no
 change but some averaging over the neighbourhood will take place and this is what 
 in denoising is a good idea.
 
-\subsection{Single Layer}
+\paragraph{Single Layer}
 Input of the layer are the node features $h = \{ h_1, h_2, \dots , h_N \} \in \mathbb{R}^F$, 
 where $N$ is the number of nodes and $F$ the number of features per node. 
 The layer will map the input to the output, which can potentially have different dimensions: 
@@ -52,7 +98,7 @@ Finally, the new node embedding is calculated as:
 
 with $\sigma$ as some arbitrary activation function.
 
-\subsection{Multi-Head attention}
+\paragraph{Multi-Head attention}
 Motivated by \citet{transformer}, multi-head attention can be beneficial to stabilize the learning process.
 Therefore, not only single weight matrix is learned but it is splitted up in several part, all learned individually but simultanously.
 
@@ -64,30 +110,31 @@ Therefore, not only single weight matrix is learned but it is splitted up in sev
 where $\parallel$ corresponds to concatenation, $\alpha_{ij}^k$ the $k$-th attention mechanism and $W^k$ the linear
 transformation's weight matrix. The final output will consists of $KF^{\prime}$ output features.
 
+
 \paragraph{Last layer:}
 If working with multiple heads, in the last layer of our neural network, concatenation is not the desired 
 way to prepare for predication and therefore, averaging instead of concatenation is used.
 
-\subsection{Connection to molecular imaging}
-Exploit the fact that we know how manifold look like.
-Fix graph
 
-\section{GAT-Denoiser}
-In the following section, the Graph neural network GAT-Denoiser will be introduced.
+\subsection{1D-Convolution}
+\textbf{TODO:1D-Convolution before GAT for averaging single observations.}
 
-\subsection{Architecture}
 
-\subsection{Convolution with U-NET}
-Expect that it will boost performance.
+\subsection{U-Net}
+\textbf{TODO: Pre traing U-Net to further boost quality of FBP.}
+
+
+\section{Architecture}
+Now, when all individual components are introduced, the overall architecture can be defined.
+
 
 
 \subsection{Loss}
 
+\begin{equation}
+  \mathcal{L} = || x_i - Recon ( \text{GAT-Denoiser}(A(x_i, \theta, s) + \eta)) ||^2_2
+\end{equation}
 
-$$ \mathcal{L}_1 = || forward(x_i) - denoiser(forward(x_i) + \eta) ||_2 $$ 
-$$ \mathcal{L}_1 = || y_i - y_i^* ||_2 $$ 
-$$ \mathcal{L}_2 = || x_i - backward (denoiser(forward(x_i) + \eta)) ||_2 $$ 
-$$ \mathcal{L}_2 = || x_i - backward (y_i^*) ||_2 $$
 
 
 Motivation:
