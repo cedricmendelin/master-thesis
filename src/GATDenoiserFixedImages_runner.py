@@ -45,7 +45,7 @@ parser.add_argument("--batch_size", type=int, default=128)
 parser.add_argument('--loss', type=str, default='FBP',
                     choices=[i.name.upper() for i in Loss])
 
-parser.add_argument("--verbose", type=bool, default=True)
+parser.add_argument("--verbose", action='store_true', default=False)
 
 args = parser.parse_args()
 
