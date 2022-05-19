@@ -24,13 +24,11 @@ python ./src/GATDenoiserFixedImages_runner.py  \
         --image_path "data/val2017/" \
         --validation_image_count 10 \
         --append_validation_images 5 \
-        --use_wandb True \
+        --use_wandb \
         --wandb_project "cocoimages scicore" \
-        --verbose True \
-        --debug_plots False \
-        --save_model True \
+        --verbose \
+        --save_model \
         --k_nn 8 \
-        --add_circle_padding False \
         --validation_snrs 10 \
         --epochs 2000    \
         --gat_heads 16 \

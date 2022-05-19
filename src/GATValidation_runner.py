@@ -11,8 +11,8 @@ parser.add_argument("--resolution", type=int, default=64)
 
 parser.add_argument("--validation_image_path", type=str, default="data/toyimages_validation/")
 parser.add_argument("--validation_image_count", type=int, default=18)
-parser.add_argument("--use_wandb", type=bool, default=False)
-parser.add_argument("--debug_plots", type=bool, default=False)
+parser.add_argument("--use_wandb", action='store_true', default=False)
+parser.add_argument("--debug_plots", action='store_true', default=False)
 parser.add_argument("--wandb_project", type=str, default="Some Test Validation")
 
 
@@ -26,7 +26,7 @@ parser.add_argument("--validation_snrs", nargs="+", type=int, default=[10, 25])
 parser.add_argument("--k_nn", type=int, default=8)
 parser.add_argument("--batch_size", type=int, default=256)
 
-parser.add_argument("--verbose", type=bool, default=True)
+parser.add_argument("--verbose", action='store_true', default=False)
 
 parser.add_argument("--model_state_path", type=str, default="denoiser/out_torch_state_dict_model")
 
