@@ -32,8 +32,8 @@ SNR_max = 0
 save_dir = "results/Unet"
 train = True
 
-batch_size = 32
-lr = 1e-3
+batch_size = 16
+lr = 1e-4
 epochs = 10000
 
 if not os.path.exists(save_dir):
