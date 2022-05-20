@@ -16,7 +16,7 @@ import models
 from utils.ODLHelper import OperatorFunction, OperatorModule
 
 if torch.cuda.device_count()>1:
-    torch.cuda.set_device(1)
+    torch.cuda.set_device(0)
 
 
 """
@@ -44,14 +44,15 @@ epochs = 500
 ### SNR functions
 #######################################
 def find_SNR(ref, x):
-    dif = torch.std((ref-x))
-    nref = torch.std(ref)
+    dif = torch.std((ref-x))**2
+    nref = torch.std(ref)**2
     return 10 * torch.log10((nref+1e-16)/(dif+1e-16))
 
 def find_sigma_noise(SNR_value, x_ref):
-    nref = torch.std(x_ref)
+    nref = torch.std(x_ref)**2
     sigma_noise = (10**(-SNR_value/10)) * nref
     return torch.sqrt(sigma_noise)
+
 
 #######################################
 ### Prepare Forward

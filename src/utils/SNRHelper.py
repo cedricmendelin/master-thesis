@@ -16,17 +16,17 @@ def add_noise_to_sinograms(sinograms, snr):
     return noisy_sinograms
 
 def find_SNR(ref, x):
-    dif = torch.std((ref-x))
-    nref = torch.std(ref)
+    dif = torch.std((ref-x))**2
+    nref = torch.std(ref)**2
     return 10 * torch.log10((nref+1e-16)/(dif+1e-16))
 
 def find_sigma_noise(SNR_value, x_ref):
-    nref = torch.std(x_ref)
+    nref = torch.std(x_ref)**2
     sigma_noise = (10**(-SNR_value/10)) * nref
     return torch.sqrt(sigma_noise)
 
 def add_noise_np(SNR, sinogram):
-    nref = np.std(sinogram)
+    nref = np.std(sinogram)**2
     sigma_noise = (10**(-SNR/10)) * nref
     sigma = np.sqrt(sigma_noise)
     print("noise sigma:", sigma)

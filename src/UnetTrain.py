@@ -44,23 +44,24 @@ if not os.path.exists(save_dir):
 ### Prepare dataset
 #######################################
 def find_SNR(ref, x):
-    dif = torch.sum((ref-x)**2)
-    nref = torch.sum(ref**2)
+    dif = torch.std((ref-x))**2
+    nref = torch.std(ref)**2
     return 10 * torch.log10((nref+1e-16)/(dif+1e-16))
 
 def find_sigma_noise(SNR_value, x_ref):
-    nref = torch.mean(x_ref**2)
+    nref = torch.std(x_ref)**2
     sigma_noise = (10**(-SNR_value/10)) * nref
     return torch.sqrt(sigma_noise)
 
 def add_noise_np(SNR, sinogram):
-    nref = np.mean(sinogram**2)
+    nref = np.std(sinogram)**2
     sigma_noise = (10**(-SNR/10)) * nref
     sigma = np.sqrt(sigma_noise)
     print("noise sigma:", sigma)
     noise = np.random.randn(sinogram.shape[0], sinogram.shape[1]) * sigma
     noisy_sino = sinogram + noise
     return noisy_sino
+
 
 # class MyDataset(Dataset):
 #     def __init__(self, data_CT):
