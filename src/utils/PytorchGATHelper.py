@@ -59,7 +59,12 @@ class GAT(torch.nn.Module):
 
             if self.use_conv:
                 conv = self.convs[i]
-                x = conv(x.view(x.size(dim=0), self.conv_N_latent, x.size(dim=1)))
+                if i == 0:
+                    x = x.view(x.size(dim=0), 1, x.size(dim=1))
+                else:
+                    x = x.view(x.size(dim=0) // self.conv_N_latent, self.conv_N_latent, x.size(dim=1))
+
+                x = conv(x)
                 x = x.view(x.size(dim=0) * x.size(dim=1), x.size(dim=2))
 
             x = layer(x, edge_index)

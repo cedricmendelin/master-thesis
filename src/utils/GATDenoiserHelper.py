@@ -178,6 +178,7 @@ class GatBase():
             checkpoint = torch.load(args.unet_path, map_location=self.device)
             self.unet = models.UNet(nfilter=self.RESOLUTION).to(self.device).eval()
             self.unet.load_state_dict(checkpoint['model_state_dict'])    
+            # add train or not
         
         # Parameters for seeting up graph.
         # Currently a circle graph with k neighoburs is used.
@@ -258,6 +259,7 @@ class GatBase():
         self.fbp_with_gradient = OperatorModule(self.fbp)
 
     def __prepare_optimizer__(self):
+        # add unet parameters as well when training is activated
         self.optimizer = torch.optim.Adam(
             self.model.parameters(), 
             lr=self.GAT_ADAM_LR, 
