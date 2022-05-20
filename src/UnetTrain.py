@@ -34,7 +34,7 @@ train = True
 
 batch_size = 16
 lr = 1e-4
-epochs = 10000
+epochs = 100
 
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
@@ -244,7 +244,7 @@ if train:
         for i, data in enumerate(train_loader):  # Iterate in batches over the training dataset.
             if ep%1==0 and ep!=0:
                 for param_group in optimizer.param_groups:
-                    param_group["lr"] = lr*(1-(1-0.1)*ep/epochs)
+                    param_group["lr"] = lr*(1-(1-0.01)*ep/epochs)
 
             input = data['data'].to(device)
             label = data['label'].to(device)
