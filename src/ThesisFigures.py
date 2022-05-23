@@ -282,6 +282,6 @@ def chapter_graph_foundation_manifolds_clean_resolution_importance():
 #chapter_graph_foundation_sphere_manifold()
 #chapter_graph_foundation_manifolds_different_k()
 #chapter_graph_foundation_manifolds_clean()
-chapter_graph_foundation_manifolds_noisy()
+#chapter_graph_foundation_manifolds_noisy()
 #chapter_graph_foundation_manifolds_clean_samples_importance
-#chapter_graph_foundation_manifolds_clean_resolution_importance()
+chapter_graph_foundation_manifolds_clean_resolution_importance()

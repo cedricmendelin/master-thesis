@@ -99,6 +99,28 @@ The \textit{noisy graph} $G_0$ can be constructed as in equation~\ref{eq:graphCo
     \end{cases}
 \end{equation}
 
+\paragraph{Constructing Graphs for molecular-imaging:}
+For an observation for molecular-imaging (cryo-EM or computed tomography), a graph can be constructed as well.
+Every projection can be assigned to a node $v$, which means that $V \subset \mathbb{R}^M$, where 
+$M$ is again the observation dimension. 
+Further, $|V|=N$ where $N$ is the number of projections, which defines how many projections from different
+angles $\theta$ are within the observation.
+
+As the nodes are already defined, it is time to have a look at the edges.
+to apply equation~\ref{eq:graphConstruction} the similary measure $dist$ needs to be defined.
+
+For computed tomography, a distance measure between projections can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
+
+For cryo-Em it is a little bit more challenging, as projections are drawn with some random 3D rotation and projection, 
+it can happen that two samples are equivalent up to 2D rotation. 
+Consider a first observation $y_1$, which has no 3D rotation and 
+a second observation $y_2$ with a rotation in x-y plane by 45°.
+The two projections have a defined in-plane rotation $g$, such that $g \; y_1 = y_2$.
+Therefore, a term of in-plan rotation is added to the $\ell2$-norm: $min_{g \in SO(1)}\norm{g \;y_i - y_j}$, 
+which is inspired by \cite{multiDiffusionMaps}. 
+
+Now, everything is available to create a grap from a molecular-imaging observation.
+
 
 \section{Graph Denoising definition}
 
@@ -136,7 +158,7 @@ $E^{\prime} \subseteq E$ and in Graph Denoising model is learned from
 $E^{\prime} \subseteq U$. 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    On could also say that link prediction problems are a subset of graph denoising problems.
+    One could also say that link prediction problems are a subset of graph denoising problems.
 \end{tcolorbox}
 
 \subsection{Non-local means:}
@@ -353,21 +375,9 @@ This can be seen in figure~\ref{fig:clean_manifold_res200} and figure~\ref{fig:c
 \end{tcolorbox}
 
 
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    In the field of classical tomography and cryo-EM, the underlying low-dimensional manifold is well defined for none-noisy data.
-    In the 2D case of classical tomography, the underlying manifold is a circle, whereas in 3D case of cryo-EM the manifold
-    is defined as a sphere.
-    This fact can be exploited during learning.
-\end{tcolorbox}
+% \subsection{Connection to Machine Learning}
 
-\subsection{Connection to Machine Learning}
-
-Graph Laplacian is used for dimensionality reduction for high-dimensional data, as well as spectral clustering and semi-supervised learning.
-\citet{LaplaceRandomProjections} used Graph Laplacian in a complete other domain, namely in tomography. 
-They showed that Graph Laplacian approximates the Laplace-Beltrami operator.
-Further, Graph Laplacian is depended on the adjacency matrix $A$, if $A$ is noisy, Graph Laplacian will be noisy as well.
-
-
-\section{Constructing Graphs for molecular-imaging}
-
-\textbf{TODO: How can we construct a graph (distance between observations, distance between low-dimensional manifold / angles).}
+% Graph Laplacian is used for dimensionality reduction for high-dimensional data, as well as spectral clustering and semi-supervised learning.
+% \citet{LaplaceRandomProjections} used Graph Laplacian in a complete other domain, namely in tomography. 
+% They showed that Graph Laplacian approximates the Laplace-Beltrami operator.
+% Further, Graph Laplacian is depended on the adjacency matrix $A$, if $A$ is noisy, Graph Laplacian will be noisy as well.

@@ -116,11 +116,12 @@ If working with multiple heads, in the last layer of our neural network, concate
 way to prepare for predication and therefore, averaging instead of concatenation is used.
 
 
-\subsection{1D-Convolution}
+\subsection{(1D) Convolution}
 \textbf{TODO:1D-Convolution before GAT for averaging single observations.}
 
 
 \subsection{U-Net}
+
 \textbf{TODO: Pre traing U-Net to further boost quality of FBP.}
 Even train it jointly with gat.
 
@@ -128,45 +129,16 @@ Even train it jointly with gat.
 \section{Architecture}
 Now, when all individual components are introduced, the overall architecture can be defined.
 
-
-
 \subsection{Loss}
 
 \begin{equation}
   \mathcal{L} = || x_i - Recon ( \text{GAT-Denoiser}(A(x_i, \theta, s) + \eta)) ||^2_2
 \end{equation}
 
-
+\subsection{Training:}
 
 Motivation:
-\begin{itemize}
-  \item Sinogram can be reconstructed nicely with known angles.
-  \item If angles are unknown, angles can be estimated by 1D manifold.
-  \item K-nn parameter is crucial (add simpel example)
-  \item If sinogram is noisy, k-nn is even harder
-  \item What to do in high-noisy regime?
-\end{itemize}
 
 Assumption:
 Circle Graph good approximation of "true" observation angles:
 
-To check:
-Train GAT-Denoiser with equally sampled points but denoise with
-normal distributed points.
-(No code change needed).
-
-To check:
-Traing GAT-Denoiser with normal distributed sampled points.
-(Initialize different odl operators)
-
-
-
-\begin{itemize}
-  \item Angles 
-  \item Importance of K-nn 
-  \item Introduce GAT-Denoiser
-  \item Show/illustrate - GAT Architecture
-  \item Potential of Forward / Backward domain
-  \item Loss L1 and L2
-  \item Works with circle-graph, not with random-graph
-\end{itemize}

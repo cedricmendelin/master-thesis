@@ -242,6 +242,7 @@ Whereas, in cryo-EM this information will be lost during freezing.
 Secondly, high level of noise makes cryo-EM much more challenging.
 
 \section{Abstract form}
+\label{sec:abstract_form}
 As tomographic reconstruction and cryo-EM reconstruction are rather similar, 
 goal of the Master Thesis will be to design an algorithm, that can be applied in both scenarios.
 
@@ -282,7 +283,6 @@ Further, an abstract form of the reconstruction operator is defined as
 
 Classical tomography parameters are defined with $D=2$, $P=1$.
 Further, $A(\cdot)$ is the Radon Transform (see equation~\ref{eq:2Dreconstruction}).
-A distance measure between observations can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
 Reconstruction operator can be defined as FBP or U-Net \cite{unet-tomography}.
 
 \paragraph{Cryo-Em reconstruction:}
@@ -290,14 +290,6 @@ Cryo-EM parameters are defined with $D=3$ and $P=3$ as $\theta_i$ not only corre
 a projection angle vector but also some rotation.
 Further, $A(\cdot)$ can be defined as $\Pi_z \left(\; Rot(\;x; \theta) \right)$ 
 where $Rot$ is the 3D rotation and $\Pi_z$ the tomographic projection (see equation~\ref{eq:cryoEmSimpleDiscrete}).
-
-As observations are drawn with some random 3D rotation and projection, 
-it can happen that two samples are equivalent up to 2D rotation. 
-Consider a first observation $y_1$, which has no 3D rotation and 
-a second observation $y_2$ with a rotation in x-y plane by 45°.
-The two observations have a defined in-plane rotation $g$, such that $g \; y_1 = y_2$.
-Therefore, a term of in-plan rotation is added to the $\ell2$-norm: $min_{g \in SO(1)}\norm{g \;y_i - y_j}$, 
-which is inspired by \cite{multiDiffusionMaps}. 
 
 \paragraph{High noise regime:}
 Cryo-EM observations are highly noisy, which makes reconstruction challenging. 
