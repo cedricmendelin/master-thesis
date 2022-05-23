@@ -31,7 +31,7 @@ data_CT_test = "data/limited-CT/data_png_test"
 data_CT_train = "data/limited-CT/data_png_train"
 resolution = 64
 samples = 1024
-SNR_min = -20
+SNR_min = -10
 SNR_max = 0
 
 batch_size = 32
@@ -68,7 +68,7 @@ angle_partition = odl.uniform_partition(0, np.pi, samples)
 
 # Make a parallel beam geometry with flat detector
 # geometry = odl.tomo.Parallel2dGeometry(angle_partition,detector_partition)
-geometry = odl.tomo.parallel_beam_geometry(reco_space, samples)
+geometry = odl.tomo.parallel_beam_geometry(reco_space, samples, det_shape=resolution)
 
 # Ray transform (= forward projection).
 radon = odl.tomo.RayTransform(reco_space, geometry, impl='astra_cuda')
@@ -89,13 +89,28 @@ lin = np.linspace(-1,1,resolution)
 XX, YY = np.meshgrid(lin,lin)
 circle = ((XX**2+YY**2)<=1)*1.
 
-
+# idx = 100 
+# data_CT = data_CT_train
+# files = os.listdir(data_CT)
+# file = data_CT+os.sep+files[idx]
+# label = (imageio.imread(file)/255)*circle
+# label = torch.from_numpy(label).type(torch_type).to(device)
+# data = OperatorFunction.apply(radon, label).data
+# # SNR = np.random.rand(data.shape[0])*(SNR_max-SNR_min)+SNR_min
+# SNR = -10
+# nref = torch.std(data,1)**2
+# sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
+# proj = data + torch.randn_like(data)*sigma_noise[:,None]
+# recon = model_fbp(proj.view(-1, samples, resolution))
 
 # Train dataset
 data_CT = data_CT_train
 save_dir = "data/limited-CT/data_png_train_out"
+save_dir_proj = "data/limited-CT/data_png_train_proj"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
+if not os.path.exists(save_dir_proj):
+    os.makedirs(save_dir_proj)
 
 files = os.listdir(data_CT)
 
@@ -106,28 +121,32 @@ for idx in tqdm(range(len(files))): # len(files)
 
 label = torch.from_numpy(label).type(torch_type).to(device)
 data = OperatorFunction.apply(radon, label).data
-# TODO: make sure it's one by one
-SNR = np.random.rand(data.shape[0])*(SNR_max-SNR_min)+SNR_min
-nref = torch.std(data,(1,2))
+SNR = np.repeat(np.random.rand(data.shape[0],1)*(SNR_max-SNR_min)+SNR_min,samples,1)
+nref = torch.std(data,(2))**2
 sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
-proj = data + torch.randn_like(data)*sigma_noise[:,None,None]
+proj = data + torch.randn_like(data)*sigma_noise[:,:,None]
 recon = model_fbp(proj.view(-1, samples, proj.shape[2]))
 
+np.savez("data/limited-CT/data_train.npz",label=label.detach().cpu().numpy(),proj=proj.detach().cpu().numpy(),recon=recon.detach().cpu().numpy())
 
 for idx in tqdm(range(len(files))): # len(files)
     file = data_CT+os.sep+files[idx]
     out = recon[idx].detach().cpu().numpy()
     out = (out-out.min())/(out.max()-out.min())
     imageio.imwrite(save_dir+os.sep+files[idx],np.clip(out*255,0,255).astype(np.uint8))
-
-
+    out = proj[idx].detach().cpu().numpy()
+    out = (out-out.min())/(out.max()-out.min())
+    imageio.imwrite(save_dir_proj+os.sep+files[idx],np.clip(out*255,0,255).astype(np.uint8))
 
 
 # # Test dataset
 data_CT = data_CT_test
 save_dir = "data/limited-CT/data_png_test_out"
+save_dir_proj = "data/limited-CT/data_png_test_out"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
+if not os.path.exists(save_dir_proj):
+    os.makedirs(save_dir_proj)
 files = os.listdir(data_CT)
 
 label = np.zeros((len(files),resolution,resolution))
@@ -137,17 +156,20 @@ for idx in tqdm(range(len(files))): # len(files)
 
 label = torch.from_numpy(label).type(torch_type).to(device)
 data = OperatorFunction.apply(radon, label).data
-# TODO: make sure it's one by one
-SNR = np.random.rand(data.shape[0])*(SNR_max-SNR_min)+SNR_min
-nref = torch.std(data,(1,2))
+SNR = np.repeat(np.random.rand(data.shape[0],1)*(SNR_max-SNR_min)+SNR_min,samples,1)
+nref = torch.std(data,(2))**2
 sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
-proj = data + torch.randn_like(data)*sigma_noise[:,None,None]
+proj = data + torch.randn_like(data)*sigma_noise[:,:,None]
 recon = model_fbp(proj.view(-1, samples, proj.shape[2]))
 
+np.savez("data/limited-CT/data_test.npz",label=label.detach().cpu().numpy(),proj=proj.detach().cpu().numpy(),recon=recon.detach().cpu().numpy())
 
 for idx in tqdm(range(len(files))): # len(files)
     file = data_CT+os.sep+files[idx]
     out = recon[idx].detach().cpu().numpy()
     out = (out-out.min())/(out.max()-out.min())
     imageio.imwrite(save_dir+os.sep+files[idx],np.clip(out*255,0,255).astype(np.uint8))
+    out = proj[idx].detach().cpu().numpy()
+    out = (out-out.min())/(out.max()-out.min())
+    imageio.imwrite(save_dir_proj+os.sep+files[idx],np.clip(out*255,0,255).astype(np.uint8))
 

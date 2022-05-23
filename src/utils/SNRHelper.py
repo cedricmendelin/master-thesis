@@ -27,6 +27,7 @@ def find_sigma_noise(SNR_value, x_ref):
 
 def add_noise_np(SNR, sinogram):
     nref = np.std(sinogram)**2
+    nref = np.std(sinogram,1)**2
     sigma_noise = (10**(-SNR/10)) * nref
     sigma = np.sqrt(sigma_noise)
     print("noise sigma:", sigma)
