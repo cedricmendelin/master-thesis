@@ -2,10 +2,10 @@
 \label{sec:graphFoundations}
     
 
-Following chapter establishes connection between graphs and denoising in high-noise 
+The following chapter establishes connection between graphs and denoising in high-noise 
 domains, such as cryo-EM.
 First, a broad definition of graphs is given and further, the term "Graph Denoising" is
-introduced and explained. Finally, connection to Graph Laplacian is established
+introduced and explained. Finally, connection to Graph Laplacian and Manifolds is established
 and different opportunities exploiting for a good denoising algorithms are shown.
 
 \section{Graph Foundations}
@@ -75,12 +75,12 @@ Further, graph $G$ can be constructed by using:
     \label{eq:graphConstruction}
     A_{ij} =    
     \begin{cases}
-        1  & \text{if } d(p_i, p_j) < \tau\\
+        1  & \text{if } dist(p_i, p_j) < \tau\\
         0, & \text{otherwise}
     \end{cases}
 \end{equation}
 
-where $p_i$, $p_j$ are nodes from indices $i,j$, $d$ corresponds to a similarity measure and $\tau$ is a threshold, 
+where $p_i$, $p_j$ are nodes from indices $ij$ and $j$, $dist$ corresponds to a similarity (or distance) measure and $\tau$ is a threshold, 
 when to consider two nodes to be adjacent.
 K-NN is one possible implementation of a graph construction algorithm, 
 where for every node, $k$ neighbours will be defined.
@@ -94,7 +94,7 @@ The \textit{noisy graph} $G_0$ can be constructed as in equation~\ref{eq:graphCo
     \label{eq:graphConstructionNoise}
     A_{0_{ij}} =    
     \begin{cases}
-        1  & \text{if } d(y_i, y_j) < \tau\\
+        1  & \text{if } dist(y_i, y_j) < \tau\\
         0, & \text{otherwise}
     \end{cases}
 \end{equation}
@@ -178,7 +178,7 @@ underlying graph topology layer by layer.
 
 \section{Graph Laplacian \& Manifolds}
 \subsection{Graph Laplacian}
-Graph Laplacian is a matrix that represents a graph and can be used to find many important properties.
+Graph Laplacian (GL) is a matrix that represents a graph and can be used to find many important properties.
 It is a very powerful tool and therefore, a complete section is dedicated to it.
 A good introduction and overview can be found by \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
 
@@ -210,10 +210,10 @@ as well as the sphere itself.
 
 \begin{figure}[H]
     \centering
-    \subtop[Circle samples
+    \subbottom[Circle samples
         \label{fig:circle_sampling}]
         {\includegraphics[width=0.4\textwidth]{circle_sampling.png}}
-    \subtop[Sphere samples      
+    \subbottom[Sphere samples      
     \label{fig:sphere_sampling}]
         {\includegraphics[width=0.4\textwidth]{sphere_sampling.png}}
     \caption{Samples drawn from 1D and 2D manifold.}
@@ -237,9 +237,10 @@ Therefore, if underlying manifold can be approximated, a dimensionality reductio
 is established as one can embed data points in the low-dimensional manifold space.
 There is a complete area of research devoted to this manifold assumption called Manifold Learning\cite{ManifoldLearning}.
 
-\subsection{Manifold calculation}
+\subsection{GL-manifold calculation}
 \label{sec:manifold_calculation}
-Manifold of a dataset can be calculated the following:
+A simple low-dimensional embedding (manifold) of a dataset can be calculated with the Graph-Laplacian 
+by the following:
 
 \begin{enumerate}
     \item Construct k-NN graph from observations (see section~\ref{sec:graphConstruction}).
@@ -251,45 +252,112 @@ Manifold of a dataset can be calculated the following:
 
 \subsection{Manifold of computed tomography and cryo-EM}
 
-Therefore, it can be observed how the manifold of classical tomography and cryo-EM objects look like.
+Therefore, it can be observed how the GL-manifold of classical tomography and cryo-EM objects look like.
 In the following, the Shepp-Logan phantom is again used as an example of classical tomography
-and the low-dimensional embedding is calculated from the sinogram.
+and the low-dimensional embedding is calculated from the sinogram, following instructions from 
+section~\ref{sec:manifold_calculation}.
+
+Radon Transform, parameters $\theta$ and $s$ where speciefied as $\theta \in \mathbb{R}^{500}$ as evenly spaced
+between $[0, 2 \pi]$ and $s$ was set to $200$. 
+
+In figure~\ref{fig:clean_manifold}, GL-manifold calculated from clean sinogram and k=2 can be seen.
+The GL-manifold looks like a perfect circle. Further, noise was added to the sinogram 
+to reach SNR 20dB and again, GL-manifold was computed with $k=2$, which failed (figure~\ref{fig:noisy_manifold_k2}).
+But, if neighbourhood is not too strictly defined and k is increased to 4, the GL-manifold looks more circle like 
+(figure~\ref{fig:noisy_manifold_k4})
+
+\begin{figure}[H]
+    \centering
+    \subbottom[Clean sinogram manifold, k=2 \label{fig:clean_manifold}]
+        {\includegraphics[width=0.18\textwidth]{phaton_clean_manifold.png}}
+    \subbottom[Noisy sinogram manifold, k=2 \label{fig:noisy_manifold_k2}]
+        {\includegraphics[width=0.18\textwidth]{phaton_noisy_manifold_k2.png}}
+    \subbottom[Noisy sinogram manifold, k=4 \label{fig:noisy_manifold_k4}]
+            {\includegraphics[width=0.18\textwidth]{phaton_noisy_manifold_k4.png}}
+    \caption{Shepp-Logan phantom sinogram manifolds.}
+\end{figure}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    In the field of classical tomography and cryo-EM, the underlying low-dimensional GL-manifold is well defined for none-noisy data.
+    In the 2D case of classical tomography, the underlying GL-manifold is a circle, whereas in 3D case of cryo-EM the GL-manifold
+    is defined as a sphere.
+    This fact can be exploited during learning.
+\end{tcolorbox}
+
+\paragraph{Manifold quality:}
+
+Finding a good GL-manifold is not easy and in our case, the GL-manifold is dependent on parameter $k$ during graph construction
+as well as parameter $\theta$, $s$ and noise $\eta$ for obtaining the sinogram.
+
+K is an important parameter for building up a graph from data. If set too low, neighbours
+do not capture similar data well as too few connections are drawn. 
+Further, if k is set too high, the strength of a neighbour 
+is weakend and data is not well explained as well.
+In figure~\ref{fig:clean_manifolds}, GL-manifold computed by clean sinogram and k from 2 to 10 is illustrated.
+One can see, that from $k <= 4$ GL-manifold results in a perfect circle and with $k >  4$ is moves 
+further away from the circle. 
 
 
-\textbf{TODO: fix figures}
-\begin{itemize}
-    
-    \item TODO: Add perfect circle for k-nn clean sino.
-    \item Show that parameter k is important for circle.
-    \item Show further that resolution and also sampling pointa matters
-    \item Show that with noise, everything gets harder.
-    \item Show that exploit the fact that we know the manifold.
-\end{itemize}
+\begin{figure}[H]
+    \centering
+    \subbottom[Clean sinogram GL-manifolds \label{fig:clean_manifolds}]
+        {\includegraphics[width=0.45\textwidth]{phaton_clean_manifold_kdifferent.png}}
+    \subbottom[Noisy sinogram GL-manifolds \label{fig:noisy_manifolds}]
+        {\includegraphics[width=0.45\textwidth]{phaton_noisy_manifold_kdifferent.png}}
+    \caption{Shepp-Logan phantom sinogram manifolds.}
+\end{figure}
+
+If data is noisy, it is expected to be harder to construct a meaningful GL-manifold, as some connections within
+the graph will be noisy. This is exactly what is illustrated in figure~\ref{fig:clean_manifolds}, where 
+different GL-manifold for noisy sinogram (SNR=20dB) and k from 3 to 10. GL-manifold can never express
+the true data with a perfect circle. As noise is choosen rather moderate, GL-manifold has still some 
+power to express underlying data.
 
 
-% In Figure~\ref{fig:phantom_second_third_evec} the manifold calculated from original phantom Graph Laplacian
-% can be seen and it is a perfect circle. 
-% Further, in figure~\ref{fig:phantom_second_third_evec_noisy}
-% noisy version with $\sigma=2$ is plotted and the manifold is not a perfect circle, but circle like.
+Further, when observing a sinogram, parameter $\theta$ defines how many samples (straight lines) are drawn
+and $s$ defines the amount of sampling points. Both together define the expresivness of our sinogram.
 
-% The more noise is added, the less manifold looks like a circle. In figure~\ref{fig:phantom_second_third_evec_noisy_high}
-% the manifold for $\sigma=100$ is plotted. In all plots, k-NN graphs have been constructed with $k=10$. 
+\begin{figure}[H]
+    \centering
+    \subbottom[Clean sinogram GL-manifold, k = 6 and 500 samples \label{fig:clean_manifold_500}]
+        {\includegraphics[width=0.25\textwidth]{phaton_clean_manifold_500_k6.png}}
+    \subbottom[Clean sinogram GL-manifold, k = 6 and 700 samples \label{fig:clean_manifold_700}]
+        {\includegraphics[width=0.25\textwidth]{phaton_clean_manifold_700_k6.png}}
+    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.}
+\end{figure}
 
+In figure~\ref{fig:clean_manifold_500} GL-manifold with $\theta \in \mathbb{R}^{500}$ and k=6 is illustrated
+for clean sinogram. It looks like 6 are too many neighbours, as the perfect circle cannot be established anymore.
+But, if $\theta$ is increased $\theta \in \mathbb{R}^{700}$, more information is available and with the same amount of neighbours,
+a perfect circle can be established (figure~\ref{fig:clean_manifold_700}).
 
-% \begin{figure}[H]
-%     \centering
-%     \subbottom[Original phantom manifold      \label{fig:phantom_second_third_evec}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec.png}}
-%     \subbottom[Noisy phantom manifold\label{fig:phantom_second_third_evec_noisy}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy.png}}
-%     \subbottom[Highly-noisy phantom manifold \label{fig:phantom_second_third_evec_noisy_high}]{\includegraphics[width=0.25\textwidth]{phantom_second_third_evec_noisy_high.png}}
-%     \caption{Shepp-Logan phantom manifolds}
-% \end{figure}
+\begin{figure}[H]
+    \centering
+    \subbottom[Clean sinogram GL-manifold, k = 5 and resolution=200 \label{fig:clean_manifold_res200}]
+        {\includegraphics[width=0.25\textwidth]{phaton_clean_manifold_res_200_k5.png}}
+    \subbottom[Clean sinogram GL-manifold, k = 5 and resolution=400 \label{fig:clean_manifold_res400}]
+        {\includegraphics[width=0.25\textwidth]{phaton_clean_manifold_res_400_k5.png}}
+    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.}
+\end{figure}
+
+Moreover, the number of sampling points is important as well.
+Here, for more sampling points it is expected to be harder to come up with good neighbours (fixing k and number of samples),
+as more data need to be explained with the same amount of samples and neighbours and it is more likely, that nodes are connceted wrongly.
+This can be seen in figure~\ref{fig:clean_manifold_res200} and figure~\ref{fig:clean_manifold_res400}, where with resolution 
+200, the perfect circle can be established and with resolution 400, not anymore (by same parameter k = 5 and $\theta \in \mathbb{R}^{500}$ ).
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    As with the last plots illustrated, the GL-manifold is pretty sensitive.
+    Therefore, it is best practise to try different parameters (k) for finding the best 
+    looking GL-manifold.
+\end{tcolorbox}
 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     In the field of classical tomography and cryo-EM, the underlying low-dimensional manifold is well defined for none-noisy data.
     In the 2D case of classical tomography, the underlying manifold is a circle, whereas in 3D case of cryo-EM the manifold
     is defined as a sphere.
-    This fact can be exploited during learning (e.g. by using Wasserstein loss function (see \ref{sec:wasserstein-metric})).
+    This fact can be exploited during learning.
 \end{tcolorbox}
 
 \subsection{Connection to Machine Learning}
@@ -301,4 +369,5 @@ Further, Graph Laplacian is depended on the adjacency matrix $A$, if $A$ is nois
 
 
 \section{Constructing Graphs for molecular-imaging}
+
 \textbf{TODO: How can we construct a graph (distance between observations, distance between low-dimensional manifold / angles).}

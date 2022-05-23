@@ -13,6 +13,8 @@ from skimage.transform import rescale
 from scipy.spatial import distance_matrix
 from sklearn.neighbors import kneighbors_graph
 
+np.random.seed(2022)
+
 
 def chapter_imaging_sinos():
   resolution = 400
@@ -46,7 +48,7 @@ def chapter_graph_foundation_cricle_manifold():
 
   plot_2dscatter(np.cos(vals), np.sin(vals), title="Uniform sampled circle manifold", figsize=(5,5))
   plt.show()
-  
+
 def chapter_graph_foundation_sphere_manifold():
   from mpl_toolkits.mplot3d import Axes3D
   import numpy as np
@@ -105,10 +107,9 @@ def chapter_graph_foundation_sphere_manifold():
   plt.tight_layout()
   plt.show()
 
-def chapter_graph_foundation_manifolds():
+def chapter_graph_foundation_manifolds_different_k():
   resolution = 200
   samples = 500
-  snr = 25
   phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
@@ -118,18 +119,6 @@ def chapter_graph_foundation_manifolds():
   sino = radon(phantom)
   #n_neighbors = 2
   plt.figure(figsize=(10,10))
-  
-  def get_embedding(sino, knn, embed_dim):
-    A_knn = kneighbors_graph(sino, n_neighbors=knn)
-    A_knn = A_knn.toarray()
-    #Compute the graph laplacian
-    A_knn = 0.5*(A_knn + A_knn.T)
-    L = np.diag(A_knn.sum(axis=1)) - A_knn
-  
-    #Extract the second and third smallest eigenvector of the Laplace matrix.
-    eigenValues, eigenVectors = np.linalg.eigh(L)
-    idx = np.argsort(eigenValues)
-    return eigenVectors[:, idx[1 : embed_dim + 1]]
   
   for k in range(2,11):
     eVec = get_embedding(sino, k, 2)
@@ -144,9 +133,69 @@ def chapter_graph_foundation_manifolds():
 
   #plot_2d_scatter(embedding, title='Graph Laplacian Shepp-Logan Phantom Sinogram')
   plt.show()
-  # sino_noisy = add_noise_np(snr, sino)
-  # reconstruction = fbp(sino)
-  # reconstruction_snr = fbp(sino_noisy)
+
+
+def chapter_graph_foundation_manifolds_clean():
+  resolution = 200
+  samples = 500
+  phantom = shepp_logan_phantom()
+  phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
+
+  radon, _ =  setup_forward_and_backward(resolution, samples)
+
+  # clean graph
+  sino = radon(phantom)
+  plt.figure(figsize=(10,10))
+  eVec = get_embedding(sino, 2, 2)
+  plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
+  plt.title("Manifold clean sinogram k = 2")
+  plt.show()
+
+def chapter_graph_foundation_manifolds_noisy():
+  resolution = 200
+  samples = 500
+  phantom = shepp_logan_phantom()
+  phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
+
+  snr = 20
+  radon, _ =  setup_forward_and_backward(resolution, samples)
+
+  # clean graph
+  sino = radon(phantom)
+
+  sino_noisy = add_noise_np(snr, sino)
+
+  plt.figure(figsize=(10,10))
+  eVec = get_embedding(sino_noisy, 2, 2)
+  plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
+  plt.title(f"Manifold noisy sinogram k = 2, SNR={snr}dB")
+
+  plt.figure(figsize=(10,10))
+  eVec = get_embedding(sino_noisy, 4, 2)
+  plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
+  plt.title(f"Manifold noisy sinogram k = 4, SNR={snr}dB")
+
+  plt.figure(figsize=(10,10))
+  plt.title("Manifold noisy sinogram different k")
+  for k in range(3,11):
+    eVec = get_embedding(sino_noisy, k, 2)
+    plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
+
+  plt.legend([f"k-nn : {i}" for i in range(3,11)], loc='upper left')
+
+  plt.show()
+
+def get_embedding(sino, knn, embed_dim):
+    A_knn = kneighbors_graph(sino, n_neighbors=knn)
+    A_knn = A_knn.toarray()
+    #Compute the graph laplacian
+    A_knn = 0.5*(A_knn + A_knn.T)
+    L = np.diag(A_knn.sum(axis=1)) - A_knn
+  
+    #Extract the second and third smallest eigenvector of the Laplace matrix.
+    eigenValues, eigenVectors = np.linalg.eigh(L)
+    idx = np.argsort(eigenValues)
+    return eigenVectors[:, idx[1 : embed_dim + 1]]
 
 def fibonacci_sphere(samples=1000):
 
@@ -172,7 +221,67 @@ def sampling_sphere(samples):
     out = np.array([np.cos(th) * np.sqrt(1 - x**2), np.sin(th) * np.sqrt(1 - x**2),x]).T
     return out
 
+
+def chapter_graph_foundation_manifolds_clean_samples_importance():
+  resolution = 200
+  samples = 500
+  samples_2 = 700
+  phantom = shepp_logan_phantom()
+  phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
+
+  radon, _ =  setup_forward_and_backward(resolution, samples)
+  radon2, _ =  setup_forward_and_backward(resolution, samples_2)
+
+  # clean graph
+  sino = radon(phantom)
+  plt.figure(figsize=(10,10))
+  eVec = get_embedding(sino, 6, 2)
+  plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
+  plt.title("Manifold clean sinogram k = 6, 500 samples")
+  
+   # clean graph
+  sino = radon2(phantom)
+  plt.figure(figsize=(10,10))
+  eVec = get_embedding(sino, 6, 2)
+  plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
+  plt.title("Manifold clean sinogram k = 6, 700 samples")
+  
+  plt.show()
+
+def chapter_graph_foundation_manifolds_clean_resolution_importance():
+  resolution_2 = 200
+  resolution = 400
+  samples = 600
+  k = 5
+  phantom_original = shepp_logan_phantom()
+  phantom = rescale(phantom_original, scale=resolution / phantom_original.shape[0], mode='reflect')
+  phantom_2 = rescale(phantom_original, scale=resolution_2 / phantom_original.shape[0], mode='reflect')
+
+  radon, _ =  setup_forward_and_backward(resolution, samples)
+  radon2, _ =  setup_forward_and_backward(resolution_2, samples)
+
+  # clean graph
+  sino = radon(phantom)
+  plt.figure(figsize=(10,10))
+  eVec = get_embedding(sino, k, 2)
+  plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
+  plt.title(f"Manifold clean sinogram k = {k}, resolution=400")
+  
+   # clean graph
+  sino = radon2(phantom_2)
+  plt.figure(figsize=(10,10))
+  eVec = get_embedding(sino, k, 2)
+  plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
+  plt.title(f"Manifold clean sinogram k = {k}, resolution=200")
+  
+  plt.show()
+
+
 #chapter_imaging_sinos()
 #chapter_graph_foundation_cricle_manifold()
 #chapter_graph_foundation_sphere_manifold()
-chapter_graph_foundation_manifolds()
+#chapter_graph_foundation_manifolds_different_k()
+#chapter_graph_foundation_manifolds_clean()
+chapter_graph_foundation_manifolds_noisy()
+#chapter_graph_foundation_manifolds_clean_samples_importance
+#chapter_graph_foundation_manifolds_clean_resolution_importance()

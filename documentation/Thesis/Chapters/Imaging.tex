@@ -21,8 +21,10 @@ The aim is to reconstruct an imaged object from observed observations.
 The reconstruction object can be in two-dimension (2D) or in three-dimension (3D). 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    The focus in computed tomography during the Thesis will be on 2D case, which is called \textit{classical tomography reconstruction}.
+    The focus in computed tomography during the Thesis will be on the 2D case, which is called \textit{classical tomography reconstruction}.
 \end{tcolorbox}
+
+\pagebreak
 
 \paragraph{2D tomographic reconstruction:}
 
@@ -116,10 +118,11 @@ In figure~\ref{fig:fbp_phantom} and figure~\ref{fig:fbp_phantom_noisy} reconstru
 Shepp-Logan phantom sinogram (figure~\ref{fig:phantom_sinogram}) and its noisy version (figure~\ref{fig:phantom_sinogram_noisy}).
 
 \subparagraph{U-Net}
-\ref{ct-reconstruction-comparison} compared different reconstruction methods for computed tomography. 
-Deep Learning approaches have great potential in CT reconstruction and \ref{unet-tomography} performed much better than FBP.
-\textbf{TODO: Few words about how u-net works}
-\textbf{TODO: Add some figures with final u-net pre trained model.}
+\citet{ct-reconstruction-comparison} compared different reconstruction methods for computed tomography. 
+Todays state of the art reconstruction algortihms are Depp-Learning based.
+
+U-Net \citet{unet-tomography}, a convolution neural network approach, performed
+much better than only applying FBP.
 
 \section{Cryo-EM}
 Cryo-EM is another molecular imaging method, that enables the view of molecules in near-atomic resolution.
@@ -205,11 +208,11 @@ where
     \hfill
     \subbottom[COVID-19 Omicron spike: $x$ \label{fig:omicron}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xsurface.jpeg}}
     \hfill
-    \subbottom[Projection along X-Axis: $p_1$   \label{fig:omicron-x}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xprojection.jpeg}}
+    \subbottom[Projection along x-axis: $p_1$   \label{fig:omicron-x}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xprojection.jpeg}}
     \hfill
-    \subbottom[Projection along Y-Axis: $p_2$  \label{fig:omicron-y}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_yprojection.jpeg}}
+    \subbottom[Projection along y-axis: $p_2$  \label{fig:omicron-y}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_yprojection.jpeg}}
     \hfill
-    \subbottom[Projection along Z-Axis: $p_3$   \label{fig:omicron-z}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_zprojection.jpeg}}
+    \subbottom[Projection along z-axis: $p_3$   \label{fig:omicron-z}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_zprojection.jpeg}}
     \hfill
 	\caption{Cryo-EM reconstruction and clean projections of COVID-19 Omicron spike \protect\footnote{https://www.ebi.ac.uk/emdb/EMD-32500}}
 \end{figure}
@@ -237,7 +240,6 @@ The problems are highly related, but cryo-EM reconstruct is more challenging.
 While CT observation, patient is asked to not move and therefore, angles of projection are known.
 Whereas, in cryo-EM this information will be lost during freezing.
 Secondly, high level of noise makes cryo-EM much more challenging.
-
 
 \section{Abstract form}
 As tomographic reconstruction and cryo-EM reconstruction are rather similar, 
@@ -269,7 +271,6 @@ with,
 \end{itemize}
 
 Further, an abstract form of the reconstruction operator is defined as 
-\textbf{TODO: Abstract from of reconstruction}
 
 \begin{equation}
     Recon : L^2(\tilde{\Omega}) \to L^2(\Omega), y \mapsto Recon(y; \theta_i)
@@ -282,6 +283,7 @@ Further, an abstract form of the reconstruction operator is defined as
 Classical tomography parameters are defined with $D=2$, $P=1$.
 Further, $A(\cdot)$ is the Radon Transform (see equation~\ref{eq:2Dreconstruction}).
 A distance measure between observations can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
+Reconstruction operator can be defined as FBP or U-Net \cite{unet-tomography}.
 
 \paragraph{Cryo-Em reconstruction:}
 Cryo-EM parameters are defined with $D=3$ and $P=3$ as $\theta_i$ not only corresponds to
@@ -307,7 +309,7 @@ But how can it be achieved?
 One idea would be to measure distances between observation.
 Another way is to find a low-dimensional embedding which maps our observations $y$ to some $\theta$.
 When talking from low-dimensional embeddings, there is no way around Graph Learning, which will be introduced
-in the following chapter~\ref{sec:graphFoundations}.
+in the following chapter~\ref{sec:graphFoundations} \textit{\nameref{sec:graphFoundations}}.
 
 % \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
 %     During the Master Thesis, high-noise regime is domain of interest.
