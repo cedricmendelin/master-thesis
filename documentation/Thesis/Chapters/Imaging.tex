@@ -121,7 +121,7 @@ Shepp-Logan phantom sinogram (figure~\ref{fig:phantom_sinogram}) and its noisy v
 \citet{ct-reconstruction-comparison} compared different reconstruction methods for computed tomography. 
 Todays state of the art reconstruction algortihms are Depp-Learning based.
 
-U-Net \citet{unet-tomography}, a convolution neural network approach, performed
+U-Net\cite{unet-tomography}, a convolution neural network approach, performed
 much better than only applying FBP.
 
 \section{Cryo-EM}
@@ -274,16 +274,15 @@ with,
 Further, an abstract form of the reconstruction operator is defined as 
 
 \begin{equation}
-    Recon : L^2(\tilde{\Omega}) \to L^2(\Omega), y \mapsto Recon(y; \theta_i)
+    Recon : L^2(\tilde{\Omega}) \to L^2(\Omega), y \mapsto Recon(y; \theta) \approx x
 \end{equation}
-
 
 
 \paragraph{Classical tomography reconstruction:}
 
 Classical tomography parameters are defined with $D=2$, $P=1$.
 Further, $A(\cdot)$ is the Radon Transform (see equation~\ref{eq:2Dreconstruction}).
-Reconstruction operator can be defined as FBP or U-Net \cite{unet-tomography}.
+Reconstruction operator can be defined as FBP or U-Net\cite{unet-tomography}.
 
 \paragraph{Cryo-Em reconstruction:}
 Cryo-EM parameters are defined with $D=3$ and $P=3$ as $\theta_i$ not only corresponds to
