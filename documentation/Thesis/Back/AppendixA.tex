@@ -56,16 +56,6 @@ The algorithm starts with a random vector $b_0$ or an approximation of the domin
     b_{k+1} = \frac{Ab_k}{||Ab_k||}
 \end{equation}
 
-The algorithm not necessarily converges. The algorithm will converge if $A$ has an eigenvalue strictly grater than its other eigenvalues
+It will not necessarily converges. The algorithm will converge if $A$ has an eigenvalue strictly grater than its other eigenvalues
 and initial vector $b_0$ is not orthogonal to the eigenvector associated with the largest eigenvalue.
 
-\section{Wasserstein metric}
-\label{sec:wasserstein-metric}
-
-The Wasserstein metric is a distance measure between two probability distributions and it is used in ML as a loss function\cite{learningWithWasserstein}. 
-Intuitively, it can can be understood as the minimum cost to transfer the mass of one distribution to the other.
-Therefore, it is also known as the \textit{earth mover's distance}.
-
-As \citet{wassersteinGAN} could show that ordinary distance measurements like \textit{Total Variation}, \textit{Kullback-Leibler divergence}
-and \textit{Jensen-Shannon divergence} are not sensible when learning with distributions supported by manifolds.
-On the contrary, Wasserstein metric does a good job as loss function in such scenarios.
