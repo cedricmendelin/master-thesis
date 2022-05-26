@@ -1,16 +1,15 @@
-\chapter{Contribution}
+\chapter{GAT-Denoiser}
 \label{sec:contribution}
 
 In the current chapter, contribution during Master Thesis is presented.
 As result, a GNN can be presented which is called \textit{GAT-Denoiser}.
-Its main components and the overall architectur is introduced.
-
+Its main components and overall architectur is introduced.
 The focus during practical part was on classical computed tomography in 2D but
 can be generalized to cryo-EM and 3D.
 
-\paragraph{Goal}
+\paragraph{Goal:}
 As introduced in chapter~\ref{sec:imaging}, molecular imaging methods computed tomography and cryo-EM are the problems
-to approach. Further, the high-noise regime is the domain of interest, to be more precise SNR between $[-20, 0]$.
+to approach. Further, the high-noise regime is the domain of interest, to be more precise SNR between $[-10, 0]$.
 
 For a given set of observations (many sinograms or micrographs), a GNN will be trained, such that
 it enables denoising of observations which are expected to have better reconstruction results.
@@ -20,7 +19,7 @@ The trained model allows to denoise not seen observations, which are from the sa
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
   To start solving the problem, an algorithm was designed to work with computed tomography, additionally
   projection angles are assumed to be known and $\theta$ was defined as equally spaced 
-  in the inverval $[0, 2 \pi]$. \\
+  in the inverval $[0, 2 \pi]$. 
 \end{tcolorbox}
 
 \paragraph{Input graph:}
@@ -30,9 +29,8 @@ As $\theta$ is fixed, angle corresponding to each single observation are known.
 Based on these angles, neighbouring nodes can be connected.
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-  For GAT-Denoiser, this means that graph topology is fixed. 
-  A K-NN graph can be built from points, equally spaced on the unit-circle,
-  as signal of observations is assumed to process the low-dimensional manifold.
+  For GAT-Denoiser, this means that graph topology is fixed,
+  a K-NN graph can be constructed from $\theta$.
 \end{tcolorbox}
 
 
@@ -56,15 +54,11 @@ The main idea of GAT-Denoiser is to enable denoising of observations:
   \caption{GAT-Denoiser concept}
 \end{figure}
 
-\textbf{TODO: Add REcon box}
-
 In figure~\ref{fig:overall-concept}, the overall GAT-Denoiser concept is illustrated.
 The input of the GAT-Denoiser network is a noisy observation, the output will be a denoised version.
 
-GAT will be responsible to average over observation neighbours, but single observations will
-not be averaged by the GAT. 
-Therefore, convolution is added and is responsible to denoise single observations
-before averaging over neighbourhood with GAT. So for every GAT layer, there is a preceding convolution. 
+GAT will be responsible to average over observation neighbours and convolution to denoise single observations. 
+So for every GAT layer, there is a preceding convolution. 
 In the case of computed tomography, this will be a 1D convolution, in case of cryo-EM a 2D convolution.
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
@@ -79,7 +73,10 @@ not just denoise observation $y$ which approximates noiseless observation $p$.
 
 
 \begin{equation}
-  x \approx   Recon \left( \text{GAT-Denoiser} \left( y \right) \right)
+  \begin{aligned}
+    x \approx   Recon \left( \text{GAT-Denoiser} \left( y \right) \right), \\
+    Recon : \text{U-Net} \left( FBP \left( \cdot \right) \right)  
+  \end{aligned}
 \end{equation}
 
 Therefore, an end-to-end learning approach is used where quality of reconstruction is 

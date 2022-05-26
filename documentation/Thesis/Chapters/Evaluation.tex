@@ -36,12 +36,38 @@ Source code of the project is available on github\footnote{https://github.com/ce
 The following important python packages have benn 
 
 
-
-
-Show most interesting results:
+\section{Small Experiments}
+Some small experiments to find best suited architectue for GAT-Denoiser.
 \begin{itemize}
-  \item k-NN
-  \item GAT Architecture
-  \item L1 vs. L2
-  \item Comparing with Bm3D (and/or non-local means).
+  \item 1024 train images
+  \item 100 validation images
 \end{itemize}
+
+Test many different settings:
+\begin{itemize}
+  \item K-nn size ([2,4,6,8,10,12]) and sampling points / Graph feature dimension (512, 1024, 1536, 2048)
+ 
+  \item GAT architecute (Layers, Heads, Loss FBP, Fixed conv)
+  \item Convolution (with, without, multiple channels)
+  \item Loss Sino and FBP
+  \item U-Net with and without
+  \item Different SNR levels
+  \item Learning over SNR range? (slighly not)
+  
+  
+\end{itemize}
+
+
+\section{Complete Experiments}
+Use complete set of experiment dataset.
+
+Compare with :
+\begin{itemize}
+  \item Only FBP
+  \item FBP  + U-Net
+  \item FBP  + Bm3d
+  \item bm3d on sino + FBP
+  \item Evantually same with non-local means
+\end{itemize}
+Compare with Bm3d (applied to noisy sinogram, after FBP and after FBP + Unet)
+
