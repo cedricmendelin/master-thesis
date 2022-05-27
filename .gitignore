@@ -569,3 +569,6 @@ denoiser/out_torch_state_dict_model
 documentation/Thesis/Thesis.pdf
 models/*
 src/data/val2017/*
+.vscode/ltex.dictionary.en-US.txt
+.vscode/ltex.disabledRules.en-US.txt
+.vscode/ltex.hiddenFalsePositives.en-US.txt

@@ -13,6 +13,8 @@ from skimage.transform import rescale
 from scipy.spatial import distance_matrix
 from sklearn.neighbors import kneighbors_graph
 
+from models import UNet
+
 np.random.seed(2022)
 
 
@@ -23,7 +25,11 @@ def chapter_imaging_sinos():
   phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
+  device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+  checkpoint = torch.load("models/unet.pt", map_location=device)
+  unet = UNet(nfilter=128).eval()
+  unet.load_state_dict(checkpoint['model_state_dict'])    
 
   radon, fbp =  setup_forward_and_backward(resolution, samples)
 
@@ -32,12 +38,15 @@ def chapter_imaging_sinos():
   reconstruction = fbp(sino)
   reconstruction_snr = fbp(sino_noisy)
 
+  reconstruction_fbp_unet = unet(
+    torch.from_numpy(reconstruction_snr.data).view(-1, 1, resolution, resolution)).view(resolution, resolution).cpu().detach().numpy()
 
   plot_imshow(phantom, title="Shepp Logan Phantom", colorbar=False)
   plot_imshow(sino, title="Sinogram", xlabel="s", ylabel='$\\theta$', colorbar=False)
-  plot_imshow(sino_noisy, title=f"Sinogram with noise SNR: {snr}", xlabel="s", ylabel='$\\theta$', colorbar=False)
+  plot_imshow(sino_noisy, title=f"Sinogram with noise SNR: {snr} dB", xlabel="s", ylabel='$\\theta$', colorbar=False)
   plot_imshow(reconstruction, title="FBP clean sinogram", colorbar=False)
   plot_imshow(reconstruction_snr, title="FBP noisy sinogram", colorbar=False)
+  plot_imshow(reconstruction_fbp_unet, title="FBP + U-Net noisy sinogram", colorbar=False)
 
   plt.show()
 
@@ -284,4 +293,5 @@ def chapter_graph_foundation_manifolds_clean_resolution_importance():
 #chapter_graph_foundation_manifolds_clean()
 #chapter_graph_foundation_manifolds_noisy()
 #chapter_graph_foundation_manifolds_clean_samples_importance
-chapter_graph_foundation_manifolds_clean_resolution_importance()
+#chapter_graph_foundation_manifolds_clean_resolution_importance()
+chapter_imaging_sinos()

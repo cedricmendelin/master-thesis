@@ -3,34 +3,33 @@
 
 In the current chapter, contribution during Master Thesis is presented.
 As result, a GNN can be presented which is called \textit{GAT-Denoiser}.
-Its main components and overall architectur is introduced.
+Its main components and overall architecture is introduced.
 The focus during practical part was on classical computed tomography in 2D but
 can be generalized to cryo-EM and 3D.
 
 \paragraph{Goal:}
-As introduced in chapter~\ref{sec:imaging}, molecular imaging methods computed tomography and cryo-EM are the problems
-to approach. Further, the high-noise regime is the domain of interest, to be more precise SNR between $[-10, 0]$.
-
+As introduced in chapter~\ref{sec:imaging} \textit{\nameref{sec:imaging}}, molecular imaging methods computed tomography and cryo-EM are the problems
+to approach. Further, high-noise regime is the domain of interest, to be more precise SNR between $[-10, 0]$.
 For a given set of observations (many sinograms or micrographs), a GNN will be trained, such that
-it enables denoising of observations which are expected to have better reconstruction results.
-The trained model allows to denoise not seen observations, which are from the same family of observations.
+it enables denoising of observations which are expected to have a better reconstruction result after denoising.
+Trained model allows to denoise not seen observations which are from the same family of observations.
 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
   To start solving the problem, an algorithm was designed to work with computed tomography, additionally
   projection angles are assumed to be known and $\theta$ was defined as equally spaced 
-  in the inverval $[0, 2 \pi]$. 
+  in the interval $[0, 2 \pi]$. 
 \end{tcolorbox}
 
 \paragraph{Input graph:}
-To recap from section~\ref{sec:graphConstruction}, our graph from molecular-imaging observation
-will have single observations as nodes (one horizontal line of the sinogram). 
+To recap from section~\ref{sec:graphConstruction}  \textit{\nameref{sec:graphConstruction}}, 
+a graph constructed from molecular-imaging observation will have single observations as nodes (one horizontal line of the sinogram). 
 As $\theta$ is fixed, angle corresponding to each single observation are known. 
-Based on these angles, neighbouring nodes can be connected.
+Based on these angles, neighboring nodes can be connected.
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-  For GAT-Denoiser, this means that graph topology is fixed,
-  a K-NN graph can be constructed from $\theta$.
+  For GAT-Denoiser, this entails that graph topology is fixed and
+  a k-NN graph can be constructed from $\theta$.
 \end{tcolorbox}
 
 
@@ -41,86 +40,85 @@ In the following section, the concept of GAT-Denoiser is introduced.
 GAT-Denoiser is a GNN and has two main components, namely convolution layers and GAT layers.
 The main idea of GAT-Denoiser is to enable denoising of observations:
 \begin{equation}
-  \text{GAT-Denoiser} (\cdot) : L^2(\tilde{\Omega}) \to  L^2(\tilde{\Omega}) , y \mapsto \text{GAT-Denoiser} (y) 
+  \textit{GAT-Denoiser} (\cdot) : L^2(\tilde{\Omega}) \to  L^2(\tilde{\Omega}) , y \mapsto \textit{GAT-Denoiser} (y) 
 \end{equation}
 
 % The GAT is expected to denoise observation signal with its neighbours by averaging. 
 % Further, convolution is added to denoise single observations.
 
-\begin{figure}[H]
-  \centering
-  \label{fig:overall-concept}
-  \includegraphics[width=\textwidth]{Overall_GAT-Denoiser_Pipeline.drawio.png}
-  \caption{GAT-Denoiser concept}
-\end{figure}
-
-In figure~\ref{fig:overall-concept}, the overall GAT-Denoiser concept is illustrated.
-The input of the GAT-Denoiser network is a noisy observation, the output will be a denoised version.
-
-GAT will be responsible to average over observation neighbours and convolution to denoise single observations. 
-So for every GAT layer, there is a preceding convolution. 
-In the case of computed tomography, this will be a 1D convolution, in case of cryo-EM a 2D convolution.
+Input $y$ of GAT-Denoiser is a noisy observation, output will be a denoised version of it.
+GAT will be responsible to average over observation neighbors and convolution to denoise single observations. 
+For every GAT layer there is a preceding convolution. 
+In the case of computed tomography, this will be 1D convolution and for cryo-EM a 2D convolution.
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-  The GAT is expected to denoise observation signal with its neighbours by averaging. 
+  The GAT is expected to denoise observation signal with its neighbors by averaging. 
   Further, convolution is added to denoise single observations.
 \end{tcolorbox}
 
 
-But, the main overall goal is to get best possible reconstruction 
+But, the main overall goal is to get the best possible reconstruction 
 from noisy observation $y$ which approximates original object $x$ and 
 not just denoise observation $y$ which approximates noiseless observation $p$.
 
 
 \begin{equation}
   \begin{aligned}
-    x \approx   Recon \left( \text{GAT-Denoiser} \left( y \right) \right), \\
-    Recon : \text{U-Net} \left( FBP \left( \cdot \right) \right)  
+    x \approx   &\textit{Recon} \left( \textit{GAT-Denoiser} \left( y \right) \right), \\
+    \text{with } &\textit{Recon} : \textit{UNet} \left( \textit{FBP} \left( \cdot \right) \right)  
   \end{aligned}
 \end{equation}
 
 Therefore, an end-to-end learning approach is used where quality of reconstruction is 
-compared in the loss during GAT-Denoiser training, which is expected to perform better than 
+compared during GAT-Denoiser training, which is expected to perform better than 
 only optimizing denoising of observations.
 
+In figure~\ref{fig:overall-concept} overall GAT-Denoiser concept is illustrated.
+\begin{figure}[t]
+  \centering
+  \label{fig:overall-concept}
+  \includegraphics[width=\textwidth]{Overall_GAT-Denoiser_Pipeline.drawio.png}
+  \caption{GAT-Denoiser concept}
+\end{figure}
 
-\paragraph{K-hop neighbourhood:}
-In GNNs, multiple layers expose the k-hop neighbourhood. So for a network with $k$ layers,
-the network operates on the $k$-hop neighbourhood. In GAT-Denoiser, this corresponds
-to the layers of GAT. Therefore, one layer is refering to convolution and GAT together.
+
+
+\paragraph{K-hop neighborhood:}
+In GNNs, multiple layers expose the k-hop neighborhood. So for a network with $k$ layers,
+network operates on the $k$-hop neighborhood. In GAT-Denoiser, this corresponds
+to the layers of GAT. Therefore, if writing from one layer, it is referring to convolution and GAT together.
 
 \section{Components}
-In the following, the three main components are explained in more detail
-and in section~\ref{sec:architecture-GatDenoiser} connected to GAT-Denoiser architectue is more detail.
+In the following, the three main components are explained individually
+and in section~\ref{sec:architecture-GatDenoiser} \textit{\nameref{sec:architecture-GatDenoiser}}
+connected to GAT-Denoiser architecture in more detail.
 
 \subsection{Graph Attention Networks}
-The main component of our GNN is a GAT.
+The main component of GAT-Denoiser is a GAT.
 As mentioned in section~\ref{sec:graph_depp_learning}, GAT is an extension to GCN and 
-adds attention (or weights) to neighbours for learning new node feature representations. 
-Again, topology of the graph will not change but weighted averaging over the neighbourhood 
+adds attention (or weights) to neighbors for learning new node feature representations. 
+Again, topology of the graph will not change but weighted averaging over the neighborhood 
 will take place and this is what in denoising is a good idea.
 
 \paragraph{Single Layer}
 Input of a single GAT layer are node features $h = \{ h_1, h_2, \dots , h_N \} \in \mathbb{R}^F$, 
 where $N$ is the number of nodes and $F$ the number of features per node. 
-The layer will map input to output, which can potentially have different dimensions: 
+Single layer will map input to output, which can potentially have different dimensions: 
 $h^{\prime} = \{ h_1^{\prime}, h_2^{\prime}, \dots, h_N^{\prime} \} \in \mathbb{R}^{F^{\prime}} $
-
-As is other GNNs, input features are initially 
-linearly transformed and parametrized by a learnable weight matrix $W \in \mathbb{R}^{F^{\prime} \times F}$.
+As is other GNNs, input features are initially linearly transformed and parametrized by a learnable weight matrix 
+$W \in \mathbb{R}^{F^{\prime} \times F}$. 
 This allows to add enough expressiveness to the neural network and weights are learned during training.
-
-Further, attention coefficiants are computed, which indicate the importance of node $j$ to node $i$:
+Further, attention coefficients are computed, which indicates importance of node $j$ to node $i$:
 
 \begin{equation}
   e_{ij} = a(Wh_i, Wh_j),
 \end{equation}
 
-with $a$ as the shared attentional meachanism $a : \mathbb{R}^{F^{\prime}} \times \mathbb{R}^{F^{\prime}} \mapsto \mathbb{R}$.
+with $a$ as the shared attentional mechanism $a : \mathbb{R}^{F^{\prime}} \times \mathbb{R}^{F^{\prime}} \mapsto \mathbb{R}$.
 But how to define the attentional mechanism? 
-\citet{GAT} proposed to use a single-layer feedforward neural network, paremetrized by a weight vector $a \in \mathbb{R}^{2F^{\prime}}$
-and LeakyReLu as activation function, which is good to start with.
- 
+\citet{GAT} proposed to use a single-layer feedforward neural network, parametrized by a weight vector $a \in \mathbb{R}^{2F^{\prime}}$
+and LeakyReLu as activation function.
+
 To compare coefficients $e$ across different nodes, normalization is needed.
 Therefore, softmax is used as normalization $\alpha_{ij} = softmax_j(e_{ij})$ 
 such that all attention coefficient of one node sum up to 1 and therefore are nicely comparable across nodes.
@@ -134,7 +132,7 @@ with $\sigma$ as some arbitrary activation function.
 
 \paragraph{Multi-Head attention}
 Motivated by \citet{transformer}, multi-head attention can be beneficial to stabilize learning process.
-Therefore, not only single weight matrix is learned but it is splitted up in several parts, 
+Therefore, not only a single weight matrix is learned, but $W$ is split up in several parts, 
 all learned individually:
 
 \begin{equation}
@@ -145,14 +143,14 @@ where $\parallel$ corresponds to concatenation, $\alpha_{ij}^k$ the $k$-th atten
 transformations weight matrix. The final output consists of $KF^{\prime}$ output features.
 
 \paragraph{Last layer:}
-If working with multiple heads, in the last layer of our neural network, concatenation is not the desired 
-way to prepare output and therefore, averaging instead of concatenation is used.
+As in the last layer, dimension need to be corresponding to output dimension, 
+concatenation is no longer plausible and averaging is used to match desired dimension.
 
 \subsection{Convolution}
 The second key component of GAT-Denoiser is convolution.
 Convolution is an important part in Signal Processing, if not the most important one.
 It allows to average an incoming signal, further, it is very popular in computer vision.
-Convolution commonly operators on pixel spaces, where every observation location or time slot gets one value assinged.
+Convolution commonly operators on pixel spaces, where every observation location or time slot gets one value assigned.
 
 \begin{equation}
   x \star k = y,
@@ -160,12 +158,11 @@ Convolution commonly operators on pixel spaces, where every observation location
 
 where $x$ is input signal, $k$ is kernel, $\star$ the convolution operator and $y$ the convolved signal.
 
-To apply convolution, a kernel with its weights needs to be defined. 
+To apply convolution, a kernel with weights needs to be defined. 
 This kernel will then slide over the input signal $x$ and computes the dot product with its weights.
-
 In figure~\ref{fig:1d-convolution} an illustration of 1D convolution can be seen. In this example,
 kernel size is set to 3, $n$ refers to input signal dimension and $m$ to output signal dimension.
-In the example  $ n = m + 2$, so the convoled output signal will be decrased by $2$.
+In the example  $ n = m + 2$, so the convolved output signal will be decreased by $2$.
 The concept of convolution can be extended to arbitrary dimensions.
 
 \begin{figure}[H]
@@ -177,21 +174,22 @@ The concept of convolution can be extended to arbitrary dimensions.
 
 \paragraph{Padding:} 
 can be defined to add pixels to boundary of the signal.
-In the example, padding is set to $0$ and therefore, the signal dimension is decrased by $2$.
+In the example, padding is set to $0$ and therefore, the signal dimension is decreased by $2$.
 If signal dimension should be fixed during convolution, padding is a powerful tool. For padding $1$,
 the input dimension $n$ would be equal to output dimension $m$, as an extra element in the output signal
-will be at boundaries.
+will be at convolved at boundaries.
 
 
 \paragraph{Stride:}
-is the parameter, how far kernel moves each time. In the example, stride was defined to be $1$.
+is the parameter how far kernel moves each time. In the example, stride was defined to be $1$.
 If stride is increased, the output signal dimension will decrease.
 
 
 \subsection{U-Net}
-U-Net can boost performance of computed tomography reconstruction.
-It is an convolutional neural network, which is well suited for image segmentation in different domains.
-\cite{unet-tomography} showed great success for biomedial image segmentation.
+U-Net can boost performance of computed tomography reconstruction and is therefore our third component
+in GAT-Denoiser.
+It is a convolutional neural network, which is well suited for image segmentation in different domains.
+\cite{unet-tomography} showed great success for biomedical image segmentation.
 
 The neural network architecture consists of contracting path and expansive path,
 resulting in a U-shape, as illustrated in figure~\ref{fig:u-net-architectue}.
@@ -202,38 +200,35 @@ resulting in a U-shape, as illustrated in figure~\ref{fig:u-net-architectue}.
   \includegraphics[width=0.6\textwidth]{u-net-architecture.png}
   \caption{
     U-Net architecture \cite[p 2, Fig. 1]{unet-tomography} \\
-    Number on top of boxes denotes channels, where numbers at bottom of the box refers to input dimension.
+    Number on top of boxes denotes channels, where numbers at bottom of boxes refer to input dimension.
     }
 \end{figure}
 
 
-In contracting path (left part), input dimension will be decreased and channels increased.
-For every step in the contracting path, two 3x3 convolution layers are followed by a rectified linear unit (ReLu)
-and a 2x2 max pooling for downsampling. Further, at each downsampling step, input channels are doubled.
+During contracting path (left part) input dimension will be decreased and channels increased.
+For every step in the contracting path, two 3x3 convolution layers are followed by ReLu
+and a 2x2 max pooling for down-sampling. Further, at each down-sampling step, input channels are doubled.
 Multiple contracting steps are combined. After last contracting step, expansive path (right part) starts
 where input dimension will be increased and input channels will be decreased.
-For every expansive step, an upsampling of feature map takes place, followed by a 2x2 convolution, 
+For every expansive step, an up-sampling of feature map takes place, followed by a 2x2 convolution, 
 which halves the number of channels. Then, concatenation with the corresponding feature
 map of contracting path is done (gray arrow in figure~\ref{fig:u-net-architectue}), followed by again two 3x3 convolutions and ReLu.
-Final layer is a 1x1 convolution, to map to desired output dimension and single output channel.
+Final layer is a 1x1 convolution to map to desired output dimension and single output channel.
 
 \section{Architecture}
 \label{sec:architecture-GatDenoiser}
-Now, all individual components are introduced, the GAT-Denoiser architecture can be defined.
-First, the different neural network layers will be explained and second, loss and training.
+Finally, all individual components are introduced and GAT-Denoiser architecture can be defined.
+First, different neural network layers will be explained and, second, loss and training.
 
-As defined in equation for computed tomography \ref{eq:2Dreconstruction}, $N$ is the number of observation and
-$M$ observation dimension.
-Therefore, input to the network will be in $\mathbb{R}^{N \times M}$. If speaking from sinograms, 
-number of observation $M$ can be seen as resolution of the sinogram. Further, $N$ is the number
-of nodes of our processed, as for every observation, one node is assinged.
+As defined in equation~\ref{eq:abstract-model}, $N$ is the number of observation and
+$M$ observation dimension. 
+Therefore, input (noisy sinogram) will be in $\mathbb{R}^{N \times M}$ as well as output (denoised sinogram). 
 
 \subsection{Layers}
-
-In figure~\ref{fig:architecture-detailed}, the detailed GNN architecture can be seen.
-It is paremetrized with $channels$, $heads$ and $layers$. 
+In figure~\ref{fig:architecture-detailed}, detailed GNN architecture can be seen.
+It is parametrized with $channels$, $heads$ and $layers$. 
 The number of channels in convolution can be increased with parameter $channels$.
-Fruther, $heads$ determine the number of heads used in the GAT layers and parameter 
+Further, $heads$ determine the number of heads used in the GAT layers and parameter 
 $layers$ defines how many convolution and GAT layers are stacked together.
 
 
@@ -247,12 +242,14 @@ $layers$ defines how many convolution and GAT layers are stacked together.
 
 For every layer, first convolution and then GAT is processed. 
 Convolution in the whole network was defined with kernel size of 3 and padding 1,
-therefore, the dimension of convolved signal will not change.
-Further, additional convolutional channels can be used for learning, 
-if parameter $channels > 1$, channels are increased in the first convolution layer 
+therefore, dimension of convolved signal will not change. 
+Convolution can be defined with different parameters, but output signal needs to have 
+same dimension as input signal.
+Further, additional convolutional channels can be used for learning.
+If parameter $channels > 1$, channels are increased in the first convolution layer 
 and decreased in the last one.
-Parameter $heads$ controls the multi-head approach for GAT. Input and hidden dimension
-of GAT is $M$  if no heads are used.
+Parameter $heads$ controls multi-head approach for GAT. Input and hidden dimension
+of GAT is $M$ if no heads are used.
 If multi-head attention is used, hidden dimension will be set to $M / heads$.
 In the last GAT layer, everything gets prepared for output dimension and 
 averaging with 1 head is applied.
@@ -269,12 +266,13 @@ Therefore, the outcome of GAT-Denoiser is not directly part of the loss, but fir
 Reconstructions can be nicely compared with the $\ell2$-norm:
 
 \begin{equation}
-  \mathcal{L} = \parallel x_i - Recon ( \text{GAT-Denoiser}(A(x_i, \theta, s) + \eta)) \parallel ^2_2
+  \mathcal{L} = \parallel x_i - \textit{Recon} ( \textit{GAT-Denoiser}(A(x_i, \theta, s) + \eta)) \parallel ^2_2
 \end{equation}
 
 As $x_i$ is part of the loss, access to original object is needed during training.
 
 Further, U-Net will be jointly used with FBP as reconstruction. For that to work, U-Net needs to be 
-first trained with the dataset and learned model can be be pluged into GAT-Denoiser.
+first pre-trained with the dataset and learned model can be plugged into GAT-Denoiser.
+One could also consider training U-Net model jointly, while training GAT-Denoiser.
 
 
