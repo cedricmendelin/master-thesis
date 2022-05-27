@@ -13,7 +13,7 @@ from skimage.transform import rescale
 from scipy.spatial import distance_matrix
 from sklearn.neighbors import kneighbors_graph
 
-from models import UNet
+from utils.UNetModel import UNet
 
 np.random.seed(2022)
 

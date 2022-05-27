@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, Dataset
 from odl import Operator
 import odl
 from tqdm import tqdm
-import models
+import utils.UNetModel as UNetModel
 from utils.ODLHelper import OperatorFunction, OperatorModule
 
 if torch.cuda.device_count()>1:

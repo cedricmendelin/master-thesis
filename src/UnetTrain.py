@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, Dataset
 from odl import Operator
 import odl
 from tqdm import tqdm
-import models
+import utils.UNetModel as UNetModel
 from utils.ODLHelper import OperatorFunction, OperatorModule
 
 
@@ -151,7 +151,7 @@ test_loader = DataLoader(dataset=MyDataset(data_test,label_test),
 #######################################
 ### Define network
 #######################################
-net = models.UNet(nfilter=128).to(device).train()
+net = UNetModel.UNet(nfilter=128).to(device).train()
 net.summary()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(net.parameters(), lr, weight_decay=1e-6)

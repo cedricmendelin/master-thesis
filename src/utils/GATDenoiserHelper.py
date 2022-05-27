@@ -20,7 +20,7 @@ import torch
 torch.pi = torch.acos(torch.zeros(1)).item() * 2
 
 import odl
-import models
+import utils.UNetModel as UNetModel
 
 ################### Loss Enum ##############################
 from enum import Enum
@@ -176,7 +176,7 @@ class GatBase():
 
         if self.UNET_REFINEMENT:
             checkpoint = torch.load(args.unet_path, map_location=self.device)
-            self.unet = models.UNet(nfilter=self.RESOLUTION).to(self.device).eval()
+            self.unet = UNetModel.UNet(nfilter=self.RESOLUTION).to(self.device).eval()
             self.unet.load_state_dict(checkpoint['model_state_dict'])    
             # add train or not
         
