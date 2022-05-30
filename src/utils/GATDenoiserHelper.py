@@ -271,7 +271,7 @@ class GatBase():
         return OperatorFunction.apply(self.radon, images).data
     
     ################## Forward operator Operators ######################
-    def __backward__(self, sinograms, with_gradient=False):
+    def __backward__(self, sinograms, with_gradient=False, deactivate_unet = False):
         """ Uses odl for forwarding images.
 
         Args:
@@ -284,7 +284,7 @@ class GatBase():
         else:
             fbp = OperatorFunction.apply(self.fbp, sinograms).data
         
-        if self.UNET_REFINEMENT:
+        if self.UNET_REFINEMENT and not deactivate_unet:
             fbp = self.unet(fbp.view(-1, 1, self.RESOLUTION, self.RESOLUTION))
 
         return fbp
@@ -383,36 +383,33 @@ class GatBase():
                 clean_sinograms = torch.cat([d.y for d in validation_data]).view(batch_n, self.N, self.RESOLUTION).to(denoised_sinograms.device)
                 
                 fbps_denoised = self.__backward__(denoised_sinograms).to(denoised_sinograms.device)
-                fbps_noisy = self.__backward__(noisy_sinograms).to(denoised_sinograms.device)
+                fbps_noisy = self.__backward__(noisy_sinograms, deactivate_unet=True).to(denoised_sinograms.device)
                 
                 clean_images = self.T_validation_images[image_index: image_index + batch_n,:,:].to(denoised_sinograms.device)
                 image_index = image_index + batch_n
 
                 for i in range(batch_n):
                     if self.USE_WANDB:
+                        current_idx = counter
+                        counter += 1
                         wandb.log({
-                            "val_indx" : counter,
+                            "val_idx" : current_idx,
                             "val_loss_sino_denoised": torch.linalg.norm(denoised_sinograms[i]- clean_sinograms[i]),
                             "val_loss_sino_noisy": torch.linalg.norm(noisy_sinograms[i] - clean_sinograms[i]),
 
-                            "val_loss_fbp_denoised": torch.linalg.norm(fbps_denoised[i] - clean_images[i]),
-                            "val_loss_fbp_noisy": torch.linalg.norm(fbps_noisy[i] - clean_images[i]),
+                            "val_loss_reco_denoised": torch.linalg.norm(fbps_denoised[i] - clean_images[i]),
+                            "val_loss_reco_noisy": torch.linalg.norm(fbps_noisy[i] - clean_images[i]),
 
                             "val_snr_sino_denoised": find_SNR(clean_sinograms[i], denoised_sinograms[i]),
                             "val_snr_sino_noisy": find_SNR(clean_sinograms[i], noisy_sinograms[i]),
 
-                            "val_snr_fbp_denoised": find_SNR(clean_images[i], fbps_denoised[i]),
-                            "val_snr_fbp_noisy": find_SNR(clean_images[i], fbps_noisy[i]),
+                            "val_snr_reco_denoised": find_SNR(clean_images[i], fbps_denoised[i]),
+                            "val_snr_reco_noisy": find_SNR(clean_images[i], fbps_noisy[i]),
 
                             "val_clean" : wandb.Image(clean_images[i].cpu().detach().numpy(), caption=f"Original object"),
-                            "val_reconstruction_denoised": wandb.Image(fbps_denoised[i].cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} "),
-                            "val_reconstruction_noisy": wandb.Image(fbps_noisy[i].cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}"),
-
-                            "val_sino_denoised": wandb.Image(denoised_sinograms[i].cpu().detach().numpy(), caption=f"Sinogram denoised - SNR: {snr} "),
-                            "val_sino_noisy": wandb.Image(noisy_sinograms[i].cpu().detach().numpy(), caption=f"Sinogram noisy - SNR: {snr}"),
-                            "val_sino_clean": wandb.Image(clean_sinograms[i].cpu().detach().numpy(), caption=f"Sinogram noisy - SNR: {snr}"),
+                            "val_reco_denoised": wandb.Image(fbps_denoised[i].cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} "),
+                            "val_reco_noisy": wandb.Image(fbps_noisy[i].cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}"),
                         })
-                        counter += 1
 
                 torch.cuda.empty_cache()
             image_index = 0

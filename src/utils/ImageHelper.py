@@ -7,7 +7,7 @@ from skimage.transform import rescale
 
 # Returns grayscale images at random in a given path and list of files output of size number x 1 x N1 x N2
 def load_images_files(path, files, N1, N2, number=1, circle_padding=False, num_seed=None):
-    random.seed(a=num_seed)  # if None, system clock
+    random.seed(num_seed)  # if None, system clock
     result = np.zeros((number, N1, N2))
     assert N1 == N2, "resolution of images need to be same"
     lin = np.linspace(-1,1, N1)

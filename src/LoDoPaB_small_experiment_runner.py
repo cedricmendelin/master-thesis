@@ -19,7 +19,7 @@ parser.add_argument("--validation_image_count", type=int, default=100)
 
 parser.add_argument("--use_wandb", action='store_true', default=False)
 parser.add_argument("--debug_plots", action='store_true', default=False)
-parser.add_argument("--wandb_project", type=str, default="Testing Seed for validation")
+parser.add_argument("--wandb_project", type=str, default="LoDoPaB Small Test 2")
 parser.add_argument("--save_model", action='store_true', default=False)
 parser.add_argument("--model_dir", type=str, default="denoiser/small_experiments/")
 
@@ -36,7 +36,7 @@ parser.add_argument("--unet_refinement", action='store_true', default=False)
 parser.add_argument("--unet_path", type=str, default="models/unet.pt")
 parser.add_argument("--unet_train", action='store_true', default=False)
 
-parser.add_argument("--epochs", type=int, default=4)
+parser.add_argument("--epochs", type=int, default=2)
 parser.add_argument("--gat_snr_lower", type=int, default=0)
 parser.add_argument("--gat_snr_upper", type=int, default=0)
 parser.add_argument("--validation_snrs", nargs="+", type=int, default=[0])

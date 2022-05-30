@@ -1,7 +1,7 @@
 from torch_geometric.nn import GATConv
 from torch.nn import Conv1d
 from torch_geometric.data import Data, Dataset
-from .SNRHelper import add_noise
+from .SNRHelper import add_noise_to_sinograms
 import torch.nn.functional as F
 import torch
 
@@ -127,6 +127,7 @@ class ValidationDataset(Dataset):
         """
         self.V = V
         self.sinograms = sinograms
+        self.noisy_sinos = add_noise_to_sinograms(sinograms, snr)
         self.graph = graph
         self.snr = snr
 
@@ -134,5 +135,4 @@ class ValidationDataset(Dataset):
         return self.V
 
     def __getitem__(self, idx):
-        noisy_sinogram = add_noise(self.snr, self.sinograms[idx])
-        return Data(x=noisy_sinogram, y=self.sinograms[idx], edge_index=self.graph)
+        return Data(x=self.noisy_sinos[idx], y=self.sinograms[idx], edge_index=self.graph)

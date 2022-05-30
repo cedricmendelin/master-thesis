@@ -22,6 +22,7 @@ python ./src/LoDoPaB_small_experiment_runner.py  \
         --resolution 64 \
         --image_path "src/data/limited-CT/data_png_train/" \
         --validation_image_path "src/data/limited-CT/data_png_test/" \
+        --add_circle_padding \
         --validation_image_count 100 \
         --use_wandb \
         --verbose \

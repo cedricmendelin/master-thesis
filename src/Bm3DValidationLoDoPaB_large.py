@@ -22,7 +22,7 @@ test_data = "src/data/limited-CT/data_png_test/"
 validation_files = os.listdir(test_data)
 
 RESOLUTION = 64
-validation_count = 100
+validation_count = 3553
 N = 1024
 snr = 0
 
@@ -48,7 +48,7 @@ c = {
   "Count" : validation_count,
 }
 
-wandb.init(project="BM3D Validation LoDoPaB small", entity="cedric-mendelin", config=c)
+wandb.init(project="BM3D Validation LoDoPaB large", entity="cedric-mendelin", config=c)
 wandb.run.name = f"BM3D_{RESOLUTION}_{N}_{snr}_{N}_{bm3d_type}"
 
 
