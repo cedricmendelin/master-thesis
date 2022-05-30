@@ -42,7 +42,7 @@ parser.add_argument("--gat_snr_upper", type=int, default=0)
 parser.add_argument("--validation_snrs", nargs="+", type=int, default=[0])
 parser.add_argument("--append_validation_images", type=int, default=0)
 parser.add_argument("--add_circle_padding", action='store_true', default=False)
-parser.add_argument("--k_nn", type=int, default=8)
+parser.add_argument("--k_nn", type=int, default=7)
 parser.add_argument("--batch_size", type=int, default=32)
 
 parser.add_argument('--loss', type=str, default='FBP',

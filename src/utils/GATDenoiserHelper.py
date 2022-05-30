@@ -180,13 +180,9 @@ class GatBase():
             self.unet = UNetModel.UNet(nfilter=128).to(self.device)
             self.unet.load_state_dict(checkpoint['model_state_dict'])
             if self.UNET_TRAIN:
-                print("tain unet")
                 self.unet.train()
             else:
-                print("eval unet")
                 self.unet.eval()
-
-            
             
         # Parameters for seeting up graph.
         # Currently a circle graph with k neighoburs is used.
@@ -289,7 +285,6 @@ class GatBase():
             fbp = OperatorFunction.apply(self.fbp, sinograms).data
         
         if self.UNET_REFINEMENT:
-            print("backward with unet")
             fbp = self.unet(fbp.view(-1, 1, self.RESOLUTION, self.RESOLUTION))
 
         return fbp
@@ -347,9 +342,7 @@ class GatBase():
                 
                 if loss == Loss.SINO:
                     loss_training = torch.linalg.norm(out_sinograms - y)
-                    print("sino loss")
                 elif loss == Loss.FBP:
-                    print("fbp loss")
                     fbps = self.__backward__(out_sinograms.view(batch_n, self.N, self.RESOLUTION), True)
                     loss_training = torch.linalg.norm(fbps.view(batch_n, self.RESOLUTION, self.RESOLUTION) - y.view(batch_n, self.RESOLUTION, self.RESOLUTION))
                 else:
