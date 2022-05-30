@@ -12,7 +12,6 @@ from utils.SNRHelper import add_noise_to_sinograms, find_SNR
 import os
 import torch
 import bm3d
-import time
 import wandb
 from tqdm import tqdm
 

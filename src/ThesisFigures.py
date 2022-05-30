@@ -28,7 +28,7 @@ def chapter_imaging_sinos():
 
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-  checkpoint = torch.load("models/unet.pt", map_location=device)
+  checkpoint = torch.load("models/unet_128.pt", map_location=device)
   unet = UNet(nfilter=128).eval()
   unet.load_state_dict(checkpoint['model_state_dict'])    
 
@@ -49,6 +49,9 @@ def chapter_imaging_sinos():
   plot_imshow(reconstruction_snr, title="FBP noisy sinogram", colorbar=False)
   plot_imshow(reconstruction_fbp_unet, title="FBP + U-Net noisy sinogram", colorbar=False)
 
+  print(find_SNR(torch.from_numpy(phantom), torch.from_numpy(reconstruction_snr.data)))
+  print(find_SNR(torch.from_numpy(phantom), reconstruction_fbp_unet))
+  
   plt.show()
 
 def chapter_graph_foundation_cricle_manifold():
