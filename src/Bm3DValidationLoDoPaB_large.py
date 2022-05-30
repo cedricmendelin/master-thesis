@@ -24,7 +24,6 @@ validation_files = os.listdir(test_data)
 RESOLUTION = 64
 validation_count = 3553
 N = 1024
-snr = 0
 
 # bm3d_before_fbp:
 # True: bm3d on sinogram, 
@@ -44,9 +43,11 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--bm3d', type=str, default='RECO',
                     choices=[i.name.upper() for i in BM3DType])
+parser.add_argument("--snr", type=int, default=0)                  
 args = parser.parse_args()
 
 bm3d_type = BM3DType[args.bm3d.upper()]
+snr = args.snr
 
 c = {
   "RESOLUTION" : RESOLUTION,

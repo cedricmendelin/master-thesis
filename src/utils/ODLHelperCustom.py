@@ -7,7 +7,7 @@ def setup_forward_and_backward(resolution, samples):
         min_pt=[-resolution//2+1, -resolution//2+1], max_pt=[resolution//2, resolution//2], shape=[resolution, resolution], dtype='float32')
 
     # Angles: uniformly spaced, min = 0, max = pi
-    angle_partition = odl.uniform_partition(0, 2 * np.pi, samples)
+    #angle_partition = odl.uniform_partition(0, 2 * np.pi, samples)
 
     # Make a parallel beam geometry
     geometry = odl.tomo.parallel_beam_geometry(reco_space, samples, det_shape=resolution)

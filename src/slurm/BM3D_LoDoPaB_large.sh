@@ -17,4 +17,4 @@ cd ~/master-thesis-git-nobackup
 
 wandb offline
 
-python ./src/Bm3DValidationLoDoPaB_large.py --bm3d "RECO"
+python ./src/Bm3DValidationLoDoPaB_large.py --bm3d "RECO" --snr 0

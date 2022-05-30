@@ -17,4 +17,4 @@ cd ~/master-thesis-git-nobackup
 
 wandb offline
 
-python ./src/UNetValidationLoDoPaB_small.py
+python ./src/UNetValidationLoDoPaB_small.py --snr 0
