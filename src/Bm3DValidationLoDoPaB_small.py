@@ -16,6 +16,7 @@ import time
 import wandb
 from tqdm import tqdm
 
+np.random.seed(2022)
 torch.manual_seed(2022)
 
 test_data = "src/data/limited-CT/data_png_test/"
@@ -39,13 +40,20 @@ class BM3DType(Enum):
     RECO = 1,
     BOTH=2,
 
-bm3d_type = BM3DType.BOTH
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--bm3d', type=str, default='RECO',
+                    choices=[i.name.upper() for i in BM3DType])
+args = parser.parse_args()
+
+bm3d_type = BM3DType[args.bm3d.upper()]
 
 c = {
   "RESOLUTION" : RESOLUTION,
   "N" : N,
   "SNR" : snr,
   "Count" : validation_count,
+  "Type": bm3d_type,
 }
 
 wandb.init(project="BM3D Validation LoDoPaB small", entity="cedric-mendelin", config=c)
