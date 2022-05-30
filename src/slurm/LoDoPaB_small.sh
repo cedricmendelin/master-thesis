@@ -18,7 +18,6 @@ cd ~/master-thesis-git-nobackup
 wandb offline
 
 python ./src/LoDoPaB_small_experiment_runner.py  \
-        --graph_size 1024 \
         --samples 1024 \
         --resolution 64 \
         --image_path "src/data/limited-CT/data_png_train/" \
@@ -27,7 +26,6 @@ python ./src/LoDoPaB_small_experiment_runner.py  \
         --use_wandb \
         --verbose \
         --save_model \
-        --k_nn 8 \
         --validation_snrs 0 \
         --epochs 200    \
         --gat_heads 1 \
@@ -45,4 +43,9 @@ python ./src/LoDoPaB_small_experiment_runner.py  \
         --gat_conv_padding 1 \
         --gat_conv_N_latent 1 \
         --unet_path "models/unet.pt" \
-        --wandb_project "LoDoPaB Small Test"
+        --wandb_project "LoDoPaB Small Test" \
+        --model_dir "denoiser/small_experiments/" \
+        --graph_size 1024 \
+        --k_nn 8 \
+        --run_name "test" 
+                

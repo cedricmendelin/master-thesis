@@ -21,7 +21,7 @@ parser.add_argument("--use_wandb", action='store_true', default=False)
 parser.add_argument("--debug_plots", action='store_true', default=False)
 parser.add_argument("--wandb_project", type=str, default="Testing Seed for validation")
 parser.add_argument("--save_model", action='store_true', default=False)
-parser.add_argument("--model_dir", type=str, default="denoiser/")
+parser.add_argument("--model_dir", type=str, default="denoiser/small_experiments/")
 
 parser.add_argument("--gat_layers", type=int, default=4)
 parser.add_argument("--gat_heads", type=int, default=8)
@@ -49,6 +49,8 @@ parser.add_argument('--loss', type=str, default='FBP',
                     choices=[i.name.upper() for i in Loss])
 
 parser.add_argument("--verbose", action='store_true', default=False)
+
+parser.add_argument("--run_name", type=str, default="Blub")
 
 args = parser.parse_args()
 
@@ -100,19 +102,19 @@ denoiser.validate(x_validation, args.validation_snrs, args.batch_size)
 
 
 ################# Finish Run: ################
+
 if args.use_wandb:
-    model_name = wandb.run.name.replace(" ", "_") + "-" + \
-        str(args.batch_size) + "_torch_state_dict"
+    # model_name = wandb.run.name.replace(" ", "_") + "-" + \
+    #     str(args.batch_size) + "_torch_state_dict"
     denoiser.finish_wandb(time.time()-t)
 
 if args.save_model:
-    if not args.use_wandb:
-        model_name = "out_torch_state_dict_model"
+    name = args.run_name
 
-    if args.model_dir is None:
-        torch.save(model.module.state_dict(), model_name)
-    else:
-        torch.save(model.module.state_dict(), args.model_dir + model_name)
+    torch.save(model.module.state_dict(), args.model_dir + name + "_gat.pt")
+    torch.save(optimizer.state_dict(), args.model_dir + name + "_optimizer.pt")
+    if args.unet_train:
+        torch.save(optimizer.state_dict(), args.model_dir + name + "_unet.pt")
 
 if args.debug_plots:
     plt.show()
