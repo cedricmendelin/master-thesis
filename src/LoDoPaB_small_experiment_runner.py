@@ -10,7 +10,7 @@ np.random.seed(2022)
 parser = argparse.ArgumentParser()
 parser.add_argument("--graph_size", type=int, default=1024)
 parser.add_argument("--resolution", type=int, default=64)
-parser.add_argument("--samples", type=int, default=8)
+parser.add_argument("--samples", type=int, default=1024)
 
 parser.add_argument("--image_path", type=str, default="src/data/limited-CT/data_png_train/")
 

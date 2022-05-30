@@ -19,9 +19,8 @@ from torch_geometric.data import Data, Dataset
 import torch
 torch.pi = torch.acos(torch.zeros(1)).item() * 2
 
-import odl
 import utils.UNetModel as UNetModel
-
+import os.path
 ################### Loss Enum ##############################
 from enum import Enum
 class Loss(Enum):
@@ -39,6 +38,7 @@ class GatBase():
     def __init__(self, args):
         self.consumeArgs(args)
         self.loader = None
+        self.unet = None
 
         if self.VERBOSE:
             self.time_dict = {}
@@ -72,6 +72,7 @@ class GatBase():
         self.GAT_ADAM_LR: float = args.gat_learning_rate
         self.GAT_USE_CONV: bool = args.gat_use_conv
         self.UNET_REFINEMENT: bool = args.unet_refinement
+        self.UNET_TRAIN: bool = args.unet_train
 
         if self.GAT_USE_CONV:
             self.GAT_CONV_KERNEL = args.gat_conv_kernel
@@ -145,15 +146,15 @@ class GatBase():
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
         self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
 
-    def __initialize_denoiser__(self, args):
+    def __initialize_denoiser__(self, args, model_state=None, optimizer_state=None):
         self.consumeDenoiserArgs(args)
 
         if self.USE_WANDB:
             self.__init_wandb__(args.wandb_project, args)
         
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
-        self.__execute_and_log_time__(lambda: self.__prepare_model__(), "prep model")
-        self.__execute_and_log_time__(lambda: self.__prepare_optimizer__(), "prep optimizer")
+        self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
+        self.__execute_and_log_time__(lambda: self.__prepare_optimizer__(optimizer_state), "prep optimizer")
 
     def __init_wandb__(self, wandb_name, args, wandb_user ="cedric-mendelin", run_name = None):
         config = args
@@ -176,15 +177,30 @@ class GatBase():
 
         if self.UNET_REFINEMENT:
             checkpoint = torch.load(args.unet_path, map_location=self.device)
-            self.unet = UNetModel.UNet(nfilter=self.RESOLUTION).to(self.device).eval()
-            self.unet.load_state_dict(checkpoint['model_state_dict'])    
-            # add train or not
-        
+            self.unet = UNetModel.UNet(nfilter=128).to(self.device)
+            self.unet.load_state_dict(checkpoint['model_state_dict'])
+            if self.UNET_TRAIN:
+                print("tain unet")
+                self.unet.train()
+            else:
+                print("eval unet")
+                self.unet.eval()
+
+            
+            
         # Parameters for seeting up graph.
         # Currently a circle graph with k neighoburs is used.
         self.graph = self.__prepare_graph__()
 
-    def __prepare_graph__(self):
+    def __prepare_graph__(self, cache=True):
+        graph_name = f"graphs/circle_{self.N}_{self.K}.npz"
+
+        # check if graph is cached
+        if os.path.isfile(graph_name):
+            loaded = np.load(graph_name)
+            return torch.tensor(loaded["edges"]).type(torch.long) 
+
+        # if not, create graph and cache
         # sample equally spaced points on unit-circle
         angles_np = np.linspace(0, 2 * np.pi, self.N)
         points_np = np.array([np.cos(angles_np), np.sin(angles_np)]).T
@@ -194,37 +210,11 @@ class GatBase():
 
         # create the k-nn graph from distances
         _, _, edges = generate_knn_from_distances_with_edges(distances, self.K, ordering='asc', ignoreFirst=True)
+
+        if cache:
+            np.savez(graph_name, edges=edges.T)
+
         return torch.tensor(edges.T).type(torch.long) 
-
-    ################## Forward operator Operators ######################
-    def __forward__(self, images):
-        """ Uses odl for forwarding images.
-
-        Args:
-            images: images, shape: (N, Resolution, Resolution)
-        Returns:
-            numpy.array: sinograms of input images.
-        """
-        return OperatorFunction.apply(self.radon, images).data
-    
-    ################## Forward operator Operators ######################
-    def __backward__(self, sinograms, with_gradient=False):
-        """ Uses odl for forwarding images.
-
-        Args:
-            images: images, shape: (batch_size, N, Resolution)
-        Returns:
-            numpy.array: denoised sinograms of input images.
-        """
-        if with_gradient:
-            fbp = self.fbp_with_gradient(sinograms)
-        else:
-            fbp = OperatorFunction.apply(self.fbp, sinograms).data
-        
-        if self.UNET_REFINEMENT:
-            fbp = self.unet(fbp.view(-1, 1, self.RESOLUTION, self.RESOLUTION))
-
-        return fbp
 
     ################### Model - setup during initialization ############
     def __prepare_model__(self, state=None):
@@ -258,12 +248,52 @@ class GatBase():
 
         self.fbp_with_gradient = OperatorModule(self.fbp)
 
-    def __prepare_optimizer__(self):
+    def __prepare_optimizer__(self, optimizer_state=None):
         # add unet parameters as well when training is activated
+        if self.UNET_TRAIN:
+            parameters = list(self.model.parameters()) + list(self.unet.parameters())
+        else:
+            parameters = self.model.parameters()
+
         self.optimizer = torch.optim.Adam(
-            self.model.parameters(), 
+            parameters, 
             lr=self.GAT_ADAM_LR, 
             weight_decay=self.GAT_ADAM_WEIGHTDECAY)
+        
+        if optimizer_state != None:
+            self.optimizer.load_state_dict(optimizer_state)
+
+    ################## Forward operator Operators ######################
+    def __forward__(self, images):
+        """ Uses odl for forwarding images.
+
+        Args:
+            images: images, shape: (N, Resolution, Resolution)
+        Returns:
+            numpy.array: sinograms of input images.
+        """
+        return OperatorFunction.apply(self.radon, images).data
+    
+    ################## Forward operator Operators ######################
+    def __backward__(self, sinograms, with_gradient=False):
+        """ Uses odl for forwarding images.
+
+        Args:
+            images: images, shape: (batch_size, N, Resolution)
+        Returns:
+            numpy.array: denoised sinograms of input images.
+        """
+        if with_gradient:
+            fbp = self.fbp_with_gradient(sinograms)
+        else:
+            fbp = OperatorFunction.apply(self.fbp, sinograms).data
+        
+        if self.UNET_REFINEMENT:
+            print("backward with unet")
+            fbp = self.unet(fbp.view(-1, 1, self.RESOLUTION, self.RESOLUTION))
+
+        return fbp
+
 
     @abstractmethod
     def _prepare_training_data(self, batch_size, loss):
@@ -293,7 +323,7 @@ class GatBase():
 
     def train(self, images=None, batch_size=1, loss=Loss.SINO):
         self.__execute_and_log_time__(lambda: self.__train__(images, batch_size, loss), "training")
-        return self.model
+        return self.model, self.optimizer, self.unet
 
     def __train__(self, images, batch_size, loss):
         self._prepare_training_images(images)
@@ -317,7 +347,9 @@ class GatBase():
                 
                 if loss == Loss.SINO:
                     loss_training = torch.linalg.norm(out_sinograms - y)
+                    print("sino loss")
                 elif loss == Loss.FBP:
+                    print("fbp loss")
                     fbps = self.__backward__(out_sinograms.view(batch_n, self.N, self.RESOLUTION), True)
                     loss_training = torch.linalg.norm(fbps.view(batch_n, self.RESOLUTION, self.RESOLUTION) - y.view(batch_n, self.RESOLUTION, self.RESOLUTION))
                 else:
@@ -335,14 +367,12 @@ class GatBase():
                     "epoch_snr": snr
                 })
 
-        return self.model
-
-
-    def validate(self, validation_images, validation_snrs, batch_size):
+    def validate(self, validation_images, validation_snrs, batch_size, seed=2022):
         self.__execute_and_log_time__(lambda: self.__validate__(
-            validation_images, validation_snrs, batch_size), "validation")
+            validation_images, validation_snrs, batch_size, seed), "validation")
 
-    def __validate__(self, validation_images, validation_snrs, batch_size):
+    def __validate__(self, validation_images, validation_snrs, batch_size, seed):
+        torch.manual_seed(seed)
         self.__prepare_validation_images__(validation_images)
 
         self.model.eval()

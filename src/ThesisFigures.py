@@ -15,6 +15,7 @@ from sklearn.neighbors import kneighbors_graph
 
 from utils.UNetModel import UNet
 
+torch.manual_seed(2022)
 np.random.seed(2022)
 
 

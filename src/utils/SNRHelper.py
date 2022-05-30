@@ -10,8 +10,10 @@ def add_noise(SNR, sinogram):
 
 def add_noise_to_sinograms(sinograms, snr):
     noisy_sinograms = torch.empty_like(sinograms)
-    for i in range(sinograms.shape[0]):
-        noisy_sinograms[i] = add_noise(snr, sinograms[i])
+    
+    nref = torch.std(sinograms,(2))**2
+    sigma_noise = torch.sqrt(torch.tensor(10**(-snr/10)) * nref)
+    noisy_sinograms = sinograms + torch.randn_like(sinograms) * sigma_noise[:,:,None]
 
     return noisy_sinograms
 
@@ -36,6 +38,24 @@ def add_noise_np(SNR, sinogram):
 
 
 # some small test
+# N = 1024
+# M = 50
+# x_ref = torch.randn(10, N, M) 
+# snr = -5
+
+# x = add_noise_to_sinograms(x_ref, snr)
+
+# for i in range(10):
+#     snr_calc = find_SNR(x_ref[i], x[i])
+#     # old_method_x = add_noise(snr, x_ref[i])
+#     # snr_calc2 = find_SNR(x_ref[i], old_method_x)
+#     print(f"SNR: calculated: {snr_calc} , should be arround {snr} ")
+#     # print(f"Old SNR: calculated: {snr_calc2} , should be arround {snr} ")
+
+
+
+
+
 
 
 
