@@ -92,7 +92,7 @@ if args.append_validation_images > 0:
 
 ################# Initialize Denoiser: ################
 
-denoiser = GatBase.create_fixed_images_denoiser(args)
+denoiser = GatBase.create_fixed_images_denoiser(args, run_name=args.run_name)
 
 ################# Train Denoiser: ################
 model, optimizer, unet = denoiser.train(images=x_input, batch_size = args.batch_size, loss=Loss[args.loss.upper()])

@@ -126,7 +126,7 @@ class GatBase():
         return denoiser
 
     @classmethod
-    def create_fixed_images_denoiser(cls, args, model_state = None, optimizer_state = None):
+    def create_fixed_images_denoiser(cls, args, model_state = None, optimizer_state = None, run_name=None):
         """ Create a fixed image denoiser. In every epoch, the same training images will be used.
 
         Args:
@@ -136,7 +136,7 @@ class GatBase():
             GatDenoiserImagesFixed: The created instance.
         """
         denoiser =  GatDenoiserImagesFixed(args)
-        denoiser.__initialize_denoiser__(args, model_state, optimizer_state)
+        denoiser.__initialize_denoiser__(args, model_state, optimizer_state, run_name)
         return denoiser
     
     def __initialize_validator__(self, args, model_state):
@@ -146,11 +146,11 @@ class GatBase():
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
         self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
 
-    def __initialize_denoiser__(self, args, model_state=None, optimizer_state=None):
+    def __initialize_denoiser__(self, args, model_state=None, optimizer_state=None, run_name=None):
         self.consumeDenoiserArgs(args)
 
         if self.USE_WANDB:
-            self.__init_wandb__(args.wandb_project, args)
+            self.__init_wandb__(args.wandb_project, args, run_name=run_name)
         
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
         self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
@@ -166,7 +166,8 @@ class GatBase():
 
         if isinstance(self, GatDenoiserImagesFixed) or isinstance(self, GatDenoiserToyImagesDynamic):
             wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}-{self.Loss}-{self.GAT_USE_CONV}-{self.UNET_REFINEMENT}"
-        elif run_name is not None :
+        
+        if run_name is not None :
             wandb.run.name = run_name
 
     ################## Graph - setup during initialization #############
