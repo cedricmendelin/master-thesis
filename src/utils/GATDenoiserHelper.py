@@ -126,7 +126,7 @@ class GatBase():
         return denoiser
 
     @classmethod
-    def create_fixed_images_denoiser(cls, args):
+    def create_fixed_images_denoiser(cls, args, model_state = None, optimizer_state = None):
         """ Create a fixed image denoiser. In every epoch, the same training images will be used.
 
         Args:
@@ -136,7 +136,7 @@ class GatBase():
             GatDenoiserImagesFixed: The created instance.
         """
         denoiser =  GatDenoiserImagesFixed(args)
-        denoiser.__initialize_denoiser__(args)
+        denoiser.__initialize_denoiser__(args, model_state, optimizer_state)
         return denoiser
     
     def __initialize_validator__(self, args, model_state):
@@ -370,6 +370,9 @@ class GatBase():
 
         self.model.eval()
         self.model.to(self.device0)
+
+        if self.unet != None and self.UNET_TRAIN:
+            self.unet.eval()
 
         validation_loss_sino_denoised_score = 0
         validation_loss_sino_noisy_score = 0
