@@ -308,14 +308,6 @@ class GatBase():
         self.T_validation_images = torch.from_numpy(validation_images).type(torch.float)
         self.validation_sinograms = self.__forward__(self.T_validation_images)
 
-        if self.USE_WANDB:
-            if self.V < 10:
-                wandb.log(
-                    {"validation images": [wandb.Image(img) for img in validation_images]})
-            else:
-                wandb.log({"validation images": [wandb.Image(
-                    img) for img in validation_images[0:100]]})
-
     def train(self, images=None, batch_size=1, loss=Loss.SINO):
         self.__execute_and_log_time__(lambda: self.__train__(images, batch_size, loss), "training")
         return self.model, self.optimizer, self.unet
@@ -412,6 +404,7 @@ class GatBase():
                             "val_snr_fbp_denoised": find_SNR(clean_images[i], fbps_denoised[i]),
                             "val_snr_fbp_noisy": find_SNR(clean_images[i], fbps_noisy[i]),
 
+                            "val_clean" : wandb.Image(clean_images[i].cpu().detach().numpy(), caption=f"Original object"),
                             "val_reconstruction_denoised": wandb.Image(fbps_denoised[i].cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} "),
                             "val_reconstruction_noisy": wandb.Image(fbps_noisy[i].cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}"),
 
