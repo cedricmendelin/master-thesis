@@ -371,8 +371,11 @@ class GatBase():
         self.model.eval()
         self.model.to(self.device0)
 
-        if self.unet != None and self.UNET_TRAIN:
-            self.unet.eval()
+        if self.unet != None:
+            self.unet.to(self.device0)
+            if self.UNET_TRAIN:
+                self.unet.eval()
+
 
         validation_loss_sino_denoised_score = 0
         validation_loss_sino_noisy_score = 0
