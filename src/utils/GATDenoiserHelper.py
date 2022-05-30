@@ -376,22 +376,11 @@ class GatBase():
             if self.UNET_TRAIN:
                 self.unet.eval()
 
-
-        validation_loss_sino_denoised_score = 0
-        validation_loss_sino_noisy_score = 0
-        validation_loss_fbp_denoised_score = 0
-        validation_loss_fbp_noisy_score = 0
-
         counter = 0
         image_index = 0
 
         for snr in validation_snrs:
             loader = iter(self._prepare_validation_data(snr, batch_size))
-
-            validation_loss_fbp_denoised_per_snr = 0
-            validation_loss_fbp_noisy_per_snr = 0
-            validation_loss_sino_denoised_per_snr = 0
-            validation_loss_sino_noisy_per_snr = 0
 
             for validation_data in loader:
                 denoised_sinograms = self.model(validation_data) # denoised sino 
@@ -431,39 +420,9 @@ class GatBase():
                             "val_sino_clean": wandb.Image(clean_sinograms[i].cpu().detach().numpy(), caption=f"Sinogram noisy - SNR: {snr}"),
                         })
                         counter += 1
-            
-                validation_loss_fbp_denoised_per_snr += torch.linalg.norm(fbps_denoised - clean_images)
-                validation_loss_fbp_noisy_per_snr += torch.linalg.norm(fbps_noisy - clean_images)
 
-                validation_loss_sino_denoised_per_snr += torch.linalg.norm(denoised_sinograms - clean_sinograms)
-                validation_loss_sino_noisy_per_snr += torch.linalg.norm(noisy_sinograms - clean_sinograms)
-
-            if self.USE_WANDB:
-                wandb.log({
-                    "val_snr": snr,
-                    "val_loss_sino_denoised_snr": validation_loss_sino_denoised_per_snr,
-                    "val_loss_sino_noisy_snr": validation_loss_sino_noisy_per_snr,
-                    "val_loss_fbp_denoised_snr": validation_loss_fbp_denoised_per_snr,
-                    "val_loss_fbp_noisy_snr": validation_loss_fbp_noisy_per_snr,})
-
-            print(f"Validation loss sino snr {snr} : {validation_loss_sino_denoised_per_snr} -- loss noisy: {validation_loss_sino_noisy_per_snr}")
-            print(f"Validation loss fbp snr {snr} : {validation_loss_fbp_denoised_per_snr} -- loss noisy: {validation_loss_fbp_noisy_per_snr}")
-            
-            validation_loss_sino_denoised_score += validation_loss_sino_denoised_per_snr
-            validation_loss_sino_noisy_score += validation_loss_sino_noisy_per_snr
-            validation_loss_fbp_denoised_score += validation_loss_fbp_denoised_per_snr
-            validation_loss_fbp_noisy_score += validation_loss_fbp_noisy_per_snr
-            
+                torch.cuda.empty_cache()
             image_index = 0
-            torch.cuda.empty_cache()
-
-        if self.USE_WANDB:
-              wandb.log({
-                    "val_snr": snr,
-                    "val_loss_sino_denoised_total": validation_loss_sino_denoised_score,
-                    "val_loss_sino_noisy_total": validation_loss_sino_noisy_score,
-                    "val_loss_fbp_denoised_total": validation_loss_fbp_denoised_score,
-                    "val_loss_fbp_noisy_total": validation_loss_fbp_noisy_score,})
 
     def finish_wandb(self, execution_time=None):
         if execution_time != None:

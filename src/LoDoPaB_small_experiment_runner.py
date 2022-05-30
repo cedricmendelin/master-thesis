@@ -10,12 +10,12 @@ np.random.seed(2022)
 parser = argparse.ArgumentParser()
 parser.add_argument("--graph_size", type=int, default=1024)
 parser.add_argument("--resolution", type=int, default=64)
-parser.add_argument("--samples", type=int, default=1024)
+parser.add_argument("--samples", type=int, default=8)
 
 parser.add_argument("--image_path", type=str, default="src/data/limited-CT/data_png_train/")
 
 parser.add_argument("--validation_image_path", type=str, default="src/data/limited-CT/data_png_test/")
-parser.add_argument("--validation_image_count", type=int, default=5)
+parser.add_argument("--validation_image_count", type=int, default=100)
 
 parser.add_argument("--use_wandb", action='store_true', default=False)
 parser.add_argument("--debug_plots", action='store_true', default=False)
@@ -98,11 +98,10 @@ denoiser = GatBase.create_fixed_images_denoiser(args)
 model, optimizer, unet = denoiser.train(images=x_input, batch_size = args.batch_size, loss=Loss[args.loss.upper()])
 
 ################# Validate Denoiser: ################
-denoiser.validate(x_validation, args.validation_snrs, args.batch_size)
+denoiser.validate(x_validation, args.validation_snrs, 8)
 
 
 ################# Finish Run: ################
-
 if args.use_wandb:
     # model_name = wandb.run.name.replace(" ", "_") + "-" + \
     #     str(args.batch_size) + "_torch_state_dict"
