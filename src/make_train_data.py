@@ -16,7 +16,7 @@ import utils.UNetModel as UNetModel
 from utils.ODLHelper import OperatorFunction, OperatorModule
 
 if torch.cuda.device_count()>1:
-    torch.cuda.set_device(0)
+    torch.cuda.set_device(1)
 
 
 """
@@ -125,6 +125,24 @@ circle = ((XX**2+YY**2)<=1)*1.
 # plt.imshow(recon[i].detach().cpu())
 # plt.colorbar()
 
+
+# i = 1
+# plt.figure(1)
+# plt.clf()
+# plt.imshow(label[i])
+# plt.colorbar()
+
+# plt.figure(2)
+# plt.clf()
+# plt.imshow(proj[i])
+# plt.colorbar()
+
+# plt.figure(3)
+# plt.clf()
+# plt.imshow(recon[i])
+# plt.colorbar()
+
+
 # idx = 100 
 # data_CT = data_CT_train
 # files = os.listdir(data_CT)
@@ -150,27 +168,46 @@ if not os.path.exists(save_dir_proj):
 
 files = os.listdir(data_CT)
 
+label_np = np.zeros((len(files),resolution,resolution))
+for idx in tqdm(range(len(files))): # len(files)
+    file = data_CT+os.sep+files[idx]
+    label_np[idx] = (imageio.imread(file)/255)*circle
+
+label_tot = []
+proj_tot = []
+recon_tot = []
+np.arange(0,label_np.shape[0],4)
+for i in range(0,label_np.shape[0],label_np.shape[0]//4):
+    print(i)
+    label = torch.from_numpy(label_np[i:i+label_np.shape[0]//4]).type(torch_type).to(device)
+    data = OperatorFunction.apply(radon, label).data
+    SNR = np.repeat(np.random.rand(data.shape[0],1)*(SNR_max-SNR_min)+SNR_min,samples,1)
+    nref = torch.std(data,(2))**2
+    sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
+    proj = data + torch.randn_like(data)*sigma_noise[:,:,None]
+    proj[:,:,:resolution//2] = 0
+    proj[:,:,-resolution//2:] = 0
+    recon = model_fbp(proj.view(-1, samples, proj.shape[2]))
+
+    label_tot.append(label.detach().cpu())
+    proj_tot.append(proj.detach().cpu())
+    recon_tot.append(recon.detach().cpu())
+
 label = np.zeros((len(files),resolution,resolution))
-for idx in tqdm(range(len(files))): # len(files)
-    file = data_CT+os.sep+files[idx]
-    label[idx] = (imageio.imread(file)/255)*circle
-
-label = torch.from_numpy(label).type(torch_type).to(device)
-data = OperatorFunction.apply(radon, label).data
-SNR = np.repeat(np.random.rand(data.shape[0],1)*(SNR_max-SNR_min)+SNR_min,samples,1)
-nref = torch.std(data,(2))**2
-sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
-proj = data + torch.randn_like(data)*sigma_noise[:,:,None]
-recon = model_fbp(proj.view(-1, samples, proj.shape[2]))
-
-np.savez("data/limited-CT/data_train.npz",label=label.detach().cpu().numpy(),proj=proj.detach().cpu().numpy(),recon=recon.detach().cpu().numpy())
+proj = np.zeros((len(files),samples,resolution*2))
+recon = np.zeros((len(files),resolution,resolution))
+for k, i in enumerate(range(0,label_np.shape[0],label_np.shape[0]//4)):
+    label[i:i+label_np.shape[0]//4] = label_tot[k]
+    proj[i:i+label_np.shape[0]//4] = proj_tot[k]
+    recon[i:i+label_np.shape[0]//4] = recon_tot[k]
+np.savez("data/limited-CT/data_train.npz",label=label,proj=proj,recon=recon)
 
 for idx in tqdm(range(len(files))): # len(files)
     file = data_CT+os.sep+files[idx]
-    out = recon[idx].detach().cpu().numpy()
+    out = recon[idx]
     out = (out-out.min())/(out.max()-out.min())
     imageio.imwrite(save_dir+os.sep+files[idx],np.clip(out*255,0,255).astype(np.uint8))
-    out = proj[idx].detach().cpu().numpy()
+    out = proj[idx]
     out = (out-out.min())/(out.max()-out.min())
     imageio.imwrite(save_dir_proj+os.sep+files[idx],np.clip(out*255,0,255).astype(np.uint8))
 
@@ -196,6 +233,8 @@ SNR = np.repeat(np.random.rand(data.shape[0],1)*(SNR_max-SNR_min)+SNR_min,sample
 nref = torch.std(data,(2))**2
 sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
 proj = data + torch.randn_like(data)*sigma_noise[:,:,None]
+proj[:,:,:resolution//2] = 0
+proj[:,:,-resolution//2:] = 0
 recon = model_fbp(proj.view(-1, samples, proj.shape[2]))
 
 np.savez("data/limited-CT/data_test.npz",label=label.detach().cpu().numpy(),proj=proj.detach().cpu().numpy(),recon=recon.detach().cpu().numpy())
