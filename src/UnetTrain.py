@@ -17,7 +17,7 @@ from utils.ODLHelper import OperatorFunction, OperatorModule
 
 
 if torch.cuda.device_count()>1:
-    torch.cuda.set_device(2)
+    torch.cuda.set_device(1)
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -26,7 +26,7 @@ torch_type=torch.float
 resolution = 64
 samples = 1024
 save_dir = "results/Unet"
-train = True
+train = False
 
 batch_size = 16
 lr = 1e-4
