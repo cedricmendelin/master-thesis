@@ -19,9 +19,8 @@ from torch_geometric.data import Data, Dataset
 import torch
 torch.pi = torch.acos(torch.zeros(1)).item() * 2
 
-import odl
-import models
-
+import utils.UNetModel as UNetModel
+import os.path
 ################### Loss Enum ##############################
 from enum import Enum
 class Loss(Enum):
@@ -39,6 +38,7 @@ class GatBase():
     def __init__(self, args):
         self.consumeArgs(args)
         self.loader = None
+        self.unet = None
 
         if self.VERBOSE:
             self.time_dict = {}
@@ -72,6 +72,7 @@ class GatBase():
         self.GAT_ADAM_LR: float = args.gat_learning_rate
         self.GAT_USE_CONV: bool = args.gat_use_conv
         self.UNET_REFINEMENT: bool = args.unet_refinement
+        self.UNET_TRAIN: bool = args.unet_train
 
         if self.GAT_USE_CONV:
             self.GAT_CONV_KERNEL = args.gat_conv_kernel
@@ -125,7 +126,7 @@ class GatBase():
         return denoiser
 
     @classmethod
-    def create_fixed_images_denoiser(cls, args):
+    def create_fixed_images_denoiser(cls, args, model_state = None, optimizer_state = None, run_name=None):
         """ Create a fixed image denoiser. In every epoch, the same training images will be used.
 
         Args:
@@ -135,7 +136,7 @@ class GatBase():
             GatDenoiserImagesFixed: The created instance.
         """
         denoiser =  GatDenoiserImagesFixed(args)
-        denoiser.__initialize_denoiser__(args)
+        denoiser.__initialize_denoiser__(args, model_state, optimizer_state, run_name)
         return denoiser
     
     def __initialize_validator__(self, args, model_state):
@@ -145,15 +146,15 @@ class GatBase():
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
         self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
 
-    def __initialize_denoiser__(self, args):
+    def __initialize_denoiser__(self, args, model_state=None, optimizer_state=None, run_name=None):
         self.consumeDenoiserArgs(args)
 
         if self.USE_WANDB:
-            self.__init_wandb__(args.wandb_project, args)
+            self.__init_wandb__(args.wandb_project, args, run_name=run_name)
         
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
-        self.__execute_and_log_time__(lambda: self.__prepare_model__(), "prep model")
-        self.__execute_and_log_time__(lambda: self.__prepare_optimizer__(), "prep optimizer")
+        self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
+        self.__execute_and_log_time__(lambda: self.__prepare_optimizer__(optimizer_state), "prep optimizer")
 
     def __init_wandb__(self, wandb_name, args, wandb_user ="cedric-mendelin", run_name = None):
         config = args
@@ -165,7 +166,8 @@ class GatBase():
 
         if isinstance(self, GatDenoiserImagesFixed) or isinstance(self, GatDenoiserToyImagesDynamic):
             wandb.run.name = f"{wandb_name}-{gpus}-{self.RESOLUTION}-{self.N}-{self.M}-{self.K}-{self.EPOCHS}-{self.GAT_LAYERS}-{self.GAT_HEADS}-{self.GAT_DROPOUT}-{self.GAT_ADAM_WEIGHTDECAY}-{self.SNR_LOWER}-{self.SNR_UPPER}-{self.Loss}-{self.GAT_USE_CONV}-{self.UNET_REFINEMENT}"
-        elif run_name is not None :
+        
+        if run_name is not None :
             wandb.run.name = run_name
 
     ################## Graph - setup during initialization #############
@@ -176,14 +178,26 @@ class GatBase():
 
         if self.UNET_REFINEMENT:
             checkpoint = torch.load(args.unet_path, map_location=self.device)
-            self.unet = models.UNet(nfilter=self.RESOLUTION).to(self.device).eval()
-            self.unet.load_state_dict(checkpoint['model_state_dict'])    
-        
+            self.unet = UNetModel.UNet(nfilter=128).to(self.device)
+            self.unet.load_state_dict(checkpoint['model_state_dict'])
+            if self.UNET_TRAIN:
+                self.unet.train()
+            else:
+                self.unet.eval()
+            
         # Parameters for seeting up graph.
         # Currently a circle graph with k neighoburs is used.
         self.graph = self.__prepare_graph__()
 
-    def __prepare_graph__(self):
+    def __prepare_graph__(self, cache=True):
+        graph_name = f"graphs/circle_{self.N}_{self.K}.npz"
+
+        # check if graph is cached
+        if os.path.isfile(graph_name):
+            loaded = np.load(graph_name)
+            return torch.tensor(loaded["edges"]).type(torch.long) 
+
+        # if not, create graph and cache
         # sample equally spaced points on unit-circle
         angles_np = np.linspace(0, 2 * np.pi, self.N)
         points_np = np.array([np.cos(angles_np), np.sin(angles_np)]).T
@@ -193,37 +207,11 @@ class GatBase():
 
         # create the k-nn graph from distances
         _, _, edges = generate_knn_from_distances_with_edges(distances, self.K, ordering='asc', ignoreFirst=True)
+
+        if cache:
+            np.savez(graph_name, edges=edges.T)
+
         return torch.tensor(edges.T).type(torch.long) 
-
-    ################## Forward operator Operators ######################
-    def __forward__(self, images):
-        """ Uses odl for forwarding images.
-
-        Args:
-            images: images, shape: (N, Resolution, Resolution)
-        Returns:
-            numpy.array: sinograms of input images.
-        """
-        return OperatorFunction.apply(self.radon, images).data
-    
-    ################## Forward operator Operators ######################
-    def __backward__(self, sinograms, with_gradient=False):
-        """ Uses odl for forwarding images.
-
-        Args:
-            images: images, shape: (batch_size, N, Resolution)
-        Returns:
-            numpy.array: denoised sinograms of input images.
-        """
-        if with_gradient:
-            fbp = self.fbp_with_gradient(sinograms)
-        else:
-            fbp = OperatorFunction.apply(self.fbp, sinograms).data
-        
-        if self.UNET_REFINEMENT:
-            fbp = self.unet(fbp.view(-1, 1, self.RESOLUTION, self.RESOLUTION))
-
-        return fbp
 
     ################### Model - setup during initialization ############
     def __prepare_model__(self, state=None):
@@ -257,11 +245,51 @@ class GatBase():
 
         self.fbp_with_gradient = OperatorModule(self.fbp)
 
-    def __prepare_optimizer__(self):
+    def __prepare_optimizer__(self, optimizer_state=None):
+        # add unet parameters as well when training is activated
+        if self.UNET_TRAIN:
+            parameters = list(self.model.parameters()) + list(self.unet.parameters())
+        else:
+            parameters = self.model.parameters()
+
         self.optimizer = torch.optim.Adam(
-            self.model.parameters(), 
+            parameters, 
             lr=self.GAT_ADAM_LR, 
             weight_decay=self.GAT_ADAM_WEIGHTDECAY)
+        
+        if optimizer_state != None:
+            self.optimizer.load_state_dict(optimizer_state)
+
+    ################## Forward operator Operators ######################
+    def __forward__(self, images):
+        """ Uses odl for forwarding images.
+
+        Args:
+            images: images, shape: (N, Resolution, Resolution)
+        Returns:
+            numpy.array: sinograms of input images.
+        """
+        return OperatorFunction.apply(self.radon, images).data
+    
+    ################## Forward operator Operators ######################
+    def __backward__(self, sinograms, with_gradient=False, deactivate_unet = False):
+        """ Uses odl for forwarding images.
+
+        Args:
+            images: images, shape: (batch_size, N, Resolution)
+        Returns:
+            numpy.array: denoised sinograms of input images.
+        """
+        if with_gradient:
+            fbp = self.fbp_with_gradient(sinograms)
+        else:
+            fbp = OperatorFunction.apply(self.fbp, sinograms).data
+        
+        if self.UNET_REFINEMENT and not deactivate_unet:
+            fbp = self.unet(fbp.view(-1, 1, self.RESOLUTION, self.RESOLUTION))
+
+        return fbp
+
 
     @abstractmethod
     def _prepare_training_data(self, batch_size, loss):
@@ -281,17 +309,9 @@ class GatBase():
         self.T_validation_images = torch.from_numpy(validation_images).type(torch.float)
         self.validation_sinograms = self.__forward__(self.T_validation_images)
 
-        if self.USE_WANDB:
-            if self.V < 10:
-                wandb.log(
-                    {"validation images": [wandb.Image(img) for img in validation_images]})
-            else:
-                wandb.log({"validation images": [wandb.Image(
-                    img) for img in validation_images[0:100]]})
-
     def train(self, images=None, batch_size=1, loss=Loss.SINO):
         self.__execute_and_log_time__(lambda: self.__train__(images, batch_size, loss), "training")
-        return self.model
+        return self.model, self.optimizer, self.unet
 
     def __train__(self, images, batch_size, loss):
         self._prepare_training_images(images)
@@ -333,34 +353,27 @@ class GatBase():
                     "epoch_snr": snr
                 })
 
-        return self.model
-
-
-    def validate(self, validation_images, validation_snrs, batch_size):
+    def validate(self, validation_images, validation_snrs, batch_size, seed=2022):
         self.__execute_and_log_time__(lambda: self.__validate__(
-            validation_images, validation_snrs, batch_size), "validation")
+            validation_images, validation_snrs, batch_size, seed), "validation")
 
-    def __validate__(self, validation_images, validation_snrs, batch_size):
+    def __validate__(self, validation_images, validation_snrs, batch_size, seed):
+        torch.manual_seed(seed)
         self.__prepare_validation_images__(validation_images)
 
         self.model.eval()
         self.model.to(self.device0)
 
-        validation_loss_sino_denoised_score = 0
-        validation_loss_sino_noisy_score = 0
-        validation_loss_fbp_denoised_score = 0
-        validation_loss_fbp_noisy_score = 0
+        if self.unet != None:
+            self.unet.to(self.device0)
+            if self.UNET_TRAIN:
+                self.unet.eval()
 
         counter = 0
         image_index = 0
 
         for snr in validation_snrs:
             loader = iter(self._prepare_validation_data(snr, batch_size))
-
-            validation_loss_fbp_denoised_per_snr = 0
-            validation_loss_fbp_noisy_per_snr = 0
-            validation_loss_sino_denoised_per_snr = 0
-            validation_loss_sino_noisy_per_snr = 0
 
             for validation_data in loader:
                 denoised_sinograms = self.model(validation_data) # denoised sino 
@@ -371,68 +384,36 @@ class GatBase():
                 clean_sinograms = torch.cat([d.y for d in validation_data]).view(batch_n, self.N, self.RESOLUTION).to(denoised_sinograms.device)
                 
                 fbps_denoised = self.__backward__(denoised_sinograms).to(denoised_sinograms.device)
-                fbps_noisy = self.__backward__(noisy_sinograms).to(denoised_sinograms.device)
+                fbps_noisy = self.__backward__(noisy_sinograms, deactivate_unet=True).to(denoised_sinograms.device)
                 
                 clean_images = self.T_validation_images[image_index: image_index + batch_n,:,:].to(denoised_sinograms.device)
                 image_index = image_index + batch_n
 
                 for i in range(batch_n):
                     if self.USE_WANDB:
+                        current_idx = counter
+                        counter += 1
                         wandb.log({
-                            "val_indx" : counter,
+                            "val_idx" : current_idx,
                             "val_loss_sino_denoised": torch.linalg.norm(denoised_sinograms[i]- clean_sinograms[i]),
                             "val_loss_sino_noisy": torch.linalg.norm(noisy_sinograms[i] - clean_sinograms[i]),
 
-                            "val_loss_fbp_denoised": torch.linalg.norm(fbps_denoised[i] - clean_images[i]),
-                            "val_loss_fbp_noisy": torch.linalg.norm(fbps_noisy[i] - clean_images[i]),
+                            "val_loss_reco_denoised": torch.linalg.norm(fbps_denoised[i] - clean_images[i]),
+                            "val_loss_reco_noisy": torch.linalg.norm(fbps_noisy[i] - clean_images[i]),
 
                             "val_snr_sino_denoised": find_SNR(clean_sinograms[i], denoised_sinograms[i]),
                             "val_snr_sino_noisy": find_SNR(clean_sinograms[i], noisy_sinograms[i]),
 
-                            "val_snr_fbp_denoised": find_SNR(clean_images[i], fbps_denoised[i]),
-                            "val_snr_fbp_noisy": find_SNR(clean_images[i], fbps_noisy[i]),
+                            "val_snr_reco_denoised": find_SNR(clean_images[i], fbps_denoised[i]),
+                            "val_snr_reco_noisy": find_SNR(clean_images[i], fbps_noisy[i]),
 
-                            "val_reconstruction_denoised": wandb.Image(fbps_denoised[i].cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} "),
-                            "val_reconstruction_noisy": wandb.Image(fbps_noisy[i].cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}"),
-
-                            "val_sino_denoised": wandb.Image(denoised_sinograms[i].cpu().detach().numpy(), caption=f"Sinogram denoised - SNR: {snr} "),
-                            "val_sino_noisy": wandb.Image(noisy_sinograms[i].cpu().detach().numpy(), caption=f"Sinogram noisy - SNR: {snr}"),
-                            "val_sino_clean": wandb.Image(clean_sinograms[i].cpu().detach().numpy(), caption=f"Sinogram noisy - SNR: {snr}"),
+                            "val_clean" : wandb.Image(clean_images[i].cpu().detach().numpy(), caption=f"Original object"),
+                            "val_reco_denoised": wandb.Image(fbps_denoised[i].cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} "),
+                            "val_reco_noisy": wandb.Image(fbps_noisy[i].cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}"),
                         })
-                        counter += 1
-            
-                validation_loss_fbp_denoised_per_snr += torch.linalg.norm(fbps_denoised - clean_images)
-                validation_loss_fbp_noisy_per_snr += torch.linalg.norm(fbps_noisy - clean_images)
 
-                validation_loss_sino_denoised_per_snr += torch.linalg.norm(denoised_sinograms - clean_sinograms)
-                validation_loss_sino_noisy_per_snr += torch.linalg.norm(noisy_sinograms - clean_sinograms)
-
-            if self.USE_WANDB:
-                wandb.log({
-                    "val_snr": snr,
-                    "val_loss_sino_denoised_snr": validation_loss_sino_denoised_per_snr,
-                    "val_loss_sino_noisy_snr": validation_loss_sino_noisy_per_snr,
-                    "val_loss_fbp_denoised_snr": validation_loss_fbp_denoised_per_snr,
-                    "val_loss_fbp_noisy_snr": validation_loss_fbp_noisy_per_snr,})
-
-            print(f"Validation loss sino snr {snr} : {validation_loss_sino_denoised_per_snr} -- loss noisy: {validation_loss_sino_noisy_per_snr}")
-            print(f"Validation loss fbp snr {snr} : {validation_loss_fbp_denoised_per_snr} -- loss noisy: {validation_loss_fbp_noisy_per_snr}")
-            
-            validation_loss_sino_denoised_score += validation_loss_sino_denoised_per_snr
-            validation_loss_sino_noisy_score += validation_loss_sino_noisy_per_snr
-            validation_loss_fbp_denoised_score += validation_loss_fbp_denoised_per_snr
-            validation_loss_fbp_noisy_score += validation_loss_fbp_noisy_per_snr
-            
+                torch.cuda.empty_cache()
             image_index = 0
-            torch.cuda.empty_cache()
-
-        if self.USE_WANDB:
-              wandb.log({
-                    "val_snr": snr,
-                    "val_loss_sino_denoised_total": validation_loss_sino_denoised_score,
-                    "val_loss_sino_noisy_total": validation_loss_sino_noisy_score,
-                    "val_loss_fbp_denoised_total": validation_loss_fbp_denoised_score,
-                    "val_loss_fbp_noisy_total": validation_loss_fbp_noisy_score,})
 
     def finish_wandb(self, execution_time=None):
         if execution_time != None:

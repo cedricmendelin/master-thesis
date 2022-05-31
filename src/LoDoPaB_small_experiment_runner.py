@@ -15,13 +15,13 @@ parser.add_argument("--samples", type=int, default=8)
 parser.add_argument("--image_path", type=str, default="src/data/limited-CT/data_png_train/")
 
 parser.add_argument("--validation_image_path", type=str, default="src/data/limited-CT/data_png_test/")
-parser.add_argument("--validation_image_count", type=int, default=5)
+parser.add_argument("--validation_image_count", type=int, default=100)
 
 parser.add_argument("--use_wandb", action='store_true', default=False)
 parser.add_argument("--debug_plots", action='store_true', default=False)
-parser.add_argument("--wandb_project", type=str, default="Testing Seed for validation")
+parser.add_argument("--wandb_project", type=str, default="LoDoPaB Small Test 2")
 parser.add_argument("--save_model", action='store_true', default=False)
-parser.add_argument("--model_dir", type=str, default="denoiser/")
+parser.add_argument("--model_dir", type=str, default="denoiser/small_experiments/")
 
 parser.add_argument("--gat_layers", type=int, default=4)
 parser.add_argument("--gat_heads", type=int, default=8)
@@ -36,19 +36,21 @@ parser.add_argument("--unet_refinement", action='store_true', default=False)
 parser.add_argument("--unet_path", type=str, default="models/unet.pt")
 parser.add_argument("--unet_train", action='store_true', default=False)
 
-parser.add_argument("--epochs", type=int, default=4)
+parser.add_argument("--epochs", type=int, default=2)
 parser.add_argument("--gat_snr_lower", type=int, default=0)
 parser.add_argument("--gat_snr_upper", type=int, default=0)
 parser.add_argument("--validation_snrs", nargs="+", type=int, default=[0])
 parser.add_argument("--append_validation_images", type=int, default=0)
 parser.add_argument("--add_circle_padding", action='store_true', default=False)
-parser.add_argument("--k_nn", type=int, default=7)
+parser.add_argument("--k_nn", type=int, default=8)
 parser.add_argument("--batch_size", type=int, default=32)
 
 parser.add_argument('--loss', type=str, default='FBP',
                     choices=[i.name.upper() for i in Loss])
 
 parser.add_argument("--verbose", action='store_true', default=False)
+
+parser.add_argument("--run_name", type=str, default="Blub")
 
 args = parser.parse_args()
 
@@ -90,29 +92,28 @@ if args.append_validation_images > 0:
 
 ################# Initialize Denoiser: ################
 
-denoiser = GatBase.create_fixed_images_denoiser(args)
+denoiser = GatBase.create_fixed_images_denoiser(args, run_name=args.run_name)
 
 ################# Train Denoiser: ################
 model, optimizer, unet = denoiser.train(images=x_input, batch_size = args.batch_size, loss=Loss[args.loss.upper()])
 
 ################# Validate Denoiser: ################
-denoiser.validate(x_validation, args.validation_snrs, args.batch_size)
+denoiser.validate(x_validation, args.validation_snrs, 8)
 
 
 ################# Finish Run: ################
 if args.use_wandb:
-    model_name = wandb.run.name.replace(" ", "_") + "-" + \
-        str(args.batch_size) + "_torch_state_dict"
+    # model_name = wandb.run.name.replace(" ", "_") + "-" + \
+    #     str(args.batch_size) + "_torch_state_dict"
     denoiser.finish_wandb(time.time()-t)
 
 if args.save_model:
-    if not args.use_wandb:
-        model_name = "out_torch_state_dict_model"
+    name = args.run_name
 
-    if args.model_dir is None:
-        torch.save(model.module.state_dict(), model_name)
-    else:
-        torch.save(model.module.state_dict(), args.model_dir + model_name)
+    torch.save(model.module.state_dict(), args.model_dir + name + "_gat.pt")
+    torch.save(optimizer.state_dict(), args.model_dir + name + "_optimizer.pt")
+    if args.unet_train:
+        torch.save(optimizer.state_dict(), args.model_dir + name + "_unet.pt")
 
 if args.debug_plots:
     plt.show()
