@@ -26,7 +26,7 @@ torch_type=torch.float
 resolution = 64
 samples = 1024
 save_dir = "results/Unet"
-train = False
+train = True
 
 batch_size = 16
 lr = 1e-4
