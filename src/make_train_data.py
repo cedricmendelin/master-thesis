@@ -142,7 +142,7 @@ for idx in tqdm(range(len(files))): # len(files)
 # # Test dataset
 data_CT = data_CT_test
 save_dir = "data/limited-CT/data_png_test_out"
-save_dir_proj = "data/limited-CT/data_png_test_out"
+save_dir_proj = "data/limited-CT/data_png_test_proj"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 if not os.path.exists(save_dir_proj):
