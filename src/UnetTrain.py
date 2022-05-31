@@ -26,7 +26,7 @@ torch_type=torch.float
 resolution = 64
 samples = 1024
 save_dir = "results/Unet"
-train = False
+train = True
 
 batch_size = 16
 lr = 1e-4
@@ -175,8 +175,8 @@ if train:
                 for param_group in optimizer.param_groups:
                     param_group["lr"] = lr*(1-(1-0.01)*ep/epochs)
 
-            input = data['data'].to(device)
-            label = data['label'].to(device)
+            input = data['data'].type(torch_type).to(device)
+            label = data['label'].type(torch_type).to(device)
 
             optimizer.zero_grad()
             y_est = net(input.view(-1,1,resolution,resolution))
