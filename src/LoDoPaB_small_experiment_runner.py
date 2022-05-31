@@ -33,7 +33,7 @@ parser.add_argument("--gat_conv_kernel", type=int, default=3)
 parser.add_argument("--gat_conv_padding", type=int, default=1)
 parser.add_argument("--gat_conv_N_latent", type=int, default=1)
 parser.add_argument("--unet_refinement", action='store_true', default=False)
-parser.add_argument("--unet_path", type=str, default="models/unet.pt")
+parser.add_argument("--unet_path", type=str, default="models/unet_128.pt")
 parser.add_argument("--unet_train", action='store_true', default=False)
 
 parser.add_argument("--epochs", type=int, default=2)
@@ -50,7 +50,10 @@ parser.add_argument('--loss', type=str, default='FBP',
 
 parser.add_argument("--verbose", action='store_true', default=False)
 
-parser.add_argument("--run_name", type=str, default="Blub")
+parser.add_argument("--model_state_path", type=str, default="denoiser/small_experiments/test2_gat.pt")
+parser.add_argument("--optimizer_state_path", type=str, default="denoiser/small_experiments/test2_optimizer.pt")
+
+parser.add_argument("--run_name", type=str, default="test")
 
 args = parser.parse_args()
 
@@ -90,9 +93,18 @@ if args.append_validation_images > 0:
     x_validation = x_validation.reshape(
         (validation_image_count + args.append_validation_images, RESOLUTION, RESOLUTION))
 
+################# Load current state: #################
+model_state = None
+if args.model_state_path != None:
+    model_state = torch.load(args.model_state_path)
+
+optimizer_state = None
+if args.optimizer_state_path != None:
+    optimizer_state = torch.load(args.optimizer_state_path)
+
 ################# Initialize Denoiser: ################
 
-denoiser = GatBase.create_fixed_images_denoiser(args, run_name=args.run_name)
+denoiser = GatBase.create_fixed_images_denoiser(args, model_state, optimizer_state, args.run_name)
 
 ################# Train Denoiser: ################
 model, optimizer, unet = denoiser.train(images=x_input, batch_size = args.batch_size, loss=Loss[args.loss.upper()])
@@ -113,7 +125,9 @@ if args.save_model:
     torch.save(model.module.state_dict(), args.model_dir + name + "_gat.pt")
     torch.save(optimizer.state_dict(), args.model_dir + name + "_optimizer.pt")
     if args.unet_train:
-        torch.save(optimizer.state_dict(), args.model_dir + name + "_unet.pt")
+        torch.save({
+            "model_state_dict" : unet.state_dict(),
+        }, args.model_dir + name + "_unet.pt")
 
 if args.debug_plots:
     plt.show()

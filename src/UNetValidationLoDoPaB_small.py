@@ -5,10 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils.ImageHelper import *
 from utils.ODLHelperCustom import setup_forward_and_backward
-from utils.ODLHelper import OperatorFunction
+from utils.ODLHelper import OperatorFunction, OperatorModule
 from utils.SNRHelper import add_noise_to_sinograms, find_SNR
 
-
+from utils.Plotting import plot_imshow
 import os
 import torch
 from utils.UNetModel import UNet
@@ -24,7 +24,14 @@ validation_files = os.listdir(test_data)
 RESOLUTION = 64
 validation_count = 100
 N = 1024
-snr = 0
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--snr", type=int, default=0)
+args = parser.parse_args()
+
+snr = args.snr
+
 
 c = {
   "RESOLUTION" : RESOLUTION,
@@ -34,13 +41,17 @@ c = {
 }
 
 wandb.init(project="U-Net Validation LoDoPaB small", entity="cedric-mendelin", config=c)
-wandb.run.name = f"UNET_{RESOLUTION}_{N}_{snr}_{N}"
+wandb.run.name = f"UNET_{RESOLUTION}_{N}_{snr}"
 
-
+import odl
+resolution = RESOLUTION
+samples = N
 x_validation = load_images_files_rescaled(test_data, validation_files, RESOLUTION, RESOLUTION, number=validation_count, num_seed=5, circle_padding=True)
 t_validation_images = torch.from_numpy(x_validation).type(torch.float)
 
 radon, fbp = setup_forward_and_backward(RESOLUTION, N)
+model_fbp = OperatorModule(fbp)
+
 sinos = OperatorFunction.apply(radon, t_validation_images).data
 noisy_sinos = add_noise_to_sinograms(sinos, snr)
 
@@ -49,6 +60,27 @@ checkpoint = torch.load("models/unet_128.pt", map_location=device)
 unet = UNet(nfilter=128).eval()
 unet.load_state_dict(checkpoint['model_state_dict'])    
 
+
+
+reco_noisy = fbp(proj[1]).data
+
+plot_imshow(labels[1])
+plot_imshow(reco_noisy, title="Reco new")
+plot_imshow(recon[1], title="Reco data")
+out = unet(torch.from_numpy(reco_noisy).view(-1, 1, RESOLUTION, RESOLUTION) ).view(RESOLUTION, RESOLUTION).cpu().detach()
+out2 = unet(torch.from_numpy(recon[0]).view(-1, 1, RESOLUTION, RESOLUTION) ).view(RESOLUTION, RESOLUTION).cpu().detach()
+
+#out =  (out - torch.min(out)) / (torch.max(out) – torch.min(out)) * np.max(labels[0])
+
+out = (out - torch.min(out)) / (torch.max(out) - torch.min(out)) * np.max(labels[0])
+plot_imshow(out.numpy())
+plot_imshow(out2.numpy())
+
+print(find_SNR(torch.from_numpy(labels[0]), out))
+
+plt.show()
+
+assert False
 
 for i in tqdm(range(validation_count)):
 

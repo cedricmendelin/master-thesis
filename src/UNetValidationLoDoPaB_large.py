@@ -24,7 +24,14 @@ validation_files = os.listdir(test_data)
 RESOLUTION = 64
 validation_count = 3553
 N = 1024
-snr = 0
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--snr", type=int, default=0)
+args = parser.parse_args()
+
+snr = args.snr
+
 
 c = {
   "RESOLUTION" : RESOLUTION,
@@ -34,7 +41,7 @@ c = {
 }
 
 wandb.init(project="U-Net Validation LoDoPaB large", entity="cedric-mendelin", config=c)
-wandb.run.name = f"UNET_{RESOLUTION}_{N}_{snr}_{N}"
+wandb.run.name = f"UNET_{RESOLUTION}_{N}_{snr}"
 
 
 x_validation = load_images_files_rescaled(test_data, validation_files, RESOLUTION, RESOLUTION, number=validation_count, num_seed=5, circle_padding=True)

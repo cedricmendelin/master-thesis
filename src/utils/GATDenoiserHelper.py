@@ -63,6 +63,13 @@ class GatBase():
         self.GAT_LAYERS: int = args.gat_layers
         self.GAT_HEADS: int = args.gat_heads
         self.GAT_DROPOUT: float = args.gat_dropout
+        self.GAT_USE_CONV: bool = args.gat_use_conv
+        self.UNET_REFINEMENT: bool = args.unet_refinement
+        
+        if self.GAT_USE_CONV:
+            self.GAT_CONV_KERNEL = args.gat_conv_kernel
+            self.GAT_CONV_PADDING = args.gat_conv_padding
+            self.GAT_CONV_N_LATENT = args.gat_conv_N_latent
 
     def consumeDenoiserArgs(self, args):
         self.M = args.samples
@@ -70,15 +77,8 @@ class GatBase():
         
         self.GAT_ADAM_WEIGHTDECAY: float = args.gat_weight_decay
         self.GAT_ADAM_LR: float = args.gat_learning_rate
-        self.GAT_USE_CONV: bool = args.gat_use_conv
-        self.UNET_REFINEMENT: bool = args.unet_refinement
         self.UNET_TRAIN: bool = args.unet_train
 
-        if self.GAT_USE_CONV:
-            self.GAT_CONV_KERNEL = args.gat_conv_kernel
-            self.GAT_CONV_PADDING = args.gat_conv_padding
-            self.GAT_CONV_N_LATENT = args.gat_conv_N_latent
-        
         self.Loss = Loss[args.loss.upper()]
 
         # check if snr is fixed
@@ -95,7 +95,7 @@ class GatBase():
             self.SNR_UPPER = args.gat_snr_upper
 
     @classmethod
-    def create_validator(cls, args, model_state):
+    def create_validator(cls, args, model_state, run_name=None):
         """ Creates a validator instance.
 
         Args:
@@ -106,7 +106,7 @@ class GatBase():
             GatValidator: The created instance.
         """
         validator =  GatValidator(args)
-        validator.__initialize_validator__(args, model_state)
+        validator.__initialize_validator__(args, model_state, run_name)
         return validator
 
     @classmethod
@@ -139,9 +139,9 @@ class GatBase():
         denoiser.__initialize_denoiser__(args, model_state, optimizer_state, run_name)
         return denoiser
     
-    def __initialize_validator__(self, args, model_state):
+    def __initialize_validator__(self, args, model_state, run_name):
         if self.USE_WANDB:
-            self.__init_wandb__(args.wandb_project, args)
+            self.__init_wandb__(args.wandb_project, args, run_name=run_name)
 
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
         self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")

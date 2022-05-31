@@ -574,3 +574,5 @@ src/data/val2017/*
 .vscode/ltex.hiddenFalsePositives.en-US.txt
 src/data/limited-CT/data_test.npz
 src/data/limited-CT/data_train.npz
+results/Unet/test/*
+src/data/limited-CT/*
