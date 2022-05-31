@@ -58,27 +58,28 @@ def find_sigma_noise(SNR_value, x_ref):
 ### Prepare Forward
 #######################################
 reco_space = odl.uniform_discr(
-    min_pt=[-resolution//2+1, -resolution//2+1], max_pt=[resolution//2, resolution//2], shape=[resolution, resolution], dtype='float32')
+    min_pt=[-resolution//2+1, -resolution//2+1], max_pt=[resolution//2, resolution//2], shape=[resolution, resolution], dtype='float32',impl='numpy')
 
 # Angles: uniformly spaced, n = 1000, min = 0, max = pi
 angle_partition = odl.uniform_partition(0, np.pi, samples)
 
 # Detector: uniformly sampled, n = 500, min = -30, max = 30
-# detector_partition = odl.uniform_partition(-30, 30, resolution)
+detector_partition = odl.uniform_partition(-resolution+1, resolution, resolution*2)
 
 # Make a parallel beam geometry with flat detector
-# geometry = odl.tomo.Parallel2dGeometry(angle_partition,detector_partition)
-geometry = odl.tomo.parallel_beam_geometry(reco_space, samples, det_shape=resolution)
+geometry = odl.tomo.Parallel2dGeometry(angle_partition,detector_partition)
+# geometry = odl.tomo.parallel_beam_geometry(reco_space, samples, det_shape=resolution*2)
 
 # Ray transform (= forward projection).
 radon = odl.tomo.RayTransform(reco_space, geometry, impl='astra_cuda')
 
+# s = odl.tomo.backends.astra_cuda.astra_cuda_bp_scaling_factor(radon.range,reco_space,geometry)
 # Fourier transform in detector direction
-fourier = odl.trafos.FourierTransform(radon.range, axes=[1])
-# Create ramp in the detector direction
+fourier = odl.trafos.FourierTransform(radon.range, axes=[1],impl='numpy')
+# Create ramp in the detector 'direction'
 ramp_function = fourier.range.element(lambda x: np.abs(x[1]) / (2 * np.pi))
 # Create ramp filter via the convolution formula with fourier transforms
-ramp_filter = fourier.inverse * ramp_function * fourier
+ramp_filter = fourier.inverse * ramp_function * (fourier)
 
 # Create filtered back-projection by composing the back-projection (adjoint)
 # with the ramp filter.
@@ -88,6 +89,41 @@ model_fbp = OperatorModule(fbp)
 lin = np.linspace(-1,1,resolution)
 XX, YY = np.meshgrid(lin,lin)
 circle = ((XX**2+YY**2)<=1)*1.
+
+# # TESTs
+# data_CT = data_CT_test
+# files = os.listdir(data_CT)
+# label = np.zeros((3,resolution,resolution))
+# for idx in tqdm(range(3)): # len(files)
+#     file = data_CT+os.sep+files[idx]
+#     print(imageio.imread(file).max())
+#     label[idx] = (imageio.imread(file)/255)*circle
+# label = torch.from_numpy(label[:3]).type(torch_type).to(device)
+# data = OperatorFunction.apply(radon, label).data
+# SNR = np.repeat(np.random.rand(data.shape[0],1)*(SNR_max-SNR_min)+SNR_min,samples,1)
+# nref = torch.std(data,(2))**2
+# sigma_noise = torch.sqrt(torch.tensor(10**(-SNR/10)).to(device) * nref)
+# proj = data + torch.randn_like(data)*sigma_noise[:,:,None]
+# proj[:,:,:32] = 0
+# proj[:,:,-32:] = 0
+# recon = model_fbp(proj.view(-1, samples, proj.shape[2]))
+
+
+# i = 1
+# plt.figure(1)
+# plt.clf()
+# plt.imshow(label[i].detach().cpu())
+# plt.colorbar()
+
+# plt.figure(2)
+# plt.clf()
+# plt.imshow(proj[i].detach().cpu())
+# plt.colorbar()
+
+# plt.figure(3)
+# plt.clf()
+# plt.imshow(recon[i].detach().cpu())
+# plt.colorbar()
 
 # idx = 100 
 # data_CT = data_CT_train
