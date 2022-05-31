@@ -37,6 +37,7 @@ def load_images_files_rescaled(path, files, N1, N2, number=1, circle_padding=Fal
     random.seed(a=num_seed)  # if None, system clock
     result = np.zeros((number, N1, N2))
     assert N1 == N2, "resolution of images need to be same"
+    
     lin = np.linspace(-1,1, N1)
     XX, YY = np.meshgrid(lin,lin)
     circle = ((XX**2+YY**2)<=1)*1.
@@ -48,7 +49,9 @@ def load_images_files_rescaled(path, files, N1, N2, number=1, circle_padding=Fal
             im = im[:, :, 0]
 
         [M1, M2] = im.shape
-        im = rescale(im, scale=(N1 / M1, N2 / M2),
+        if N1 != M1 or N2 != M2:
+            print("scale it!")
+            im = rescale(im, scale=(N1 / M1, N2 / M2),
                      mode='reflect', multichannel=False)
 
         if circle_padding:

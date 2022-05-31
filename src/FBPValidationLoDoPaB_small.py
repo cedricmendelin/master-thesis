@@ -43,8 +43,7 @@ wandb.run.name = f"FBP_{RESOLUTION}_{N}_{snr}"
 x_validation = load_images_files_rescaled(test_data, validation_files, RESOLUTION, RESOLUTION, number=validation_count, num_seed=5, circle_padding=True)
 t_validation_images = torch.from_numpy(x_validation).type(torch.float)
 
-radon, fbp = setup_forward_and_backward(RESOLUTION, N)
-model_fbp = OperatorModule(fbp)
+radon, fbp, pad = setup_forward_and_backward(RESOLUTION, N)
 
 sinos = OperatorFunction.apply(radon, t_validation_images).data
 noisy_sinos = add_noise_to_sinograms(sinos, snr)
@@ -53,7 +52,7 @@ noisy_sinos = add_noise_to_sinograms(sinos, snr)
 for i in tqdm(range(validation_count)):
 
   loss_sino_noisy = torch.linalg.norm(noisy_sinos[i] - sinos[i])
-  reco_noisy = fbp(noisy_sinos[i]).data
+  reco_noisy = fbp(pad(noisy_sinos[i])).data
   loss_reco_noisy = torch.linalg.norm(torch.from_numpy(reco_noisy) - t_validation_images[i])
 
   wandb.log({

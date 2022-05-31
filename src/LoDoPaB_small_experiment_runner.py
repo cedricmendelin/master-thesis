@@ -50,8 +50,8 @@ parser.add_argument('--loss', type=str, default='FBP',
 
 parser.add_argument("--verbose", action='store_true', default=False)
 
-parser.add_argument("--model_state_path", type=str, default="denoiser/small_experiments/test2_gat.pt")
-parser.add_argument("--optimizer_state_path", type=str, default="denoiser/small_experiments/test2_optimizer.pt")
+parser.add_argument("--model_state_path", type=str, default=None)
+parser.add_argument("--optimizer_state_path", type=str, default=None)
 
 parser.add_argument("--run_name", type=str, default="test")
 

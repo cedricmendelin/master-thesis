@@ -16,6 +16,7 @@ import time
 from torch_geometric.nn import GATConv, DataParallel
 from torch_geometric.loader import DataListLoader
 from torch_geometric.data import Data, Dataset
+from torch_geometric.utils.random import erdos_renyi_graph
 import torch
 torch.pi = torch.acos(torch.zeros(1)).item() * 2
 
@@ -174,7 +175,7 @@ class GatBase():
     def __init_graph_and_forward_backward(self, args):
         # parameters for forward and backward operatior
         # Currently radon and filter_back_projection is used.
-        self.radon, self.fbp = setup_forward_and_backward(self.RESOLUTION, self.N)
+        self.radon, self.fbp, self.pad = setup_forward_and_backward(self.RESOLUTION, self.N)
 
         if self.UNET_REFINEMENT:
             checkpoint = torch.load(args.unet_path, map_location=self.device)
@@ -191,6 +192,9 @@ class GatBase():
 
     def __prepare_graph__(self, cache=True):
         graph_name = f"graphs/circle_{self.N}_{self.K}.npz"
+
+        if self.K == 0:
+            return erdos_renyi_graph(self.N, 0.01)
 
         # check if graph is cached
         if os.path.isfile(graph_name):
@@ -269,7 +273,7 @@ class GatBase():
         Returns:
             numpy.array: sinograms of input images.
         """
-        return OperatorFunction.apply(self.radon, images).data
+        return OperatorFunction.apply(self.radon, images).data[:,:, self.RESOLUTION // 2:self.RESOLUTION //2 + self.RESOLUTION]
     
     ################## Forward operator Operators ######################
     def __backward__(self, sinograms, with_gradient=False, deactivate_unet = False):
@@ -281,9 +285,9 @@ class GatBase():
             numpy.array: denoised sinograms of input images.
         """
         if with_gradient:
-            fbp = self.fbp_with_gradient(sinograms)
+            fbp = self.fbp_with_gradient(self.pad(sinograms))
         else:
-            fbp = OperatorFunction.apply(self.fbp, sinograms).data
+            fbp = OperatorFunction.apply(self.fbp, self.pad(sinograms)).data
         
         if self.UNET_REFINEMENT and not deactivate_unet:
             fbp = self.unet(fbp.view(-1, 1, self.RESOLUTION, self.RESOLUTION))

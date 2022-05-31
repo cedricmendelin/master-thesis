@@ -57,14 +57,15 @@ c = {
 }
 
 wandb.init(project="BM3D Validation LoDoPaB small", entity="cedric-mendelin", config=c)
-wandb.run.name = f"BM3D_{RESOLUTION}_{N}_{snr}_{N}_{bm3d_type}"
+wandb.run.name = f"BM3D_{RESOLUTION}_{N}_{snr}_{bm3d_type}"
 
 
 x_validation = load_images_files_rescaled(test_data, validation_files, RESOLUTION, RESOLUTION, number=validation_count, num_seed=5, circle_padding=True)
 t_validation_images = torch.from_numpy(x_validation).type(torch.float)
 
-radon, fbp = setup_forward_and_backward(RESOLUTION, N)
-sinos = OperatorFunction.apply(radon, t_validation_images).data
+radon, fbp, pad = setup_forward_and_backward(RESOLUTION, N)
+
+sinos = OperatorFunction.apply(radon, t_validation_images).data[:,:, RESOLUTION // 2:RESOLUTION //2 + RESOLUTION]
 noisy_sinos = add_noise_to_sinograms(sinos, snr)
 
 for i in tqdm(range(validation_count)):
@@ -81,7 +82,7 @@ for i in tqdm(range(validation_count)):
   loss_sino_bm3d = torch.linalg.norm(sino_bm3d - sinos[i])
   loss_sino_noisy = torch.linalg.norm(noisy_sinos[i] - sinos[i])
 
-  reco_noisy = fbp(noisy_sinos[i]).data
+  reco_noisy = fbp(pad(noisy_sinos[i])).data
 
   # denoise reco
   if bm3d_type == BM3DType.RECO:
@@ -89,10 +90,10 @@ for i in tqdm(range(validation_count)):
     reco_bm3d = bm3d.bm3d(reco_noisy, sigma_psd=std2, stage_arg=bm3d.BM3DStages.ALL_STAGES)
   elif bm3d_type == BM3DType.SINO:
     # reco on denoised sino
-    reco_bm3d = fbp(sino_bm3d).data
+    reco_bm3d = fbp(pad(sino_bm3d)).data
   elif bm3d_type == BM3DType.BOTH:
     # fbp with denoised sino
-    reco_bm3d = fbp(sino_bm3d).data
+    reco_bm3d = fbp(pad(sino_bm3d)).data
     std2 = torch.std(t_validation_images[i] - reco_bm3d)
     # refinement, 2nd time bm3d
     reco_bm3d = bm3d.bm3d(reco_noisy, sigma_psd=std2, stage_arg=bm3d.BM3DStages.ALL_STAGES)

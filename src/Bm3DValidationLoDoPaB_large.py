@@ -12,10 +12,10 @@ from utils.SNRHelper import add_noise_to_sinograms, find_SNR
 import os
 import torch
 import bm3d
-import time
 import wandb
 from tqdm import tqdm
 
+np.random.seed(2022)
 torch.manual_seed(2022)
 
 test_data = "src/data/limited-CT/data_png_test/"
@@ -38,12 +38,11 @@ class BM3DType(Enum):
     RECO = 1,
     BOTH=2,
 
-
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--bm3d', type=str, default='RECO',
                     choices=[i.name.upper() for i in BM3DType])
-parser.add_argument("--snr", type=int, default=0)                  
+parser.add_argument("--snr", type=int, default=0)
 args = parser.parse_args()
 
 bm3d_type = BM3DType[args.bm3d.upper()]
@@ -58,14 +57,15 @@ c = {
 }
 
 wandb.init(project="BM3D Validation LoDoPaB large", entity="cedric-mendelin", config=c)
-wandb.run.name = f"BM3D_{RESOLUTION}_{N}_{snr}_{N}_{bm3d_type}"
+wandb.run.name = f"BM3D_{RESOLUTION}_{N}_{snr}_{bm3d_type}"
 
 
 x_validation = load_images_files_rescaled(test_data, validation_files, RESOLUTION, RESOLUTION, number=validation_count, num_seed=5, circle_padding=True)
 t_validation_images = torch.from_numpy(x_validation).type(torch.float)
 
-radon, fbp = setup_forward_and_backward(RESOLUTION, N)
-sinos = OperatorFunction.apply(radon, t_validation_images).data
+radon, fbp, pad = setup_forward_and_backward(RESOLUTION, N)
+
+sinos = OperatorFunction.apply(radon, t_validation_images).data[:,:, RESOLUTION // 2:RESOLUTION //2 + RESOLUTION]
 noisy_sinos = add_noise_to_sinograms(sinos, snr)
 
 for i in tqdm(range(validation_count)):
@@ -82,7 +82,7 @@ for i in tqdm(range(validation_count)):
   loss_sino_bm3d = torch.linalg.norm(sino_bm3d - sinos[i])
   loss_sino_noisy = torch.linalg.norm(noisy_sinos[i] - sinos[i])
 
-  reco_noisy = fbp(noisy_sinos[i]).data
+  reco_noisy = fbp(pad(noisy_sinos[i])).data
 
   # denoise reco
   if bm3d_type == BM3DType.RECO:
@@ -90,10 +90,10 @@ for i in tqdm(range(validation_count)):
     reco_bm3d = bm3d.bm3d(reco_noisy, sigma_psd=std2, stage_arg=bm3d.BM3DStages.ALL_STAGES)
   elif bm3d_type == BM3DType.SINO:
     # reco on denoised sino
-    reco_bm3d = fbp(sino_bm3d).data
+    reco_bm3d = fbp(pad(sino_bm3d)).data
   elif bm3d_type == BM3DType.BOTH:
     # fbp with denoised sino
-    reco_bm3d = fbp(sino_bm3d).data
+    reco_bm3d = fbp(pad(sino_bm3d)).data
     std2 = torch.std(t_validation_images[i] - reco_bm3d)
     # refinement, 2nd time bm3d
     reco_bm3d = bm3d.bm3d(reco_noisy, sigma_psd=std2, stage_arg=bm3d.BM3DStages.ALL_STAGES)

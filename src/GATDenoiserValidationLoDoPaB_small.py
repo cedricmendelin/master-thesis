@@ -6,7 +6,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.ImageHelper import *
-from utils.ODLHelperCustom import setup_forward_and_backward
+
 from utils.ODLHelper import OperatorFunction, OperatorModule
 from utils.SNRHelper import add_noise_to_sinograms, find_SNR
 
