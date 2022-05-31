@@ -49,10 +49,10 @@ samples = N
 x_validation = load_images_files_rescaled(test_data, validation_files, RESOLUTION, RESOLUTION, number=validation_count, num_seed=5, circle_padding=True)
 t_validation_images = torch.from_numpy(x_validation).type(torch.float)
 
-radon, fbp = setup_forward_and_backward(RESOLUTION, N)
-model_fbp = OperatorModule(fbp)
+radon, fbp, pad = setup_forward_and_backward(RESOLUTION, N)
 
-sinos = OperatorFunction.apply(radon, t_validation_images).data
+
+sinos = OperatorFunction.apply(radon, t_validation_images).data[:,:, RESOLUTION // 2:RESOLUTION //2 + RESOLUTION]
 noisy_sinos = add_noise_to_sinograms(sinos, snr)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -60,34 +60,11 @@ checkpoint = torch.load("models/unet_128.pt", map_location=device)
 unet = UNet(nfilter=128).eval()
 unet.load_state_dict(checkpoint['model_state_dict'])    
 
-
-
-reco_noisy = fbp(proj[1]).data
-
-plot_imshow(labels[1])
-plot_imshow(reco_noisy, title="Reco new")
-plot_imshow(recon[1], title="Reco data")
-out = unet(torch.from_numpy(reco_noisy).view(-1, 1, RESOLUTION, RESOLUTION) ).view(RESOLUTION, RESOLUTION).cpu().detach()
-out2 = unet(torch.from_numpy(recon[0]).view(-1, 1, RESOLUTION, RESOLUTION) ).view(RESOLUTION, RESOLUTION).cpu().detach()
-
-#out =  (out - torch.min(out)) / (torch.max(out) – torch.min(out)) * np.max(labels[0])
-
-out = (out - torch.min(out)) / (torch.max(out) - torch.min(out)) * np.max(labels[0])
-plot_imshow(out.numpy())
-plot_imshow(out2.numpy())
-
-print(find_SNR(torch.from_numpy(labels[0]), out))
-
-plt.show()
-
-assert False
-
 for i in tqdm(range(validation_count)):
 
   loss_sino_noisy = torch.linalg.norm(noisy_sinos[i] - sinos[i])
-  reco_noisy = fbp(noisy_sinos[i]).data
-  print(reco_noisy.shape)
-  print(torch.from_numpy(reco_noisy).view(-1, 1, RESOLUTION, RESOLUTION).size())
+  reco_noisy = fbp(pad(noisy_sinos[i])).data
+  
   reco_fbp_unet = unet(torch.from_numpy(reco_noisy).view(-1, 1, RESOLUTION, RESOLUTION) ).view(RESOLUTION, RESOLUTION).cpu().detach()
   
  
