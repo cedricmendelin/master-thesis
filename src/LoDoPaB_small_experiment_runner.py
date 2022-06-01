@@ -49,6 +49,7 @@ parser.add_argument('--loss', type=str, default='FBP',
                     choices=[i.name.upper() for i in Loss])
 
 parser.add_argument("--verbose", action='store_true', default=False)
+parser.add_argument("--no_validation", action='store_true', default=False)
 
 parser.add_argument("--model_state_path", type=str, default=None)
 parser.add_argument("--optimizer_state_path", type=str, default=None)
@@ -110,7 +111,8 @@ denoiser = GatBase.create_fixed_images_denoiser(args, model_state, optimizer_sta
 model, optimizer, unet = denoiser.train(images=x_input, batch_size = args.batch_size, loss=Loss[args.loss.upper()])
 
 ################# Validate Denoiser: ################
-denoiser.validate(x_validation, args.validation_snrs, 8)
+if not args.no_validation:
+    denoiser.validate(x_validation, args.validation_snrs, 8)
 
 
 ################# Finish Run: ################
