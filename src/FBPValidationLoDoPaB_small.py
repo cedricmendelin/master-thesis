@@ -45,7 +45,7 @@ t_validation_images = torch.from_numpy(x_validation).type(torch.float)
 
 radon, fbp, pad = setup_forward_and_backward(RESOLUTION, N)
 
-sinos = OperatorFunction.apply(radon, t_validation_images).data
+sinos = OperatorFunction.apply(radon, t_validation_images).data[:,:, RESOLUTION // 2:RESOLUTION //2 + RESOLUTION]
 noisy_sinos = add_noise_to_sinograms(sinos, snr)
 
 
