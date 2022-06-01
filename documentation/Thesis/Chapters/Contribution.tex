@@ -1,8 +1,8 @@
 \chapter{GAT-Denoiser}
 \label{sec:contribution}
 
-In the current chapter, contribution during Master Thesis is presented.
-As result, a GNN can be presented which is called \textit{GAT-Denoiser}.
+In this chapter, contribution of this Master's Thesis is presented.
+As a result, a GNN can be presented which is called \textit{GAT-Denoiser}.
 Its main components and overall architecture is introduced.
 The focus during practical part was on classical computed tomography in 2D but
 can be generalized to cryo-EM and 3D.
@@ -34,6 +34,7 @@ Based on these angles, neighboring nodes can be connected.
 
 
 \section{Concept}
+\label{sec:concept}
 
 
 In the following section, the concept of GAT-Denoiser is introduced. 
@@ -186,6 +187,7 @@ If stride is increased, the output signal dimension will decrease.
 
 
 \subsection{U-Net}
+\label{sec:unet}
 U-Net can boost performance of computed tomography reconstruction and is therefore our third component
 in GAT-Denoiser.
 It is a convolutional neural network, which is well suited for image segmentation in different domains.

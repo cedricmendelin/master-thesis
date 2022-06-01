@@ -5,19 +5,19 @@
 The following chapter establishes connection between graphs and denoising in high-noise 
 domains, such as cryo-EM.
 First, a broad definition of graphs is given and further, the term "Graph Denoising" is
-introduced and explained. Finally, connection to Graph Laplacian, Manifolds and molecular imaging methods is established.
+introduced and explained. Finally, link to Graph Laplacian, Manifolds and molecular imaging methods is established.
 
 \section{Graph Foundations}
 Real world data can be in graph structure, like social networks, citation networks,
-protein interaction networks or google search. 
+protein interaction networks or a simple google search. 
 If data is not available in graph structure, a graph can be artificially constructed with methods like k-nearest neighbors (k-NN) or others.
 A general framework for graph construction is introduced in section~\ref{sec:graphConstruction} \textit{\nameref{sec:graphConstruction}}.
 
 \paragraph{Graph Learning:} Graph Learning is a prominent research area and got a lot of attention in recent years.
-It is a way of applying ML on graphs and algorithms emerged from ML but also other fields.
+It is a way of applying ML on graphs and algorithms that have emerged emerged from ML but also other fields.
 When a graph is available, one can start using Graph Learning algorithms for solving tasks.
 Popular tasks are \textit{node classification} or \textit{link prediction}, where a model is learned from node and edge features 
-as well as topology. The model can than be used for prediction or classification on nodes or edges.
+as well as topology. The model can be used for prediction or classification on nodes or edges.
 Another common task is \textit{community detection}, where the aim is to identify cluster of nodes within the input graph.
 Further, graphs are highly favored for \textit{dimensionality-reduction}, where 
 graph algorithms provide a helpful tool, as ordinary algorithms like principal component analysis fail to 
@@ -77,7 +77,7 @@ Further, graph $G$ can be constructed by using:
     \end{cases}
 \end{equation}
 
-, where $v_i$, $v_j$ are nodes from indices $i$ and $j$, $dist$ corresponds to a similarity (or distance) measure and $\tau$ is a threshold, 
+where $v_i$, $v_j$ are nodes from indices $i$ and $j$, $dist$ corresponds to a similarity (or distance) measure and $\tau$ is a threshold, 
 when to consider two nodes to be adjacent.
 K-NN is one possible implementation of a graph construction algorithm, 
 where for every node, $k$ neighbors will be defined.
@@ -98,8 +98,7 @@ $M$ is again observation dimension.
 Further, $|V|=N$ where $N$ is the number of observations, which defines how many projections from different
 angles $\theta$ are within the observation.
 
-As nodes are defined, it is time to have a look at edges.
-To apply equation~\ref{eq:graphConstruction} similarity measure $dist$ needs to be defined.
+Finally, to apply equation~\ref{eq:graphConstruction} similarity measure $dist$ needs to be defined.
 For computed tomography, a distance measure between observations can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
 For cryo-EM it is more challenging, as projections are drawn with some random 3D rotation and projection, 
 it can happen that two samples are equivalent up to 2D rotation. 
@@ -119,7 +118,7 @@ In previous section, graphs based on noisy observations were introduced and goal
 which means to estimate original graph $G$ from a given noisy graph $G_0$. 
 This is our definition for Graph Denoising, which is rather related to signal or image denoising.
 Reconstruction of a true signal given noisy observation signal is done via averaging, that can be performed
-locally, by the calculus of variations or in the frequency domain\cite{noneLocalMean}. 
+locally, by the calculus of variations or in the frequency domain~\cite{noneLocalMean}. 
 
 \paragraph{Noisy Graph:}
 For every noisy graph there exists an original graph $G = \langle V,E \rangle$.
@@ -135,7 +134,7 @@ Graph Denoising can therefore be written as
     GD: A_0 \mapsto \tilde{A} \approx A
 \end{equation}
 
-, where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from noisy input graph, denoised graph and original graph respectively.
+where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from noisy input graph, denoised graph and original graph respectively.
 
 
 \paragraph{Connection to link prediction:}
@@ -160,7 +159,7 @@ In the following section, a short introduction to the
 state-of-the-art image denoising method non-local means is given \cite{noneLocalMean}.
 For a given noisy image $v$, the denoised image is defined as $NL[v](i) = \sum{w(i,j) \; v(j)}$,
 where $w(i,j)$ is the weight between pixel $i$ and $j$. 
-Weight can be seen as similarity measure of pixels, which are calculated over square neighborhoods.
+Weights can be seen as a similarity measure of pixels, which are calculated over square neighborhoods.
 Similar pixel neighborhoods have a large weight and different neighborhoods have a small weight.
 More general, denoised image pixel $i$ is computed as a weighted average of all pixels in the 
 image, therefore, in a non-local way.
@@ -208,13 +207,13 @@ where $A$ is the adjacency matrix and $D$ the degree matrix (diagonal matrix wit
 \subsection{Manifolds}
 \label{sec:manifolds}
 
-In high-dimensional data Euclidean distances are not meaningful,
+In high-dimensional data Euclidean distances are not meaningful
 in the sense that they will not capture similar data points well. One is looking for a geodesic distance, 
 representing the shortest path of two point on a surface.
 Graph Laplacian can be used to compute a \textit{Manifold}, which can help in such scenarios. 
 In manifold space, Euclidean distances make sense again. 
 Let manifold $M$ be defined as $\mathcal{M} = \{ f(x), f \in C^K, f: \mathbb{R}^D \to \mathbb{R}^d \}$.
-Manifolds are a well established mathematical concept. In the Master Thesis, only 
+Manifolds are a well established mathematical concept. In the Master's Thesis, only 
 $C^k$ differentiable d-dimensional manifolds defined by $\mathcal{M}$ are considered. 
 When $d \ll D$, manifolds define a \textit{low-dimensional embedding}, which maps from high-dimensional space 
 $\mathbb{R}^D$ to low-dimensional space $\mathbb{R}^d$.
@@ -266,6 +265,7 @@ by the following:
 \end{enumerate}
 
 \subsection{Manifold of computed tomography and cryo-EM}
+\label{sec:manifold_ct_cryoEM}
 As a tool for GL-manifold calculation is established, it can be observed how the GL-manifold of classical tomography and cryo-EM objects look like.
 In the following, Shepp-Logan phantom is again used as an example of classical tomography
 and the low-dimensional embedding is calculated from sinogram, following instructions from 

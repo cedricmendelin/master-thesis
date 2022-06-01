@@ -1,24 +1,26 @@
-\chapter{Molecular Imaging methods}
+\chapter{Molecular Imaging Methods}
 \label{sec:imaging}
 
-In current chapter molecular imaging methods \textit{computed tomography} and 
+In this chapter, molecular imaging methods \textit{computed tomography} and 
 \textit{cryo-electron microscopy} (cryo-EM) will be introduced. 
 Further, their observation model is defined in a mathematic way and reconstruction is presented.
-Application of cryo-EM is a major motivation for the Master Thesis, 
+Application of cryo-EM is a major motivation for this Thesis, 
 as the problem is not easy to solve due to dealing with enormous noise and unknown observation angles.
-Computed Tomography is a similar problem, but slightly simpler as problem can be in 2D, and is therefore well suited as a
+Moreover, cryo-EM can be seen as a problem in three-dimension (3D), as original object is in 3D.
+Computed Tomography is a similar problem, but slightly simpler as the problem is potentially in 2D, and is therefore well suited as a
 first step to make an algorithm work for cryo-EM. 
 
 
 \section{Computed tomography}
 Computed tomography (CT) is a well established molecular imaging method.
-Using X-ray source, fan shaped beams are produced which scan the imaging object,
-resulting in many observations taken over straight lines \cite{computedTomography}.
+Using X-ray source, fan shaped beams are produced which scan the imaging object.
+During scanning, many observations are collected, all taken over straight lines \cite{computedTomography}.
+From these observations, original object can be reconstructed.
 
 \paragraph{Tomography reconstruction:}
 Tomographic reconstruction \cite{tomographicReconstruction} is a popular inverse problem. 
 The aim is to reconstruct an imaged object from observed observations.
-The reconstruction object can be in two-dimension (2D) or in three-dimension (3D). 
+The reconstruction object can be in 2D or in 3D. 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     The focus in computed tomography during the Thesis will be on the 2D case, which is called \textit{classical tomography}.
@@ -50,21 +52,13 @@ with
 \end{itemize}
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    During Thesis, the notation $p$ for noiseless observation and $y$ for observation with noise is used.
+    Throughout this Thesis, notation $p$ for noiseless observation and $y$ for observation with noise is used.
     In practice, $p$ is not observable directly and observed signal $y$ needs to be denoised.
     Further, $x$ is used for original object.
 \end{tcolorbox}
 
-% where $y_i \in \mathbb{R}^M$ is $i$-th observation with $y_i[j] \in \mathbb{R}$ $j$-th element of the observation
-% and $M$ the observation dimension. 
-% Further, $N$ corresponds to number of observations.
+\paragraph{Observation illustration:}
 
-% Then, $x \in L^2(\Omega)$ is the original object with $\Omega \subset \mathbb{R}^2 $ and $L^2$ the Lebesgue space.
-
-% $R(\cdot; \theta, s): L^2(\Omega) \to L^2(\tilde{\Omega}) , x \mapsto R(x; \theta,s)$ refers to the Radon Transform \cite{radonTransform} 
-% with $\tilde{\Omega} \subset \mathbb{R}$, $\theta_i \in \mathbb{R}$ as observation angle and $s_j \in \mathbb{R}$ 
-% as sampling point. Finally, $\eta_i \in \mathbb{R}^M$ refers to gaussian noise and 
-% is defined as $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$.
 Data of Radon Transform is often called a \textit{sinogram}.
 In figure~\ref{fig:phantom} the Shepp-Logan phantom can be seen.
 It is often used as an image for simulating a brain CT.
@@ -97,11 +91,11 @@ It can be defined as:
 
 \begin{equation}
     \label{eq:fbp}
-    \textit{FBP}(\cdot; \theta, s) : L^2(\tilde{\Omega}) \to L^2(\Omega), y \mapsto \textit{FBP}(y; \theta, s) ,
+    \textit{FBP}(\cdot; \theta, s) : L^2(\tilde{\Omega}) \to L^2(\Omega), y \mapsto \textit{FBP}(y; \theta, s)
 \end{equation}
 
 with $\theta$ as projection angles and $s$ sampling points. 
-The algorithm fails when working with noisy data \cite{cryoEmMath2}.
+The algorithm fails when working with noisy data~\cite{cryoEmMath2}, as it is not possible anymore to draw meaningful connections.
 
 \begin{figure}[h]
     \label{fig:phantom_fbps}
@@ -123,11 +117,11 @@ If more noise is present in $y$, reconstruction will be of even lower quality.
 
 \subparagraph{U-Net}
 \citet{ct-reconstruction-comparison} compared different reconstruction methods for computed tomography. 
-Today's state-of-the-art reconstruction algorithms are Depp-Learning based.
-U-Net\cite{unet-tomography}, a convolution neural network approach, performed
+Today's state-of-the-art reconstruction algorithms are Deep-Learning based.
+U-Net~\cite{unet-tomography}, a convolution neural network approach, performed
 much better than only applying FBP, especially when dealing with noise.
 
-During practical part of the Thesis, U-Net was used and trained on lodopab-ct dataset \cite{lodopab-dataset}, a brain CT dataset. 
+During practical part of the Thesis, U-Net was used and trained on lodopab-ct dataset~\cite{lodopab-dataset}, a brain CT dataset. 
 More details on U-Net and how it was used can be found in 
 chapter~\ref{sec:contribution} \textit{\nameref{sec:contribution}} and 
 chapter~\ref{sec:results} \textit{\nameref{sec:results}}.
@@ -137,7 +131,7 @@ Quality of reconstruction is still not perfect, but overall noise is drastically
 
 \section{Cryo-EM}
 Cryo-EM is another molecular imaging method, that enables the view of molecules in near-atomic resolution.
-In the Master Thesis, only single-particle cryo-EM \cite{singleParticleCryoEm} is considered, 
+In this Master's Thesis, for simplicity, only single-particle cryo-EM \cite{singleParticleCryoEm} is considered, 
 when writing about cryo-EM it always refers to single-particle cryo-EM.
 
 During imaging process molecules are frozen in a thin layer of ice, where they are randomly oriented and positioned. 
@@ -154,10 +148,11 @@ molecules (isotopes). While observing same molecule in ice many times, single ob
 
 \paragraph{3D cryo-EM reconstruction:}
 Similar to tomographic reconstruction, cryo-EM reconstruction problem \cite{cryoEmMath} is defined.
-It can be seen as a 3D reconstruction problem as the original object $x \in L^2(\Omega)$ to be reconstructed is in 3D.
-Based on many observed micrographs, collected by the electron microscope, the original object $x$ will be estimated.
+It can be seen as a 3D problem as the original object $x \in L^2(\Omega)$ to be reconstructed is in 3D.
+Based on many observed micrographs, collected by the electron microscope, original object $x$ will be estimated.
 
-Cryo-EM reconstruction is computational intensive and multiple steps are needed to get from observed, raw data to the final structure \cite{singleParticleCryoEm}.
+Cryo-EM reconstruction is computational intensive and multiple steps are needed to get from observed
+raw data to the final structure (for further details \cite{singleParticleCryoEm} can be consulted).
 
 
 \paragraph{3D cryo-EM observation:}
@@ -256,17 +251,17 @@ Secondly, high level of noise makes cryo-EM much more challenging.
 
 \clearpage
 
-\section{Abstract form}
-\paragraph{Observation:}
+\section{Abstraction}
 
 \label{sec:abstract_form}
 As tomographic reconstruction and cryo-EM reconstruction are rather similar, 
-goal of the Master Thesis will be to design an algorithm, that can be applied in both scenarios.
+goal of this Thesis will be to design an algorithm, that can be applied in both scenarios.
 
-Therefore, an abstract form of the problems will be defined in the following.
-First, a similar notation as before is used, but in a more general way with
-$x \in L^2(\Omega)$ where $\Omega \subset \mathbb{R}^D$ with $D$ as the dimension of the space of original object
-and $\tilde{\Omega} \subset \mathbb{R}^{D-1}$ as the dimension of the space of observations.
+Therefore, an abstract form of the problems will be defined.
+A similar notation than in previous chapters is used, with original object $x \in L^2(\Omega)$.
+Further, original object dimension space is parametrized with $D$, consequently $\Omega \subset \mathbb{R}^D$.
+Additionally, dimension of observation space is defined as $D-1$, such that 
+$\tilde{\Omega} \subset \mathbb{R}^{D-1}$.
 
 
 \begin{equation}
@@ -276,7 +271,7 @@ and $\tilde{\Omega} \subset \mathbb{R}^{D-1}$ as the dimension of the space of o
         y_i &= \left( A(x, \theta_i) + \eta_i \right) (\Delta), \text{ with } 1 \leq i \leq N 
     \end{aligned}
 \end{equation}
-where, 
+with
 \begin{itemize}
     \item $N$: number of observations
     \item $M$: observation dimension
@@ -319,7 +314,7 @@ where \textit{Rot} is the 3D rotation and $\Pi_z$ the tomographic projection.
 \paragraph{High noise regime:}
 Cryo-EM observations are highly noisy, which makes reconstruction challenging. 
 There are different ways to reduce noise from observations, most of them are related to averaging. 
-Averaging need to consider similar observations and ignore diverse ones. 
+Averaging needs to consider similar observations and ignore diverse ones. 
 In the defined abstract model, averaging over paired observations from $\theta$ should be a good averaging model.
 But how can it be achieved? 
 
