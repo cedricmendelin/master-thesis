@@ -107,6 +107,7 @@ class GatBase():
             GatValidator: The created instance.
         """
         validator =  GatValidator(args)
+        validator.UNET_TRAIN = False
         validator.__initialize_validator__(args, model_state, run_name)
         return validator
 
@@ -397,6 +398,7 @@ class GatBase():
                     if self.USE_WANDB:
                         current_idx = counter
                         counter += 1
+                        
                         wandb.log({
                             "val_idx" : current_idx,
                             "val_loss_sino_denoised": torch.linalg.norm(denoised_sinograms[i]- clean_sinograms[i]),
@@ -409,12 +411,16 @@ class GatBase():
                             "val_snr_sino_noisy": find_SNR(clean_sinograms[i], noisy_sinograms[i]),
 
                             "val_snr_reco_denoised": find_SNR(clean_images[i], fbps_denoised[i]),
-                            "val_snr_reco_noisy": find_SNR(clean_images[i], fbps_noisy[i]),
-
-                            "val_clean" : wandb.Image(clean_images[i].cpu().detach().numpy(), caption=f"Original object"),
-                            "val_reco_denoised": wandb.Image(fbps_denoised[i].cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} "),
-                            "val_reco_noisy": wandb.Image(fbps_noisy[i].cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}"),
+                            "val_snr_reco_noisy": find_SNR(clean_images[i], fbps_noisy[i])
                         })
+
+                        if counter < 100:
+                            wandb.log({
+                                "val_clean" : wandb.Image(clean_images[i].cpu().detach().numpy(), caption=f"Original object"),
+                                "val_reco_denoised": wandb.Image(fbps_denoised[i].cpu().detach().numpy(), caption=f"Rec denoised - SNR: {snr} "),
+                                "val_reco_noisy": wandb.Image(fbps_noisy[i].cpu().detach().numpy(), caption=f"Rec noisy - SNR: {snr}")
+                            })
+
 
                 torch.cuda.empty_cache()
             image_index = 0

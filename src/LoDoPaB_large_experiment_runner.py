@@ -15,7 +15,7 @@ parser.add_argument("--samples", type=int, default=35820 )
 parser.add_argument("--image_path", type=str, default="src/data/limited-CT/data_png_train/")
 
 parser.add_argument("--validation_image_path", type=str, default="src/data/limited-CT/data_png_test/")
-parser.add_argument("--validation_image_count", type=int, default=100)
+parser.add_argument("--validation_image_count", type=int, default=3553)
 
 parser.add_argument("--use_wandb", action='store_true', default=False)
 parser.add_argument("--debug_plots", action='store_true', default=False)
