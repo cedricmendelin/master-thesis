@@ -62,10 +62,14 @@ for i in tqdm(range(validation_count)):
     "val_loss_reco_noisy" : loss_reco_noisy,
     "val_snr_reco_denoised" : find_SNR(t_validation_images[i],  reco_noisy),
     "val_snr_reco_noisy" : find_SNR(t_validation_images[i],  torch.from_numpy(reco_noisy)),
-    "val_reco_denoised" : wandb.Image(reco_noisy, caption="Reconstruction FBP"),
-    "val_reco_noisy" : wandb.Image(reco_noisy, caption="Reconstruction noisy"),
-    "val_clean" : wandb.Image(x_validation[i], caption="Original object")
   })
+
+  if i < 100:
+    wandb.log({
+      "val_reco_denoised" : wandb.Image(reco_noisy, caption="Reconstruction FBP"),
+      "val_reco_noisy" : wandb.Image(reco_noisy, caption="Reconstruction noisy"),
+      "val_clean" : wandb.Image(x_validation[i], caption="Original object")
+    })
 
 
 wandb.finish()
