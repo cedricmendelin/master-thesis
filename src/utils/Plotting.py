@@ -8,15 +8,31 @@ if(not plt.isinteractive):
 
 color_map = plt.cm.get_cmap('gray')
 reversed_color_map = color_map.reversed()
+font = {'family' : 'DejaVu Sans',
+        'weight' : 'bold',
+        'size'   : 14}
 
-def plot_imshow(data, title='', xlabel='', ylabel='', show=False, colorbar=True, aspect=None, c_map = reversed_color_map, size=(5,5)):
+matplotlib.rc('font', **font)
+
+def plot_imshow(data, title='', xlabel='', ylabel='', xticks=None, yticks=None, xlim=None, ylim=None, show=False, colorbar=True, aspect=None, c_map = reversed_color_map, size=(5,5)):
     plt.figure(figsize=size)
     plt.imshow(data, cmap=c_map, aspect=aspect)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    #plt.title(title)
+    plt.xlabel(xlabel, fontsize=18)
+    plt.ylabel(ylabel, fontsize=18)
+    if xlabel=='':
+        plt.axis('off')
     if colorbar:
         plt.colorbar()
+    if xticks != None:
+        plt.xticks = xticks
+    if yticks != None:
+        plt.yticks = yticks
+    if xlim != None:
+        plt.xlim = xlim
+    if ylim != None:
+        plt.ylim = ylim
+
     if show:
         plt.show()
 

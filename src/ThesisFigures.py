@@ -18,6 +18,12 @@ from utils.UNetModel import UNet
 torch.manual_seed(2022)
 np.random.seed(2022)
 
+font = {'family' : 'DejaVu Sans',
+        'weight' : 'bold',
+        'size'   : 14}
+
+matplotlib.rc('font', **font)
+
 
 def chapter_imaging_sinos():
   resolution = 400
@@ -32,12 +38,12 @@ def chapter_imaging_sinos():
   unet = UNet(nfilter=128).eval()
   unet.load_state_dict(checkpoint['model_state_dict'])    
 
-  radon, fbp =  setup_forward_and_backward(resolution, samples)
+  radon, fbp, pad =  setup_forward_and_backward(resolution, samples)
 
-  sino = radon(phantom)
+  sino = radon(phantom).data[:, resolution // 2:resolution //2 + resolution]
   sino_noisy = add_noise_np(snr, sino)
-  reconstruction = fbp(sino)
-  reconstruction_snr = fbp(sino_noisy)
+  reconstruction = fbp(pad(torch.from_numpy(sino)))
+  reconstruction_snr = fbp(pad(torch.from_numpy(sino_noisy)))
 
   reconstruction_fbp_unet = unet(
     torch.from_numpy(reconstruction_snr.data).view(-1, 1, resolution, resolution)).view(resolution, resolution).cpu().detach().numpy()
@@ -59,7 +65,16 @@ def chapter_graph_foundation_cricle_manifold():
   rng = default_rng()
   vals = rng.uniform(0, 2* np.pi, 200)
 
-  plot_2dscatter(np.cos(vals), np.sin(vals), title="Uniform sampled circle manifold", figsize=(5,5))
+  fig = plt.figure(figsize=(5,5))
+  
+  # Creating plot
+  plt.scatter(np.cos(vals), np.sin(vals), cmap='hsv')
+  plt.xticks([-1, -0.5,0,0.5,1])
+  plt.yticks([-1, -0.5,0,0.5,1])
+
+      
+
+
   plt.show()
 
 def chapter_graph_foundation_sphere_manifold():
@@ -126,10 +141,10 @@ def chapter_graph_foundation_manifolds_different_k():
   phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
-  radon, fbp =  setup_forward_and_backward(resolution, samples)
+  radon, fbp, pad =  setup_forward_and_backward(resolution, samples)
 
   # clean graph
-  sino = radon(phantom)
+  sino = radon(phantom).data[:, resolution // 2:resolution //2 + resolution]
   #n_neighbors = 2
   plt.figure(figsize=(10,10))
   
@@ -137,8 +152,13 @@ def chapter_graph_foundation_manifolds_different_k():
     eVec = get_embedding(sino, k, 2)
     plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
 
-  plt.legend([f"k-nn : {i}" for i in range(2,11)], loc='upper left')
-  plt.title("Manifold clean sinogram different k")
+  lgnd = plt.legend([f"k = {i}" for i in range(2,11)], loc='upper left')
+  for handle in lgnd.legendHandles:
+    handle.set_sizes([40.0])
+
+  # plt.title("Manifold clean sinogram different k")
+  plt.xticks([-0.08, -0.04, 0 , 0.04, 0.08])
+  plt.yticks([-0.08, -0.04, 0 , 0.04, 0.08])
 
   # sino_noisy = add_noise_np(snr, sino)
   # eVec = get_embedding(sino_noisy, 3, 2)
@@ -154,14 +174,16 @@ def chapter_graph_foundation_manifolds_clean():
   phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
-  radon, _ =  setup_forward_and_backward(resolution, samples)
+  radon, _, _=  setup_forward_and_backward(resolution, samples)
 
   # clean graph
-  sino = radon(phantom)
+  sino = radon(phantom).data[:, resolution // 2:resolution //2 + resolution]
   plt.figure(figsize=(10,10))
   eVec = get_embedding(sino, 2, 2)
   plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
-  plt.title("Manifold clean sinogram k = 2")
+  plt.xticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  plt.yticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  # plt.title("Manifold clean sinogram k = 2")
   plt.show()
 
 def chapter_graph_foundation_manifolds_noisy():
@@ -171,30 +193,39 @@ def chapter_graph_foundation_manifolds_noisy():
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
   snr = 20
-  radon, _ =  setup_forward_and_backward(resolution, samples)
+  radon, _,_ =  setup_forward_and_backward(resolution, samples)
 
   # clean graph
-  sino = radon(phantom)
+  sino = radon(phantom).data[:, resolution // 2:resolution //2 + resolution]
 
   sino_noisy = add_noise_np(snr, sino)
 
   plt.figure(figsize=(10,10))
   eVec = get_embedding(sino_noisy, 2, 2)
-  plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
-  plt.title(f"Manifold noisy sinogram k = 2, SNR={snr}dB")
+  plt.scatter(eVec[:, 0], eVec[:, 1], s=80, marker="o")
+  plt.xticks([-0.1, -0.08, -0.05 , -0.03, 0])
+  plt.yticks([-0.1, -0.08, -0.05 , -0.03, 0])
+  # plt.title(f"Manifold noisy sinogram k = 2, SNR={snr}dB")
 
   plt.figure(figsize=(10,10))
   eVec = get_embedding(sino_noisy, 4, 2)
   plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
-  plt.title(f"Manifold noisy sinogram k = 4, SNR={snr}dB")
+  plt.xticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  plt.yticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  # plt.title(f"Manifold noisy sinogram k = 4, SNR={snr}dB")
 
   plt.figure(figsize=(10,10))
-  plt.title("Manifold noisy sinogram different k")
+  # plt.title("Manifold noisy sinogram different k")
   for k in range(3,11):
     eVec = get_embedding(sino_noisy, k, 2)
     plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
 
-  plt.legend([f"k-nn : {i}" for i in range(3,11)], loc='upper left')
+  lgnd = plt.legend([f"k = {i}" for i in range(3,11)], loc='upper left')
+  for handle in lgnd.legendHandles:
+    handle.set_sizes([40.0])
+
+  plt.xticks([-0.08, -0.04, 0 , 0.04, 0.08])
+  plt.yticks([-0.08, -0.04, 0 , 0.04, 0.08])
 
   plt.show()
 
@@ -237,55 +268,63 @@ def sampling_sphere(samples):
 
 def chapter_graph_foundation_manifolds_clean_samples_importance():
   resolution = 200
-  samples = 500
-  samples_2 = 700
+  samples = 200
+  samples_2 = 500
   phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
-  radon, _ =  setup_forward_and_backward(resolution, samples)
-  radon2, _ =  setup_forward_and_backward(resolution, samples_2)
+  radon, _, _=  setup_forward_and_backward(resolution, samples)
+  radon2, _, _=  setup_forward_and_backward(resolution, samples_2)
 
   # clean graph
-  sino = radon(phantom)
+  sino = radon(phantom).data[:, resolution // 2:resolution //2 + resolution]
   plt.figure(figsize=(10,10))
   eVec = get_embedding(sino, 6, 2)
   plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
-  plt.title("Manifold clean sinogram k = 6, 500 samples")
+  plt.xticks([-0.1, -0.05, 0 , 0.05, 0.1])
+  plt.yticks([-0.1, -0.05, 0 , 0.05, 0.1])
+  # plt.title("Manifold clean sinogram k = 6, 500 samples")
   
    # clean graph
-  sino = radon2(phantom)
+  sino = radon2(phantom).data[:, resolution // 2:resolution //2 + resolution]
   plt.figure(figsize=(10,10))
   eVec = get_embedding(sino, 6, 2)
   plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
-  plt.title("Manifold clean sinogram k = 6, 700 samples")
+  plt.xticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  plt.yticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  # plt.title("Manifold clean sinogram k = 6, 700 samples")
   
   plt.show()
 
 def chapter_graph_foundation_manifolds_clean_resolution_importance():
   resolution_2 = 200
   resolution = 400
-  samples = 600
-  k = 5
+  samples = 500
+  k = 6
   phantom_original = shepp_logan_phantom()
   phantom = rescale(phantom_original, scale=resolution / phantom_original.shape[0], mode='reflect')
   phantom_2 = rescale(phantom_original, scale=resolution_2 / phantom_original.shape[0], mode='reflect')
 
-  radon, _ =  setup_forward_and_backward(resolution, samples)
-  radon2, _ =  setup_forward_and_backward(resolution_2, samples)
+  radon, _, _=  setup_forward_and_backward(resolution, samples)
+  radon2, _, _ =  setup_forward_and_backward(resolution_2, samples)
 
   # clean graph
-  sino = radon(phantom)
+  sino = radon(phantom).data[:, resolution // 2:resolution //2 + resolution]
   plt.figure(figsize=(10,10))
   eVec = get_embedding(sino, k, 2)
   plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
-  plt.title(f"Manifold clean sinogram k = {k}, resolution=400")
+  plt.xticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  plt.yticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  # plt.title(f"Manifold clean sinogram k = {k}, resolution={resolution}")
   
    # clean graph
-  sino = radon2(phantom_2)
+  sino = radon2(phantom_2).data[:, resolution_2 // 2:resolution_2 //2 + resolution_2]
   plt.figure(figsize=(10,10))
   eVec = get_embedding(sino, k, 2)
   plt.scatter(eVec[:, 0], eVec[:, 1], s=4, marker="o")
-  plt.title(f"Manifold clean sinogram k = {k}, resolution=200")
+  plt.xticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  plt.yticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  # plt.title(f"Manifold clean sinogram k = {k}, resolution={resolution_2}")
   
   plt.show()
 
@@ -293,9 +332,10 @@ def chapter_graph_foundation_manifolds_clean_resolution_importance():
 #chapter_imaging_sinos()
 #chapter_graph_foundation_cricle_manifold()
 #chapter_graph_foundation_sphere_manifold()
-#chapter_graph_foundation_manifolds_different_k()
+
+# chapter_graph_foundation_manifolds_different_k()
 #chapter_graph_foundation_manifolds_clean()
-#chapter_graph_foundation_manifolds_noisy()
-#chapter_graph_foundation_manifolds_clean_samples_importance
-#chapter_graph_foundation_manifolds_clean_resolution_importance()
-chapter_imaging_sinos()
+
+# chapter_graph_foundation_manifolds_noisy()
+# chapter_graph_foundation_manifolds_clean_samples_importance()
+chapter_graph_foundation_manifolds_clean_resolution_importance()
