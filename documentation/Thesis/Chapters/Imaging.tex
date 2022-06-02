@@ -1,7 +1,7 @@
 \chapter{Molecular Imaging Methods}
 \label{sec:imaging}
 
-In this chapter, molecular imaging methods \textit{computed tomography} and 
+In this Chapter, molecular imaging methods \textit{computed tomography} and 
 \textit{cryo-electron microscopy} (cryo-EM) will be introduced. 
 Further, their observation model is defined in a mathematic way and reconstruction is presented.
 Application of cryo-EM is a major motivation for this Thesis, 
@@ -60,9 +60,9 @@ with
 \paragraph{Observation illustration:}
 
 Data of Radon Transform is often called a \textit{sinogram}.
-In figure~\ref{fig:phantom} the Shepp-Logan phantom can be seen.
+In Figure~\ref{fig:phantom} the Shepp-Logan phantom can be seen.
 It is often used as an image for simulating a brain CT.
-Further, in figure~\ref{fig:phantom_sinogram} and figure~\ref{fig:phantom_sinogram_noisy} 
+Further, in Figure~\ref{fig:phantom_sinogram} and Figure~\ref{fig:phantom_sinogram_noisy} 
 observation sinograms can be seen with and without noise respectively. 
 To apply Radon Transform, parameter $\theta$ and $s$ need to be specified.
 In this case, $\theta \in \mathbb{R}^{500}$ was evenly spaced
@@ -74,13 +74,17 @@ Further, noise was added to reach a signal-to-noise-ratio (SNR) of 10dB.
     \label{fig:phantom_and_sinos}
     % \centering
     \hfill
-    \subbottom[Shepp-Logan phantom: $x$ \label{fig:phantom}]{\includegraphics[width=0.22\textwidth]{phantom.png}}
+    \subbottom[\label{fig:phantom}]{\includegraphics[width=0.3\textwidth]{phantom.png}}
     \hfill
-    \subbottom[Clean sinogram: $R(x, \theta, s) = p$   \label{fig:phantom_sinogram}]{\includegraphics[width=0.22\textwidth]{phantom_sino.png}}
+    \subbottom[\label{fig:phantom_sinogram}]{\includegraphics[width=0.3\textwidth]{phantom_sino.png}}
     \hfill
-    \subbottom[Noisy sinogram: $R(x, \theta, s) + \eta = y + \eta$ \label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.22\textwidth]{phantom_sino_noisy_snr10.png}}
+    \subbottom[\label{fig:phantom_sinogram_noisy}]{\includegraphics[width=0.3\textwidth]{phantom_sino_noisy_snr10.png}}
     \hfill
-	\caption{Shepp-Logan phantom and sinograms}
+	\caption{Shepp-Logan phantom and sinograms: \\
+    \ref{fig:phantom} Shepp-Logan phantom: $x$ \\
+    \ref{fig:phantom_sinogram} Clean sinogram: $R(x, \theta, s) = p$ \\
+    \ref{fig:phantom_sinogram_noisy} Noisy sinogram: $R(x, \theta, s) + \eta = y + \eta$ 
+    }
 \end{figure}
 
 \subparagraph{Filter Backprojection:}
@@ -101,16 +105,20 @@ The algorithm fails when working with noisy data~\cite{cryoEmMath2}, as it is no
     \label{fig:phantom_fbps}
     % \centering
     \hfill
-    \subbottom[Clean reconstruction: $\textit{FBP}(p, \theta, s)$  \label{fig:fbp_phantom}]{\includegraphics[width=0.24\textwidth]{fbp_phantom_clean.png}}
+    \subbottom[\label{fig:fbp_phantom}]{\includegraphics[width=0.3\textwidth]{fbp_phantom_clean.png}}
     \hfill
-    \subbottom[Noisy reconstruction: $\textit{FBP}(y, \theta, s)$ \label{fig:fbp_phantom_noisy}]{\includegraphics[width=0.24\textwidth]{fbp_phantom_snr_10.png}}
+    \subbottom[\label{fig:fbp_phantom_noisy}]{\includegraphics[width=0.3\textwidth]{fbp_phantom_snr_10.png}}
     \hfill
-    \subbottom[Noisy reconstruction: $\textit{UNet}(\textit{FBP}(y, \theta, s))$ \label{fig:fbp_unet_phantom_noisy}]{\includegraphics[width=0.24\textwidth]{fbp_unet_phantom_snr_10.png}}
+    \subbottom[\label{fig:fbp_unet_phantom_noisy}]{\includegraphics[width=0.3\textwidth]{fbp_unet_phantom_snr_10.png}}
     \hfill
-	\caption{Shepp-Logan FBP reconstructions}
+	\caption{Shepp-Logan FBP reconstructions: \\
+    \ref{fig:fbp_phantom} Clean reconstruction: $\textit{FBP}(p, \theta, s)$  \\
+    \ref{fig:fbp_phantom_noisy} Noisy reconstruction: $\textit{FBP}(y, \theta, s)$ \\
+    \ref{fig:fbp_unet_phantom_noisy} Noisy reconstruction: $\textit{UNet}(\textit{FBP}(y, \theta, s))$ 
+    }
 \end{figure}
 
-In figure~\ref{fig:fbp_phantom} and figure~\ref{fig:fbp_phantom_noisy} reconstruction can be seen from 
+In Figure~\ref{fig:fbp_phantom} and Figure~\ref{fig:fbp_phantom_noisy} reconstruction can be seen from 
 Shepp-Logan phantom sinogram (figure~\ref{fig:phantom_sinogram}) and its noisy version (figure~\ref{fig:phantom_sinogram_noisy}).
 The quality of noisy reconstruction is rather low, some important details are missing, and the noise dominates reconstruction.
 If more noise is present in $y$, reconstruction will be of even lower quality.
@@ -123,9 +131,9 @@ much better than only applying FBP, especially when dealing with noise.
 
 During practical part of the Thesis, U-Net was used and trained on lodopab-ct dataset~\cite{lodopab-dataset}, a brain CT dataset. 
 More details on U-Net and how it was used can be found in 
-chapter~\ref{sec:contribution} \textit{\nameref{sec:contribution}} and 
-chapter~\ref{sec:results} \textit{\nameref{sec:results}}.
-In figure~\ref{fig:fbp_unet_phantom_noisy}, reconstruction using FBP and U-Net can be seen.
+Chapter~\ref{sec:contribution} \textit{\nameref{sec:contribution}} and 
+Chapter~\ref{sec:results} \textit{\nameref{sec:results}}.
+In Figure~\ref{fig:fbp_unet_phantom_noisy}, reconstruction using FBP and U-Net can be seen.
 Quality of reconstruction is still not perfect, but overall noise is drastically decreased.
 
 
@@ -214,15 +222,20 @@ where
     \label{fig:cryo-em-omicron}
     % \centering
     \hfill
-    \subbottom[COVID-19 Omicron spike: $x$ \label{fig:omicron}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xsurface.jpeg}}
+    \subbottom[\label{fig:omicron}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xsurface.jpeg}}
     \hfill
-    \subbottom[Projection along x-axis: $p_1$   \label{fig:omicron-x}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xprojection.jpeg}}
+    \subbottom[\label{fig:omicron-x}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_xprojection.jpeg}}
     \hfill
-    \subbottom[Projection along y-axis: $p_2$  \label{fig:omicron-y}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_yprojection.jpeg}}
+    \subbottom[\label{fig:omicron-y}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_yprojection.jpeg}}
     \hfill
-    \subbottom[Projection along z-axis: $p_3$   \label{fig:omicron-z}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_zprojection.jpeg}}
+    \subbottom[\label{fig:omicron-z}]{\includegraphics[width=0.18\textwidth]{emd_32500.map_zprojection.jpeg}}
     \hfill
-	\caption{Cryo-EM reconstruction and clean projections of COVID-19 Omicron spike \protect\footnote{https://www.ebi.ac.uk/emdb/EMD-32500}}
+	\caption{Cryo-EM reconstruction and clean projections of COVID-19 Omicron spike \protect\footnote{https://www.ebi.ac.uk/emdb/EMD-32500}: \\
+    \ref{fig:omicron} COVID-19 Omicron spike: $x$ \\
+    \ref{fig:omicron-x} projection along x-axis: $p_1$ \\
+    \ref{fig:omicron-y} projection along y-axis: $p_2$  \\
+    \ref{fig:omicron-z} projection along z-axis: $p_3$ \\
+    }
 \end{figure}
 
 
@@ -230,10 +243,10 @@ where
 Equation~\ref{eq:cryoEmSimple} is a simplified version of cryo-EM.
 First, point spread function (PSF) of the microscope is not taken into account.
 Secondly, structural variety is ignored, the underlying object $x$ is not the same 
-for every observation as modelled in the equation. 
+for every observation as modelled in the Equation. 
 Precisely, $x$ can be seen as a random signal from an unknown distribution defined over all possible molecules structures.
 
-The equation can be extended and defined as the following:
+Equation can be extended and defined as the following:
 \begin{equation}
     \label{eq:cryoEmExtended}
     y_i = h_i \circ \Pi_z ( \textit{Rot} (x_i; \theta_i)) + \eta_i, \text{ with } 1 \leq i \leq N
@@ -258,7 +271,7 @@ As tomographic reconstruction and cryo-EM reconstruction are rather similar,
 goal of this Thesis will be to design an algorithm, that can be applied in both scenarios.
 
 Therefore, an abstract form of the problems will be defined.
-A similar notation than in previous chapters is used, with original object $x \in L^2(\Omega)$.
+A similar notation than previously is used, with original object $x \in L^2(\Omega)$.
 Further, original object dimension space is parametrized with $D$, consequently $\Omega \subset \mathbb{R}^D$.
 Additionally, dimension of observation space is defined as $D-1$, such that 
 $\tilde{\Omega} \subset \mathbb{R}^{D-1}$.
@@ -302,7 +315,7 @@ with
 \paragraph{Classical tomography:}
 
 Classical tomography parameters are defined with $D=2$, $P=1$.
-Further, $A(\cdot)$ is the Radon Transform (see equation~\ref{eq:2Dreconstruction}).
+Further, $A(\cdot)$ is the Radon Transform (see Equation~\ref{eq:2Dreconstruction}).
 Reconstruction operator can be defined as FBP (with or without U-Net\cite{unet-tomography}).
 
 \paragraph{Cryo-EM:}
@@ -321,4 +334,4 @@ But how can it be achieved?
 One idea would be to measure distances between observation.
 Another way is to find a low-dimensional embedding which maps our observations $y$ to some $\theta$.
 When talking from low-dimensional embeddings, there is no way around Graph Learning, which will be introduced
-in the following chapter~\ref{sec:graphFoundations} \textit{\nameref{sec:graphFoundations}}.
+in the following Chapter~\ref{sec:graphFoundations} \textit{\nameref{sec:graphFoundations}}.

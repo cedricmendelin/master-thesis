@@ -1,4 +1,5 @@
 % !TEX root = ../Thesis.tex
+\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
 \chapter{Mathematical tools}
 
 \section{signal-to-noise-ratio (SNR)}
@@ -44,7 +45,7 @@ To combine the single axis rotations, matrices can be multiplied with each other
     R (\theta) = R_{e_x} (\theta) R_{e_y} (\theta) R_{e_z} (\theta)
 \end{equation}
 
-In equation~\ref{eq:3d-rotation}, angle $\theta$ is the same for all axis, which does not have to be.
+In Equation~\ref{eq:3d-rotation}, angle $\theta$ is the same for all axis, which does not have to be.
 
 
 \section{Power Iterations}
@@ -63,3 +64,4 @@ The algorithm starts with a random vector $b_0$ or an approximation of the domin
 It will not necessarily converges. The algorithm will converge if $A$ has an eigenvalue strictly grater than its other eigenvalues
 and initial vector $b_0$ is not orthogonal to the eigenvector associated with the largest eigenvalue.
 
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}

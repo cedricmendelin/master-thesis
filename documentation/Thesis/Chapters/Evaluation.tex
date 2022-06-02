@@ -1,7 +1,7 @@
 \chapter{Results}
 \label{sec:results}
 
-In the current chapter, results of GAT-Denoiser are presented.
+In the current Chapter, results of GAT-Denoiser are presented.
 First, some small experiments are presented, which do not work on full dataset.
 These experiments have been done to find the best suitable architecture and to 
 familiarize with the problem and its structure.
@@ -45,13 +45,13 @@ First, \textit{Loss} is used, which refers to the mean $\ell$-2 distance between
 Second, \textit{SNR} is used, which refers to the SNR in dB of reconstruction, compared to original object.
 
 \paragraph{U-Net training:}
-As described in section~\ref{sec:unet} \nameref{sec:unet}, a U-Net will be part of our model.
+As described in Section~\ref{sec:unet} \textit{\nameref{sec:unet}}, a U-Net will be part of our model.
 Therefore, U-Net was pre-trained on the lodopab-ct training dataset, with 128 channels in the first contracting step. 
 In total, 4 steps have been computed, which results in 1024 channels as output of last contracting step.
 During training, noise was sampled from normal distribution to reach SNR in the interval $[0, -10]$ and was added to the observation (sinogram). 
 Further, model was trained for 200 iterations.
 
-In the current chapter, we will see how good u-net solely and combined in GAT-Denoiser will perform.
+In the current Chapter, we will see how good u-net solely and combined in GAT-Denoiser will perform.
 
 \paragraph{BM3D:}
 BM3D is a powerful and lightweight algorithm for image denoising. 
@@ -112,17 +112,22 @@ From SNR -5 to -15, U-Net performs best.
     \label{fig:baseline_small}
     % \centering
     \hfill
-    \subbottom[Clean test image]{\includegraphics[width=0.15\textwidth]{baseline_small_clean.png}}
+    \subbottom[\label{fig:test_clean}]{\includegraphics[width=0.15\textwidth]{baseline_small_clean.png}}
     \hfill
-    \subbottom[FBP reconstruction]{\includegraphics[width=0.15\textwidth]{baseline_small_fbp.png}}
+    \subbottom[\label{fig:test_fbp}]{\includegraphics[width=0.15\textwidth]{baseline_small_fbp.png}}
     \hfill
-    \subbottom[BM3D sinogram]{\includegraphics[width=0.15\textwidth]{baseline_small_bm3d_sino.png}}
+    \subbottom[\label{fig:test_bm3d_sino}]{\includegraphics[width=0.15\textwidth]{baseline_small_bm3d_sino.png}}
     \hfill
-    \subbottom[BM3D reconstruction]{\includegraphics[width=0.15\textwidth]{baseline_small_bm3d_reco.png}}
+    \subbottom[\label{fig:test_bm3d_reco}]{\includegraphics[width=0.15\textwidth]{baseline_small_bm3d_reco.png}}
     \hfill
-    \subbottom[U-Net reconstruction]{\includegraphics[width=0.15\textwidth]{baseline_small_unet.png}}
+    \subbottom[\label{fig:test_unet}]{\includegraphics[width=0.15\textwidth]{baseline_small_unet.png}}
     \hfill
-	\caption{Example test image baseline reconstructions for input SNR 0 dB}
+	\caption{Example test image baseline reconstructions for input SNR 0 dB:\\
+  \ref{fig:test_clean} clean test image \\
+  \ref{fig:test_fbp} FBP reconstruction \\
+  \ref{fig:test_bm3d_sino} BM3D sinogram \\
+  \ref{fig:test_bm3d_reco} BM3D reconstruction \\
+  \ref{fig:test_unet} U-Net reconstruction}
 \end{figure}
 
 
@@ -167,11 +172,11 @@ From SNR -5 to -15, U-Net performs best.
     \label{fig:input_graph_small}
     % \centering
     \hfill
-    \subbottom[\label{fig:small_experiment_clean2}]{\includegraphics[width=0.15\textwidth]{baseline_small_clean.png}}
+    \subbottom[\label{fig:small_experiment_clean2}]{\includegraphics[width=0.2\textwidth]{baseline_small_clean.png}}
     \hfill
-    \subbottom[\label{fig:small_experiment_random_graph}]{\includegraphics[width=0.15\textwidth]{random__graph_small_experiment.png}}
+    \subbottom[\label{fig:small_experiment_random_graph}]{\includegraphics[width=0.22\textwidth]{random__graph_small_experiment.png}}
     \hfill
-    \subbottom[\label{fig:small_experiment_knn_graph}]{\includegraphics[width=0.15\textwidth]{knn__graph_small_experiment.png}}
+    \subbottom[\label{fig:small_experiment_knn_graph}]{\includegraphics[width=0.2\textwidth]{knn__graph_small_experiment.png}}
     \hfill
 	\caption{Example test image reconstructions for different input graphs:\\
   Where \ref{fig:small_experiment_clean2} is clean object, 

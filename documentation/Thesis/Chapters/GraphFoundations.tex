@@ -2,7 +2,7 @@
 \label{sec:graphFoundations}
     
 
-The following chapter establishes connection between graphs and denoising in high-noise 
+The following Chapter establishes connection between graphs and denoising in high-noise 
 domains, such as cryo-EM.
 First, a broad definition of graphs is given and further, the term "Graph Denoising" is
 introduced and explained. Finally, link to Graph Laplacian, Manifolds and molecular imaging methods is established.
@@ -11,7 +11,7 @@ introduced and explained. Finally, link to Graph Laplacian, Manifolds and molecu
 Real world data can be in graph structure, like social networks, citation networks,
 protein interaction networks or a simple google search. 
 If data is not available in graph structure, a graph can be artificially constructed with methods like k-nearest neighbors (k-NN) or others.
-A general framework for graph construction is introduced in section~\ref{sec:graphConstruction} \textit{\nameref{sec:graphConstruction}}.
+A general framework for graph construction is introduced in Section~\ref{sec:graphConstruction} \textit{\nameref{sec:graphConstruction}}.
 
 \paragraph{Graph Learning:} Graph Learning is a prominent research area and got a lot of attention in recent years.
 It is a way of applying ML on graphs and algorithms that have emerged emerged from ML but also other fields.
@@ -98,7 +98,7 @@ $M$ is again observation dimension.
 Further, $|V|=N$ where $N$ is the number of observations, which defines how many projections from different
 angles $\theta$ are within the observation.
 
-Finally, to apply equation~\ref{eq:graphConstruction} similarity measure $dist$ needs to be defined.
+Finally, to apply Equation~\ref{eq:graphConstruction} similarity measure $dist$ needs to be defined.
 For computed tomography, a distance measure between observations can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
 For cryo-EM it is more challenging, as projections are drawn with some random 3D rotation and projection, 
 it can happen that two samples are equivalent up to 2D rotation. 
@@ -114,7 +114,7 @@ Now, everything is available to create a graph from a molecular-imaging observat
 \section{Graph Denoising definition}
 
 First, \textit{Graph Denoising} is not a common term in literature.
-In previous section, graphs based on noisy observations were introduced and goal is to denoise these graphs,
+In previous Section, graphs based on noisy observations were introduced and goal is to denoise these graphs,
 which means to estimate original graph $G$ from a given noisy graph $G_0$. 
 This is our definition for Graph Denoising, which is rather related to signal or image denoising.
 Reconstruction of a true signal given noisy observation signal is done via averaging, that can be performed
@@ -155,7 +155,7 @@ $E^{\prime} \subseteq U$.
 \end{tcolorbox}
 
 \subsection{Non-local means:}
-In the following section, a short introduction to the 
+In the following Section, a short introduction to the 
 state-of-the-art image denoising method non-local means is given \cite{noneLocalMean}.
 For a given noisy image $v$, the denoised image is defined as $NL[v](i) = \sum{w(i,j) \; v(j)}$,
 where $w(i,j)$ is the weight between pixel $i$ and $j$. 
@@ -220,19 +220,23 @@ $\mathbb{R}^D$ to low-dimensional space $\mathbb{R}^d$.
 
 Let's give two popular examples of manifolds, namely \textit{circle} and \textit{sphere}.
 The circle is a 1D manifold, where $d=1$ and $D=2$. A sphere is a 2D manifold, with $d=2$ and $D=3$.
-In figure~\ref{fig:circle_sampling}, 200 samples are drawn from a uniform distribution of unit-circle manifold
-and in figure~\ref{fig:sphere_sampling}, 800 samples are drawn from a uniform distribution of unit-sphere manifold,
+In Figure~\ref{fig:circle_sampling}, 200 samples are drawn from a uniform distribution of unit-circle manifold
+and in Figure~\ref{fig:sphere_sampling}, 800 samples are drawn from a uniform distribution of unit-sphere manifold,
 as well as the sphere itself.
 
 \begin{figure}[H]
-    \centering
-    \subbottom[Circle samples
+    \hfill
+    \subbottom[
         \label{fig:circle_sampling}]
         {\includegraphics[width=0.4\textwidth]{circle_sampling.png}}
-    \subbottom[Sphere samples      
+    \hfill
+        \subbottom[      
     \label{fig:sphere_sampling}]
-        {\includegraphics[width=0.4\textwidth]{sphere_sampling.png}}
-    \caption{Samples drawn from 1D and 2D manifold.}
+        {\includegraphics[width=0.42\textwidth]{sphere_sampling.png}}
+    \hfill
+        \caption{Samples drawn from 1D and 2D manifold: \\
+    Circle samples \ref{fig:circle_sampling} \\
+    Sphere samples samples \ref{fig:sphere_sampling}}
 \end{figure}
 
 One popular algorithm for calculating manifolds is diffusion maps \cite{diffusionMaps}, 
@@ -259,8 +263,8 @@ A simple low-dimensional embedding (manifold) of a dataset can be calculated wit
 by the following:
 
 \begin{enumerate}
-    \item Construct k-NN graph from observations (see section~\ref{sec:graphConstruction} \textit{\nameref{sec:graphConstruction}}).
-    \item Calculate the (normalized) Graph Laplacian (see equation~\ref{eq:gl}).
+    \item Construct k-NN graph from observations (see Section~\ref{sec:graphConstruction} \textit{\nameref{sec:graphConstruction}}).
+    \item Calculate the (normalized) Graph Laplacian (see Equation~\ref{eq:gl}).
     \item Extract the second, third (and fourth) the smallest eigenvectors.
 \end{enumerate}
 
@@ -269,12 +273,12 @@ by the following:
 As a tool for GL-manifold calculation is established, it can be observed how the GL-manifold of classical tomography and cryo-EM objects look like.
 In the following, Shepp-Logan phantom is again used as an example of classical tomography
 and the low-dimensional embedding is calculated from sinogram, following instructions from 
-section~\ref{sec:manifold_calculation} \textit{\nameref{sec:manifold_calculation}}.
+Section~\ref{sec:manifold_calculation} \textit{\nameref{sec:manifold_calculation}}.
 
 Radon Transform, parameters $\theta$ and $s$ where specified as $\theta \in \mathbb{R}^{500}$ as evenly spaced
 between $[0, 2 \pi]$ and $dim(s) = 200$. 
 
-In figure~\ref{fig:clean_manifold}, GL-manifold calculated from clean sinogram and $k=2$ can be seen.
+In Figure~\ref{fig:clean_manifold}, GL-manifold calculated from clean sinogram and $k=2$ can be seen.
 GL-manifold looks like a perfect circle. Further, noise was added to the sinogram 
 to reach SNR 20dB and GL-manifold was computed with $k=2$, which failed (figure~\ref{fig:noisy_manifold_k2}).
 But, if neighborhood is not too strictly defined and k is increased to 4, GL-manifold looks more circle like again
@@ -283,16 +287,20 @@ But, if neighborhood is not too strictly defined and k is increased to 4, GL-man
 \begin{figure}[H]
     \centering
     \hfill
-    \subbottom[Clean sinogram manifold, k=2 \label{fig:clean_manifold}]
-        {\includegraphics[width=0.22\textwidth]{phaton_clean_manifold.png}}
+    \subbottom[\label{fig:clean_manifold}]
+        {\includegraphics[width=0.3\textwidth]{phaton_clean_manifold.png}}
         \hfill
-    \subbottom[Noisy sinogram manifold, k=2 \label{fig:noisy_manifold_k2}]
-        {\includegraphics[width=0.22\textwidth]{phaton_noisy_manifold_k2.png}}
+    \subbottom[\label{fig:noisy_manifold_k2}]
+        {\includegraphics[width=0.3\textwidth]{phaton_noisy_manifold_k2.png}}
     \hfill
-    \subbottom[Noisy sinogram manifold, k=4 \label{fig:noisy_manifold_k4}]
-            {\includegraphics[width=0.22\textwidth]{phaton_noisy_manifold_k4.png}}
+    \subbottom[\label{fig:noisy_manifold_k4}]
+            {\includegraphics[width=0.3\textwidth]{phaton_noisy_manifold_k4.png}}
     \hfill
-    \caption{Shepp-Logan phantom sinogram manifolds.}
+    \caption{Shepp-Logan phantom sinogram manifolds: \\
+    \ref{fig:clean_manifold} clean sinogram manifold, k=2 \\
+    \ref{fig:noisy_manifold_k2} noisy sinogram manifold, k=2 \\
+    \ref{fig:noisy_manifold_k4} noisy sinogram manifold, k=4
+    }
 \end{figure}
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
@@ -311,22 +319,27 @@ K is an important parameter for building up a graph. If set too low, neighbors
 do not capture similar data well as too few nodes are connected. 
 Further, if k is set too high, strength of a neighbor 
 is weakened and data is not well explained as well.
-In figure~\ref{fig:clean_manifolds}, GL-manifold computed by clean sinogram and k from 2 to 10 is illustrated.
+In Figure~\ref{fig:clean_manifolds}, GL-manifold computed by clean sinogram and k from 2 to 10 is illustrated.
 One can see, that from $k <= 4$ GL-manifold results in a perfect circle and with $k >  4$ is moves 
 further away from the circle. 
 
 
 \begin{figure}[H]
     \centering
-    \subbottom[Clean sinogram GL-manifolds \label{fig:clean_manifolds}]
+    \hfill
+    \subbottom[\label{fig:clean_manifolds}]
         {\includegraphics[width=0.45\textwidth]{phaton_clean_manifold_kdifferent.png}}
-    \subbottom[Noisy sinogram GL-manifolds \label{fig:noisy_manifolds}]
+    \hfill
+    \subbottom[\label{fig:noisy_manifolds}]
         {\includegraphics[width=0.45\textwidth]{phaton_noisy_manifold_kdifferent.png}}
-    \caption{Shepp-Logan phantom sinogram manifolds.}
+    \hfill
+    \caption{Shepp-Logan phantom sinogram manifolds: \\
+    \ref{fig:clean_manifolds} clean sinogram GL-manifolds \\
+    \ref{fig:noisy_manifolds} noisy sinogram GL-manifolds}
 \end{figure}
 
 If data is noisy, it is expected to be harder to construct a meaningful GL-manifold, as some connections within
-the graph will be noisy. This is exactly what is illustrated in figure~\ref{fig:clean_manifolds}, where 
+the graph will be noisy. This is exactly what is illustrated in Figure~\ref{fig:clean_manifolds}, where 
 different GL-manifold for noisy sinogram (SNR=20dB) and k from 3 to 10 are illustrated.
 GL-manifold can never express the true data with a perfect circle. As noise is chosen rather moderate, GL-manifold has still some 
 power to express underlying data and is expected to decrease, if noise is increased.
@@ -337,36 +350,46 @@ and $dim(s)$ defines the amount of sampling points. Both have great impact to ex
 
 \begin{figure}[H]
     \centering
-    \subbottom[Clean sinogram GL-manifold, k = 6 and 500 samples \label{fig:clean_manifold_500}]
-        {\includegraphics[width=0.25\textwidth]{phaton_clean_manifold_500_k6.png}}
-    \subbottom[Clean sinogram GL-manifold, k = 6 and 700 samples \label{fig:clean_manifold_700}]
-        {\includegraphics[width=0.25\textwidth]{phaton_clean_manifold_700_k6.png}}
-    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.}
+    \hfill
+    \subbottom[\label{fig:clean_manifold_200}]
+        {\includegraphics[width=0.3\textwidth]{phaton_clean_manifold_200_k6.png}}
+    \hfill
+    \subbottom[\label{fig:clean_manifold_500}]
+        {\includegraphics[width=0.3\textwidth]{phaton_clean_manifold_500_k6.png}}
+    \hfill
+    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples. \\
+    \ref{fig:clean_manifold_200} clean sinogram GL-manifold, k = 6 and 200 samples \\
+    \ref{fig:clean_manifold_500} clean sinogram GL-manifold, k = 6 and 500 samples}
 \end{figure}
 
-In figure~\ref{fig:clean_manifold_500} GL-manifold with $\theta \in \mathbb{R}^{500}$ and k=6 is illustrated
+In Figure~\ref{fig:clean_manifold_200} GL-manifold with $\theta \in \mathbb{R}^{200}$ and k=6 is illustrated
 for clean sinogram. It looks like 6 are too many neighbors, as the perfect circle cannot be established anymore.
-But, if $\theta$ is increased $\theta \in \mathbb{R}^{700}$, more nodes are available to choose good neighbors from
-and a perfect circle can be established (figure~\ref{fig:clean_manifold_700}).
+But, if $\theta$ is increased $\theta \in \mathbb{R}^{500}$, more nodes are available to choose good neighbors from
+and a perfect circle can be established (figure~\ref{fig:clean_manifold_500}).
 
 \begin{figure}[H]
     \centering
-    \subbottom[Clean sinogram GL-manifold, k = 5 and resolution=200 \label{fig:clean_manifold_res200}]
-        {\includegraphics[width=0.25\textwidth]{phaton_clean_manifold_res_200_k5.png}}
-    \subbottom[Clean sinogram GL-manifold, k = 5 and resolution=400 \label{fig:clean_manifold_res400}]
-        {\includegraphics[width=0.25\textwidth]{phaton_clean_manifold_res_400_k5.png}}
-    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.}
+    \hfill
+    \subbottom[\label{fig:clean_manifold_res200}]
+        {\includegraphics[width=0.3\textwidth]{phaton_clean_manifold_res_200_k6.png}}
+    \hfill
+    \subbottom[\label{fig:clean_manifold_res400}]
+        {\includegraphics[width=0.3\textwidth]{phaton_clean_manifold_res_400_k6.png}}
+    \hfill
+    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples. \\
+    \ref{fig:clean_manifold_res200} Clean sinogram GL-manifold, k = 6 and resolution=200 \\
+    \ref{fig:clean_manifold_res400} Clean sinogram GL-manifold, k = 6 and resolution=400}
 \end{figure}
 
 Moreover, the number of sampling points is important as well.
 Here, for more sampling points it is expected to be harder to come up with good neighbors (fixing k and number of samples),
-as more data need to be explained with the same amount of samples and neighbors, and it is more likely, that nodes are connected wrongly.
-This can be seen in figure~\ref{fig:clean_manifold_res200} and figure~\ref{fig:clean_manifold_res400}, where with $dim(s) = 200$,
-the perfect circle can be established and with $dim(s) = 400$, not anymore (by same parameter k = 5 and $\theta \in \mathbb{R}^{500}$).
+as more data need to be explained with the same amount of neighbors, and it is more likely, that nodes are connected wrongly.
+This can be seen in Figure~\ref{fig:clean_manifold_res200} and Figure~\ref{fig:clean_manifold_res400}, where with $dim(s) = 200$,
+the perfect circle can be established and with $dim(s) = 400$, not anymore (by same parameter k = 6 and $\theta \in \mathbb{R}^{500}$).
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     As with the last plots illustrated, the GL-manifold is pretty sensitive.
-    Therefore, it is best practice to try different parameters (k) for finding the best 
+    Therefore, it is best practice to try different parameter $k$ for finding the best 
     GL-manifold.
 \end{tcolorbox}
 
