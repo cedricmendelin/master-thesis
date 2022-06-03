@@ -24,7 +24,6 @@ test_data = "src/data/limited-CT/data_png_test/"
 validation_files = os.listdir(test_data)
 
 RESOLUTION = 64
-validation_count = 100
 N = 1024
 
 import argparse
@@ -48,6 +47,7 @@ parser.add_argument("--unet_refinement", action='store_true', default=False)
 parser.add_argument("--unet_path", type=str, default="models/unet.pt")
 
 parser.add_argument("--validation_snrs", nargs="+", type=int, default=[0])
+parser.add_argument("--validation_image_count", type=int, default=100)
 
 parser.add_argument("--k_nn", type=int, default=8)
 parser.add_argument("--batch_size", type=int, default=256)
@@ -59,7 +59,7 @@ parser.add_argument("--run_name", type=str, default="Blub Validation")
 parser.add_argument("--wandb_project", type=str, default="Some Test Validation")
 args = parser.parse_args()
 
-
+validation_count = args.validation_image_count
 x_validation = load_images_files_rescaled(test_data, validation_files, RESOLUTION, RESOLUTION, number=validation_count, num_seed=5, circle_padding=True)
 
 model_state = torch.load(args.model_state_path)
