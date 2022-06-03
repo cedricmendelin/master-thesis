@@ -156,7 +156,7 @@ $E^{\prime} \subseteq U$.
 
 \subsection{Non-local means:}
 In the following Section, a short introduction to the 
-state-of-the-art image denoising method non-local means is given \cite{noneLocalMean}.
+state-of-the-art image denoising method non-local means (NLM)~\cite{noneLocalMean} is given .
 For a given noisy image $v$, the denoised image is defined as $NL[v](i) = \sum{w(i,j) \; v(j)}$,
 where $w(i,j)$ is the weight between pixel $i$ and $j$. 
 Weights can be seen as a similarity measure of pixels, which are calculated over square neighborhoods.
@@ -173,18 +173,18 @@ as a data structure for denoising, as graphs can represent neighborhoods really 
 \label{sec:graph_depp_learning}
 As already mentioned, Graph Denoising can be seen as a way of link predication. 
 The state-of-the-art method for solving link prediction are \textit{Graph Deep Learning} approaches.
-Graph Deep Learning is a fast evolving field in research. With Graph Neural Networks (GNN) \cite{GNN} the framework
+Graph Deep Learning is a fast evolving field in research. With Graph Neural Networks (GNN)~\cite{GNN} the framework
 for neural networks with graphs has been established. 
 
-Using Graph Convolutional Networks (GCN) \cite{GCN} for graph feature extraction is a popular way. 
+Using Graph Convolutional Networks (GCN)~\cite{GCN} for graph feature extraction is a popular way. 
 With GCN a new feature representation is iteratively learned for node features (edge features are not considered).
 It can be seen as an averaging of nodes over their neighborhood where all neighbors get the same weight combined with some non-linear activation (e.g. ReLu). 
-To consider node itself in averaging, \cite{GCN} apply the so-called "Renormalization trick", where self-loops are added to the 
+To consider node itself in averaging, \citet{GCN} applies the so-called "Renormalization trick", where self-loops are added to the 
 adjacency matrix and after every layer, a normalization step is applied. 
 The topology of the graph will not be adjusted during learning process.
 
 \citet{GAT} extended the concept of GCN with attention and not all neighboring nodes get the same weight (attention).
-Simple Graph Convolutional Network \cite{simpleGCN} proposed a simplified version of GCN.
+Simple Graph Convolutional Network~\cite{simpleGCN} proposed a simplified version of GCN.
 They could verify their hypothesis that GCN is dominated by local averaging step and non-linear 
 activation function between layers do not contribute too much to the success of GCN. 
 Therefore, it can be seen as a way of power iteration (see \ref{sec:powerIterations} \textit{\nameref{sec:powerIterations}} for further information) over the adjacency matrix with normalization in every layer.
@@ -239,11 +239,11 @@ as well as the sphere itself.
     Sphere samples samples \ref{fig:sphere_sampling}}
 \end{figure}
 
-One popular algorithm for calculating manifolds is diffusion maps \cite{diffusionMaps}, 
+One popular algorithm for calculating manifolds is diffusion maps~\cite{diffusionMaps}, 
 which is a non-linear approach for calculating low-dimensional manifolds
 for (high-dimensional) datasets, using Graph Laplacian.
-Vector diffusion maps \cite{vectorDiffusionMaps} generalize the concept of diffusion maps for vector fields.
-Multi-frequency vector diffusion maps \cite{multiDiffusionMaps} 
+Vector diffusion maps~\cite{vectorDiffusionMaps} generalize the concept of diffusion maps for vector fields.
+Multi-frequency vector diffusion maps~\cite{multiDiffusionMaps} 
 can be seen as an extension to vector diffusion maps, which works well even on highly noisy environments.
 \citet{cryoEmMutliDM} successfully applied multi-frequency vector diffusion Maps in cryo-EM setting,
  where it was used for denoising purpose.

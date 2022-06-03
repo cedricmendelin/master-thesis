@@ -1,12 +1,12 @@
 % !TEX root = ../Thesis.tex
 \addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
-\chapter{Mathematical tools}
+\chapter{Appendix}
 
-\section{signal-to-noise-ratio (SNR)}
+\subsection{signal-to-noise-ratio (SNR)}
 
 \textbf{TODO:}
 
-\section{3D rotation matrix}
+\subsection{3D rotation matrix}
 \label{app:3DrotationMatrix}
 A rotation matrix is a transformation matrix used to perform rotations.
 In 3D case, matrix for rotating one single axis can be described as:
@@ -48,11 +48,11 @@ To combine the single axis rotations, matrices can be multiplied with each other
 In Equation~\ref{eq:3d-rotation}, angle $\theta$ is the same for all axis, which does not have to be.
 
 
-\section{Power Iterations}
+\subsection{Power Iterations}
 \label{sec:powerIterations}
 
 Power iteration, also called power method, is an iterative method
-that approximates largest eigenvalue of a diagonalizable matrix $A$.
+that approximates the largest eigenvalue of a diagonalizable matrix $A$.
 
 The algorithm starts with a random vector $b_0$ or an approximation of the dominant eigenvector.
 
@@ -63,5 +63,41 @@ The algorithm starts with a random vector $b_0$ or an approximation of the domin
 
 It will not necessarily converges. The algorithm will converge if $A$ has an eigenvalue strictly grater than its other eigenvalues
 and initial vector $b_0$ is not orthogonal to the eigenvector associated with the largest eigenvalue.
+
+\section{Small Experiment: additional results}
+
+\textbf{TODO: Add Loss? cut numbers}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l|c|c|c|c}
+      \toprule
+      \textbf{Algorithm} & \snrh{ 0} & \snrh{ -5} & \snrh{ -10} & \snrh{ -15} \\
+                         & \textbf{SNR} & \textbf{SNR} & \textbf{SNR}  & \textbf{SNR} \\ 
+      \midrule
+      FBP&4.80&-0.017&-4.96&-9.94 \\ \hline
+      U-Net &9.03&8.17&6.06&3.10 \\ \hline
+      BM3D Reco& 10.15&6.81&2.88&-1.42 \\ \hline
+      BM3D Sino&9.30&6.14&2.93&-0.50 \\ \hline
+      GAT&8.61&7.32&5.86&4.50 \\ \hline
+      Conv + GAT&9.08&8.27&7.51&5.88 \\ \hline
+      Gat + Unet&8.72&7.72&7.01&5.48 \\ \hline
+      Gat + Unet*&12.86&11.52&10.84&8.94 \\ \hline
+      Conv + Gat + Unet&8.75&7.34&6.14&5.15 \\ \hline
+      Conv + Gat + Unet*&12.10&10.33&8.58&7.06 \\
+      \midrule
+    \end{tabular}
+  
+    \caption{Small Experiment: overall GAT-Denoiser components vs. Baseline}
+    \label{tab:baseline-large}
+  \end{table}
+  
+  
+  
+
+\subsection{GAT-Denoiser components}
+
+\section{Large Experiment: additional results}
+
 
 \addtocontents{toc}{\protect\setcounter{tocdepth}{2}}

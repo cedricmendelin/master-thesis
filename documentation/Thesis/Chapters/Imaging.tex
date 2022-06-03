@@ -14,7 +14,7 @@ first step to make an algorithm work for cryo-EM.
 \section{Computed tomography}
 Computed tomography (CT) is a well established molecular imaging method.
 Using X-ray source, fan shaped beams are produced which scan the imaging object.
-During scanning, many observations are collected, all taken over straight lines \cite{computedTomography}.
+During scanning, many observations are collected, all taken over straight lines (for further details \cite{computedTomography}).
 From these observations, original object can be reconstructed.
 
 \paragraph{Tomography reconstruction:}
@@ -88,7 +88,7 @@ Further, noise was added to reach a signal-to-noise-ratio (SNR) of 10dB.
 \end{figure}
 
 \subparagraph{Filter Backprojection:}
-Filter Backprojection \cite{tomographicReconstruction} (FBP), 
+Filter Backprojection~\cite{tomographicReconstruction} (FBP), 
 is a reconstruction method, typically used in classical tomography.
 It allows to inverse the Radon Transform and enables reconstruction of the original object $x$.
 It can be defined as:
@@ -139,7 +139,7 @@ Quality of reconstruction is still not perfect, but overall noise is drastically
 
 \section{Cryo-EM}
 Cryo-EM is another molecular imaging method, that enables the view of molecules in near-atomic resolution.
-In this Master's Thesis, for simplicity, only single-particle cryo-EM \cite{singleParticleCryoEm} is considered, 
+In this Master's Thesis, for simplicity, only single-particle cryo-EM~\cite{singleParticleCryoEm} is considered, 
 when writing about cryo-EM it always refers to single-particle cryo-EM.
 
 During imaging process molecules are frozen in a thin layer of ice, where they are randomly oriented and positioned. 
@@ -160,7 +160,7 @@ It can be seen as a 3D problem as the original object $x \in L^2(\Omega)$ to be 
 Based on many observed micrographs, collected by the electron microscope, original object $x$ will be estimated.
 
 Cryo-EM reconstruction is computational intensive and multiple steps are needed to get from observed
-raw data to the final structure (for further details \cite{singleParticleCryoEm} can be consulted).
+raw data to the final structure (for further details \cite{singleParticleCryoEm}).
 
 
 \paragraph{3D cryo-EM observation:}

@@ -260,7 +260,7 @@ averaging with 1 head is applied.
 
 
 \subsection{Training}
-
+\label{sec:contr_training}
 As already mentioned, an end-to-end learning approach is used where quality of reconstruction is 
 compared in the loss.
 
@@ -268,6 +268,7 @@ Therefore, the outcome of GAT-Denoiser is not directly part of the loss, but fir
 Reconstructions can be nicely compared with the $\ell2$-norm:
 
 \begin{equation}
+  \label{eq:loss_reco}
   \mathcal{L} = \parallel x_i - \textit{Recon} ( \textit{GAT-Denoiser}(A(x_i, \theta, s) + \eta)) \parallel ^2_2
 \end{equation}
 

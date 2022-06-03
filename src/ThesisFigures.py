@@ -328,6 +328,43 @@ def chapter_graph_foundation_manifolds_clean_resolution_importance():
   
   plt.show()
 
+import csv
+def chapter_results_small_overall_compoents():
+  csv_file_name = "src/small_components.csv"
+  import csv
+
+  size = 10
+  results = np.zeros((size,4))
+  result_names = []
+
+  x = [0, -5, -10, -15]
+  
+  with open(csv_file_name, mode='r') as csv_file:
+    csv_reader = csv.DictReader(csv_file, delimiter = ";")
+    line_count = 0
+    for row in csv_reader:
+      if line_count == 0:
+        print(f'Column names are {", ".join(row)}')
+        line_count += 1
+
+      result_names.append(row['Model/algortihm'])
+      results[line_count - 1] = np.array([row['0'], row['-5'], row['-10'], row['-15']])
+      #results[line_count - 1] = np.array([row['-15'], row['-10'], row['-5'], row['0']])
+      line_count += 1
+
+  fig = plt.figure(figsize=(14,7))
+
+  for i in range(size):
+    plt.plot(x, results[i], marker='s')
+
+  plt.xticks([-15,-10,-5,0])
+  plt.yticks([-5,0,5, 7.5, 10, 12.5])
+  plt.ylim([-5, 14])
+  plt.xlabel("$SNR_y$")
+  plt.ylabel("$SNR$")
+  plt.xlim([-16, 1])
+  plt.legend(result_names)
+  plt.show()
 
 #chapter_imaging_sinos()
 #chapter_graph_foundation_cricle_manifold()
@@ -338,4 +375,6 @@ def chapter_graph_foundation_manifolds_clean_resolution_importance():
 
 # chapter_graph_foundation_manifolds_noisy()
 # chapter_graph_foundation_manifolds_clean_samples_importance()
-chapter_graph_foundation_manifolds_clean_resolution_importance()
+chapter_results_small_overall_compoents()
+  
+
