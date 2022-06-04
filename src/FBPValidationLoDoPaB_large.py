@@ -58,7 +58,7 @@ for i in tqdm(range(validation_count)):
     "val_idx" : i,
     "val_loss_sino_noisy" : loss_sino_noisy,
     "val_snr_sino_noisy" : find_SNR(sinos[i],  noisy_sinos[i]),
-    "val_loss_reco_denoised" : loss_sino_noisy,
+    "val_loss_reco_denoised" : loss_reco_noisy,
     "val_loss_reco_noisy" : loss_reco_noisy,
     "val_snr_reco_denoised" : find_SNR(t_validation_images[i],  reco_noisy),
     "val_snr_reco_noisy" : find_SNR(t_validation_images[i],  torch.from_numpy(reco_noisy)),
