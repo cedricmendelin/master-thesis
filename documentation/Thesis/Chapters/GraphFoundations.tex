@@ -154,7 +154,7 @@ $E^{\prime} \subseteq U$.
     One could also say that link prediction problems are a subset of graph denoising problems.
 \end{tcolorbox}
 
-\subsection{Non-local means:}
+\paragraph{Non-local means:}
 In the following Section, a short introduction to the 
 state-of-the-art image denoising method non-local means (NLM)~\cite{noneLocalMean} is given .
 For a given noisy image $v$, the denoised image is defined as $NL[v](i) = \sum{w(i,j) \; v(j)}$,
@@ -234,9 +234,9 @@ as well as the sphere itself.
     \label{fig:sphere_sampling}]
         {\includegraphics[width=0.42\textwidth]{sphere_sampling.png}}
     \hfill
-        \caption{Samples drawn from 1D and 2D manifold: \\
-    Circle samples \ref{fig:circle_sampling} \\
-    Sphere samples samples \ref{fig:sphere_sampling}}
+        \caption{Samples drawn from 1D and 2D manifold: 
+    \ref{fig:circle_sampling} circle samples,
+    \ref{fig:sphere_sampling} sphere samples}
 \end{figure}
 
 One popular algorithm for calculating manifolds is diffusion maps~\cite{diffusionMaps}, 
@@ -296,10 +296,10 @@ But, if neighborhood is not too strictly defined and k is increased to 4, GL-man
     \subbottom[\label{fig:noisy_manifold_k4}]
             {\includegraphics[width=0.3\textwidth]{phaton_noisy_manifold_k4.png}}
     \hfill
-    \caption{Shepp-Logan phantom sinogram manifolds: \\
-    \ref{fig:clean_manifold} clean sinogram manifold, k=2 \\
-    \ref{fig:noisy_manifold_k2} noisy sinogram manifold, k=2 \\
-    \ref{fig:noisy_manifold_k4} noisy sinogram manifold, k=4
+    \caption{Shepp-Logan phantom sinogram manifolds:
+    \ref{fig:clean_manifold} clean sinogram manifold $k=2$,
+    \ref{fig:noisy_manifold_k2} noisy sinogram manifold $k=2$,
+    \ref{fig:noisy_manifold_k4} noisy sinogram manifold $k=4$
     }
 \end{figure}
 
@@ -333,8 +333,8 @@ further away from the circle.
     \subbottom[\label{fig:noisy_manifolds}]
         {\includegraphics[width=0.45\textwidth]{phaton_noisy_manifold_kdifferent.png}}
     \hfill
-    \caption{Shepp-Logan phantom sinogram manifolds: \\
-    \ref{fig:clean_manifolds} clean sinogram GL-manifolds \\
+    \caption{Shepp-Logan phantom sinogram manifolds:
+    \ref{fig:clean_manifolds} clean sinogram GL-manifolds,
     \ref{fig:noisy_manifolds} noisy sinogram GL-manifolds}
 \end{figure}
 
@@ -357,9 +357,9 @@ and $dim(s)$ defines the amount of sampling points. Both have great impact to ex
     \subbottom[\label{fig:clean_manifold_500}]
         {\includegraphics[width=0.3\textwidth]{phaton_clean_manifold_500_k6.png}}
     \hfill
-    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples. \\
-    \ref{fig:clean_manifold_200} clean sinogram GL-manifold, k = 6 and 200 samples \\
-    \ref{fig:clean_manifold_500} clean sinogram GL-manifold, k = 6 and 500 samples}
+    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.
+    \ref{fig:clean_manifold_200} clean sinogram GL-manifold, $k = 6$ and 200 samples,
+    \ref{fig:clean_manifold_500} clean sinogram GL-manifold, $k = 6$ and 500 samples}
 \end{figure}
 
 In Figure~\ref{fig:clean_manifold_200} GL-manifold with $\theta \in \mathbb{R}^{200}$ and k=6 is illustrated
@@ -376,16 +376,16 @@ and a perfect circle can be established (figure~\ref{fig:clean_manifold_500}).
     \subbottom[\label{fig:clean_manifold_res400}]
         {\includegraphics[width=0.3\textwidth]{phaton_clean_manifold_res_400_k6.png}}
     \hfill
-    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples. \\
-    \ref{fig:clean_manifold_res200} Clean sinogram GL-manifold, k = 6 and resolution=200 \\
-    \ref{fig:clean_manifold_res400} Clean sinogram GL-manifold, k = 6 and resolution=400}
+    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.
+    \ref{fig:clean_manifold_res200} Clean sinogram GL-manifold, $k = 6$ and $\text{resolution}=200$,
+    \ref{fig:clean_manifold_res400} Clean sinogram GL-manifold, $k = 6$ and $\text{resolution}=400$}
 \end{figure}
 
 Moreover, the number of sampling points is important as well.
 Here, for more sampling points it is expected to be harder to come up with good neighbors (fixing k and number of samples),
 as more data need to be explained with the same amount of neighbors, and it is more likely, that nodes are connected wrongly.
 This can be seen in Figure~\ref{fig:clean_manifold_res200} and Figure~\ref{fig:clean_manifold_res400}, where with $dim(s) = 200$,
-the perfect circle can be established and with $dim(s) = 400$, not anymore (by same parameter k = 6 and $\theta \in \mathbb{R}^{500}$).
+the perfect circle can be established and with $dim(s) = 400$, not anymore (by same parameter $k = 6$ and $\theta \in \mathbb{R}^{500}$).
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     As with the last plots illustrated, the GL-manifold is pretty sensitive.

@@ -2,9 +2,17 @@
 \addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
 \chapter{Appendix}
 
+\section{Mathematical Tools}
+
 \subsection{signal-to-noise-ratio (SNR)}
 
-\textbf{TODO:}
+\subsection{Activation functions}
+\subsubsection{ELU}
+\subsubsection{ReLu}
+\subsubsection{Leaky ReLu}
+
+\subsubsection{Random Graph}
+
 
 \subsection{3D rotation matrix}
 \label{app:3DrotationMatrix}
@@ -64,9 +72,10 @@ The algorithm starts with a random vector $b_0$ or an approximation of the domin
 It will not necessarily converges. The algorithm will converge if $A$ has an eigenvalue strictly grater than its other eigenvalues
 and initial vector $b_0$ is not orthogonal to the eigenvector associated with the largest eigenvalue.
 
-\section{Small Experiment: additional results}
+\section{Small Experiment}
 
-\textbf{TODO: Add Loss? cut numbers}
+\subsection{GAT-Denoiser components}
+
 
 \begin{table}[H]
     \centering
@@ -91,11 +100,8 @@ and initial vector $b_0$ is not orthogonal to the eigenvector associated with th
     \caption{Small Experiment: overall GAT-Denoiser components vs. Baseline}
     \label{tab:baseline-large}
   \end{table}
-  
-  
-  
 
-\subsection{GAT-Denoiser components}
+
 
 \section{Large Experiment: additional results}
 

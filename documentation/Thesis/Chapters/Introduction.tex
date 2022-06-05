@@ -12,7 +12,7 @@ ML is a tool to model and solve such inverse problems.
 
 In recent years, graphs got a lot of attention in ML and are one of the most promising research areas.
 Graphs are a well suited data structure, simple but with high expressiveness. 
-Especially for data, where single data point tend to have a relation to other data points, graphs with its nodes and vertices are the perfect tool
+Especially for data where single data point tend to have a relation to other data points, graphs with its nodes and vertices are the perfect tool
 to capture these relationships. 
 Data can be in a graph structure already, like social networks, or they can be artificially constructed for arbitrary datasets.
 Moreover, for some scenarios, ordinary ML algorithms fail, but Graph ML approaches have great success, e.g. dimensionality reduction for high-dimensional data.
@@ -25,36 +25,38 @@ is a molecular imaging method and gained a lot of attention in recent years.
 Due to ground-breaking improvements regarding hardware and data processing, the field of research
 has highly improved. In 2017, pioneers in the field of cryo-EM got the 
 Nobel Prize in Chemistry\footnote{https://www.nobelprize.org/prizes/chemistry/2017/press-release/}.
-Today, using cryo-EM many molecular structures can be observed with near-atomic resolution.
-The big challenge with cryo-EM is enormous noise.
+Today, using cryo-EM, molecular structures can be observed with near-atomic resolution.
+The big challenge with cryo-EM is enormous noise and unknown observation angles.
+
+Computed tomography (CT) is a similar problem than cryo-EM, but slightly easier
+as the problem is in two dimensions and observation angles are known.
+The overall goal of this Thesis is, to introduce an algorithm which works with CT, but 
+can conceptually be extended to work in 3D, and therefore for cryo-EM.
+
+\bigskip
+
+As a result of this Thesis, a Graph Neural Network (GNN) architecture is proposed, which is called \textit{GAT-Denoiser}.
+GAT-Denoiser aims to denoise noisy observation from CT to improve overall reconstruction quality.
+In the GNN architecture, convolution and Graph Attention Network (GAT) is used to denoise observations.
+Further, an end-to-end learning approach with U-Net is used to further improve reconstruction quality, 
+where a pre-trained U-Net is jointly optimized further during GAT-Denoiser training.
+
+\textbf{TODO: Refer to final results}
+
+On the LoDoPaB-CT dataset, GAT-Denoiser outperformed baseline algorithms, such as BM3D, and shows great results.
+From given observation signal-to-noise-ratio (SNR) of -15 dB, it realizes an average reconstruction SNR of XX dB.
+
+\bigskip
+
+The Thesis is structured the following: 
 
 
-\textbf{TODO: Introduce CT and cryo-EM} \\
+In Chapter~\ref{sec:imaging} \textit{\nameref{sec:imaging}}, the two molecular imaging methods
+computed tomography and cryo-EM are introduced as well as a mathematical abstraction for observation and reconstruction.
+Further, Chapter~\ref{sec:graphFoundations} \textit{\nameref{sec:graphFoundations}} is dedicated to graphs, 
+where connection from graphs to computed tomography and cryo-EM is established. 
+Moreover, the problem of "Graph Denoising" is defined and methods like graph construction and Graph Laplacian are introduced.
+The main concept of GAT-Denoiser is described in Chapter~\ref{sec:contribution} \textit{\nameref{sec:contribution}}
+and results are presented in Chapter~\ref{sec:results} \textit{\nameref{sec:results}}.
+Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion} \textit{\nameref{sec:Conclusion}}.
 
-\textbf{TODO: GAT-Denoiser} \\
-
-\textbf{TODO:Motivation and Goal} \\
-
-\textbf{ToDo:Reference to Results} \\
-
-\textbf{ToDO: Overview of chapters} \\
-
-% \bigskip
-
-
-
-% The following report resulted from Master's Thesis Preparation. During the six week project, 
-% goal is to familiarize with research area, build up mathematical foundation 
-% and define project content as well as a project plan.
-% The report is structured the following:
-
-% In chapter~\ref{sec:imaging} \textit{\nameref{sec:manifold_calculation}}, the main motivation of the Master's Thesis is given. The two imaging methods
-% computed tomography and cryo-EM are introduced as well as an abstract model.
-% Chapter~\ref{sec:graphDenoising} \textit{\nameref{sec:manifold_calculation}} is dedicated to graphs, were the connection of graphs to computed tomography and 
-% cryo-EM is established. Further, the problem of "Graph Denoising" is defined and methods like graph
-% construction and Graph Laplacian are introduced.
-
-
-% Finally, in chapter~\ref{sec:projectOverview} \textit{\nameref{sec:manifold_calculation}} project content is shortly concluded, work packages are defined and project schedule is given.
-% Throughout the report, red boxes are used to denote important statements
-% regarding final Master's Thesis project.

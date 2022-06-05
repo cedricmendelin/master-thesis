@@ -256,9 +256,6 @@ If multi-head attention is used, hidden dimension will be set to $M / heads$.
 In the last GAT layer, everything gets prepared for output dimension and 
 averaging with 1 head is applied.
 
-
-
-
 \subsection{Training}
 \label{sec:contr_training}
 As already mentioned, an end-to-end learning approach is used where quality of reconstruction is 
@@ -277,5 +274,3 @@ As $x_i$ is part of the loss, access to original object is needed during trainin
 Further, U-Net will be jointly used with FBP as reconstruction. For that to work, U-Net needs to be 
 first pre-trained with the dataset and learned model can be plugged into GAT-Denoiser.
 One could also consider training U-Net model jointly, while training GAT-Denoiser.
-
-
