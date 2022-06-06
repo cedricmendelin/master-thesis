@@ -2,11 +2,11 @@
 \label{sec:results}
 
 In this Chapter, results of GAT-Denoiser are presented.
-First, some small experiments are presented, which do not work on full dataset.
+First, some small experiments are presented, which do not use the complete dataset.
 These experiments have been done to find the best suitable architecture and to 
 familiarize with the problem and its structure.
-Second, a few large experiments are presented, which work on full dataset.
-During small and large experiments, some interesting findings are illustrated and GAT-Denoiser
+Second, a few large experiments are presented, which work on the complete dataset.
+Some interesting findings are illustrated and GAT-Denoiser
 is compared to U-Net and block-matching and 3D filtering (BM3D)~\cite{bm3d}.
 
 
@@ -72,14 +72,14 @@ As described in Section~\ref{sec:unet} \textit{\nameref{sec:unet}}, U-Net will b
 Therefore, U-Net was pre-trained on the LodoPaB-CT training dataset, with 128 channels in the first contracting step. 
 In total, 4 steps have been computed, which results in 1024 channels as output of last contracting step.
 During training, noise was sampled from normal distribution to reach SNR in the interval $[0, -10]$ and was added to the observation (sinogram). 
-In total, model was trained for 200 epochs.
+In total, the model was trained for 200 epochs.
 
 \paragraph{BM3D:}
 BM3D is a powerful and lightweight algorithm for image denoising. 
 It is not neural network based and was the defacto state-of-the-art before neural network outperformed
 BM3D. Therefore, it is an interesting baseline to compare with.
 
-In the GAT-Denoiser pipeline, first, observations will be denoised ,and second, reconstruction is computed.
+In the GAT-Denoiser pipeline, first, observations will be denoised, and second, reconstruction is computed.
 Therefore, BM3D can be applied at two different steps. First, it can be used to denoise sinogram
 and forward denoised sinogram to FBP, which is how GAT-Denoiser work. Secondly, FBP can be
 computed with noisy sinogram and output can be forwarded to BM3D, which will denoise reconstruction.
@@ -93,7 +93,7 @@ Further, evaluated GAT-Denoiser models presented in this Section have been train
 
 \subsection{Baseline}
 
-In Table~\ref{tab:baseline-small}, baseline results for FBP, BM3D sinogram, BM3D reconstruction and U-Net can be found.
+Table~\ref{tab:baseline-small} shows baseline results for FBP, BM3D sinogram, BM3D reconstruction and U-Net.
 Noise was added to reach $\textit{SNR}_y$ of 0, -5, -10 and -15 dB.
 
 As expected, reconstruction FBP performs the worst, as it only reconstructs from noisy observation. 
@@ -124,7 +124,6 @@ But, for lower SNR's -5 to -15 U-Net performs better and is the baseline to beat
 Further, for \snry 0 dB, reconstruction of a single test image for all baseline algorithms is illustrated in Figure~\ref{fig:baseline_small}.
 
   \begin{figure}[H]
-    \label{fig:baseline_small}
     % \centering
     \hfill
     \subbottom[\label{fig:test_clean}]{\includegraphics[width=0.15\textwidth]{baseline_small_clean.png}}
@@ -140,6 +139,7 @@ Further, for \snry 0 dB, reconstruction of a single test image for all baseline 
 	\caption{Example test image baseline reconstructions for \snry 0 dB:\\
   \ref{fig:test_clean} clean test image, \ref{fig:test_fbp} FBP reconstruction, \ref{fig:test_bm3d_sino} BM3D sinogram, 
   \ref{fig:test_bm3d_reco} BM3D reconstruction, \ref{fig:test_unet} U-Net reconstruction}
+  \label{fig:baseline_small}
 \end{figure}
 
   \subsection{Input graph structure}
@@ -203,12 +203,11 @@ Further, for \snry 0 dB, reconstruction of a single test image for all baseline 
 
 
   \paragraph{Does result improve with large graph size?}
-  Slightly.
+  Yes.
   For this question to answer, multiple models have been trained for graphs with size 512, 1024 and 2048 
   as well as different k-NN parameters $(2,6,8,10,20)$.
 
-  In Table~\ref{tab:graph_knn} results are presented. 
-  So yes, larger graph size improve our model. 
+  In Table~\ref{tab:graph_knn} results are presented, and larger graph size improves our models. 
   But, training is also more expensive regarding execution time. 
   Therefore, for all upcoming experiments graph size is fixed to 1024, as it looks like a good
   value in between, with good reconstruction result but also not too much training time.
@@ -263,7 +262,7 @@ Further, for \snry 0 dB, reconstruction of a single test image for all baseline 
 
 
 \subsection{GAT parameters}
-In this Section, experiments are executed with focus on GAT and it's parameters.
+In this Section, experiments are executed with focus on GAT and its parameters.
 Mainly, two parameters are important: number of heads and number of GAT layers.
 
 To recap, the k-hop neighborhood in a GNN is defined by the number of layers.
@@ -303,7 +302,7 @@ where results can be found in Table~\ref{tab:small_gat_results}.
 
 
 \paragraph{The more layers the better result?}
-Definitely not. As expected, when working with too many layers, denoising starts failing as it averages over a
+No. As expected, when working with too many layers, denoising starts failing as it averages over a
 neighborhood, which is too large. In Table~\ref{tab:small_gat_results}, 6 layers clearly get the worst result,
 followed by 4, 3 and 2 layers.
 
@@ -403,8 +402,8 @@ As introduced in Section~\ref{sec:contr_training} \textit{\nameref{sec:contr_tra
 during training loss is calculated based on quality of reconstruction, what is called
 end-to-end learning in this Thesis.
 
-One could also think to compute loss from GAT-Denoiser output, on denoised observation level.
-For our LodoPaB-CT dataset, this would mean to compare clean sinogram with denoised sinogram:
+One could also consider computing loss from GAT-Denoiser output directly, therefore on denoised observation level.
+For LodoPaB-CT dataset, this would mean to compare clean sinogram with denoised sinogram:
 
 \begin{equation}
   \label{eq:loss_sino}
@@ -416,7 +415,7 @@ with loss in Equation~\ref{eq:loss_sino}.
 
 
 \paragraph{Is our end-to-end learning a good idea?}
-Yes it is, but comes with a prize. 
+Yes, but it comes with a price. 
 For same network parameters and calculated for \snry 0, -5, -10 and -15 dB,
 experiments have been calculated once with $\mathcal{L} $ and once with $\mathcal{L}_{sino}$.
 Averaged results over SNR can be found in Table~\ref{tab:loss_sino_reco}. 
@@ -425,7 +424,7 @@ But, training of the network took much longer, more than factor 3.
 This is not a big surprise, as learning with $\mathcal{L} $, reconstruction of every sample
 needs to be done in every epoch, where training with $\mathcal{L}_{sino}$, reconstruction is not needed.
 
-All in all, end-to-end learning with loss $\mathcal{L} $ shows great results and will be used in further experiments.
+End-to-end learning with loss $\mathcal{L} $ shows great results and is used in further experiments.
 
 \begin{table}[H]
   \centering
