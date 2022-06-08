@@ -20,6 +20,8 @@ Through scanning over straight lines many observations are collected,
 and original object can be reconstructed.\footnote{For further details \cite{computedTomography}}
 
 \paragraph{Tomography reconstruction:}
+\textbf{TODO: The aim is to reconstruct a biological sample based on the observation of its projection along  line.}
+
 Tomographic reconstruction is a popular inverse problem. 
 The aim is to reconstruct an original object from observations.
 When original object is in 2D, observations are available in 1D. 
@@ -35,6 +37,16 @@ The reconstruction is possible for 3D objects as well, where observations are in
 \paragraph{2D tomographic observation:}
 
 Mathematically, CT observations are defined as follows:
+
+\textbf{TODO:}
+\begin{itemize}
+    \item equation 3.1, theta in $S^1$, not in R, it's an angle
+    \item equation 3.1, R maps into $R^M$, not $L^2$ 
+    \item equation 3.1 based on your definition, this would mean that R includes radon transform and discretization operator 
+        (should mention it, maybe no need to define it this way)
+
+\end{itemize}
+
 \begin{equation}
     \label{eq:2Dreconstruction}
     \begin{aligned}
@@ -92,6 +104,11 @@ Further, noise was added to reach an SNR of 10 dB.
 \end{figure}
 
 \paragraph{Filter Backprojection:}
+\textbf{TODO: FBP, maybe with adding that it is the historical approaches, it has been years during decades. T
+hen for a long time people try to improve the results by solving more sophisticated problems using regularisation. 
+And recently, Learning has allows a significant increase in the resolution by processing the output of FBP, which is now state of the art. 
+And we will use this as reconstruction
+}
 Filter Backprojection (FBP)~\cite{tomographicReconstruction}, 
 is a reconstruction method used in classical tomography.
 It allows to inverse the Radon Transform and enables reconstruction of the original object $x$.
@@ -129,6 +146,9 @@ The quality of noisy reconstruction is rather low, some important details are mi
 If more noise is present in $y$, reconstruction will be of even lower quality.
 
 \paragraph{U-Net}
+
+\textbf{TODO:  Unet doesn't seem to crash the problem, it is only slightly better}
+
 \citet{ct-reconstruction-comparison} compared different reconstruction methods for CT. 
 Today's state-of-the-art reconstruction algorithms are Deep-Learning based.
 U-Net~\cite{unet-tomography}, a convolution neural network approach, performed
@@ -148,10 +168,13 @@ With an electron microscope, 2D tomographic projection images of molecules are o
 which are called \textit{micrograph}. 
 Frozen molecules are fragile and electron microscope needs to work with
 very low power (electron dose), resulting in highly noisy observations. The resulting SNR
-is typically smaller than 1 dB, which indicates that there is more noise than signal \cite{cryoEmMath2}.
+is typically smaller than 0 dB, which indicates that there is more noise than signal \cite{cryoEmMath2}.
 
 In addition, observed molecules are not equal in the sense that there are some structural varieties between
 molecules (isotopes). While observing the same molecule in ice many times, single observations could be from different isotopes.
+
+\textbf{TODO:  you speak about isotopes and variety, why not (see remark about discussion/conclusion), you should include the keywords conformation here.}
+
 
 \paragraph{3D cryo-EM reconstruction:}
 Cryo-EM reconstruction is defined as estimation of a 3D object from 2D observations.
@@ -160,6 +183,9 @@ Based on many observed micrographs the original object $x$ is estimated.
 Cryo-EM reconstruction is computational intensive and multiple steps are needed to get from 
 observations to the final structure \footnote{for further details \cite{singleParticleCryoEm, cryoEmMath}}.
 
+
+\textbf{TODO: some inconsistency with M and the number of observation. 
+I think Delta should be Omega power M , and then indices (j,k) are taken from Delta.}
 
 \paragraph{3D cryo-EM observation:}
 Mathematically, observation is defined as follows:
@@ -239,6 +265,11 @@ with
 
 
 \paragraph{Extended formula:} 
+\textbf{TODO: not sure what this mean. 
+Maybe "more realistic modeling" .
+ ou could have a remark about variety of molecule (once for all, and say we don't consider it), a remark about the psf 
+ }
+
 Equation~\ref{eq:cryoEmSimple} is a simplified version of cryo-EM.
 First, point spread function (PSF) of the microscope is not taken into account.
 Second, structural variety is ignored, the underlying object $x$ is not the same 
@@ -266,6 +297,11 @@ Second, high level of noise makes cryo-EM much more challenging.
 \clearpage
 
 \section{Abstraction}
+
+\textbf{TODO:  you can say that we do that to motivate the fact that 2d and 3d are mathematically very similar,
+and that extended numerical procedure from 2d 
+(as done in the thesis) to 3d should be theoretically feasible, it remains only numerical questions due to, 
+of course, an extra need in resources}
 
 \label{sec:abstract_form}
 As tomographic reconstruction and cryo-EM reconstruction are similar, 
@@ -299,6 +335,11 @@ with
 \end{itemize}
 
 \paragraph{Reconstruction:}
+\textbf{TODO: 
+equation 3.7, Delta is Omega tilde power M not power D.
+Also, as before, theta is in SO(3) (in equation 3.3 also theta should be in [0,2pi], maybe with finding a consistent definition)}
+
+
 Further, an abstract form of the reconstruction operator is defined as:
 
 \begin{equation}

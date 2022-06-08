@@ -1,0 +1,24 @@
+,name,SNR,Loss,gat_heads,gat_layers,gat_use_conv,gat_conv_kernel,gat_conv_padding,gat_conv_N_latent
+0,channels-16_kernel-3_padding-1_layers-2,7.44601393223,798.757657471,4,2,True,3,1,16
+1,channels-8_kernel-3_padding-1_layers-2,7.78689767361,767.291209106,4,2,True,3,1,8
+2,channels-4_kernel-3_padding-1_layers-2,7.12058389187,834.625610352,4,2,True,3,1,4
+3,channels-1_kernel-3_padding-1_layers-2,8.10248847008,735.614643555,4,2,True,3,1,1
+4,no conv_2 layers,6.98987811565,839.322051392,4,2,False,3,1,1
+5,no conv_3 layers,4.31076889992,1175.45847107,8,3,False,3,1,1
+6,channels-16_kernel-3_padding-1,5.97228394985,1002.89710693,8,3,True,3,1,16
+7,channels-8_kernel-3_padding-1,7.0063744688,862.882518921,8,3,True,3,1,8
+8,channels-4_kernel-3_padding-1,6.44803293467,902.983337402,8,3,True,3,1,4
+9,channels-1_kernel-3_padding-1,6.9144395256,842.231748047,8,3,True,3,1,1
+10,no conv,4.64254494905,1118.71099121,2,4,False,3,1,1
+11,channels-16_kernel-7_padding-3,2.80801084757,1515.66362793,2,4,True,7,3,16
+12,channels-16_kernel-5_padding-2,2.81048416913,1515.70488403,2,4,True,5,2,16
+13,channels-16_kernel-3_padding-1,0.0483345464617,2844.39819336,2,4,True,3,1,16
+14,channels-8_kernel-7_padding-3,3.76477958798,1363.35236877,2,4,True,7,3,8
+15,channels-8_kernel-5_padding-2,2.65969326437,1596.95996948,2,4,True,5,2,8
+16,channels-8_kernel-3_padding-1,1.29686575651,2336.14096924,2,4,True,3,1,8
+17,channels-4_kernel-7_padding-3,4.59889164686,1330.00049744,2,4,True,7,3,4
+18,channels-4_kernel-5_padding-2,2.75631678283,1548.47055908,2,4,True,5,2,4
+19,channels-1_kernel-7_padding-3,3.55822226286,1328.69366028,2,4,True,7,3,1
+20,channels-4_kernel-3_padding-1,5.05737713814,1084.78778015,2,4,True,3,1,4
+21,channels-1_kernel-5_padding-2,4.94248589754,1080.9851593,2,4,True,5,2,1
+22,channels-1_kernel-3_padding-1,6.48743714333,900.640401001,2,4,True,3,1,1

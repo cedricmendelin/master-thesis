@@ -1,0 +1,6 @@
+,name,SNR,Loss
+0,layers-2_heads-4_dropout-0.1, 7.79269281387,761.811738281
+1,layers-2_heads-4_dropout-0.05,8.09331364155,738.374012451
+2,layers-2_heads-4_dropout-0.03,7.98390172005,743.340800781
+3,layers-2_heads-4_dropout-0.01,7.81474223614,766.186463623
+4,layers-2_heads-4_dropout-0,   8.32708409309,739.483684692

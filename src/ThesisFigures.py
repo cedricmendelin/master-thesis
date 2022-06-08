@@ -330,10 +330,10 @@ def chapter_graph_foundation_manifolds_clean_resolution_importance():
 
 import csv
 def chapter_results_small_overall_compoents():
-  csv_file_name = "src/small_components.csv"
+  csv_file_name = "src/small_components_knn2.csv"
   import csv
 
-  size = 10
+  size = 12
   results = np.zeros((size,4))
   result_names = []
 
@@ -366,6 +366,102 @@ def chapter_results_small_overall_compoents():
   plt.legend(result_names)
   plt.show()
 
+def chapter_results_large_overall_compoents():
+  csv_file_name = "src/large_components_knn2.csv"
+  import csv
+
+  size = 10
+  results = np.zeros((size,4))
+  result_names = []
+
+  x = [0, -5, -10, -15]
+  
+  with open(csv_file_name, mode='r') as csv_file:
+    csv_reader = csv.DictReader(csv_file, delimiter = ";")
+    line_count = 0
+    for row in csv_reader:
+      if line_count == 0:
+        print(f'Column names are {", ".join(row)}')
+        line_count += 1
+
+      result_names.append(row['Model/algortihm'])
+      results[line_count - 1] = np.array([row['0'], row['-5'], row['-10'], row['-15']])
+      #results[line_count - 1] = np.array([row['-15'], row['-10'], row['-5'], row['0']])
+      line_count += 1
+
+  fig = plt.figure(figsize=(14,7))
+
+  for i in range(size):
+    plt.plot(x, results[i], marker='s')
+
+  plt.xticks([-15,-10,-5,0])
+  plt.yticks([-5,0,5, 7.5, 10, 12.5, 15, 17])
+  plt.ylim([-8, 18])
+  plt.xlabel("$SNR_y$")
+  plt.ylabel("$SNR$")
+  plt.xlim([-16, 1])
+  plt.legend(result_names, loc='lower right')
+  plt.show()
+
+def wandb_rename(project_name : str, run_id : str, new_name : str):
+  import wandb
+  api = wandb.Api()
+
+  run = api.run(f"cedric-mendelin/{project_name}/{run_id}")
+  run.name = new_name
+  run.update()
+
+def wandb_export_project(project_name:str):
+  import wandb
+  api = wandb.Api()
+
+  # Project is specified by <entity/project-name>
+  runs = api.runs("cedric-mendelin/" + project_name)
+  name_list = [] 
+  snr_result = np.zeros(len(runs)) 
+  loss_result = np.zeros(len(runs)) 
+  duration_result = np.zeros(len(runs)) 
+  config_list=[]
+  counter = 0
+  config_names = ['gat_snr_lower', 'gat_use_conv', 'unet_refinement', 'unet_train']
+  #config_names = ['gat_layers', 'gat_heads', 'loss']
+  for run in runs: 
+      # run.summary are the output key/values like accuracy.
+      # We call ._json_dict to omit large files 
+      summary = run.summary._json_dict
+
+      # run.config is the input metrics.
+      # We remove special values that start with _.
+      config = {k:v for k,v in run.config.items() if not k.startswith('_') and k in config_names}
+      config_list.append(config)
+
+      snrs = []
+      loss = []
+      for i, row in run.history(keys=["val_snr_reco_denoised"]).iterrows():
+        snrs.append(row["val_snr_reco_denoised"])
+      for i, row in run.history(keys=["val_loss_reco_denoised"]).iterrows():
+        loss.append(row["val_loss_reco_denoised"])
+
+      snr_result[counter]  = (np.mean( np.array(snrs)))
+      loss_result[counter] = (np.mean( np.array(loss)))
+      # duration_result[counter] = summary['training']
+
+      # run.name is the name of the run.
+      name_list.append(run.name)
+      counter += 1       
+
+  
+  import pandas as pd 
+
+  snr_df = pd.DataFrame(snr_result, columns=['SNR']) 
+  loss_df = pd.DataFrame(loss_result, columns=['Loss'])
+  # duration_df = pd.DataFrame(duration_result, columns=['training'])
+  name_df = pd.DataFrame({'name': name_list}) 
+  config_df = pd.DataFrame.from_records(config_list) 
+  all_df = pd.concat([name_df, snr_df, loss_df, config_df], axis=1)
+
+  all_df.to_csv("wandb_results/" + project_name + ".csv")
+  
 #chapter_imaging_sinos()
 #chapter_graph_foundation_cricle_manifold()
 #chapter_graph_foundation_sphere_manifold()
@@ -375,6 +471,8 @@ def chapter_results_small_overall_compoents():
 
 # chapter_graph_foundation_manifolds_noisy()
 # chapter_graph_foundation_manifolds_clean_samples_importance()
-chapter_results_small_overall_compoents()
-  
-
+#chapter_results_small_overall_compoents()
+chapter_results_large_overall_compoents()
+#test_wandb_api()
+#wandb_export_project("LoDoPaB-Large-knn-2")  
+#wandb_rename("LoDoPaB-Large-knn-2", "1y8gw6kv", "conv_gat_unet_train_snr--15_epochs20_3")
