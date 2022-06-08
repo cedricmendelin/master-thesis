@@ -4,31 +4,69 @@
 
 \documentclass[a4paper, 10pt, oneside]{memoir}
 %% Use the option citeauthor to be able to use citet. The default cite will still work.
+\usepackage[labelformat=simple]{subcaption}
 \usepackage[citeauthor]{basilea}
 
 
-\usepackage{pdflscape}
-\usepackage{tikz}
-\usepackage{changepage}
+\usepackage{graphicx}
 
-\usepackage{pgfgantt}
+%\usepackage{pdflscape}
+%\usepackage{tikz}
+%\usepackage{changepage}
 
-\usepackage{tikz,lipsum,lmodern}
+%\usepackage{pgfgantt}
+
+%\usepackage{tikz,lipsum,lmodern}
 \usepackage[most]{tcolorbox}
 
+% Some additional math symbols
 \usepackage{amsmath}
 \usepackage{stmaryrd}
-\usepackage{afterpage} % footnote in image
+
+%\usepackage{afterpage} % footnote in image
 \usepackage{float} % float with H
-\usepackage{wrapfig} % wrap text around figures
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usepackage{threeparttable}
+
+%\usepackage{wrapfig} % wrap text around figures
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+
+
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
-\newcommand{\snry}{$\text{SNR}_y$}
+\newcommand{\snry}{$\text{SNR}_y$ }
 \newcommand{\snrh}[1]{\footnotesize \textbf{\snry #1 dB}}
 
+\newcommand{\visualresult}[3]{
+\begin{figure}[H]
+  \centering
+	\caption{#3 reconstruction for \snry #2 dB}
+  \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_1.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_2.png}
+	\hfill
+  \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_3.png}
+	\hfill
+  \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_6.png}
+	\hfill
+  \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_9.png}
+	\hfill
+  \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_10.png}
+\end{figure}
+}
 
+\newcommand{\visualresults}[1]{
+	\subsubsection{Baseline algorithms}
+  \visualresult{fbp}{#1}{FBP}
+  \visualresult{bm3d\_sino}{#1}{BM3D sino}
+  \visualresult{bm3d\_reco}{#1}{BM3D reco}
+  \visualresult{unet}{#1}{U-Net}
+
+  \subsubsection{Gat-Denoiser models}
+  \visualresult{gat}{#1}{GAT}
+  \visualresult{conv\_gat}{#1}{Conv + GAT}
+  \visualresult{gat\_unet}{#1}{GAT + U-Net}
+  \visualresult{conv\_gat\_unet}{#1}{Conv + GAT + U-Net}
+
+}
 %% ----------------------------------------------------------------
 
 \title				{Graph Denoising for Molecular Imaging}
@@ -36,7 +74,7 @@
 
 \department 		{Department of Mathematics and Computer Science}
 \faculty			{Natural Science Faculty of the University of Basel}
-\research		    {Data-Analytics}
+\research		    {Signals and Data group}
 
 \examiner    		{Prof. Dr. Ivan Dokmanić}
 \supervisor  		{Dr. Valentin Debarnot}
@@ -84,9 +122,14 @@
 %% ----------------------------------------------------------------
 %\thesisappendix
 \thesisbib
+\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
 \begin{appendices}
-	\input{./Back/AppendixA} 
+	\input{./Back/GLEmbedding} 
+	\input{./Back/NeuralNetworks} 
+	\input{./Back/MathematicalTools} 
+	\input{./Back/AdditionalResults} 
 \end{appendices}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
 %% ----------------------------------------------------------------
 \thesisback
 %\iflanguage{english}

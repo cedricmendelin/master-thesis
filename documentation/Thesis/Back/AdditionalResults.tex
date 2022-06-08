@@ -1,76 +1,6 @@
 % !TEX root = ../Thesis.tex
-\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
-\chapter{Appendix}
 
-\section{Mathematical Tools}
-
-\subsection{signal-to-noise-ratio (SNR)}
-
-\subsection{Activation functions}
-\subsubsection{ELU}
-\subsubsection{ReLu}
-\subsubsection{Leaky ReLu}
-
-\subsubsection{Random Graph}
-
-
-\subsection{3D rotation matrix}
-\label{app:3DrotationMatrix}
-A rotation matrix is a transformation matrix used to perform rotations.
-In 3D case, matrix for rotating one single axis can be described as:
-\begin{equation}
-    R_{e_x} (\theta)
-    \begin{bmatrix}
-        1 & 0 & 0\\
-        0 & \cos \theta & - \sin \theta \\
-        0 & \sin \theta & cos \theta \\
-    \end{bmatrix}
-\end{equation}
-
-\begin{equation}
-    R_{e_y} (\theta)
-    \begin{bmatrix}
-        \cos \theta & 0 & \sin \theta\\
-        0 & 1 & 0 \\
-        - \sin \theta & 0 & cos \theta \\
-    \end{bmatrix}
-\end{equation}
-
-\begin{equation}
-    R_{e_z} (\theta)
-    \begin{bmatrix}
-        \cos \theta & - \sin \theta\\
-        \sin \theta & \cos \theta & 0 \\
-        0 & 0 & 1 \\
-    \end{bmatrix}
-\end{equation}
-
-where $e_x, e_y, e_z$ corresponds to the axis unit-vector (for x: $(1,0,0)$, etc.) and $\theta \in \mathbb{R}$.
-To combine the single axis rotations, matrices can be multiplied with each other:
-
-\begin{equation}
-    \label{eq:3d-rotation}
-    R (\theta) = R_{e_x} (\theta) R_{e_y} (\theta) R_{e_z} (\theta)
-\end{equation}
-
-In Equation~\ref{eq:3d-rotation}, angle $\theta$ is the same for all axis, which does not have to be.
-
-
-\subsection{Power Iterations}
-\label{sec:powerIterations}
-
-Power iteration, also called power method, is an iterative method
-that approximates the largest eigenvalue of a diagonalizable matrix $A$.
-
-The algorithm starts with a random vector $b_0$ or an approximation of the dominant eigenvector.
-
-\begin{equation}
-    \label{eq:powerIterations}
-    b_{k+1} = \frac{Ab_k}{||Ab_k||}
-\end{equation}
-
-It will not necessarily converges. The algorithm will converge if $A$ has an eigenvalue strictly grater than its other eigenvalues
-and initial vector $b_0$ is not orthogonal to the eigenvector associated with the largest eigenvalue.
+\chapter{Additional results}
 
 \section{Small Experiment}
 
@@ -90,12 +20,12 @@ and initial vector $b_0$ is not orthogonal to the eigenvector associated with th
       U-Net               & 7.13  &  6.18 & 4.34  & 1.87    \\ \hline
       \midrule
       \multicolumn{5}{c}{K-NN k = 8} \\
-      GAT                 & 8.32 & 6.94 & 6.19 & 5.01 \\ \hline
-      Conv + GAT          & 9.05 &8.07  &6.99  & 5.75 \\ \hline
-      Gat + Unet          & 7.49 &6.40  &6.01   & 5.07 \\ \hline
-      Gat + Unet**        & 11.88 &10.85 &9.68 & 8.26 \\ \hline
-      Conv + Gat + Unet   & 7.55 &6.50 &5.74 &4.87 \\ \hline
-      Conv + Gat + Unet** & 11.94 &10.31 &7.34&7.33 \\
+      GAT                  & 8.32           & 6.94           & 6.19 & 5.01 \\ \hline
+      Conv + GAT           & 9.05           & 8.07           & 6.99  & 5.75 \\ \hline
+      GAT + U-Net          & 7.49           & 6.40           & 6.01   & 5.07 \\ \hline
+      GAT + U-Net**        & 11.88          & \textbf{10.85} & \textbf{9.68} & \textbf{8.26} \\ \hline
+      Conv + GAT + U-Net   & 7.55           & 6.50           &5.74 &4.87 \\ \hline
+      Conv + GAT + U-Net** & \textbf{11.94} & 10.31          &7.34   &7.33 \\
       \midrule
       \multicolumn{5}{c}{K-NN k = 2} \\
       GAT             &	9.42 	&8.25	&6.78	&5.75  \\
@@ -109,7 +39,7 @@ and initial vector $b_0$ is not orthogonal to the eigenvector associated with th
     \end{tabular}
   
     \caption{Small Experiment: overall GAT-Denoiser components vs. Baseline for k-NN = 8}
-    \label{tab:small_gat_components_knn8}
+    \label{tab:small_gat_components}
   \end{table}
 
 
@@ -158,6 +88,27 @@ and initial vector $b_0$ is not orthogonal to the eigenvector associated with th
 
 \section{Large Scale experiment}
 
+\subsection{Baseline results}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l|cc|cc|cc|cc}
+    \toprule
+    \textbf{Algorithm} & \multicolumn{2}{l|}{\snrh{ 0}} & \multicolumn{2}{l|}{\snrh{ -5}} & \multicolumn{2}{l|}{\snrh{ -10}} & \multicolumn{2}{l}{\snrh{ -15}} \\
+                       & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} \\ 
+    \midrule
+    FBP                 & 4.57  & 1167.6 & -0.19 & 1973.5 & -5.17 & 3425.3 & -10.09 & 10'737.3       \\ \hline
+    BM3D sino           & 9.93  & 709.9  &  7.40 & 890.6  & 4.61  & 1168.0 & 2.09   & 1570.0 \\ \hline
+    BM3D reco           & 10.85 & 658.2  & 8.15  & 818.6  & 5.07  & 1118.3 & 1.76   & 1662.5 \\ \hline
+    U-Net               & 7.18  &  968.8 & 6.34  & 1044.7 & 4.50  & 1214.1 & 1.94   & 1522.4        \\ 
+    \midrule
+  \end{tabular}
+  \caption{Baseline results large experiments}
+  \label{tab:baseline-large}
+\end{table}
+
+\subsection{Large scale component results}
+
 \begin{table}[H]
     \centering
     \begin{tabular}{l|c|c|c|c}
@@ -166,18 +117,18 @@ and initial vector $b_0$ is not orthogonal to the eigenvector associated with th
                          & \textbf{SNR} & \textbf{SNR} & \textbf{SNR}  & \textbf{SNR} \\ 
       \midrule
       FBP                 & 4.57   & -0.19  & -5.17  & -10.09 \\ \hline
-      BM3D sino           & 9.93   &  7.40  & 4.61   & 2.09   \\ \hline
-      BM3D reco           & 10.85  & 8.15   & 5.07   & 1.76   \\ \hline
+      BM3D sino           & 9.93   &  7.40  & 4.61   & \textbf{2.09}   \\ \hline
+      BM3D reco           & \textbf{10.85}  & \textbf{8.15}   & \textbf{5.07}   & 1.76   \\ \hline
       U-Net               & 7.18   & 6.34   & 4.50   & 1.94   \\ 
       \midrule
       \multicolumn{5}{c}{K-NN k = 2} \\
     
-        GAT             & 9.36	& 7.89	& 6.64	& 5.32    \\ \hline
-        Conv+GAT        &	10.05	& 9.07	& 7.17	& 6.15    \\ \hline
-        GAT+U-Net       &	8.39 	& 7.49	& 6.60	& 5.66    \\ \hline
-        GAT+U-Net**     &	13.34	& 12.07	& 11.46	& 9.62   \\ \hline
-        Conv+GAT+U-Net  &	8.31	& 7.47	&6.66	  & 5.15   \\ \hline
-        Conv+GAT+U-Net**&	13.43	& 12.52	& 11.43	& 9.55   \\ 
+        GAT              & 9.36	& 7.89	& 6.64	& 5.32    \\ \hline
+        Conv+GAT         &	10.05	& 9.07	& 7.17	& 6.15    \\ \hline
+        GAT+U-Net        &	8.39 	& 7.49	& 6.60	& 5.66    \\ \hline
+        GAT+U-Net**      &	13.34	& 12.07	& \textbf{11.46}	& \textbf{9.62}   \\ \hline
+        Conv+GAT+U-Net   &	8.31	& 7.47	&6.66	  & 5.15   \\ \hline
+        Conv+GAT+U-Net** &	\textbf{13.43}	& \textbf{12.52}	& 11.43	& 9.55   \\ 
     \end{tabular}
   
     \caption{Large scale experiment: overall GAT-Denoiser components vs. Baseline for k-NN = 2}
@@ -195,7 +146,7 @@ and initial vector $b_0$ is not orthogonal to the eigenvector associated with th
   \item Loss: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Loss-FBP-vs-SINO}
   \item Dropout: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-GAT-dropout}
   \item Components k-nn 2: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Components-knn-2}
-  \item Components k-nn 2: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Components-knn-8}
+  \item Components k-nn 8: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Components-knn-8}
 \end{itemize}
 
 \subsection{Large scale experiments}
@@ -206,4 +157,39 @@ and initial vector $b_0$ is not orthogonal to the eigenvector associated with th
   \item Gat-Denoiser: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Large-knn-2}
 \end{itemize}
 
-\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+
+\section{Visual Results}
+
+\subsection{Clean images}
+\begin{figure}[H]
+  \centering
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_1.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_2.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_3.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_6.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_9.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_10.png}
+  \hfill
+  \caption{FBP reconstruction for \snry 0 dB}
+\end{figure}
+
+
+\subsection{\snry 0 dB}
+\visualresults{0}
+
+\subsection{\snry -5 dB}
+\visualresults{-5}
+
+
+\subsection{\snry -10 dB}
+\visualresults{-10}
+
+
+\subsection{\snry -15 dB}
+\visualresults{-15}
