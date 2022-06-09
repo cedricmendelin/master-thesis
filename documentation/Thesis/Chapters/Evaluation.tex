@@ -4,7 +4,7 @@
 In this chapter, results of GAT-Denoiser are presented.
 First, the LoDoPaB-CT dataset is introduced, and some illustrations are given.
 Second, project setup and shared settings are given.
-Third, small scale GAT-Denoiser experiments are shown, where the goal is to find
+Third, small scale GAT-Denoiser experiments are presented, where the goal is to find
 good parameters for training the model.
 Last, the large scale GAT-Denoiser experiments are presented, where the goal is 
 to find the best model.
@@ -12,7 +12,7 @@ to find the best model.
 
 
 \section{Dataset}
-GAT-Denoiser is tested on tje LoDoPaB-CT~\cite{lodopab-dataset} dataset, which is a 
+GAT-Denoiser is tested on the LoDoPaB-CT~\cite{lodopab-dataset} dataset, which is a 
 benchmark dataset for low-dose CT reconstruction methods and therefore well suited for our domain.
 
 The dataset consists of 35'820 train images and 3'553 test images.
@@ -125,26 +125,36 @@ U-Net can decrease the overall noise, as a consequence, a lot of details will be
 
 Figure~\ref{fig:baseline_small} illustrates the reconstruction of an observation for all baseline algorithms. \snry is set to 0 dB.
 
-  \begin{figure}[H]
-    % \centering
-    \hfill
-    \subbottom[\label{fig:test_clean}]{\includegraphics[width=0.15\textwidth]{baseline_small_clean.png}}
-    \hfill
-    \subbottom[\label{fig:test_fbp}]{\includegraphics[width=0.15\textwidth]{baseline_small_fbp.png}}
-    \hfill
-    \subbottom[\label{fig:test_bm3d_sino}]{\includegraphics[width=0.15\textwidth]{baseline_small_bm3d_sino.png}}
-    \hfill
-    \subbottom[\label{fig:test_bm3d_reco}]{\includegraphics[width=0.15\textwidth]{baseline_small_bm3d_reco.png}}
-    \hfill
-    \subbottom[\label{fig:test_unet}]{\includegraphics[width=0.15\textwidth]{baseline_small_unet.png}}
-    \hfill
-	\caption{Sample reconstruction for baseline algorithms and \snry 0 dB:\\
-  \ref{fig:test_clean} clean test image, \ref{fig:test_fbp} FBP reconstruction, \ref{fig:test_bm3d_sino} BM3D sinogram, 
-  \ref{fig:test_bm3d_reco} BM3D reconstruction, \ref{fig:test_unet} U-Net reconstruction}
+
+\begin{figure}[H]
+  \captionsetup[subfigure]{justification=centering}
+  \centering
+  \begin{subfigure}[t]{0.15\textwidth}
+      \includegraphics[width=\textwidth]{baseline_small_clean.png}
+      \caption{Clean image}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.15\textwidth}
+    \includegraphics[width=\textwidth]{baseline_small_fbp.png}
+    \caption{FBP reconstruction}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.15\textwidth}
+    \includegraphics[width=\textwidth]{baseline_small_bm3d_sino.png}
+    \caption{BM3D sino reconstruction}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.15\textwidth}
+    \includegraphics[width=\textwidth]{baseline_small_bm3d_reco.png}
+    \caption{BM3D reco reconstruction}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.15\textwidth}
+    \includegraphics[width=\textwidth]{baseline_small_unet.png}
+    \caption{U-Net reconstruction}
+  \end{subfigure}
+  \caption{Sample reconstruction for baseline algorithms and \snry 0 dB}
   \label{fig:baseline_small}
 \end{figure}
 
-  \subsection{Input graph structure and observation size}
+
+ \subsection{Input graph structure and observation size}
   In the following section, experiments with different input graphs are presented.
   As the domain of interest is the input graph and its size, and therefore the number of observations, 
   some other parameters are fixed for all experiments.
@@ -188,23 +198,29 @@ Figure~\ref{fig:baseline_small} illustrates the reconstruction of an observation
     \caption{Loss and SNR for random graph vs. k-NN graph. }
     \label{tab:input_graph}
   \end{table}
-  
-  \begin{figure}[H]
-    \label{fig:input_graph_small}
-    % \centering
-    \hfill
-    \subbottom[\label{fig:small_experiment_clean2}]{\includegraphics[width=0.2\textwidth]{baseline_small_clean.png}}
-    \hfill
-    \subbottom[\label{fig:small_experiment_random_graph}]{\includegraphics[width=0.2\textwidth]{random__graph_small_experiment.png}}
-    \hfill
-    \subbottom[\label{fig:small_experiment_knn_graph}]{\includegraphics[width=0.2\textwidth]{knn__graph_small_experiment.png}}
-    \hfill
-	\caption{Example test image reconstructions for different input graphs:\\
-  Where \ref{fig:small_experiment_clean2} is clean object, 
-  \ref{fig:small_experiment_random_graph} reconstruction with Erdős–Rényi input graph with $p=0.01$ and 
-  \ref{fig:small_experiment_knn_graph} reconstruction k-NN input graph with $k=10$.
-  }
+
+\begin{figure}[H]
+  \captionsetup[subfigure]{justification=centering}
+  \centering
+  \begin{subfigure}[t]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{baseline_small_clean.png}
+      \caption{Clean sinogram embedding with $k=2$}
+      \label{fig:small_experiment_clean2}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{random__graph_small_experiment.png}
+    \caption{Reconstruction Erdős–Rényi input graph with $p=0.01$}
+    \label{fig:small_experiment_random_graph}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{knn__graph_small_experiment.png}
+    \caption{Reconstruction k-NN input graph with $k=10$}
+    \label{fig:small_experiment_knn_graph}
+  \end{subfigure}
+  \caption{Example image reconstructions for different input graphs.}
+  \label{fig:input_graph_small}
 \end{figure}
+
 
 
   \paragraph{Does result improve with large graph size?}
@@ -494,31 +510,52 @@ and start joint training for the second 100 epochs.
 
 
 \begin{figure}[H]
-  % \centering
-  \hfill
-  \subbottom[Clean sample]{\includegraphics[width=0.15\textwidth]{small/small_clean.png}}
-  \hfill
-  \subbottom[FBP]{\includegraphics[width=0.15\textwidth]{small/small_fbp.png}}
-  \hfill
-  \subbottom[\textit{GAT}]{\includegraphics[width=0.15\textwidth]{small/small_gat.png}}
-  \hfill
-  \subbottom[\textit{Conv + GAT}]{\includegraphics[width=0.15\textwidth]{small/small_conv_gat.png}}
-  \hfill
-  \subbottom[\textit{GAT + U-Net}]{\includegraphics[width=0.15\textwidth]{small/small_gat_unet.png}}
-  \hfill
-  \subbottom[\textit{GAT + U-Net*}]{\includegraphics[width=0.15\textwidth]{small/small_gat_unet_train.png}}
-  \hfill
-  \subbottom[\textit{GAT + U-Net**}]{\includegraphics[width=0.15\textwidth]{small/small_gat_unet_train_2.png}}
-  \hfill
-  \subbottom[\textit{Conv + GAT + U-Net}]{\includegraphics[width=0.15\textwidth]{small/small_conv_gat_unet.png}}
-  \hfill
-  \subbottom[\textit{Conv + GAT + U-Net*}]{\includegraphics[width=0.15\textwidth]{small/small_conv_gat_unet_train.png}}
-  \hfill
-  \subbottom[\textit{Conv + GAT + U-Net**}]{\includegraphics[width=0.15\textwidth]{small/small_conv_gat_unet_train_2.png}}
-  \hfill
-\caption{Sample reconstruction for smale scale GAT-Denoiser models snry 0 dB}
-\end{figure}
+  \captionsetup[subfigure]{justification=centering}
+  \centering
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_clean.png}
+    \caption{Clean sample}
+  \end{subfigure} \hfill
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_fbp.png}
+    \caption{FBP}
+  \end{subfigure} \hfill
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_gat.png}
+    \caption{\textit{GAT}}
+  \end{subfigure} \hfill
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_conv_gat.png}
+    \caption{\textit{Conv+GAT}}
+  \end{subfigure} \hfill
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_gat_unet.png}
+    \caption{\textit{GAT + U-Net}}
+  \end{subfigure}
 
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_gat_unet_train.png}
+    \caption{\textit{GAT + U-Net*}}
+  \end{subfigure} \hfill
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_gat_unet_train_2.png}
+    \caption{\textit{GAT + U-Net**}}
+  \end{subfigure} \hfill
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_conv_gat_unet.png}
+    \caption{\textit{Conv + GAT + U-Net}}
+  \end{subfigure} \hfill
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_gat_unet_train.png}
+    \caption{\textit{Conv + GAT + U-Net*}}
+  \end{subfigure} \hfill
+  \begin{subfigure}[t]{0.16\textwidth}
+    \includegraphics[width=\textwidth]{small/small_gat_unet_train_2.png}
+    \caption{\textit{Conv + GAT + U-Net**}}
+  \end{subfigure}
+  \caption{Sample reconstruction for small scale GAT-Denoiser models \snry 0 dB}
+  \label{fig:small_components_overview}
+\end{figure}
 
 \section{Large scale Experiments}
 
@@ -624,8 +661,6 @@ for different \snry.
     \includegraphics[width=\textwidth]{large/large_conv_gat_unet_train_best.png}
     \caption{\textit{Conv+GAT+U-Net(20/20)}}
   \end{subfigure}
-
-
-  \caption[Fig title]{bla bla}
+  \caption{Large scale experiments visual results.}
 \end{figure}
 

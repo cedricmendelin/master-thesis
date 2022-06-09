@@ -1,13 +1,13 @@
 \chapter{Manifolds and Graphs}
 \label{sec:manifold_and_graphs}
     
-\textbf{TODO:}
-The following chapter establishes connection between manifolds and graphs 
-for CT and cryo-EM. 
+In this chapter, the connection between graphs and Graph Laplacian (GL) embedding to 
+CT and cryo-EM is examined. 
+First, some graph foundations are presented.
+Then, GL and its embedding is introduced and the connection to CT and cryo-EM is illustrated.
+Further, the term Graph Denoising is introduced and lastly, 
+some Graph Deep Learning approaches are presented.
 
-Further, 
-First, a broad definition of graphs is given and further, the term "Graph Denoising" is
-introduced and explained. Finally, link to Graph Laplacian, Manifolds and molecular imaging methods is established.
 
 \section{Graph Foundations}
 Real world data is often in a graph structure, like social networks, citation networks,
@@ -15,11 +15,10 @@ protein interaction networks or a simple google search.
 If data is not available as a graph structure, a graph can be artificially constructed with k-NN or other methods.
 
 \paragraph{Graph Learning:} 
-
 Graph Learning got a lot of attention in recent years.
 The idea is to learn graph information, such as topology or connections between nodes, to solve tasks.
 Attention mechanisms are popular at the moment\cite{transformer} and the idea was derived to graphs as well \cite{GAT}.
-It resumes to computing node features by using local information, therfore, the neighborhood of nodes.
+It resumes to computing node features by using local information, therefore, the neighborhood of nodes is exploited.
 Popular learning tasks are \textit{node classification} or \textit{link prediction}, where a model is learned from node and edge features 
 as well as topology. The model can be used for prediction or classification on nodes or edges.
 Another common task is \textit{community detection}, which aims to identify clusters of nodes within the input graph.
@@ -43,29 +42,21 @@ Therefore, a term of in-plane rotation is added to the $\ell2$-norm: $min_{g \in
 which is inspired by \cite{multiDiffusionMaps}.
 
 
-
 \section{Graph Laplacian \& Manifolds}
-In the following section, the connection of Graph Laplacian (GL) and manifolds to CT and cryo-EM is established.
+In the following section, the connection of GL and manifolds to CT and cryo-EM is established.
 
 \subsection{Graph Laplacian}
-Graph Laplacian (GL) is a matrix that represents a graph and can be used to find many important properties.
-It is a very powerful tool and a good introduction and overview can be found in \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
+GL is a matrix that represents a graph and can be used to find many important properties.
+It is a very powerful tool and a good introduction can be found in \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
 
-GL is defined as follows:
-\begin{equation}
-    \label{eq:gl}
-    L = D - A,
-\end{equation}
+GL is defined as follows: $L = D - A$, where $A$ is the adjacency matrix and $D$ the degree matrix (diagonal matrix with degree of nodes as entries).
 
-Where $A$ is the adjacency matrix and $D$ the degree matrix (diagonal matrix with degree of nodes as entries).
-
-
-\subsection{Manifold of CT and cryo-EM}
-A basic introduction to manifolds and how a low-dimensional embeddings can be computed is found in \ref{sec:manifolds}.
-
+\subsection{Graph Laplacian Embedding for CT and cryo-EM}
+A basic introduction to GL embedding and how it can be computed is found in \ref{sec:manifolds}.
 In this section, the connection to CT and cryo-EM is established.
-For a given observation, a low-dimensional embedding can be computed by using GL.
-In the following, it will be observed how this embedding, the second and third smallest eigenvectors of GL, looks like for CT and cryo-EM observations.
+For a given observation, a low-dimensional embedding can be computed by using the GL.
+In the following, it will be observed how this embedding for CT looks like.
+To be more precise, the second and third smallest eigenvectors of GL will be observed.
 Shepp-Logan phantom is used again as an example for CT.
 For Radon Transform, $\theta$ and $s$ are specified with $\theta \in \mathbb{R}^{500}$ as evenly spaced
 between $[0, 2 \pi]$ and $dim(s) = 200$. 
@@ -106,12 +97,13 @@ For \snry 20 dB, a circle like object could be established and for \snry 10 dB i
 
 \paragraph{Tomography for unknown angles:}
 But what can we use this embedding for?
-It is defining a low-dimensional mapping from high-dimensional space, which approximate angles observation direction.
-Therefore, for our noisy observations, angles can be approximated and reconstruction can be established even if angles are unknown.
+It is defining a low-dimensional mapping from high-dimensional space, which approximates angles for observations.
+Therefore, for (noisy) observations, angles can be approximated and reconstruction can be established even if angles are unknown.
 The problem here is the quality of our embedding. As long as the computed embedding is a mapping to the circle (or sphere),
 it should be reasonable to do reconstruction with.
 In Figure~\ref{fig:phantom_fbp_unknown_angles} reconstruction with unknown angles is applied. The same settings as before, $k=6$
-and \snry 20 dB and 10 dB are used. Reconstruction
+and \snry 20 dB and 0 dB are used. Clean reconstruction in Figure~\ref{fig:clean_reco_unknown} looks good, 
+despite that there is an in-plane rotation of around 45 degrees. 
 
 \begin{figure}[H]
     \captionsetup[subfigure]{justification=centering}
@@ -127,21 +119,39 @@ and \snry 20 dB and 10 dB are used. Reconstruction
       \label{fig:noisy_snr20_reco_unknown}
     \end{subfigure}\hfill
     \begin{subfigure}[t]{0.3\textwidth}
-      \includegraphics[width=\textwidth]{fbp_phantom_snr_10_unknown_angels.png}
-      \caption{Noisy sinogram with \snry 10 dB reconstruction from GL estimated angles.}
+      \includegraphics[width=\textwidth]{fbp_phantom_snr_0_unknown_angels.png}
+      \caption{Noisy sinogram with \snry 0 dB reconstruction from GL estimated angles.}
       \label{fig:noisy_snr10_reco_unknown}
     \end{subfigure}
+
+    \begin{subfigure}[t]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{fbp_phantom_snr_20.png}
+      \caption{Noisy sinogram with \snry 20 dB reconstruction from known angles.}
+      \label{fig:noisy_snr20_reco_unknown}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{fbp_phantom_snr_0.png}
+      \caption{Noisy sinogram with \snry 0 dB reconstruction from known angles.}
+      \label{fig:noisy_snr10_reco_unknown}
+    \end{subfigure}
+
     \caption{Shepp-Logan phantom sinogram GL eigenvectors}
     \label{fig:phantom_fbp_unknown_angles}
   \end{figure}
 
+  \textbf{TODO: Show reconstruction with known angles as well.}
+
+  \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    With the GL embedding of observations, angles can be approximated.
+    Therefore, CT and cryo-EM problem can be solved for unknown angles.
+  \end{tcolorbox}
 
   \paragraph{Denoise observations}
   As the quality of reconstruction is highly dependent on observations and their noise, it
   is expected to increase, when the level of noise is decreased.
   Therefore, standard denoising methods like Block-matching and 3D filtering (BM3D) \cite{bm3d} or 
-  non-local means \cite{noneLocalMean} could be used to denoise these observations.
-  Both emerged from Signal Processing and are not operating on a graph structure. 
+  non-local means \cite{noneLocalMean} could be used to denoise observations to get higher quality reconstructions.
+  Both algorithms emerged from Signal Processing and are not operating on a graph structure. 
   But, they use a neighborhood for averaging, which shows great potential for graph 
   as a data structure for denoising, as graphs can represent neighborhoods really well.
   BM3D is considered the state-of-the-art denoising algorithm, before algorithms emerged from Deep Learning.
@@ -149,7 +159,7 @@ and \snry 20 dB and 10 dB are used. Reconstruction
   Further, as illustrated with the GL embedding, graphs can restore information with a suitable prior,
   such as angles are uniformly sampled.
 
-\section{Graph Denoising:}
+\section{Graph Denoising}
 \textit{Graph Denoising} is not a common term in literature.
 In the current chapter, a way of constructing a k-NN graph from observations was introduced.
 Moreover, the underlying true graph was found by computing the GL embedding, which is a circle or a sphere.
@@ -189,10 +199,7 @@ Clearly, Graph Denoising can be seen as a link prediction problem.
 The difference is, that in link prediction a model from a set of observed links is learned
 $E^{\prime} \subseteq E$ and in Graph Denoising model is learned from 
 $E^{\prime} \subseteq U$. 
-
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    Link prediction problems are a subset of graph denoising problems.
-\end{tcolorbox}
+Link prediction problems are a subset of graph denoising problems.
 
 \section{Graph Deep Learning}
 \label{sec:graph_depp_learning}
@@ -217,3 +224,5 @@ over the adjacency matrix with normalization in every layer.
 underlying graph topology layer by layer.
 Graph Attention Networks (GAT) \cite{GAT} extended the concept of GCN with attention where not
 all neighboring nodes get the same weight (attention).
+Again, topology of the graph will not change but weighted averaging over the neighborhood 
+will be computed and this is what in denoising is a good idea.

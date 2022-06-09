@@ -54,13 +54,32 @@
 }
 
 \newcommand{\visualresults}[1]{
-	\subsubsection{Baseline algorithms}
+  \subsubsection{Clean test images:}
+\begin{figure}[H]
+  \centering
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_1.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_2.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_3.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_6.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_9.png}
+  \hfill
+  \includegraphics[width=0.16\textwidth]{clean/clean_10.png}
+  \hfill
+  \caption{Clean test images.}
+\end{figure}
+
+	\subsubsection{Baseline algorithms:}
   \visualresult{fbp}{#1}{FBP}
   \visualresult{bm3d\_sino}{#1}{BM3D sino}
   \visualresult{bm3d\_reco}{#1}{BM3D reco}
   \visualresult{unet}{#1}{U-Net}
 
-  \subsubsection{Gat-Denoiser models}
+  \subsubsection{GAT-Denoiser models}
   \visualresult{gat}{#1}{GAT}
   \visualresult{conv\_gat}{#1}{Conv + GAT}
   \visualresult{gat\_unet}{#1}{GAT + U-Net}
@@ -117,16 +136,16 @@
 %\input{./Chapters/RelatedWork.tex}
 \input{./Chapters/Evaluation.tex}
 \input{./Chapters/Discussion.tex}
-%\input{./Chapters/MasterThesisProject.tex}
+
 
 %% ----------------------------------------------------------------
 %\thesisappendix
 \thesisbib
 \addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
 \begin{appendices}
-	\input{./Back/GLEmbedding} 
-	\input{./Back/NeuralNetworks} 
 	\input{./Back/MathematicalTools} 
+  \input{./Back/GLEmbedding} 
+	\input{./Back/NeuralNetworks} 
 	\input{./Back/AdditionalResults} 
 \end{appendices}
 \addtocontents{toc}{\protect\setcounter{tocdepth}{2}}

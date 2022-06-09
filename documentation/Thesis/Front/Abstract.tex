@@ -1,3 +1,21 @@
 % !TEX root = ../Thesis.tex
 \chapter{Abstract}
-TODO 100-250 words,
+
+
+Cryo-Electron Microscopy (cryo-EM) and Computer Tomography (CT) 
+are two molecular imaging methods.
+In both cases, observations are collected from a biological sample.
+During reconstruction, the aim is, to approximate
+ the underlying biological sample.
+ Due to the present of enormous noise and unknown projection angles 
+in the observations, reconstruction is challenging.
+
+GAT-Denoiser is a new approach to combine Graph Attention Network 
+with convolution. It enables to denoise observations and boosts
+reconstruction quality for the assumption of known projection angles.
+During training and end-to-end approach 
+is used where reconstruction quality is compare and not only
+denoised observation quality.
+GAT-Denoiser have been evaluated on the LoDoPaB-CT~\cite{lodopab-dataset} dataset,
+where it could outperform baseline algorithm BM3D 
+reconstruction SNR by 379.9\%, 126.0\% 57.7\%, 27.6\% for \snry -15 dB, -10 dB, -5 dB and 0 dB. 

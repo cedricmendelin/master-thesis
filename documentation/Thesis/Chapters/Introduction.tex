@@ -33,25 +33,24 @@ as the problem is in 2D and observation angles are known.
 The overall goal of this Thesis is to introduce an algorithm that works with CT, but 
 can conceptually be extended to work in 3D, thus for cryo-EM. 
 Additionally, the focus is on the high noise domain, as current available reconstruction algorithms
-start to fail when dealing with too much noise.  
+start to fail when dealing with too much noise, to be more precise SNR between $[-10, 0]$.
 
 \clearpage
 
-As a result of this Thesis, a Graph Neural Network (GNN) architecture is proposed, which is called \textit{GAT-Denoiser}.
+As a result of this Thesis, a Graph Neural Network architecture is proposed, which is called \textit{GAT-Denoiser}.
 GAT-Denoiser aims to denoise noisy observations from CT to improve overall reconstruction quality.
+For CT, observations angles are assumed to be known.
 In the GNN architecture, convolution and Graph Attention Network (GAT) is used to denoise observations.
-In addition, an end-to-end learning approach with U-Net is used to further improve reconstruction quality, 
-where a pre-trained U-Net is jointly optimized further during GAT-Denoiser training.
+In addition, an end-to-end learning approach with U-Net is used to further improve reconstruction quality.
 
 GAT-Denoiser was evaluated on the LoDoPaB-CT dataset~\cite{lodopab-dataset}.
 I could show that all three components contribute to learning the best GAT-Denoiser model.
 Moreover, GAT-Denoiser outperformed BM3D~\cite{bm3d} as well as U-Net~\cite{unet-tomography},
 where observation signal-to-noise-ration (SNR) is between 0 dB and -15 dB.
-Compared to best performing baseline BM3D, GAT-Denoiser could improve reconstruction SNR 
-by 150\%, for SNR 0dB , -5 dB, -10 dB and -15 dB respectively.
-The best GAT-Denoiser could be established, when first, GAT-Denoiser is trained with a fixed U-Net model.
+Compared to the best performing baseline BM3D, GAT-Denoiser could improve reconstruction SNR 
+by 379.9\% for observation SNR -15 dB.
+The best GAT-Denoiser models could be established, when first, GAT-Denoiser is trained with a fixed U-Net model.
 After some learning, in a second step, GAT-Denoiser and U-Net have been trained jointly.
-
 
 \bigskip
 
@@ -62,7 +61,6 @@ Then, Chapter~\ref{sec:imaging} presents the two molecular imaging methods
 CT and cryo-EM and a mathematical abstraction for observation and reconstruction is introduced.
 Further, Chapter~\ref{sec:manifold_and_graphs} is dedicated to manifolds and graphs,
 and how a meaningful embedding for CT and cryo-EM can establish. 
-Further, CT with unknown angles is examined.
 The main contribution is presented in Chapter~\ref{sec:contribution}, 
 where GAT-Denoiser is introduced and results are presented in Chapter~\ref{sec:results}.
 Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion}.
@@ -70,11 +68,11 @@ Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion
 \chapter{Notation}
 \label{sec:notation}
 
-In this chapter, some basic terms are explained and their notation in this Thesis is defined.
+In this chapter, some basic terms are explained and their notation in this report is defined.
 
 \section{Molecular Imaging Methods}
-In Molecular Imaging Methods CT and cryo-EM, observations are collected from a biological sample. 
-These observations are noisy and from these noisy observations, reconstruction to approximate the biological sample is available.
+In molecular imaging methods CT and cryo-EM, observations are collected from a biological sample. 
+These observations are noisy and from these noisy observations, reconstruction to approximate the biological sample is desired.
 Throughout this Thesis, notation $p$ for noiseless observation and $y$ for observation with noise is used.
 In practice, $p$ is not observable directly and observed signal $y$ needs to be denoised.
 Further, $x$ is used for the biological sample and $x^{\prime}$ defines approximation by the reconstruction algorithms.
@@ -83,12 +81,11 @@ Consequently, $y_i \in \mathbb{R}^M$ determines $i$-th observation and $y_i[j] \
 with $ 1 \leq i \leq N \text{ and } 1 \leq j \leq M$. The same is true for $p$ with $p_i$ and $p_i[j]$. 
 
 
-
 \paragraph{Signal-to-noise-ratio}
 Signal-to-noise-ratio (SNR) is a measure used in Signal Processing. 
 It compares the power of an input signal to the power of noise and is typically given in decibel (dB), with
 $\text{SNR}_{dB} = 10 \log_{10} \left(  \frac{P_{signal}}{P_{noise}} \right)$.
-A ratio of 0 dB and lower indicates more noise than signal.
+An SNR of 0 dB and lower indicates more noise than signal.
 
 From a given clean image and its noisy version, SNR can be determined.
 During this Thesis, the term SNR is used as quality measure for reconstruction and to indicate, how much noise is present in $y$.

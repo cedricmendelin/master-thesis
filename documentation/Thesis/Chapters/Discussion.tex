@@ -5,6 +5,23 @@ In this final chapter, conclusion and future work is presented.
 
 \section{Conclusion}
 
+In this Thesis, the molecular imaging methods CT and cryo-EM
+within the high noise domain, have been the problems to approach.
+
+During the practical part, 2D and 3D tomography have been implemented 
+in python to familiarize with the domain.
+Further, vector diffusion map was implemented in 3D to so some comparison
+and code was integrated with Aspire\footnote{\url{http://spr.math.princeton.edu/}}.
+Finally, GAT was implemented and further optimized with convolution and U-Net.
+Therefore, GAT-Denoiser was introduced.
+
+During evaluation on the LoDoPab-CT dataset, baseline algorithm BM3D was implemented.
+Overall, GAT-Denoiser shows great results and improves reconstruction SNR 
+by 379.9\%, 126.0\% 57.7\%, 27.6\% for \snry -15 dB, -10 dB, -5 dB and 0 dB.
+GAT is able to capture important observation information even in the high-noise domain.
+Further, GAT-Denoiser combined with U-Net and joint neural network training
+can boost CT reconstruction. 
+
 
 
 
@@ -16,10 +33,24 @@ In this final chapter, conclusion and future work is presented.
 
 \section{Future Work}
 
+Cryo-EM is an open research area of great interest.
+The 3D problem is not easy to solve and there are many steps to further improve.
 
+\paragraph{GAT-Denoiser in 3D:}
+So far, GAT-Denoiser was evaluated on a CT dataset in 2D.
+Therefore, the next step would be to increase the dimension and 
+derive GAT-Denoiser to work in 3D. 
 
-\begin{itemize}
-  \item Add Convolution in other way (in GAT directly? multiple Convolution layers before GAT?)
-  \item Drop assumption about known angles.
-  \item Move problem to 3D (first 3D CT, then cryo-EM)
-\end{itemize}
+\paragraph{Drop known angle assumption:}
+So far, GAT-Denoiser works with the assumption that angles are fixed.
+In a future work, this assumption could be dropped. GL embedding
+is a way to approximate angles for CT and cryo-EM observations.
+The challenge is, that the embedding gets
+ useless when dealing with too much noise.
+
+\paragraph{Further cryo-EM challenges:}
+In this Thesis, only single particle cryo-EM is considered.
+When GAT-Denoiser is available in 3D, one could also think of to approach
+the problem where from a given observation, underlying sample is not 
+structural equivalent and there are some slight differences. 
+

@@ -1,14 +1,12 @@
 \chapter{Neural Networks}
-
+\label{sec:neural_networks}
 In GAT-Denoiser, different components are used, which are all neural networks.
 In this chapter, they are introduced in detail.
 
-\subsection{Graph Attention Networks}
+\section{Graph Attention Networks}
 The main component of GAT-Denoiser is a GAT.
-As mentioned in Section~\ref{sec:graph_depp_learning} \textit{\nameref{sec:graph_depp_learning}}, GAT is an extension to GCN and 
-adds attention (or weights) to neighbors for learning new node feature representations. 
-Again, topology of the graph will not change but weighted averaging over the neighborhood 
-will take place and this is what in denoising is a good idea.
+GAT is an extension to GCN and adds attention (or weights) to neighbors for learning new node feature representations. 
+Topology of the graph will not change but weighted averaging over the neighborhood will be computed.
 
 \paragraph{Single Layer}
 Input of a single GAT layer are node features $h = \{ h_1, h_2, \dots , h_N \} \in \mathbb{R}^F$, 
@@ -55,8 +53,7 @@ transformations weight matrix. The final output consists of $KF^{\prime}$ output
 In the last layer, output dimension needs to be obtained. 
 Consequently, concatenation is no longer plausible and averaging is used to match desired dimension.
 
-\subsection{Convolution}
-The second key component of GAT-Denoiser is convolution.
+\section{Convolution}
 Convolution is an important part in Signal Processing, because it allows to average an incoming signal.
 Convolution commonly operators on pixel spaces, where every observation location or time slot gets one value assigned.
 
@@ -68,9 +65,8 @@ Where $x$ is input signal, $k$ is kernel, $\star$ the convolution operator and $
 
 To apply convolution, a kernel with weights needs to be defined. 
 This kernel will then slide over the input signal $x$ and computes the dot product with its weights.
-In Figure~\ref{fig:1d-convolution} an illustration of 1D convolution can be seen. In this example,
-kernel size is set to 3, $n$ refers to input signal dimension and $m$ to output signal dimension.
-In the example  $ n = m + 2$, so the convolved output signal will be decreased by $2$.
+Figure~\ref{fig:1d-convolution} illustrates 1D convolution. Kernel size is set to 3, $n$ refers to input signal size and $m$ to output signal size.
+In the example  $ n = m + 2$, thus, the convolved output signal size will be decreased by $2$.
 The concept of convolution can be extended to arbitrary dimensions.
 
 \begin{figure}[H]
@@ -82,23 +78,21 @@ The concept of convolution can be extended to arbitrary dimensions.
 
 \paragraph{Padding:} 
 
-\textbf{TODO: Replace dimension with signal size}
+
 Padding can be defined to add pixels to boundary of the signal.
-In the example, padding is set to $0$ and therefore, the signal dimension is decreased by $2$.
-If signal dimension should be fixed during convolution, padding is a powerful tool. For padding $1$,
-the input dimension $n$ would be equal to output dimension $m$, as an extra element in the output signal
+In the example, padding is set to $0$ and therefore, the signal size is decreased by $2$.
+If signal size should be fixed during convolution, padding is a powerful tool. For padding $1$,
+the input size $n$ would be equal to output size $m$, as an extra element in the output signal
 will be at convolved at boundaries.
 
 
 \paragraph{Stride:}
 Stride is the parameter how far kernel moves each time. In the example, stride was defined to be $1$.
-If stride is increased, the output signal dimension will decrease.
+If stride is increased, the output signal size will decrease.
 
-
-\subsection{U-Net}
+\section{U-Net}
 \label{sec:unet}
-U-Net can boost performance of CT reconstruction and is therefore the third component
-in GAT-Denoiser.
+U-Net can boost performance of CT reconstruction, where FBP is further refined with a neural network.
 It is a convolutional neural network, which is well suited for image segmentation in different domains.
 \cite{unet-tomography} showed great success for biomedical image segmentation.
 

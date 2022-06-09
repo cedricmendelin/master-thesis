@@ -7,36 +7,29 @@ Its main components and overall architecture is introduced.
 
 
 \paragraph{Goal:}
-As introduced in Chapter~\ref{sec:imaging} \textit{\nameref{sec:imaging}}, molecular imaging methods computed tomography and cryo-EM are the problems
-to approach. Further, high-noise regime is the domain of interest, to be more precise SNR between $[-10, 0]$.
-For a given set of observations (many sinograms or micrographs), a GNN will be trained, such that
-it enables denoising of observations which are expected to have a better reconstruction result after denoising.
-Trained model allows to denoise not seen observations which are from the same family of observations.
+CT and cryo-EM in the high-noise regime is the domain of interest.
+For a given set of observations, a denoising model is sought, such that
+it enables denoising of observations. As a first step towards an algorithm
+which works for unknown observation angles, they are fixed during practical 
+part of this Thesis.
 
-
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-  An algorithm was designed to work with CT, projection angles are assumed to be known and $\theta$ was defined as equally spaced 
-  in the interval $[0, \pi]$. 
-\end{tcolorbox}
 
 \paragraph{Input graph:}
-To recap from Section~\ref{sec:graphConstruction}  \textit{\nameref{sec:graphConstruction}}, 
-a graph constructed from molecular-imaging observation will have single observations as nodes (one horizontal line of the sinogram). 
-As $\theta$ is fixed, angle corresponding to each single observation are known. 
-Based on these angles, neighboring nodes can be connected.
+As $\theta$ is fixed, angle corresponding to each observation are known. 
+Based on these angles, neighboring nodes can be connected, and a graph can be established.
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
   For GAT-Denoiser, this entails that graph topology is fixed and
   a k-NN graph can be constructed from $\theta$.
 \end{tcolorbox}
 
-
-\textbf{TODO: Change title name}
-
 \section{Pipeline}
 \label{sec:concept}
 
-In the following section, the concept of GAT-Denoiser is introduced. 
+In the following section, the GAT-Denoiser pipeline is introduced. 
+The pipeline consists of three neural network parts, namely convolution, GAT and U-Net.
+For readers who are not familiar with these concepts, Chapter~\ref{sec:neural_networks} present an introduction.
+
 GAT-Denoiser is a GNN and has two main components, namely convolution layers and GAT layers.
 The main idea of GAT-Denoiser is to enable denoising of observations:
 \begin{equation}
@@ -46,10 +39,10 @@ The main idea of GAT-Denoiser is to enable denoising of observations:
 % The GAT is expected to denoise observation signal with its neighbours by averaging. 
 % Further, convolution is added to denoise single observations.
 
-Input $y$ of GAT-Denoiser is a noisy observation, output is a denoised version.
-GAT averages over observation neighbors and convolution to denoise single observations. 
+Input $y$ of GAT-Denoiser is a noisy observation and output is a denoised version.
+GAT averages over observation neighbors and convolution denoise single observations. 
 For every GAT layer there is a preceding convolution. 
-In the case of computed tomography, convolution is in 1D, where for cryo-EM in 2D.
+In the case of CT, convolution is in 1D, where for cryo-EM it is in 2D.
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
   The GAT denoise observation signal with its neighbors by averaging. 
@@ -73,28 +66,21 @@ Therefore, an end-to-end learning approach is used where quality of reconstructi
 compared during GAT-Denoiser training, which is expected to perform better than 
 only optimizing denoising of observations.
 
-In Figure~\ref{fig:overall-concept} overall GAT-Denoiser concept is illustrated.
+\textbf{TODO: remove header}
+In Figure~\ref{fig:overall-concept} overall GAT-Denoiser pipeline is illustrated.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{Overall_GAT-Denoiser_Pipeline.drawio.png}
-  \caption{GAT-Denoiser concept}
+  \caption{GAT-Denoiser pipeline}
   \label{fig:overall-concept}
 \end{figure}
 
+\textbf{TODO: link U-Net}
 
-
-\paragraph{K-hop neighborhood:}
-In GNNs, multiple layers expose the k-hop neighborhood. So for a network with $k$ layers,
-network operates on the $k$-hop neighborhood. In GAT-Denoiser, this corresponds
-to the layers of GAT. Therefore, if writing from one layer, it is referring to convolution and GAT together.
 
 \section{Layers}
-
-All individual components are introduced and GAT-Denoiser architecture can be defined.
-First, the neural network layers will be explained and, second, loss and training.
-
-As defined in Equation~\ref{eq:abstract-model}, $N$ is the number of observation and
-$M$ observation dimension. 
+\textbf{TODO: rewrite chapter}
 Therefore, input (noisy sinogram) will be in $\mathbb{R}^{N \times M}$ as well as output (denoised sinogram). 
 
 In Figure~\ref{fig:architecture-detailed}, detailed GNN architecture can be seen.
@@ -103,7 +89,8 @@ The number of channels in convolution can be increased with parameter $channels$
 Further, $heads$ determine the number of heads used in the GAT layers and parameter 
 $layers$ defines how many convolution and GAT layers are stacked together.
 
-\textbf{TODO: In figure everything bold! Replace parameters with c, h and l?}
+\textbf{TODO: In figure everything bold! Replace parameters with c, h and l? Remove header}
+
 
 \begin{figure}[H]
   \centering
@@ -126,6 +113,13 @@ of GAT is $M$ if no heads are used.
 If multi-head attention is used, hidden dimension will be set to $M / heads$.
 In the last GAT layer, everything gets prepared for output dimension and 
 averaging with 1 head is applied.
+
+
+
+\paragraph{K-hop neighborhood:}
+In GNNs, multiple layers expose the k-hop neighborhood. So for a network with $k$ layers,
+network operates on the $k$-hop neighborhood. In GAT-Denoiser, this corresponds
+to the layers of GAT. Therefore, if writing from one layer, it is referring to convolution and GAT together.
 
 \section{Training}
 

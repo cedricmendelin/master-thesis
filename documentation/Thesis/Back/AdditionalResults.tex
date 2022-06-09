@@ -1,12 +1,12 @@
 % !TEX root = ../Thesis.tex
 
 \chapter{Additional results}
+In this chapter, additional numeric and visual results are presented.
 
-\section{Small Experiment}
+\section{Small experiment: GAT-Denoiser components}
 
-\subsection{GAT-Denoiser components}
-
-
+Table~\ref{tab:small_gat_components} shows numerical results for the small scale experiment.
+Results for the baseline algorithms, different models with $k=2$ and $k=8$ are presented.  
 \begin{table}[H]
     \centering
     \begin{tabular}{l|c|c|c|c}
@@ -19,39 +19,49 @@
       BM3D reco           & 10.79 & 8.09  & 4.97  & 1.54    \\ \hline
       U-Net               & 7.13  &  6.18 & 4.34  & 1.87    \\ \hline
       \midrule
+      \multicolumn{5}{c}{K-NN k = 2} \\
+      GAT             &	9.42 	&8.25	&6.78	&5.75  \\  \hline
+      Conv+GAT        & 10.01 &8.88	&7.69	&6.79  \\ \hline
+      GAT+U-Net       &	7.93	&7.28	&6.77	&4.91  \\ \hline
+      GAT+U-Net*      &	11.92	&10.14	&10.13	&8.43 \\ \hline
+      GAT+U-Net**     &	13.41	&12.12	&10.62	&8.50  \\ \hline
+      Conv+GAT+U-Net  &	8.17	&7.09	&4.53	&5.67  \\ \hline
+      Conv+GAT+U-Net* &	12.60	&10.71	&8.80	&8.44  \\ \hline
+      Conv+GAT+U-Net**&	12.80	&11.70	&10.63	&9.21 \\ \hline
+      
+      \midrule
       \multicolumn{5}{c}{K-NN k = 8} \\
       GAT                  & 8.32           & 6.94           & 6.19 & 5.01 \\ \hline
       Conv + GAT           & 9.05           & 8.07           & 6.99  & 5.75 \\ \hline
       GAT + U-Net          & 7.49           & 6.40           & 6.01   & 5.07 \\ \hline
       GAT + U-Net**        & 11.88          & \textbf{10.85} & \textbf{9.68} & \textbf{8.26} \\ \hline
       Conv + GAT + U-Net   & 7.55           & 6.50           &5.74 &4.87 \\ \hline
-      Conv + GAT + U-Net** & \textbf{11.94} & 10.31          &7.34   &7.33 \\
-      \midrule
-      \multicolumn{5}{c}{K-NN k = 2} \\
-      GAT             &	9.42 	&8.25	&6.78	&5.75  \\
-      Conv+GAT        & 10.01 &8.88	&7.69	&6.79  \\
-      GAT+U-Net       &	7.93	&7.28	&6.77	&4.91  \\
-      GAT+U-Net*      &	11.92	&10.14	&10.13	&8.43 \\
-      GAT+U-Net**     &	13.41	&12.12	&10.62	&8.50  \\
-      Conv+GAT+U-Net  &	8.17	&7.09	&4.53	&5.67  \\
-      Conv+GAT+U-Net* &	12.60	&10.71	&8.80	&8.44  \\
-      Conv+GAT+U-Net**&	12.80	&11.70	&10.63	&9.21 \\
+      Conv + GAT + U-Net** & \textbf{11.94} & 10.31          &7.34   &7.33 \\ \hline
+    
     \end{tabular}
-  
-    \caption{Small Experiment: overall GAT-Denoiser components vs. Baseline for k-NN = 8}
+    \legend{The evaluated GAT-Denoiser models have been trained with 1024 images for 200 epochs. 
+    U-Net* refers to joint U-Net training and U-Net** to joint U-Net training, after a 
+    training of 100 epochs of GAT-Denoiser alone. }
+    \caption{Small scale experiment: GAT-Denoiser components vs. baseline algorithms.}
     \label{tab:small_gat_components}
   \end{table}
 
 
-\subsection{Small experiment - knn with 2 layers, 4 heads}
+\subsection{Small experiment - k-NN with 2 layers, 4 heads}
 
-2 layers, 4 heads
+\section{Small experiment: further k-NN results}
+K-NN experiments have been computed before the one with GAT parameter for layers and heads.
+The best value for GAT parameters have been 2 layers and 4 heads.
+Therefore, k-NN experiment have been repeated with these settings and results 
+can be found in Table~\ref{tab:small_knn_2}. 
+
+The outcome was almost the same 
 
 \begin{table}[H]
   \centering
   \begin{tabular}{l|cc}
     \toprule
-    \textbf{K-NN parameter k} & \multicolumn{2}{l|}{\snrh{ 0}}   \\
+    \textbf{k} & \multicolumn{2}{l|}{\snrh{ 0}}   \\
                        & \textbf{Loss} & \textbf{SNR}  \\ 
     \midrule
     2    & 9.90 & 601.38  \\ \hline
@@ -61,17 +71,20 @@
     \midrule
   \end{tabular}
 
-  \caption{Different k-NN values for \snry 0 dB and -10 dB }
+  \caption{Different k values for \snry 0 dB and -10 dB }
   \label{tab:small_knn_2}
 \end{table}
 
 
-\subsection{Small experiment - GAT dropout}
+\section{Small experiment - GAT dropout}
+
+TODO: define experimet fixed parameters.
+
 \begin{table}[H]
   \centering
   \begin{tabular}{l|cc}
     \toprule
-    \textbf{K-NN parameter k} & \multicolumn{2}{l|}{\snrh{ 0}}   \\
+    \textbf{GAT dropout.} & \multicolumn{2}{l|}{\snrh{ 0}}   \\
                        & \textbf{Loss} & \textbf{SNR}  \\ 
     \midrule
     0       & 8.33 & 739.5  \\ \hline
@@ -86,9 +99,9 @@
   \label{tab:small_droput}
 \end{table}
 
-\section{Large Scale experiment}
-
-\subsection{Baseline results}
+\section{Large scale experiment: baseline results}
+Table~\ref{tab:baseline-large} presents the result of the choosen baseline algorithms
+for the large scale experiment.
 
 \begin{table}[H]
   \centering
@@ -107,7 +120,9 @@
   \label{tab:baseline-large}
 \end{table}
 
-\subsection{Large scale component results}
+\subsection{Large scale experiment: GAT-Denoiser models}
+Table~\ref{ab:large_gat_components_knn2} presents the final results for baseline algorithms
+and GAT-Denoiser models for the large scale. 
 
 \begin{table}[H]
     \centering
@@ -135,61 +150,58 @@
     \label{tab:large_gat_components_knn2}
   \end{table}
 
-\section{wandb logging:}
-\subsection{Small experiment:}
-\begin{itemize}
-  \item FBP: \url{https://wandb.ai/cedric-mendelin/FBP-Validation-LoDoPaB-small}
-  \item BM3D: \url{https://wandb.ai/cedric-mendelin/BM3D-Validation-LoDoPaB-small}
-  \item U-Net: \url{https://wandb.ai/cedric-mendelin/U-Net-Validation-LoDoPaB-small}
-  \item k-nn and graph structure \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-k-NN-and-graph-size}
-  \item Conv: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Convolution}
-  \item Loss: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Loss-FBP-vs-SINO}
-  \item Dropout: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-GAT-dropout}
-  \item Components k-nn 2: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Components-knn-2}
-  \item Components k-nn 8: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Components-knn-8}
-\end{itemize}
-
-\subsection{Large scale experiments}
-\begin{itemize}
-  \item U-NET: \url{https://wandb.ai/cedric-mendelin/U-Net-Validation-LoDoPaB-large}
-  \item FBP: \url{https://wandb.ai/cedric-mendelin/FBP-Validation-LoDoPaB-large}
-  \item BM3D: \url{https://wandb.ai/cedric-mendelin/BM3D-Validation-LoDoPaB-large}
-  \item Gat-Denoiser: \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Large-knn-2}
-\end{itemize}
-
-
-\section{Visual Results}
-
-\subsection{Clean images}
-\begin{figure}[H]
+\section{Wandb results}
+Table~\ref{tab:wandb_results} shows urls raw wandb results for all computed experiments on the LoDoPaB-CT dataset.
+\begin{table}[H]
   \centering
-  \hfill
-  \includegraphics[width=0.16\textwidth]{clean/clean_1.png}
-  \hfill
-  \includegraphics[width=0.16\textwidth]{clean/clean_2.png}
-  \hfill
-  \includegraphics[width=0.16\textwidth]{clean/clean_3.png}
-  \hfill
-  \includegraphics[width=0.16\textwidth]{clean/clean_6.png}
-  \hfill
-  \includegraphics[width=0.16\textwidth]{clean/clean_9.png}
-  \hfill
-  \includegraphics[width=0.16\textwidth]{clean/clean_10.png}
-  \hfill
-  \caption{FBP reconstruction for \snry 0 dB}
-\end{figure}
+  \begin{tabular}{l|l}
+    \toprule
+    \textbf{Experiments} & \textbf{URL} \\ 
+    \midrule
+    \multicolumn{2}{c}{Small scale experiments:} \\
+    FBP & \url{https://wandb.ai/cedric-mendelin/FBP-Validation-LoDoPaB-small} \\ \hline
+    BM3D & \url{https://wandb.ai/cedric-mendelin/BM3D-Validation-LoDoPaB-small} \\ \hline
+    U-Net& \url{https://wandb.ai/cedric-mendelin/U-Net-Validation-LoDoPaB-small} \\ \hline
+    K-nn &\url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-k-NN-and-graph-size} \\ \hline
+    Convolution & \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Convolution} \\ \hline
+    Loss& \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Loss-FBP-vs-SINO} \\ \hline
+    GAT dropout& \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-GAT-dropout} \\ \hline
+    GAT-Denoiser $k=2$ & \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Components-knn-2} \\ \hline
+    GAT-Denoiser $k=8$ & \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Small-Components-knn-8} \\ \hline
+    \midrule
+    \multicolumn{2}{c}{Large scale experiments:} \\
+    U-NET & \url{https://wandb.ai/cedric-mendelin/U-Net-Validation-LoDoPaB-large} \\ \hline
+    FBP& \url{https://wandb.ai/cedric-mendelin/FBP-Validation-LoDoPaB-large} \\ \hline
+    BM3D& \url{https://wandb.ai/cedric-mendelin/BM3D-Validation-LoDoPaB-large} \\ \hline
+    GAT-Denoiser & \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Large-knn-2} \\ \hline
 
+  \end{tabular}
+  \caption{Wandb results.}
+  \label{tab:wandb_results}
+\end{table}
+
+\paragraph{Average wandb run result:}
+Average SNR and loss have been computed with a python script and exported values can be found under\footnote{https://github.com/cedricmendelin/master-thesis/tree/main/wandb\_results}.
+
+\clearpage
+\section{Large scale experiment: Visual Results}
+In this section, further visual results for the large scale experiment are presented for 
+\snry 0 dB, -5 dB, -10 dB and -15 dB.
+Clean images are repeated at every subsection, even tough they are the same
 
 \subsection{\snry 0 dB}
 \visualresults{0}
 
+\clearpage
+
 \subsection{\snry -5 dB}
 \visualresults{-5}
 
+\clearpage
 
 \subsection{\snry -10 dB}
 \visualresults{-10}
 
-
+\clearpage
 \subsection{\snry -15 dB}
 \visualresults{-15}
