@@ -57,18 +57,89 @@ After some learning, in a second step, GAT-Denoiser and U-Net have been trained 
 
 The report is structured as follows: 
 
-
-In Chapter~\ref{sec:imaging} \textit{\nameref{sec:imaging}}, the two molecular imaging methods
-CT and cryo-EM are introduced as well as a mathematical abstraction for observation and reconstruction.
-Further, Chapter~\ref{sec:graphFoundations} \textit{\nameref{sec:graphFoundations}} is dedicated to graphs, 
-where graph foundations are introduced and connection from graphs to molecular imaging methods are established. 
-Besides, the problem of "Graph Denoising" is defined and methods like graph construction and Graph Laplacian are introduced.
-The main concept of GAT-Denoiser is described in Chapter~\ref{sec:contribution} \textit{\nameref{sec:contribution}}
-and results are presented in Chapter~\ref{sec:results} \textit{\nameref{sec:results}}.
-Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion} \textit{\nameref{sec:Conclusion}}.
+First, notation applied throughout this Thesis is introduced in Chapter~\ref{sec:notation}.
+Then, Chapter~\ref{sec:imaging} presents the two molecular imaging methods
+CT and cryo-EM and a mathematical abstraction for observation and reconstruction is introduced.
+Further, Chapter~\ref{sec:graphFoundations} is dedicated to manifolds and graphs,
+and how a meaningful embedding for CT and cryo-EM can establish. 
+Further, CT with unknown angles is examined.
+The main contribution is presented in Chapter~\ref{sec:contribution}, 
+where GAT-Denoiser is introduced and results are presented in Chapter~\ref{sec:results}.
+Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion}.
 
 \chapter{Notation}
+\label{sec:notation}
 
-Some Math: concat operator.
-SNR, \snry
-Graphs: notation, edges, nodes, A, k-NN.
+In this chapter, some basic terms are explained and their notation in this Thesis is defined.
+
+\section{Molecular Imaging Methods}
+In Molecular Imaging Methods CT and cryo-EM, observations are collected from a biological sample. 
+These observations are noisy and from these noisy observations, reconstruction to approximate the biological sample is available.
+Throughout this Thesis, notation $p$ for noiseless observation and $y$ for observation with noise is used.
+In practice, $p$ is not observable directly and observed signal $y$ needs to be denoised.
+Further, $x$ is used for the biological sample and $x^{\prime}$ defines approximation by the reconstruction algorithms.
+
+\paragraph{Signal-to-noise-ratio}
+Signal-to-noise-ratio (SNR) is a measure used in Signal Processing. 
+It compares the power of an input signal to the power of noise and is typically given in decibel (dB), with
+$\text{SNR}_{dB} = 10 \log_{10} \left(  \frac{P_{signal}}{P_{noise}} \right)$.
+A ratio of 0 dB and lower indicates more noise than signal.
+
+From a given clean image and its noisy version, SNR can be determined.
+During this Thesis, the term SNR is used as quality measure for reconstruction and to indicate, how much noise is present in $y$.
+To make notation clear, \textit{SNR} refers to SNR computed from $x^{\prime}$ and $x$.
+Contrary, $\textit{SNR}_y$ is used to express the level of noise in $y$, 
+where SNR is computed from $y$ and $p$.
+
+\section{Graph}
+A graph is defined as $G = \langle V,E \rangle$, where $V$ is a set of 
+vertices (or nodes) and $E$ is a set of edges (or links). 
+Edges are defined as a set of tuples $(i, j)$, where $i$ and $j$ determine 
+the index of vertices in the graph.
+
+\paragraph{Graph properties:}
+A graph can be either \textit{directed} or \textit{undirected}. 
+In a directed graph, an edge connects explicitly from one node to another, consequently edge $(i, j) \neq (j, i)$. 
+In an undirected graph, edges have no direction and ordering does not matter, therefore $(i, j) = (j, i)$.
+Throughout this Thesis, undirected graphs are considered and when writing from a graph, is refers to an undirected graph.
+
+The \textit{neighborhood}, denoted by $\mathcal{N}(i)$, of a node $i$  is defined as all adjacent nodes.
+In other words, there is an edge between neighborhood nodes and $i$. 
+Further, edges can have \textit{weights}, which is a method to define the importance of neighbors, resulting in a \textit{weighted} graph.
+\textit{Degree} of a node are the number of incoming edges.
+
+\paragraph{Adjacency Matrix:}
+The (binary) adjacency matrix of graph $G = \langle V, E \rangle$ is defined as follows:
+\begin{equation}
+    \label{eg:AdjacencyMatrix}
+    A_{ij} =    
+    \begin{cases}
+        1  & \text{if } (i, j) \in E \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+Matrix $A$ has dimension $\mathbb{R}^{N \times N}$ with $N$ as number of nodes
+and indices of $A$ correspond to nodes in $V$.
+If there exists an edge between two nodes, entry in $A$ will be set to $1$, otherwise to $0$.
+This leads to an unweighted graph, as weights of all edges will be $1$.
+When $G$ is undirected, corresponding adjacency matrix will be symmetric. 
+Eigenvalues of $A$ are called \textit{spectrum} of $G$.
+
+\paragraph{Graph construction with k-NN:}
+K-nearest-neighbors (k-NN) is a graph construction algorithm. The distance between
+nodes is calculated with a distance measure (e.g. Euclidean distance) and 
+for every node, $\mathcal{N}_i$ is defined as $k$ nodes with the smallest similarity measure.
+During this Thesis, when writing from $k$ it refers to k-NN parameter $k$.
+
+
+\section{Maths}
+\paragraph{Convolution:}
+During this Thesis, symbol $\star$ is used for the convolution operator.
+
+\paragraph{Concatenation:}
+$\parallel$ is used for the concatenation operator, which combines vectors end-to-end. 
+For vectors $x=(x_0, \dots, x_n)$ and $y=(y_0, \dots, y_n)$ concatenation is defined as 
+$ x \bigparallel y = z$ with $z=(x_0, \dots, x_n, y_0, \dots, y_n) $. 
+The operator can be applied to an arbitrary number of vectors.
+Consider $N$ vectors $v_1, \dots, v_n$, concatenation is written as  $\bigparallel^N_{i=1} v_i$.
