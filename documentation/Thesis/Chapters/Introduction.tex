@@ -60,7 +60,7 @@ The report is structured as follows:
 First, notation applied throughout this Thesis is introduced in Chapter~\ref{sec:notation}.
 Then, Chapter~\ref{sec:imaging} presents the two molecular imaging methods
 CT and cryo-EM and a mathematical abstraction for observation and reconstruction is introduced.
-Further, Chapter~\ref{sec:graphFoundations} is dedicated to manifolds and graphs,
+Further, Chapter~\ref{sec:manifold_and_graphs} is dedicated to manifolds and graphs,
 and how a meaningful embedding for CT and cryo-EM can establish. 
 Further, CT with unknown angles is examined.
 The main contribution is presented in Chapter~\ref{sec:contribution}, 
@@ -78,6 +78,11 @@ These observations are noisy and from these noisy observations, reconstruction t
 Throughout this Thesis, notation $p$ for noiseless observation and $y$ for observation with noise is used.
 In practice, $p$ is not observable directly and observed signal $y$ needs to be denoised.
 Further, $x$ is used for the biological sample and $x^{\prime}$ defines approximation by the reconstruction algorithms.
+In addition, $N$ is used for the number of observations and $M$ as the observation dimension.
+Consequently, $y_i \in \mathbb{R}^M$ determines $i$-th observation and $y_i[j] \in \mathbb{R}$ the $j$-th element of $y_i$,
+with $ 1 \leq i \leq N \text{ and } 1 \leq j \leq M$. The same is true for $p$ with $p_i$ and $p_i[j]$. 
+
+
 
 \paragraph{Signal-to-noise-ratio}
 Signal-to-noise-ratio (SNR) is a measure used in Signal Processing. 

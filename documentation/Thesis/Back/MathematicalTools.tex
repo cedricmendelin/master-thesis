@@ -2,7 +2,7 @@
 
 \chapter{Mathematical Tools}
 
-\subsection{3D rotation matrix}
+\section{3D rotation matrix}
 \label{app:3DrotationMatrix}
 A rotation matrix is a transformation matrix used to perform rotations.
 In 3D case, matrix for rotating one single axis can be described as:
@@ -33,7 +33,7 @@ In 3D case, matrix for rotating one single axis can be described as:
     \end{bmatrix}
 \end{equation}
 
-where $e_x, e_y, e_z$ corresponds to the axis unit-vector (for x: $(1,0,0)$, etc.) and $\theta \in \mathbb{R}$.
+Where $e_x, e_y, e_z$ corresponds to the axis unit-vector (for x: $(1,0,0)$, etc.) and $\theta \in \mathbb{R}$.
 To combine the single axis rotations, matrices can be multiplied with each other:
 
 \begin{equation}
@@ -44,7 +44,7 @@ To combine the single axis rotations, matrices can be multiplied with each other
 In Equation~\ref{eq:3d-rotation}, angle $\theta$ is the same for all axis, which does not have to be.
 
 
-\subsection{Power Iterations}
+\section{Power Iterations}
 \label{sec:powerIterations}
 
 Power iteration, also called power method, is an iterative method
@@ -57,5 +57,5 @@ The algorithm starts with a random vector $b_0$ or an approximation of the domin
     b_{k+1} = \frac{Ab_k}{||Ab_k||}
 \end{equation}
 
-It will not necessarily converges. The algorithm will converge if $A$ has an eigenvalue strictly grater than its other eigenvalues
+It will not necessarily converge. It only converges if $A$ has an eigenvalue strictly grater than its other eigenvalues
 and initial vector $b_0$ is not orthogonal to the eigenvector associated with the largest eigenvalue.

@@ -1,7 +1,7 @@
 \chapter{Graph Laplacian Embedding}
 
 
-\subsection{Manifolds}
+\section{Manifolds}
 \label{sec:manifolds}
 
 \textbf{TODO:
@@ -16,12 +16,21 @@ When the data points are sampled from a manifold, the GL embedding is closely re
 We can expect the GL embedding to share property of the original manifold, such as preservation of distances between points}
 
 
-In high-dimensional data Euclidean distances are not meaningful
+For high-dimensional data Euclidean distances are not meaningful
 in the sense that they will not capture similar data points well. 
-Graph Laplacian can be used to compute a \textit{Manifold}, which can help in such scenarios. 
-In manifold space, Euclidean distances make sense again. 
+GL can be used to compute a low-dimensional embedding which can map from high-dimensional space to low-dimensional one.
+In low-dimensional space, Euclidean distances make sense again. 
+
+The manifold assumption is a popular assumption for high-dimensional datasets.
+For a given dataset in high-dimension, one can assume that data points are samples drawn from a low-dimensional manifold,
+that embeds the high-dimensional space. 
+Therefore, if underlying manifold can be approximated, a dimensionality reduction
+is established as one can embed data points in the low-dimensional manifold space.
+There is a complete area of research devoted to this manifold assumption called Manifold Learning\cite{ManifoldLearning}.
+
+\paragraph{Definition:}
 Let manifold $M$ be defined as $\mathcal{M} = \{ f(x), f \in C^K, f: \mathbb{R}^D \to \mathbb{R}^d \}$.
-Manifolds are a well established mathematical concept. In the Master's Thesis, only 
+Manifolds are a well established mathematical concept. In this Thesis, only 
 $C^k$ differentiable d-dimensional manifolds defined by $\mathcal{M}$ are considered. 
 When $d \ll D$, manifolds define a \textit{low-dimensional embedding}, which maps from high-dimensional space 
 $\mathbb{R}^D$ to low-dimensional space $\mathbb{R}^d$.
@@ -47,31 +56,115 @@ as well as the sphere itself.
     \ref{fig:sphere_sampling} sphere samples}
 \end{figure}
 
-One popular algorithm for calculating manifolds is diffusion maps~\cite{diffusionMaps}, 
-which is a non-linear approach for calculating low-dimensional manifolds
-for (high-dimensional) datasets, using Graph Laplacian.
+
+\paragraph{GL-manifold}
+\label{sec:manifold_calculation}
+A simple low-dimensional embedding of a dataset can be computed with Graph-Laplacian by the following:
+
+\begin{enumerate}
+    \item Construct k-NN graph from observations.
+    \item Calculate the (normalized) Graph Laplacian (see Equation~\ref{eq:gl}).
+    \item Extract the second, third (and fourth) the smallest eigenvectors.
+\end{enumerate}
+
+
+Another popular algorithm for calculating a low-dimensional embedding is diffusion maps~\cite{diffusionMaps}, 
+which is a non-linear approach using Graph Laplacian.
 Vector diffusion maps~\cite{vectorDiffusionMaps} generalize the concept of diffusion maps for vector fields.
 Multi-frequency vector diffusion maps~\cite{multiDiffusionMaps} 
 can be seen as an extension to vector diffusion maps, which works well even on highly noisy environments.
 \citet{cryoEmMutliDM} successfully applied multi-frequency vector diffusion Maps in cryo-EM setting,
  where it was used for denoising observations.
 
-\subsection{Manifold assumption}
-\label{sec:manifoldAssumption}
-Manifold assumption is a popular assumption for high-dimensional datasets.
-For a given dataset in high-dimension, one can assume that data points are samples drawn from a low-dimensional manifold,
-that embeds the high-dimensional space. 
-Therefore, if underlying manifold can be approximated, a dimensionality reduction
-is established as one can embed data points in the low-dimensional manifold space.
-There is a complete area of research devoted to this manifold assumption called Manifold Learning\cite{ManifoldLearning}.
 
-\subsection{GL-manifold calculation}
-\label{sec:manifold_calculation}
-A simple low-dimensional embedding (manifold) of a dataset can be calculated with Graph-Laplacian 
-by the following:
+\subsection{Embedding quality}
+\label{sec:embedding_quality}
 
-\begin{enumerate}
-    \item Construct k-NN graph from observations (see Section~\ref{sec:graphConstruction} \textit{\nameref{sec:graphConstruction}}).
-    \item Calculate the (normalized) Graph Laplacian (see Equation~\ref{eq:gl}).
-    \item Extract the second, third (and fourth) the smallest eigenvectors.
-\end{enumerate}
+Finding a good embedding, which approximates the  GL-manifold, is not easy and in our case, the embedding is dependent on $k$ during graph construction
+as well as parameter $\theta$, $s$ and $\eta$ for obtaining observations.
+
+K is an important parameter for building up a graph. If set too low, neighbors
+do not capture similar data well as too few nodes are connected. 
+Further, if k is set too high, strength of a neighbor 
+is weakened and data is not well explained.
+In Figure~\ref{fig:clean_manifolds}, GL-manifold computed by clean sinogram and k from 2 to 10 is illustrated.
+One can see, that from $k \leq 4$ GL-manifold results in a perfect circle and with $k >  4$ is moves 
+further away from the circle. 
+
+
+\begin{figure}[H]
+    \captionsetup[subfigure]{justification=centering}
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{phaton_clean_manifold_kdifferent.png}
+        \caption{Clean sinogram GL embeddings for different $k$.}
+        \label{fig:clean_manifolds}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.45\textwidth}
+      \includegraphics[width=\textwidth]{phaton_noisy_manifold_kdifferent.png}
+      \caption{Noisy sinogram GL embeddings for different $k$.}
+      \label{fig:noisy_manifolds}
+    \end{subfigure}\hfill
+    \caption{Shepp-Logan phantom sinogram GL eigenvectors}
+  \end{figure}
+
+If data is noisy, it is expected to be harder to construct a meaningful GL-manifold, as some connections within
+the graph will be noisy. This is exactly what is illustrated in Figure~\ref{fig:clean_manifolds}, where 
+different GL-manifold for noisy sinogram (SNR=20dB) and k from 3 to 10 are illustrated.
+GL-manifold can never express data with a perfect circle. As noise is chosen rather moderate, GL-manifold has still some 
+power to express underlying data and is expected to decrease, if noise is increased.
+
+
+Further, when observing a sinogram, $\theta$ defines how many observations (straight lines) are drawn
+and $dim(s)$ defines the amount of sampling points. Both have great impact to expressiveness of our sinogram.
+In Figure~\ref{fig:clean_manifold_200} GL-manifold with $\theta \in \mathbb{R}^{200}$ and k=6 is illustrated
+for clean sinogram. It looks like 6 are too many neighbors, as the perfect circle cannot be established anymore.
+But, if $\theta$ is increased $\theta \in \mathbb{R}^{500}$, more nodes are available to choose good neighbors from
+and a perfect circle can be established (figure~\ref{fig:clean_manifold_500}).
+
+\begin{figure}[H]
+    \captionsetup[subfigure]{justification=centering}
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{phaton_clean_manifold_200_k6.png}
+        \caption{Clean sinogram GL-manifold, $k = 6$ and 200 samples}
+        \label{fig:clean_manifold_200}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.45\textwidth}
+      \includegraphics[width=\textwidth]{phaton_clean_manifold_500_k6.png}
+      \caption{Clean sinogram GL-manifold, $k = 6$ and 500 samples.}
+      \label{fig:clean_manifold_500}
+    \end{subfigure}\hfill
+    \caption{Shepp-Logan phantom sinogram GL embeddings: Importance of number of samples}
+  \end{figure}
+
+
+Moreover, the number of sampling points is important as well.
+For more sampling points it is expected to be harder to come up with good neighbors (fixing k and number of samples),
+as more data need to be explained with the same amount of neighbors, and it is more likely, that nodes are connected wrongly.
+This can be seen in Figure~\ref{fig:clean_manifold_res200} and Figure~\ref{fig:clean_manifold_res400}, where with $dim(s) = 200$,
+the perfect circle can be established and with $dim(s) = 400$, not anymore (by same parameter $k = 6$ and $\theta \in \mathbb{R}^{500}$).
+
+\begin{figure}[H]
+    \centering
+    \hfill
+    \subbottom[\label{fig:clean_manifold_res200}]
+        {\includegraphics[width=0.4\textwidth]{phaton_clean_manifold_res_200_k6.png}}
+    \hfill
+    \subbottom[\label{fig:clean_manifold_res400}]
+        {\includegraphics[width=0.4\textwidth]{phaton_clean_manifold_res_400_k6.png}}
+    \hfill
+    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.
+    \ref{fig:clean_manifold_res200} Clean sinogram GL-manifold, $k = 6$ and $\text{resolution}=200$,
+    \ref{fig:clean_manifold_res400} Clean sinogram GL-manifold, $k = 6$ and $\text{resolution}=400$}
+\end{figure}
+
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    Since the GL-manifold is sensitive to $k$, it is best practice to try different values in order to find the best GL-manifold.
+\end{tcolorbox}
+
+
+
+
+

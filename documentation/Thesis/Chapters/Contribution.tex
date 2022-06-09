@@ -33,7 +33,7 @@ Based on these angles, neighboring nodes can be connected.
 
 \textbf{TODO: Change title name}
 
-\section{Concept}
+\section{Pipeline}
 \label{sec:concept}
 
 In the following section, the concept of GAT-Denoiser is introduced. 
@@ -88,9 +88,8 @@ In GNNs, multiple layers expose the k-hop neighborhood. So for a network with $k
 network operates on the $k$-hop neighborhood. In GAT-Denoiser, this corresponds
 to the layers of GAT. Therefore, if writing from one layer, it is referring to convolution and GAT together.
 
+\section{Layers}
 
-\section{Architecture}
-\label{sec:architecture-GatDenoiser}
 All individual components are introduced and GAT-Denoiser architecture can be defined.
 First, the neural network layers will be explained and, second, loss and training.
 
@@ -98,7 +97,6 @@ As defined in Equation~\ref{eq:abstract-model}, $N$ is the number of observation
 $M$ observation dimension. 
 Therefore, input (noisy sinogram) will be in $\mathbb{R}^{N \times M}$ as well as output (denoised sinogram). 
 
-\subsection{Layers}
 In Figure~\ref{fig:architecture-detailed}, detailed GNN architecture can be seen.
 It is parametrized with $channels$, $heads$ and $layers$. 
 The number of channels in convolution can be increased with parameter $channels$.
@@ -129,7 +127,10 @@ If multi-head attention is used, hidden dimension will be set to $M / heads$.
 In the last GAT layer, everything gets prepared for output dimension and 
 averaging with 1 head is applied.
 
-\subsection{Training}
+\section{Training}
+
+\subsection{Loss}
+
 \label{sec:contr_training}
 An end-to-end learning approach is used where quality of reconstruction is 
 compared in the loss.
@@ -149,3 +150,12 @@ Thus, U-Net needs to be first pre-trained with the dataset.
 One could also consider training U-Net and GAT-Denoiser jointly.
 
 \textbf{TODO: Add Loss section with part from second loss.}
+
+
+One could also consider computing loss from GAT-Denoiser output directly, therefore on denoised observation level.
+For LoDoPaB-CT dataset, this would mean to compare clean sinogram with denoised sinogram:
+
+\begin{equation}
+  \label{eq:loss_sino}
+  \mathcal{L}_{sino} = \parallel p_i - \textit{GAT-Denoiser}(A(x_i, \theta, s) + \eta) \parallel ^2_2
+\end{equation}

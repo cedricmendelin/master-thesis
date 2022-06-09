@@ -1,28 +1,25 @@
-\chapter{Graph Denoising}
-\label{sec:graphFoundations}
+\chapter{Manifolds and Graphs}
+\label{sec:manifold_and_graphs}
     
+\textbf{TODO:}
+The following chapter establishes connection between manifolds and graphs 
+for CT and cryo-EM. 
 
-The following chapter establishes connection between graphs and denoising in high-noise 
-domains, such as cryo-EM.
+Further, 
 First, a broad definition of graphs is given and further, the term "Graph Denoising" is
 introduced and explained. Finally, link to Graph Laplacian, Manifolds and molecular imaging methods is established.
 
 \section{Graph Foundations}
 Real world data is often in a graph structure, like social networks, citation networks,
 protein interaction networks or a simple google search. 
-If data is not available as a graph structure, a graph can be artificially constructed with k-nearest neighbors (k-NN) or other methods.
-A general framework for graph construction is introduced in Section~\ref{sec:graphConstruction} \textit{\nameref{sec:graphConstruction}}.
+If data is not available as a graph structure, a graph can be artificially constructed with k-NN or other methods.
 
 \paragraph{Graph Learning:} 
 
-\textbf{GIVE some intuition:
-The idea is to automatically learn/lift graph information
- (connection between nodes, topology) to solve tasks. 
- Among other, attention mechanisms are popular at the moment. 
- It resumes to compute node features by using local information (neighbors).}
-
 Graph Learning got a lot of attention in recent years.
-It is a way of applying algorithms on graphs as a data structure, where algorithms often emerged from ML.
+The idea is to learn graph information, such as topology or connections between nodes, to solve tasks.
+Attention mechanisms are popular at the moment\cite{transformer} and the idea was derived to graphs as well \cite{GAT}.
+It resumes to computing node features by using local information, therfore, the neighborhood of nodes.
 Popular learning tasks are \textit{node classification} or \textit{link prediction}, where a model is learned from node and edge features 
 as well as topology. The model can be used for prediction or classification on nodes or edges.
 Another common task is \textit{community detection}, which aims to identify clusters of nodes within the input graph.
@@ -30,111 +27,140 @@ Further, graphs are highly favored for \textit{dimensionality-reduction}, where
 graph algorithms provide a helpful tool, as ordinary algorithms like principal component analysis fail to 
 establish a meaningful dimensionality reduction.
 
-\subsection{Graph definition}
-A graph is defined as $G = \langle V,E \rangle$, where $V$ is a set of 
-vertices (or nodes) and $E$ is a set of edges (or links). 
-Edges are defined as a set of tuples $(i, j)$, where $i$ and $j$ determine 
-the index of vertices in the graph.
-
-\paragraph{Graph properties:}
-A graph can be either \textit{directed} or \textit{undirected}. 
-In a directed graph, an edge connects explicitly from one node to another, consequently edge $(i, j) \neq (j, i)$. 
-In an undirected graph, edges have no direction and ordering does not matter, therefore $(i, j) = (j, i)$.
-Throughout this Thesis, undirected graphs are considered and when speaking from a graph, is always refers to an undirected graph.
-
-The \textit{neighborhood}, denoted by $\mathcal{N}(i)$, of a node $i$  is defined as all adjacent nodes.
-In other words, there is an edge between neighborhood nodes and $i$. 
-Further, edges can have \textit{weights}, which is a method to define the importance of neighbors, resulting in a \textit{weighted} graph.
-\textit{Degree} of a node are the number of incoming edges.
-
-\paragraph{Adjacency matrix:}
-To do calculations with graphs, it is common to translate graphs in a matrix, 
-such as the adjacency matrix.
-The (binary) adjacency matrix of graph $G = \langle V, E \rangle$ is defined as follows:
-\begin{equation}
-    \label{eg:AdjacencyMatrix}
-    A_{ij} =    
-    \begin{cases}
-        1  & \text{if } (i, j) \in E \\
-        0, & \text{otherwise}
-    \end{cases}
-\end{equation}
-
-Matrix $A$ has dimension $\mathbb{R}^{N \times N}$ with $N$ as number of nodes
-and indices of $A$ correspond to nodes in $V$.
-If there exists an edge between two nodes, entry in $A$ will be set to $1$, otherwise to $0$.
-This leads to an unweighted graph, as weights of all edges will be $1$.
-Contrary, for a weighted graph not only values $1$ and $0$ are used, but the weight of an edge
-can be an arbitrary number.
-When $G$ is undirected, corresponding adjacency matrix will be symmetric. 
-Eigenvalues of $A$ are called \textit{spectrum} of $G$.
-
-
-\subsection{Graph construction}
-\textbf{TODO: v in V is a subset of RM}
-
-\label{sec:graphConstruction}
-A graph can artificially be constructed from a given data set.
-Consider data from $\mathbb{R}^M$, but could be any arbitrary space.
-Then, each node is associated with some element $v \in \mathbb{R}^M$. 
-Further, graph $G$ can be constructed by using:
-
-\begin{equation}
-    \label{eq:graphConstruction}
-    A_{ij} =    
-    \begin{cases}
-        1  & \text{if } dist(v_i, v_j) < \tau\\
-        0, & \text{otherwise}
-    \end{cases}
-\end{equation}
-
-Where $v_i$, $v_j$ are nodes from indices $i$ and $j$, $dist$ corresponds to a similarity (or distance) measure and $\tau$ is a threshold, 
-when to consider two nodes to be adjacent.
-K-NN is one possible implementation of a graph construction algorithm, 
-where for every node, $k$ neighbors will be defined.
-Consequently, $\mathcal{N}_i$ is defined as $k$ nodes with the smallest similarity measure.
-
-\paragraph{Noisy observations:}
-\textbf{TODO:
-1.2, Gaussian distribution is not well defined (N before sim), 
-and ETA is in $R^M$, so you should have an Identity matrix next to sigma 2}
-
-But what happens if our data is noisy?
-Consider measurements which will give access to $y = p + \eta$, where $y,p \in \Omega$ and noise $\eta$ is assumed to be drawn from Gaussian distribution $\mathcal{N} \sim (0,\sigma^2)$.
-$y$ refers to the noisy observation and $p$ to the noiseless observation.
-While constructing a graph, nodes are associated with elements from $p$ ($dist(p_i, p_j)$) in the noiseless case.
-When noise is present, graph is constructed from $y$ ($dist(y_i, y_j)$).
-Therefore, k-NN applied on noisy data is assumed to connect some nodes wrongly, as distance measure $dist$
-is not accurate due to noise. It is expected that the more noise is available in data, the more nodes are wrongly connected with k-NN.
-When constructing a graph from noisy observations, I refer to a \textit{noisy graph}.
 
 \paragraph{Constructing Graphs for molecular-imaging:}
-For a molecular-imaging (cryo-EM or computed tomography) observation, a graph can be constructed as well.
-Every observation $y_i$ can be assigned to a node $v_i$, which means that $V \subset \mathbb{R}^M$, where 
-$M$ is again observation dimension. 
-Further, $|V|=N$ with $N$ as the number of observations.
+For a cryo-EM or CT observation, a graph can be constructed as well.
+Every observation $y_i$ can be assigned to a node $v_i$, consequently $v_i \in \mathbb{R}^M$ and $|V|=N$.
 
-Finally, to apply Equation~\ref{eq:graphConstruction} similarity measure $dist$ needs to be defined.
-For computed tomography, a distance measure between observations can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
-For cryo-EM it is more challenging, as projections are drawn with some random 3D rotation and projection, 
-it can happen that two samples are equivalent up to 2D rotation. 
+To determine distance between two nodes, a distance measure needs to be defined.
+For CT, it can be set up by using the $\ell2$-norm $\norm{y_i - y_j}$.
+A cryo-EM distance measure is more challenging to setup, as projections are drawn with some random 3D rotation and projection.
+It can happen that two observations are equivalent up to a 2D rotation. 
 Consider a first observation $y_1$, which has no 3D rotation and 
 a second observation $y_2$ with a rotation in x-y plane by 45°.
 The two projections have a defined in-plane rotation $g$, such that $g \; y_1 = y_2$.
 Therefore, a term of in-plane rotation is added to the $\ell2$-norm: $min_{g \in SO(1)}\norm{g \;y_i - y_j}$, 
-which is inspired by \cite{multiDiffusionMaps}. 
+which is inspired by \cite{multiDiffusionMaps}.
 
 
-\section{Graph Denoising definition}
 
+\section{Graph Laplacian \& Manifolds}
+In the following section, the connection of Graph Laplacian (GL) and manifolds to CT and cryo-EM is established.
+
+\subsection{Graph Laplacian}
+Graph Laplacian (GL) is a matrix that represents a graph and can be used to find many important properties.
+It is a very powerful tool and a good introduction and overview can be found in \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
+
+GL is defined as follows:
+\begin{equation}
+    \label{eq:gl}
+    L = D - A,
+\end{equation}
+
+Where $A$ is the adjacency matrix and $D$ the degree matrix (diagonal matrix with degree of nodes as entries).
+
+
+\subsection{Manifold of CT and cryo-EM}
+A basic introduction to manifolds and how a low-dimensional embeddings can be computed is found in \ref{sec:manifolds}.
+
+In this section, the connection to CT and cryo-EM is established.
+For a given observation, a low-dimensional embedding can be computed by using GL.
+In the following, it will be observed how this embedding, the second and third smallest eigenvectors of GL, looks like for CT and cryo-EM observations.
+Shepp-Logan phantom is used again as an example for CT.
+For Radon Transform, $\theta$ and $s$ are specified with $\theta \in \mathbb{R}^{500}$ as evenly spaced
+between $[0, 2 \pi]$ and $dim(s) = 200$. 
+
+In Figure~\ref{fig:clean_manifold}, embedding calculated from clean sinogram and $k=2$ can be seen.
+It looks like a perfect circle and angles are in order. 
+Further, noise was added to the sinogram to reach SNR 20 dB and 10 dB and the embedding was computed with $k=6$, 
+which is illustrated in Figure~\ref{noisy_manifold_k6_snr20} and Figure~\ref{noisy_manifold_k6_snr10}.
+For \snry 20 dB, a circle like object could be established and for \snry 10 dB it looks like a half circle. 
+
+\begin{figure}[H]
+    \captionsetup[subfigure]{justification=centering}
+    \centering
+    \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{phaton_clean_manifold.png}
+        \caption{Clean sinogram embedding with $k=2$}
+        \label{fig:clean_manifold}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{phaton_noisy_manifold_k6_snr20.png}
+      \caption{Noisy sinogram embedding $k=6$ with \snry 20 dB}
+      \label{fig:noisy_manifold_k6_snr20}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{phaton_noisy_manifold_k6_snr10.png}
+      \caption{Noisy sinogram embedding $k=6$ with \snry 10 dB}
+      \label{fig:noisy_manifold_k6_snr10}
+    \end{subfigure}
+    \caption{Shepp-Logan phantom sinogram GL eigenvectors}
+    \label{fig:phantom_manifolds}
+  \end{figure}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+    In the fields of CT and cryo-EM, underlying low-dimensional embedding from GL is well-defined for noiseless data.
+    In 2D the underlying GL-manifold is a circle, whereas in 3D the GL-manifold is defined as a sphere.
+    This fact can be exploited during learning.
+\end{tcolorbox}
+
+\paragraph{Tomography for unknown angles:}
+But what can we use this embedding for?
+It is defining a low-dimensional mapping from high-dimensional space, which approximate angles observation direction.
+Therefore, for our noisy observations, angles can be approximated and reconstruction can be established even if angles are unknown.
+The problem here is the quality of our embedding. As long as the computed embedding is a mapping to the circle (or sphere),
+it should be reasonable to do reconstruction with.
+In Figure~\ref{fig:phantom_fbp_unknown_angles} reconstruction with unknown angles is applied. The same settings as before, $k=6$
+and \snry 20 dB and 10 dB are used. Reconstruction
+
+\begin{figure}[H]
+    \captionsetup[subfigure]{justification=centering}
+    \centering
+    \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{fbp_phantom_clean_unknown_angles.png}
+        \caption{Clean sinogram reconstruction from GL estimated angles.}
+        \label{fig:clean_reco_unknown}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{fbp_phantom_snr_20_unknown_angels.png}
+      \caption{Noisy sinogram with \snry 20 dB reconstruction from GL estimated angles.}
+      \label{fig:noisy_snr20_reco_unknown}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{fbp_phantom_snr_10_unknown_angels.png}
+      \caption{Noisy sinogram with \snry 10 dB reconstruction from GL estimated angles.}
+      \label{fig:noisy_snr10_reco_unknown}
+    \end{subfigure}
+    \caption{Shepp-Logan phantom sinogram GL eigenvectors}
+    \label{fig:phantom_fbp_unknown_angles}
+  \end{figure}
+
+
+  \paragraph{Denoise observations}
+  As the quality of reconstruction is highly dependent on observations and their noise, it
+  is expected to increase, when the level of noise is decreased.
+  Therefore, standard denoising methods like Block-matching and 3D filtering (BM3D) \cite{bm3d} or 
+  non-local means \cite{noneLocalMean} could be used to denoise these observations.
+  Both emerged from Signal Processing and are not operating on a graph structure. 
+  But, they use a neighborhood for averaging, which shows great potential for graph 
+  as a data structure for denoising, as graphs can represent neighborhoods really well.
+  BM3D is considered the state-of-the-art denoising algorithm, before algorithms emerged from Deep Learning.
+  Therefore, it will be used as a baseline algorithm in the practical part.
+  Further, as illustrated with the GL embedding, graphs can restore information with a suitable prior,
+  such as angles are uniformly sampled.
+
+\section{Graph Denoising:}
 \textit{Graph Denoising} is not a common term in literature.
+In the current chapter, a way of constructing a k-NN graph from observations was introduced.
+Moreover, the underlying true graph was found by computing the GL embedding, which is a circle or a sphere.
+Therefore, our constructed graph from observations can be considered a noisy graph, 
+as observations are noisy. 
+As a consequence, the constructed noisy graph has some missing and additional edges compared to the true graph.
 The goal of Graph Denoising is to estimate original graph $G$ from a given noisy graph $G_0$.
 In other words, noisy graph $G_0$ will be denoised.
 This is my definition for Graph Denoising, which is rather related to signal or image denoising.
 Reconstruction of a true signal given noisy observation signal is done via averaging, that can be performed
-locally, by the calculus of variations or in the frequency domain~\cite{noneLocalMean}. 
 
-\paragraph{Noisy Graph:}
 For every noisy graph there exists an original graph $G = \langle V,E \rangle$.
 The noisy graph $G_0$ can further be defined as $G_0 = \langle V, E_0 \rangle$,  
  where $E_0 = E \setminus  E^{-}_0 \cup  E^{+}_0$ with $E^{-}_0 \subseteq E$ and $E^{+}_0 \cap E = \emptyset$.
@@ -148,7 +174,7 @@ Graph Denoising can therefore be written as
     GD: A_0 \mapsto \tilde{A} \approx A
 \end{equation}
 
-where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from noisy input graph, denoised graph and original graph respectively.
+Where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from noisy input graph, denoised graph and original graph respectively.
 
 
 \paragraph{Connection to link prediction:}
@@ -168,43 +194,9 @@ $E^{\prime} \subseteq U$.
     Link prediction problems are a subset of graph denoising problems.
 \end{tcolorbox}
 
-\textbf{TODO: Remark to BM3d}
-
-\paragraph{Non-local means:}
-
-\textbf{TODO: 
-non local means: it is a competitive method for denoising producing similar results than bm3d. 
-And bm3d is state of the art for non-deep learning method. 
-You could add bm3d just after that also since this is what you are using? 
-Also, carefull that it is not confusing with graph denoising, since bm3d and NLM are signal denoising methods.}
-
-
-In the following cection, a short introduction to the 
-state-of-the-art image denoising method non-local means (NLM)~\cite{noneLocalMean} is given .
-For a given noisy image $v$, the denoised image is defined as $NL[v](i) = \sum{w(i,j) \; v(j)}$,
-where $w(i,j)$ is the weight between pixel $i$ and $j$. 
-Weights can be seen as a similarity measure of pixels, which are calculated over square neighborhoods.
-Similar pixel neighborhoods have a large weight and different neighborhoods have a small weight.
-More general, denoised image pixel $i$ is computed as a weighted average of all pixels in the 
-image, therefore, in a non-local way.
-
-Non-local means is not a denoising algorithm, which works with graph as a data structure.
-But, it uses a neighborhood for averaging, which shows great potential for graph
-as a data structure for denoising, as graphs can represent neighborhoods really well.
-
-
 \section{Graph Deep Learning}
-TODO:
-\begin{itemize}
-    \item GNN, intro et definiton as you did, 
-    \item GCN introduction and definition,
-    \item Link of GCN with power iteration, and therefore very tiny link to GL embedding 
-    (remind that GL allows to solve the task that we want to solve), 
-    \item GAT, intro and definition like you did (name it clearly, Graph Attention Network (GAT))
-\end{itemize}
-
 \label{sec:graph_depp_learning}
-As already mentioned, Graph Denoising can be seen as a way of link predication. 
+Graph Denoising can be seen as a way of link predication. 
 The state-of-the-art methods for solving link prediction are \textit{Graph Deep Learning} approaches.
 With Graph Neural Networks (GNN)~\cite{GNN} the framework
 for neural networks with graphs has been established. 
@@ -212,159 +204,16 @@ for neural networks with graphs has been established.
 Using Graph Convolutional Networks (GCN)~\cite{GCN} for graph feature extraction is a popular way. 
 With GCN a new feature representation is iteratively learned for node features (edge features are not considered).
 It can be seen as an averaging of nodes over their neighborhood where all neighbors get the same weight combined with some non-linear activation (e.g. ReLu). 
-To consider node itself in averaging, \citet{GCN} applies the so-called "Renormalization trick", where self-loops are added to the 
+To consider the node itself in averaging, \citet{GCN} applies the so-called "Renormalization trick", where self-loops are added to the 
 adjacency matrix and after every layer, a normalization step is applied. 
 The topology of the graph will not be adjusted during the learning process.
 
-\citet{GAT} extended the concept of GCN with attention where not all neighboring nodes get the same weight (attention).
 Simple Graph Convolutional Network~\cite{simpleGCN} proposed a simplified version of GCN.
 They could verify their hypothesis that GCN is dominated by local averaging step and non-linear 
 activation function between layers do not contribute too much to the success of GCN. 
-Therefore, it can be seen as a way of power iteration \footnote{For more details see \ref{sec:powerIterations}}
+Therefore, it can be seen as a way of power iteration\footnote{For more details see \ref{sec:powerIterations}}
 over the adjacency matrix with normalization in every layer.
 \citet{dynamicGCN} proposed an extension to GCN by not operating on the same graph in every layer but adopting
 underlying graph topology layer by layer.
-
-\section{Graph Laplacian \& Manifolds}
-\subsection{Graph Laplacian}
-Graph Laplacian (GL) is a matrix that represents a graph and can be used to find many important properties.
-It is a very powerful tool and a good introduction and overview can be found in \cite{tutorialSpectralClustering, SpectralGraphTheory}. 
-
-GL is defined as follows:
-\begin{equation}
-    \label{eq:gl}
-    L = D - A,
-\end{equation}
-
-Where $A$ is the adjacency matrix and $D$ the degree matrix (diagonal matrix with degree of nodes as entries).
-
-
-\subsection{Manifold of CT and cryo-EM}
-\label{sec:manifold_ct_cryoEM}
-As a tool for GL-manifold calculation is established, it can be observed how the GL-manifold of CT and cryo-EM observations look like.
-In the following, Shepp-Logan phantom is again used as an example of CT
-and the low-dimensional embedding is calculated from observations, following instructions from 
-Section~\ref{sec:manifold_calculation}.
-
-For Radon Transform, $\theta$ and $s$ where specified as $\theta \in \mathbb{R}^{500}$ as evenly spaced
-between $[0, 2 \pi]$ and $dim(s) = 200$. 
-
-In Figure~\ref{fig:clean_manifold}, GL-manifold calculated from clean sinogram and $k=2$ can be seen.
-GL-manifold looks like a perfect circle. Further, noise was added to the sinogram 
-to reach SNR 20dB and GL-manifold was computed with $k=2$, which failed (figure~\ref{fig:noisy_manifold_k2}).
-But, if neighborhood is not too strictly defined and k is increased to 4, GL-manifold looks more circle like again
-(figure~\ref{fig:noisy_manifold_k4}).
-
-\textbf{TODO: Remove header phaton noisy manifold k4}
-\textbf{TODO: Remove 2nd image and add 3rd with more noise}
-\textbf{TODO: Color values with interval }
-
-\begin{figure}[H]
-    \centering
-    \hfill
-    \subbottom[\label{fig:clean_manifold}]
-        {\includegraphics[width=0.3\textwidth]{phaton_clean_manifold.png}}
-        \hfill
-    \subbottom[\label{fig:noisy_manifold_k2}]
-        {\includegraphics[width=0.3\textwidth]{phaton_noisy_manifold_k2.png}}
-    \hfill
-    \subbottom[\label{fig:noisy_manifold_k4}]
-            {\includegraphics[width=0.3\textwidth]{phaton_noisy_manifold_k4.png}}
-    \hfill
-    \caption{Shepp-Logan phantom sinogram manifolds:
-    \ref{fig:clean_manifold} clean sinogram manifold $k=2$,
-    \ref{fig:noisy_manifold_k2} noisy sinogram manifold $k=2$,
-    \ref{fig:noisy_manifold_k4} noisy sinogram manifold $k=4$
-    }
-\end{figure}
-
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    In the fields of CT and cryo-EM, underlying low-dimensional GL-manifold is well-defined for noiseless data.
-    In the 2D underlying GL-manifold is a circle, whereas in 3D  GL-manifold is defined as a sphere.
-    This fact can be exploited during learning.
-\end{tcolorbox}
-
-\paragraph{Manifold quality:}
-
-Finding a good GL-manifold is not easy and in our case, GL-manifold is dependent on parameter $k$ during graph construction
-as well as parameter $\theta$, $s$ and $\eta$ for obtaining the sinogram.
-
-K is an important parameter for building up a graph. If set too low, neighbors
-do not capture similar data well as too few nodes are connected. 
-Further, if k is set too high, strength of a neighbor 
-is weakened and data is not well explained.
-In Figure~\ref{fig:clean_manifolds}, GL-manifold computed by clean sinogram and k from 2 to 10 is illustrated.
-One can see, that from $k \leq 4$ GL-manifold results in a perfect circle and with $k >  4$ is moves 
-further away from the circle. 
-
-
-\begin{figure}[H]
-    \centering
-    \hfill
-    \subbottom[\label{fig:clean_manifolds}]
-        {\includegraphics[width=0.45\textwidth]{phaton_clean_manifold_kdifferent.png}}
-    \hfill
-    \subbottom[\label{fig:noisy_manifolds}]
-        {\includegraphics[width=0.45\textwidth]{phaton_noisy_manifold_kdifferent.png}}
-    \hfill
-    \caption{Shepp-Logan phantom sinogram manifolds:
-    \ref{fig:clean_manifolds} clean sinogram GL-manifolds,
-    \ref{fig:noisy_manifolds} noisy sinogram GL-manifolds}
-\end{figure}
-
-If data is noisy, it is expected to be harder to construct a meaningful GL-manifold, as some connections within
-the graph will be noisy. This is exactly what is illustrated in Figure~\ref{fig:clean_manifolds}, where 
-different GL-manifold for noisy sinogram (SNR=20dB) and k from 3 to 10 are illustrated.
-GL-manifold can never express data with a perfect circle. As noise is chosen rather moderate, GL-manifold has still some 
-power to express underlying data and is expected to decrease, if noise is increased.
-
-
-Further, when observing a sinogram, $\theta$ defines how many observations (straight lines) are drawn
-and $dim(s)$ defines the amount of sampling points. Both have great impact to expressiveness of our sinogram.
-In Figure~\ref{fig:clean_manifold_200} GL-manifold with $\theta \in \mathbb{R}^{200}$ and k=6 is illustrated
-for clean sinogram. It looks like 6 are too many neighbors, as the perfect circle cannot be established anymore.
-But, if $\theta$ is increased $\theta \in \mathbb{R}^{500}$, more nodes are available to choose good neighbors from
-and a perfect circle can be established (figure~\ref{fig:clean_manifold_500}).
-
-\begin{figure}[H]
-    \centering
-    \hfill
-    \subbottom[\label{fig:clean_manifold_200}]
-        {\includegraphics[width=0.4\textwidth]{phaton_clean_manifold_200_k6.png}}
-    \hfill
-    \subbottom[\label{fig:clean_manifold_500}]
-        {\includegraphics[width=0.4\textwidth]{phaton_clean_manifold_500_k6.png}}
-    \hfill
-    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.
-    \ref{fig:clean_manifold_200} clean sinogram GL-manifold, $k = 6$ and 200 samples,
-    \ref{fig:clean_manifold_500} clean sinogram GL-manifold, $k = 6$ and 500 samples}
-\end{figure}
-
-Moreover, the number of sampling points is important as well.
-For more sampling points it is expected to be harder to come up with good neighbors (fixing k and number of samples),
-as more data need to be explained with the same amount of neighbors, and it is more likely, that nodes are connected wrongly.
-This can be seen in Figure~\ref{fig:clean_manifold_res200} and Figure~\ref{fig:clean_manifold_res400}, where with $dim(s) = 200$,
-the perfect circle can be established and with $dim(s) = 400$, not anymore (by same parameter $k = 6$ and $\theta \in \mathbb{R}^{500}$).
-
-\begin{figure}[H]
-    \centering
-    \hfill
-    \subbottom[\label{fig:clean_manifold_res200}]
-        {\includegraphics[width=0.4\textwidth]{phaton_clean_manifold_res_200_k6.png}}
-    \hfill
-    \subbottom[\label{fig:clean_manifold_res400}]
-        {\includegraphics[width=0.4\textwidth]{phaton_clean_manifold_res_400_k6.png}}
-    \hfill
-    \caption{Shepp-Logan phantom sinogram GL-manifolds: Importance of number of samples.
-    \ref{fig:clean_manifold_res200} Clean sinogram GL-manifold, $k = 6$ and $\text{resolution}=200$,
-    \ref{fig:clean_manifold_res400} Clean sinogram GL-manifold, $k = 6$ and $\text{resolution}=400$}
-\end{figure}
-
-
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    Since the GL-manifold is sensitive to $k$, it is best practice to try different values in order to find the best GL-manifold.
-\end{tcolorbox}
-
-
-
-\textbf{TODO: Connection to next chapter}
+Graph Attention Networks (GAT) \cite{GAT} extended the concept of GCN with attention where not
+all neighboring nodes get the same weight (attention).
