@@ -1,7 +1,7 @@
 \chapter{Neural Networks}
 \label{sec:neural_networks}
-In GAT-Denoiser, different components are used, which are all neural networks.
-In this chapter, they are introduced in detail.
+In GAT-Denoiser, concepts from existing neural networks have been used.
+In this chapter, GAT, Convolution and U-Net are introduced in detail.
 
 \section{Graph Attention Networks}
 The main component of GAT-Denoiser is a GAT.
@@ -36,6 +36,14 @@ Finally, new node embedding is calculated as:
 \end{equation}
 
 With $\sigma$ as some arbitrary activation function.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{GAT.drawio.png}
+  \caption{GAT attention illustration example.}
+  \label{fig:gat_attention_illustration}
+\end{figure}
+
 
 \paragraph{Multi-Head attention}
 Motivated by the work of \citet{transformer}, multi-head attention can be beneficial to stabilize learning process.

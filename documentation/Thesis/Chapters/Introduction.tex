@@ -1,14 +1,12 @@
 \chapter{Introduction}
 \label{sec:introduction}
 
+\paragraph{Motivation:}
 Inverse Problems aim to estimate an original signal that went through a system, 
 based on potentially noisy output signal observations.
 They are widely used throughout different science directions, such as Machine Learning (ML),
 Signal Processing, Computer Vision, Natural Language Processing and others.
 ML is one tool to model and solve inverse problems.
-
-
-\bigskip
 
 Cryo-Electron Microscopy (cryo-EM) is a molecular imaging method and gained a lot of attention in recent years. 
 Molecules are frozen and imaged through an electron microscope.
@@ -24,10 +22,9 @@ as the problem is in 2D and observation angles are known.
 The overall goal of this Thesis is to introduce an algorithm that works with CT, but 
 can conceptually be extended to work in 3D, thus for cryo-EM. 
 Additionally, the focus is on the high noise domain, as current available reconstruction algorithms
-start to fail when dealing with too much noise. The signal-to-noise-ratio of interest is the interval 
+start to fail when dealing with too much noise. To be more precise, the signal-to-noise-ratio of interest is the interval 
  between $[-15, 0]$.
 
-\bigskip
 
 In recent years, graphs got a lot of attention in ML and Graph Machine Learning is one of the most promising research areas.
 Graphs are a well suited data structure, simple but with high expressiveness. 
@@ -38,12 +35,12 @@ Besides, for some scenarios, ordinary ML algorithms fail, but Graph ML approache
 
 
 
-\clearpage
+\paragraph{Contribution:}
 
-As a result of this Thesis, a Graph Neural Network architecture is proposed, which is called \textit{GAT-Denoiser}.
+As a result of this Thesis, a Graph Neural Network (GNN) architecture is proposed, which is called \textit{GAT-Denoiser}.
 GAT-Denoiser aims to denoise noisy observations to improve overall reconstruction quality.
 The assumption of known observations angles is defined.
-In the GNN architecture, convolution and Graph Attention Network (GAT) is used to denoise observations.
+In the GNN architecture, convolution and Graph Attention Network (GAT) are used to denoise observations.
 In addition, an end-to-end learning approach is used, where the reconstruction quality is compared in the loss
 and not only the denoised observation quality.
 
@@ -57,7 +54,8 @@ by 379.9\% for observation SNR -15 dB.
 The best GAT-Denoiser models could be established, when first, GAT-Denoiser is trained with a fixed U-Net model.
 After some learning, in a second step, GAT-Denoiser and U-Net have been trained jointly.
 
-\bigskip
+
+\paragraph{Outline:}
 
 The report is structured as follows: 
 
@@ -141,8 +139,10 @@ for every node, $\mathcal{N}_i$ is defined as $k$ nodes with the smallest simila
 During this Thesis, when writing from $k$ it refers to k-NN parameter $k$.
 
 \paragraph{Erdős–Rényi graph}
-\textbf{TODO: Introduce shorty}
-
+The Erdős–Rényi model is a way to construct a random graph.
+For set of nodes, a graph is constructed by connecting nodes randomly. 
+Every possible edge has the same probability to be present in the graph, which is determined by parameter $p$.
+ 
 \section{Maths}
 \paragraph{Convolution:}
 During this Thesis, symbol $\star$ is used for the convolution operator.

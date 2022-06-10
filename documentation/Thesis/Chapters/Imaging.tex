@@ -13,11 +13,11 @@ That's why it is well suited as a first step towards a cryo-EM algorithm.
 
 
 
-\section{Computed tomography}
+\section{Computed Tomography}
 CT is a well established molecular imaging method.
 Using X-ray source, fan shaped beams are produced which scan the biological sample.
 Through scanning over straight lines many observations are collected, 
-and the biological sample can be reconstructed.\footnote{For further details \cite{computedTomography}}
+and the biological sample can be reconstructed.\footnote{For additional information \cite{computedTomography}}
 
 \paragraph{2D tomographic observation:}
 
@@ -35,7 +35,7 @@ with
 \begin{itemize}
     \item $x \in L^2(\Omega)$ : original object with $\Omega \subset \mathbb{R}^2 $ and $L^2$ Lebesgue space
     \item $R(\cdot; \theta_i, s_j): L^2(\Omega) \to \mathbb{R}^M , x \mapsto R(x; \theta_i, s_j)$ : Radon Transform\footnote{For additional information \cite{radonTransform}} 
-        with, $\theta_i \in \mathbb{S}^1$ : observation angle and $s_j \in \mathbb{R}$ : sampling point
+        with $\theta_i \in SO(2)$ as observation angle and $s_j \in \mathbb{R}$ as sampling point
     \item $\eta_i \in \mathbb{R}^M$ : i.i.d Gaussian noise with $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$
 \end{itemize}
 
@@ -82,24 +82,26 @@ Further, noise was added to reach an SNR of 10 dB.
 Tomographic reconstruction is a popular inverse problem. 
 The aim is to reconstruct a biological sample based on observations.
 When original object is in 2D, observations are available in 1D. 
-The reconstruction is possible for 3D objects as well, where observations are in 2D\footnote{For additional information \cite{tomographicReconstruction}}.
+The reconstruction is possible for 3D objects as well, where observations are in 2D.
 In this Thesis I focus on the 2D case of CT, which is called \textit{classical tomography }
 
 
 \subparagraph{Filter Backprojection:}
 Filter Backprojection (FBP)~\cite{tomographicReconstruction} is a reconstruction method used in classical tomography.
-Until recently, it was the primary method for reconstruction as it allows to inverse the Radon Transform and 
-enables reconstruction of the original object $x$.
+Until recently, it was the primary method for reconstruction as it allows to inverse the Radon Transform, resulting in 
+$x^{\prime}$ which $ \approx x$ for noiseless case. 
 
 FBP can be defined as:
 
 \begin{equation}
     \label{eq:fbp}
-    \textit{FBP}(\cdot; \theta_i, s_j) : \mathbb{R}^M \to L^2(\Omega), y \mapsto \textit{FBP}(y; \theta_i, s_j)
+    \begin{aligned}
+        \textit{FBP}(\cdot; \theta, s) : \mathbb{R}^{M \times N} \to L^2(\Omega), y \mapsto \textit{FBP}(y; \theta, s)
+    \end{aligned}
 \end{equation}
 
-Where $\theta$ are the projection angles and $s$ are the sampling points.
-The algorithm fails when working with highly noisy data~\cite{cryoEmMath2}, as it is not possible to draw meaningful connections anymore, noise
+Where $\theta$ are projection angles and $s$ the sampling points.
+But, the algorithm fails when working with highly noisy data~\cite{cryoEmMath2}, as it is not possible to draw meaningful connections anymore, noise
 is dominating information in the data.
 
 Therefore, alternatives for the high noise domain are studied in recent year.
@@ -155,16 +157,12 @@ Random orientation and positioning makes reconstruction challenging,
 but freezing allows observation of their conformation in a stable state where molecules are not moving.
 With an electron microscope, 2D tomographic projection images of molecules are observed,
 which are called \textit{micrograph}. 
-Frozen molecules are fragile and electron microscope needs to work with
+Frozen molecules are fragile, and electron microscope needs to work with
 very low power (electron dose), resulting in highly noisy observations. The resulting SNR
 is typically smaller than 0 dB, which indicates that there is more noise than signal \cite{cryoEmMath2}.
 
 In addition, observed molecules are not equal in the sense that there are some structural varieties between
 molecules (isotopes). While observing the same molecule in ice many times, single observations could be from different isotopes.
-
-
-\textbf{TODO: some inconsistency with M and the number of observation. 
-I think Delta should be Omega power M , and then indices (j,k) are taken from Delta.}
 
 \paragraph{3D cryo-EM observation:}
 Mathematically, observation is defined as follows:
@@ -178,15 +176,15 @@ Mathematically, observation is defined as follows:
 
 where 
 \begin{itemize}
-    \item $x \in L^2(\Omega)$: original object with $\Omega \subset \mathbb{R}^3 $ and $L^2$: Lebesgue space
-    \item $\Pi_z : L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto  \int x(\cdot,\cdot,z) dz$: z-axis projection operator,
+    \item $x \in L^2(\Omega)$: original object with $\Omega \subset \mathbb{R}^3 $
+    \item $\Pi_z : L^2(\Omega) \to L^2(\tilde{\Omega}), x \mapsto  \int x(\cdot,\cdot,z) dz$: z-axis projection operator
           with $\tilde{\Omega} \subset \mathbb{R}^2$
-    \item $\theta_i = [\theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} ] $: 3D rotation matrix with $ \theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} \in \mathbb{R}$ and \\
+    \item $\theta_i = [\theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} ] $: 3D rotation matrix with $ \theta_i^{(1)}, \theta_i^{(2)}, \theta_i^{(3)} \in [0, 2 \pi]$ and \\
           $R_{\theta_i} =  R_{e_x} (\theta_i^{(1)}) R_{e_y} (\theta_i^{(2)}) R_{e_z} (\theta_i^{(3)}) = [R^1_{\theta_i}, R^2_{\theta_i}, R^3_{\theta_i}] \in SO(3)$ 
-          \footnote{(for further details see \ref{app:3DrotationMatrix})}
+          \footnote{(For additional information see \ref{app:3DrotationMatrix})}
           
     \item $\textit{Rot} : L^2(\Omega) \to L^2(\Omega), \textit{Rot}(x, \theta_i) = \left((x_1,x_2,x_3) \mapsto x( x_1R^1_{\theta_i}, x_2R^2_{\theta_i}, x_3R^3_{\theta_i})\right)$: rotation operator
-    \item $\eta_i \in \mathbb{R}^M$: Gaussian noise with $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$
+    \item $\eta_i \in \mathbb{R}^M$: i.i.d Gaussian noise with $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$
 \end{itemize}
 
 % $y_i \in \mathbb{R}^M$ with $M$ as observation dimension.
@@ -206,19 +204,19 @@ Precisely, $x$ can be seen as a random signal from an unknown distribution defin
 In this Thesis, only the simplified version in Equation~\ref{eq:cryoEmSimple} is considered.
 
 
-Morevoer, as $y_i$ is not observable directly, discretization is needed:
+Moreover, as $y_i$ is not observable directly, discretization is needed:
 \begin{equation}
     \label{eq:cryoEmSimpleDiscrete}
     \begin{aligned}
-        y_i &= \left( \Pi_z (\; Rot (\;x; \theta_i)) + \eta_i\right)(\Delta) &, \text{ with } 1 \leq i \leq N \\
-        y_i[j,k] &= \Pi_z (\; Rot(\;x; \theta_i))_{j,k} + \eta_i[j,k] &, \text{ with } 1 \leq i \leq N \text{ and } 1 \leq j,k \leq M
+        y_i &= \left( \Pi_z (\; Rot (\;x; \theta_i)) + \eta_i\right)(\Delta) & \text{ with } 1 \leq i \leq N \\
+        y_i[j,k] &= \Pi_z (\; Rot(\;x; \theta_i))_{j,k} + \eta_i[j,k] & \text{ with } 1 \leq i \leq N \text{ and } 1 \leq j,k \leq \sqrt{M}
     \end{aligned}
 \end{equation}
 
-with
+With
 \begin{itemize}
     \item $\Delta \subset \tilde{\Omega}^{M}$: sampling grid with dimension $M$
-    \item $y[j,k]$, $\eta[j,k]$ and $\Pi_z(\cdot)_{j,k}$ $ \in \mathbb{R}$ with $j,k$ as indices of the sampling grid.
+    \item $y_i[j,k]$, $\eta_i[j,k]$ and $\Pi_z(\cdot)_{j,k}$ $ \in \mathbb{R}$ with $j,k$ as indices of the sampling grid.
 \end{itemize}
 % $\Delta \subset \tilde{\Omega}^{M^2}$ is the sampling grid with dimension $M^2$.
 % Further, $y[j,k]$, $\eta[j,k]$ and $\Pi_z(\cdot)_{j,k}$ $ \in \mathbb{R}$ with $j,k$ as indices of 
@@ -257,7 +255,7 @@ Cryo-EM reconstruction is defined as estimation of a 3D object from 2D observati
 It can be seen as a 3D problem as the original object $x \in L^2(\Omega)$ to be reconstructed is in 3D.
 Based on many observed micrographs the original object $x$ is estimated.
 Cryo-EM reconstruction is computational intensive and multiple steps are needed to get from 
-observations to the final structure \footnote{For further details \cite{singleParticleCryoEm, cryoEmMath}}.
+observations to the final structure\footnote{For further details \cite{singleParticleCryoEm, cryoEmMath}}.
 
 
 
@@ -290,31 +288,27 @@ with
 \end{itemize}
 
 \paragraph{Reconstruction:}
-\textbf{TODO: 
-equation 3.7, Delta is Omega tilde power M not power D.
-Also, as before, theta is in SO(3) (in equation 3.3 also theta should be in [0,2pi], maybe with finding a consistent definition)}
-
 
 Further, an abstract form of the reconstruction operator is defined as:
 
 \begin{equation}
-    \textit{Recon} : L^2(\tilde{\Omega}) \to L^2(\Omega), y \mapsto Recon(y; \theta)
+    \textit{Recon} : \mathbb{R}^{M \times N} \to L^2(\Omega), y \mapsto Recon(y; \theta)
 \end{equation}
 
-with
+With
 \begin{itemize}
-    \item $\theta_i \in \mathbb{R}^P$: projection angle(s) vector, with $P$ projection dimension
+    \item $\theta_i \in SO(P)$: projection angle(s) vector with $P$ projection dimension.
 \end{itemize}
 
 \paragraph{Classical tomography:}
-Classical tomography parameters are defined with $D=2$, $P=1$.
+Classical tomography parameters are defined with $D=2=P$.
 Further, $A(\cdot)$ is the Radon Transform (see Equation~\ref{eq:2Dreconstruction}).
 Reconstruction operator can be defined as FBP (with or without U-Net).
 
 \paragraph{Cryo-EM:}
 Cryo-EM parameters are defined with $D=3$ and $P=3$ as $\theta_i$ not only corresponds to
-a projection angle vector but also some rotation.
-Further, $A(\cdot)$ can be defined as $\Pi_z \left(\; \textit{Rot}(\;x; \theta) \right)$ 
+a projection angle vector but also some rotation. Further, $A(\cdot)$ can be
+defined as $\Pi_z \left(\; \textit{Rot}(\;x; \theta) \right)$ 
 where \textit{Rot} is the 3D rotation and $\Pi_z$ the tomographic projection.
 
 

@@ -1,9 +1,10 @@
 % !TEX root = ../Thesis.tex
 
-\chapter{Additional results}
-In this chapter, additional numeric and visual results are presented.
+\chapter{Additional Results}
+In this chapter, additional numeric and visual results are presented, that shall
+extend results presented in Chapter~\ref{sec:results}.
 
-\section{Small experiment: GAT-Denoiser components}
+\section{Small Scale Experiment: GAT-Denoiser Components}
 
 Table~\ref{tab:small_gat_components} shows numerical results for the small scale experiment.
 Results for the baseline algorithms, different models with $k=2$ and $k=8$ are presented.  
@@ -47,9 +48,7 @@ Results for the baseline algorithms, different models with $k=2$ and $k=8$ are p
   \end{table}
 
 
-\subsection{Small experiment - k-NN with 2 layers, 4 heads}
-
-\section{Small experiment: further k-NN results}
+\section{Small Scale Experiment: further k-NN Results}
 K-NN experiments have been computed before the one with GAT parameter for layers and heads.
 The best value for GAT parameters have been 2 layers and 4 heads.
 Therefore, k-NN experiment have been repeated with these settings and results 
@@ -76,9 +75,10 @@ The outcome was almost the same
 \end{table}
 
 
-\section{Small experiment - GAT dropout}
-
-TODO: define experimet fixed parameters.
+\section{Small Scale Experiment: GAT dropout}
+Table~\ref{tab:small_dropout} presents results for experiments with different dropout values.
+Further, GAT was defined with 2 layers and 4 heads and convolution with kernel size 3 and padding 1.
+\snry is defined with -5 dB and training was without U-Net.
 
 \begin{table}[H]
   \centering
@@ -96,11 +96,11 @@ TODO: define experimet fixed parameters.
   \end{tabular}
 
   \caption{Different k-NN values for \snry 0 dB and -10 dB }
-  \label{tab:small_droput}
+  \label{tab:small_dropout}
 \end{table}
 
 \section{Large scale experiment: baseline results}
-Table~\ref{tab:baseline-large} presents the result of the choosen baseline algorithms
+Table~\ref{tab:baseline-large} presents the result of the chosen baseline algorithms
 for the large scale experiment.
 
 \begin{table}[H]
@@ -120,7 +120,7 @@ for the large scale experiment.
   \label{tab:baseline-large}
 \end{table}
 
-\subsection{Large scale experiment: GAT-Denoiser models}
+\subsection{Large Scale experiment: GAT-Denoiser Models}
 Table~\ref{tab:large_gat_components_knn2} presents the final results for baseline algorithms
 and GAT-Denoiser models for the large scale. 
 
@@ -150,7 +150,31 @@ and GAT-Denoiser models for the large scale.
     \label{tab:large_gat_components_knn2}
   \end{table}
 
-\section{Wandb results}
+\section{Large Scale Experiments: Visual Results}
+\label{sec:large_scale_visual_results}
+In this section, further visual results for the large scale experiment are presented for 
+\snry 0 dB, -5 dB, -10 dB and -15 dB.
+Clean images are repeated at every subsection, even tough they are the same
+
+\subsection{\snry 0 dB}
+\visualresults{0}
+
+\clearpage
+
+\subsection{\snry -5 dB}
+\visualresults{-5}
+
+\clearpage
+
+\subsection{\snry -10 dB}
+\visualresults{-10}
+
+\clearpage
+\subsection{\snry -15 dB}
+\visualresults{-15}
+
+
+\section{Wandb Results}
 Table~\ref{tab:wandb_results} shows urls raw wandb results for all computed experiments on the LoDoPaB-CT dataset.
 \begin{table}[H]
   \centering
@@ -176,33 +200,9 @@ Table~\ref{tab:wandb_results} shows urls raw wandb results for all computed expe
     GAT-Denoiser & \url{https://wandb.ai/cedric-mendelin/LoDoPaB-Large-knn-2} \\ \hline
 
   \end{tabular}
-  \caption{Wandb results.}
+  \caption{Wandb raw results.}
   \label{tab:wandb_results}
 \end{table}
 
 \paragraph{Average wandb run result:}
 Average SNR and loss have been computed with a python script and exported values can be found under\footnote{https://github.com/cedricmendelin/master-thesis/tree/main/wandb\_results}.
-
-\clearpage
-\section{Large scale experiment: Visual Results}
-\label{sec:large_scale_visual_results}
-In this section, further visual results for the large scale experiment are presented for 
-\snry 0 dB, -5 dB, -10 dB and -15 dB.
-Clean images are repeated at every subsection, even tough they are the same
-
-\subsection{\snry 0 dB}
-\visualresults{0}
-
-\clearpage
-
-\subsection{\snry -5 dB}
-\visualresults{-5}
-
-\clearpage
-
-\subsection{\snry -10 dB}
-\visualresults{-10}
-
-\clearpage
-\subsection{\snry -15 dB}
-\visualresults{-15}

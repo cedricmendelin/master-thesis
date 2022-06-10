@@ -54,7 +54,7 @@
 }
 
 \newcommand{\visualresults}[1]{
-  \subsubsection{Clean test images:}
+  \subsubsection{Clean Test Images}
 \begin{figure}[H]
   \centering
   \hfill
@@ -73,13 +73,13 @@
   \caption{Clean test images.}
 \end{figure}
 
-	\subsubsection{Baseline algorithms:}
+	\subsubsection{Baseline Algorithms}
   \visualresult{fbp}{#1}{FBP}
   \visualresult{bm3d\_sino}{#1}{BM3D sino}
   \visualresult{bm3d\_reco}{#1}{BM3D reco}
   \visualresult{unet}{#1}{U-Net}
 
-  \subsubsection{GAT-Denoiser models}
+  \subsubsection{GAT-Denoiser Models}
   \visualresult{gat}{#1}{GAT}
   \visualresult{conv\_gat}{#1}{Conv + GAT}
   \visualresult{gat\_unet}{#1}{GAT + U-Net}
@@ -141,14 +141,14 @@
 %% ----------------------------------------------------------------
 %\thesisappendix
 \thesisbib
-\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
+% \addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
 \begin{appendices}
 	\input{./Back/MathematicalTools} 
   \input{./Back/GLEmbedding} 
 	\input{./Back/NeuralNetworks} 
 	\input{./Back/AdditionalResults} 
 \end{appendices}
-\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+% \addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
 %% ----------------------------------------------------------------
 \thesisback
 %\iflanguage{english}

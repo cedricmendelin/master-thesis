@@ -16,7 +16,7 @@ If data is not available as a graph structure, a graph can be artificially const
 \paragraph{Graph Learning:} 
 Graph Learning got a lot of attention in recent years.
 The idea is to learn graph information, such as topology or connections between nodes, to solve tasks.
-Attention mechanisms are popular at the moment\cite{transformer} and the idea was derived to graphs as well \cite{GAT}.
+Attention mechanisms are popular at the moment~\cite{transformer} and the idea was derived to graphs as well \cite{GAT}.
 It resumes to computing node features by using local information, therefore, the neighborhood of nodes is exploited.
 Popular learning tasks are \textit{node classification} or \textit{link prediction}, where a model is learned from node and edge features 
 as well as topology. The model can be used for prediction or classification on nodes or edges.
@@ -64,11 +64,9 @@ between $[0, 2 \pi]$ and $dim(s) = 200$.
 In Figure~\ref{fig:clean_manifold}, embedding calculated from clean sinogram and $k=2$ can be seen.
 It looks like a perfect circle and angles are in order. 
 Further, noise was added to the sinogram to reach \snry 20 dB, 10 dB and 0 dB. 
-Additionally, the embedding was computed with $k=6$ and illustrated in Figure~\ref{noisy_manifold_k6_snr20}, Figure~\ref{noisy_manifold_k6_snr10}
-and Figure~\ref{noisy_manifold_k6_snr0} respectively.
+Additionally, the embedding was computed with $k=6$ and illustrated in Figure~\ref{fig:noisy_manifold_k6_snr20},
+Figure~\ref{fig:noisy_manifold_k6_snr10} and Figure~\ref{fig:noisy_manifold_k6_snr0} respectively.
 For \snry 20 dB, a circle like object could be established and for \snry 10 dB it looks like a half circle. 
-
-\textbf{TODO: adjust ticks for 0dB}
 
 \begin{figure}[H]
     \captionsetup[subfigure]{justification=centering}
@@ -216,8 +214,7 @@ Link prediction problems are a subset of graph denoising problems.
 \label{sec:graph_depp_learning}
 Graph Denoising can be seen as a way of link predication. 
 The state-of-the-art methods for solving link prediction are \textit{Graph Deep Learning} approaches.
-With Graph Neural Networks (GNN)~\cite{GNN} the framework
-for neural networks with graphs has been established. 
+With GNN~\cite{GNN} the framework for neural networks with graphs has been established. 
 
 Using Graph Convolutional Networks (GCN)~\cite{GCN} for graph feature extraction is a popular way. 
 With GCN a new feature representation is iteratively learned for node features (edge features are not considered).
@@ -233,7 +230,6 @@ Therefore, it can be seen as a way of power iteration\footnote{For more details 
 over the adjacency matrix with normalization in every layer.
 \citet{dynamicGCN} proposed an extension to GCN by not operating on the same graph in every layer but adopting
 underlying graph topology layer by layer.
-Graph Attention Networks (GAT) \cite{GAT} extended the concept of GCN with attention where not
-all neighboring nodes get the same weight (attention).
+GAT~\cite{GAT} extends the concept of GCN with attention where not all neighboring nodes get the same weight (attention).
 Again, topology of the graph will not change but weighted averaging over the neighborhood 
 will be computed and this is what in denoising is a good idea.

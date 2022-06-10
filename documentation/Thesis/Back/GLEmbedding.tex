@@ -1,24 +1,23 @@
 \chapter{Graph Laplacian Embedding}
-
+In the following section, an introduction to manifolds and the GL embedding is given.
 
 \section{Manifolds}
 \label{sec:manifolds}
 
-\textbf{TODO:
-it maps Rd to RD, if d<D. 
-In our case, it map an angle in S1 (subset of R) to something in RM. The circle S1, is 1 dimensional, 
-it depends only on 1 parameter, and can be represented in R2 like you did. 
-I thinks (not 100 of sure of that right now) that the  rotation group is a manifold, 
-it maps 1d parameter (rotation angle) to some rotation operator (which is high dimensional)
-we don't calculate manifold. 
-Diffusion maps (or graph Laplacian embedding) are a way to map high dimensional dataset to low dimensional one. 
-When the data points are sampled from a manifold, the GL embedding is closely related to the manifold itself.
-We can expect the GL embedding to share property of the original manifold, such as preservation of distances between points}
+% \textbf{TODO:
+% it maps Rd to RD, if d<D. 
+% In our case, it map an angle in S1 (subset of R) to something in RM. The circle S1, is 1 dimensional, 
+% it depends only on 1 parameter, and can be represented in R2 like you did. 
+% I thinks (not 100 of sure of that right now) that the  rotation group is a manifold, 
+% it maps 1d parameter (rotation angle) to some rotation operator (which is high dimensional)
+% we don't calculate manifold. 
+% Diffusion maps (or graph Laplacian embedding) are a way to map high dimensional dataset to low dimensional one. 
+% When the data points are sampled from a manifold, the GL embedding is closely related to the manifold itself.
+% We can expect the GL embedding to share property of the original manifold, such as preservation of distances between points}
 
 
-For high-dimensional data Euclidean distances are not meaningful
-in the sense that they will not capture similar data points well. 
-GL can be used to compute a low-dimensional embedding which can map from high-dimensional space to low-dimensional one.
+For high-dimensional data Euclidean distances are not meaningful in the sense that they will not capture similar data points well. 
+GL can be used to compute a low-dimensional embedding which can map high-dimensional space to low-dimensional.
 In low-dimensional space, Euclidean distances make sense again. 
 
 The manifold assumption is a popular assumption for high-dimensional datasets.
@@ -62,11 +61,10 @@ as well as the sphere itself.
 A simple low-dimensional embedding of a dataset can be computed with Graph-Laplacian by the following:
 
 \begin{enumerate}
-    \item Construct k-NN graph from observations.
-    \item Calculate the (normalized) Graph Laplacian (see Equation~\ref{eq:gl}).
-    \item Extract the second, third (and fourth) the smallest eigenvectors.
+    \item Construct k-NN graph from dataset.
+    \item Calculate the Graph Laplacian.
+    \item Extract the second, third (and fourth) smallest eigenvectors.
 \end{enumerate}
-
 
 Another popular algorithm for calculating a low-dimensional embedding is diffusion maps~\cite{diffusionMaps}, 
 which is a non-linear approach using Graph Laplacian.
@@ -77,10 +75,10 @@ can be seen as an extension to vector diffusion maps, which works well even on h
  where it was used for denoising observations.
 
 
-\subsection{Embedding quality}
+\subsection{Embedding Quality}
 \label{sec:embedding_quality}
 
-Finding a good embedding, which approximates the  GL-manifold, is not easy and in our case, the embedding is dependent on $k$ during graph construction
+Finding a good embedding, which approximates the GL-manifold, is not easy and in our case, the embedding is dependent on $k$ during graph construction
 as well as parameter $\theta$, $s$ and $\eta$ for obtaining observations.
 
 K is an important parameter for building up a graph. If set too low, neighbors
@@ -88,7 +86,7 @@ do not capture similar data well as too few nodes are connected.
 Further, if k is set too high, strength of a neighbor 
 is weakened and data is not well explained.
 In Figure~\ref{fig:clean_manifolds}, GL-manifold computed by clean sinogram and k from 2 to 10 is illustrated.
-One can see, that from $k \leq 4$ GL-manifold results in a perfect circle and with $k >  4$ is moves 
+One can see, that from $k \leq 4$ GL-manifold results in a perfect circle and with $k >  4$ it moves 
 further away from the circle. 
 
 
