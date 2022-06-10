@@ -5,17 +5,7 @@ Inverse Problems aim to estimate an original signal that went through a system,
 based on potentially noisy output signal observations.
 They are widely used throughout different science directions, such as Machine Learning (ML),
 Signal Processing, Computer Vision, Natural Language Processing and others.
-ML is one tool to model and solve such inverse problems.
-
-
-\bigskip
-
-In recent years, graphs got a lot of attention in ML and Graph Machine Learning is one of the most promising research areas.
-Graphs are a well suited data structure, simple but with high expressiveness. 
-Especially data for which single data points tend to have a relation to other data points, graphs with its nodes and vertices are the perfect tool
-to capture these relationships. 
-Data is in a graph structure already, like social networks, or they can be artificially constructed for arbitrary datasets.
-Besides, for some scenarios, ordinary ML algorithms fail, but Graph ML approaches have great success, e.g. dimensionality reduction for high-dimensional data.
+ML is one tool to model and solve inverse problems.
 
 
 \bigskip
@@ -28,24 +18,39 @@ Nobel Prize in Chemistry\footnote{https://www.nobelprize.org/prizes/chemistry/20
 Today, using cryo-EM, molecular structures can be observed with near-atomic resolution.
 The big challenge with cryo-EM is enormous noise and unknown observation angles.
 
-Computed tomography (CT) is a similar to cryo-EM, but reconstruction is slightly easier
+Computed tomography (CT) is similar to cryo-EM, but reconstruction is slightly easier
 as the problem is in 2D and observation angles are known.
+
 The overall goal of this Thesis is to introduce an algorithm that works with CT, but 
 can conceptually be extended to work in 3D, thus for cryo-EM. 
 Additionally, the focus is on the high noise domain, as current available reconstruction algorithms
-start to fail when dealing with too much noise, to be more precise SNR between $[-10, 0]$.
+start to fail when dealing with too much noise. The signal-to-noise-ratio of interest is the interval 
+ between $[-15, 0]$.
+
+\bigskip
+
+In recent years, graphs got a lot of attention in ML and Graph Machine Learning is one of the most promising research areas.
+Graphs are a well suited data structure, simple but with high expressiveness. 
+Especially data for which single data points tend to have a relation to other data points, graphs with its nodes and vertices are the perfect tool
+to capture these relationships. 
+Data is in a graph structure already, like social networks, or they can be artificially constructed for arbitrary datasets.
+Besides, for some scenarios, ordinary ML algorithms fail, but Graph ML approaches have great success, e.g. dimensionality reduction for high-dimensional data.
+
+
 
 \clearpage
 
 As a result of this Thesis, a Graph Neural Network architecture is proposed, which is called \textit{GAT-Denoiser}.
-GAT-Denoiser aims to denoise noisy observations from CT to improve overall reconstruction quality.
-For CT, observations angles are assumed to be known.
+GAT-Denoiser aims to denoise noisy observations to improve overall reconstruction quality.
+The assumption of known observations angles is defined.
 In the GNN architecture, convolution and Graph Attention Network (GAT) is used to denoise observations.
-In addition, an end-to-end learning approach with U-Net is used to further improve reconstruction quality.
+In addition, an end-to-end learning approach is used, where the reconstruction quality is compared in the loss
+and not only the denoised observation quality.
 
 GAT-Denoiser was evaluated on the LoDoPaB-CT dataset~\cite{lodopab-dataset}.
 I could show that all three components contribute to learning the best GAT-Denoiser model.
-Moreover, GAT-Denoiser outperformed BM3D~\cite{bm3d} as well as U-Net~\cite{unet-tomography},
+Further, U-Net\cite{unet-tomography} was used to further improve CT reconstruction quality.
+GAT-Denoiser outperformed BM3D~\cite{bm3d} as well as U-Net~\cite{unet-tomography},
 where observation signal-to-noise-ration (SNR) is between 0 dB and -15 dB.
 Compared to the best performing baseline BM3D, GAT-Denoiser could improve reconstruction SNR 
 by 379.9\% for observation SNR -15 dB.
@@ -57,10 +62,10 @@ After some learning, in a second step, GAT-Denoiser and U-Net have been trained 
 The report is structured as follows: 
 
 First, notation applied throughout this Thesis is introduced in Chapter~\ref{sec:notation}.
-Then, Chapter~\ref{sec:imaging} presents the two molecular imaging methods
+ Chapter~\ref{sec:imaging} presents the two molecular imaging methods
 CT and cryo-EM and a mathematical abstraction for observation and reconstruction is introduced.
 Further, Chapter~\ref{sec:manifold_and_graphs} is dedicated to manifolds and graphs,
-and how a meaningful embedding for CT and cryo-EM can establish. 
+and how a meaningful embedding for CT and cryo-EM can be established. 
 The main contribution is presented in Chapter~\ref{sec:contribution}, 
 where GAT-Denoiser is introduced and results are presented in Chapter~\ref{sec:results}.
 Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion}.
@@ -72,7 +77,7 @@ In this chapter, some basic terms are explained and their notation in this repor
 
 \section{Molecular Imaging Methods}
 In molecular imaging methods CT and cryo-EM, observations are collected from a biological sample. 
-These observations are noisy and from these noisy observations, reconstruction to approximate the biological sample is desired.
+These observations are noisy. Reconstruction from noisy observations is desired, to approximate the biological sample.
 Throughout this Thesis, notation $p$ for noiseless observation and $y$ for observation with noise is used.
 In practice, $p$ is not observable directly and observed signal $y$ needs to be denoised.
 Further, $x$ is used for the biological sample and $x^{\prime}$ defines approximation by the reconstruction algorithms.
@@ -83,15 +88,16 @@ with $ 1 \leq i \leq N \text{ and } 1 \leq j \leq M$. The same is true for $p$ w
 
 \paragraph{Signal-to-noise-ratio}
 Signal-to-noise-ratio (SNR) is a measure used in Signal Processing. 
-It compares the power of an input signal to the power of noise and is typically given in decibel (dB), with
+It compares the power of an input signal to the power of noise. It is typically given in decibel (dB), with
 $\text{SNR}_{dB} = 10 \log_{10} \left(  \frac{P_{signal}}{P_{noise}} \right)$.
-An SNR of 0 dB and lower indicates more noise than signal.
+An SNR of smaller than 0 dB indicates more noise than signal.
 
 From a given clean image and its noisy version, SNR can be determined.
-During this Thesis, the term SNR is used as quality measure for reconstruction and to indicate, how much noise is present in $y$.
-To make notation clear, \textit{SNR} refers to SNR computed from $x^{\prime}$ and $x$.
-Contrary, $\textit{SNR}_y$ is used to express the level of noise in $y$, 
+During this Thesis, the term SNR is used  in two scenarios.
+First, to indicate how much noise is present in $y$. Second, as quality measure for reconstruction.
+To make notation clear, $\textit{SNR}_y$ is used to express the level of noise in $y$, 
 where SNR is computed from $y$ and $p$.
+Contrary, \textit{SNR} refers to SNR computed from $x^{\prime}$ and $x$.
 
 \section{Graph}
 A graph is defined as $G = \langle V,E \rangle$, where $V$ is a set of 
@@ -134,6 +140,8 @@ nodes is calculated with a distance measure (e.g. Euclidean distance) and
 for every node, $\mathcal{N}_i$ is defined as $k$ nodes with the smallest similarity measure.
 During this Thesis, when writing from $k$ it refers to k-NN parameter $k$.
 
+\paragraph{Erdős–Rényi graph}
+\textbf{TODO: Introduce shorty}
 
 \section{Maths}
 \paragraph{Convolution:}

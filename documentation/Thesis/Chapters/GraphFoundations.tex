@@ -5,8 +5,7 @@ In this chapter, the connection between graphs and Graph Laplacian (GL) embeddin
 CT and cryo-EM is examined. 
 First, some graph foundations are presented.
 Then, GL and its embedding is introduced and the connection to CT and cryo-EM is illustrated.
-Further, the term Graph Denoising is introduced and lastly, 
-some Graph Deep Learning approaches are presented.
+Further, the term Graph Denoising is defined and last, some Graph Deep Learning approaches are presented.
 
 
 \section{Graph Foundations}
@@ -54,6 +53,7 @@ GL is defined as follows: $L = D - A$, where $A$ is the adjacency matrix and $D$
 \subsection{Graph Laplacian Embedding for CT and cryo-EM}
 A basic introduction to GL embedding and how it can be computed is found in \ref{sec:manifolds}.
 In this section, the connection to CT and cryo-EM is established.
+
 For a given observation, a low-dimensional embedding can be computed by using the GL.
 In the following, it will be observed how this embedding for CT looks like.
 To be more precise, the second and third smallest eigenvectors of GL will be observed.
@@ -63,27 +63,35 @@ between $[0, 2 \pi]$ and $dim(s) = 200$.
 
 In Figure~\ref{fig:clean_manifold}, embedding calculated from clean sinogram and $k=2$ can be seen.
 It looks like a perfect circle and angles are in order. 
-Further, noise was added to the sinogram to reach SNR 20 dB and 10 dB and the embedding was computed with $k=6$, 
-which is illustrated in Figure~\ref{noisy_manifold_k6_snr20} and Figure~\ref{noisy_manifold_k6_snr10}.
+Further, noise was added to the sinogram to reach \snry 20 dB, 10 dB and 0 dB. 
+Additionally, the embedding was computed with $k=6$ and illustrated in Figure~\ref{noisy_manifold_k6_snr20}, Figure~\ref{noisy_manifold_k6_snr10}
+and Figure~\ref{noisy_manifold_k6_snr0} respectively.
 For \snry 20 dB, a circle like object could be established and for \snry 10 dB it looks like a half circle. 
+
+\textbf{TODO: adjust ticks for 0dB}
 
 \begin{figure}[H]
     \captionsetup[subfigure]{justification=centering}
     \centering
-    \begin{subfigure}[t]{0.3\textwidth}
+    \begin{subfigure}[t]{0.25\textwidth}
         \includegraphics[width=\textwidth]{phaton_clean_manifold.png}
         \caption{Clean sinogram embedding with $k=2$}
         \label{fig:clean_manifold}
     \end{subfigure}\hfill
-    \begin{subfigure}[t]{0.3\textwidth}
+    \begin{subfigure}[t]{0.25\textwidth}
       \includegraphics[width=\textwidth]{phaton_noisy_manifold_k6_snr20.png}
-      \caption{Noisy sinogram embedding $k=6$ with \snry 20 dB}
+      \caption{GL embedding $k=6$ with \snry 20 dB}
       \label{fig:noisy_manifold_k6_snr20}
     \end{subfigure}\hfill
-    \begin{subfigure}[t]{0.3\textwidth}
+    \begin{subfigure}[t]{0.25\textwidth}
       \includegraphics[width=\textwidth]{phaton_noisy_manifold_k6_snr10.png}
-      \caption{Noisy sinogram embedding $k=6$ with \snry 10 dB}
+      \caption{GL embedding $k=6$ with \snry 10 dB}
       \label{fig:noisy_manifold_k6_snr10}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.25\textwidth}
+      \includegraphics[width=\textwidth]{phaton_noisy_manifold_k6_snr0.png}
+      \caption{GL embedding $k=6$ with \snry 0 dB}
+      \label{fig:noisy_manifold_k6_snr0}
     \end{subfigure}
     \caption{Shepp-Logan phantom sinogram GL eigenvectors}
     \label{fig:phantom_manifolds}
@@ -97,13 +105,19 @@ For \snry 20 dB, a circle like object could be established and for \snry 10 dB i
 
 \paragraph{Tomography for unknown angles:}
 But what can we use this embedding for?
-It is defining a low-dimensional mapping from high-dimensional space, which approximates angles for observations.
+It is defining a low-dimensional mapping from high-dimensional space.
+In the case of CT and cryo-EM, this embedding approximates angles for observations.
 Therefore, for (noisy) observations, angles can be approximated and reconstruction can be established even if angles are unknown.
 The problem here is the quality of our embedding. As long as the computed embedding is a mapping to the circle (or sphere),
 it should be reasonable to do reconstruction with.
-In Figure~\ref{fig:phantom_fbp_unknown_angles} reconstruction with unknown angles is applied. The same settings as before, $k=6$
-and \snry 20 dB and 0 dB are used. Clean reconstruction in Figure~\ref{fig:clean_reco_unknown} looks good, 
+In Figure~\ref{fig:phantom_fbp_unknown_angles} reconstruction with unknown angles is applied. Again, $k=6$
+but \snry 20 dB and 0 dB are used. Clean reconstruction with approximated angles in Figure~\ref{fig:clean_reco_unknown} looks good, 
 despite that there is an in-plane rotation of around 45 degrees. 
+But even more moderate noise 20 dB, where the embedding almost looks like a circle (Figure~\ref{fig:noisy_manifold_k6_snr20})
+the difference between reconstruction with known angles (Figure~\ref{fig:noisy_snr20_reco_known})
+and unknown angles (Figure~\ref{fig:noisy_snr20_reco_unknown}) is pretty big.
+For 0 dB, already with known angles (Figure~\ref{fig:noisy_snr0_reco_known}), reconstruction fails and with unknown angles barely anything from
+original Shepp-Logan phantom can be determined  (Figure~\ref{fig:noisy_snr0_reco_unknown}).
 
 \begin{figure}[H]
     \captionsetup[subfigure]{justification=centering}
@@ -121,34 +135,37 @@ despite that there is an in-plane rotation of around 45 degrees.
     \begin{subfigure}[t]{0.3\textwidth}
       \includegraphics[width=\textwidth]{fbp_phantom_snr_0_unknown_angels.png}
       \caption{Noisy sinogram with \snry 0 dB reconstruction from GL estimated angles.}
-      \label{fig:noisy_snr10_reco_unknown}
+      \label{fig:noisy_snr0_reco_unknown}
     \end{subfigure}
 
     \begin{subfigure}[t]{0.3\textwidth}
       \includegraphics[width=\textwidth]{fbp_phantom_snr_20.png}
       \caption{Noisy sinogram with \snry 20 dB reconstruction from known angles.}
-      \label{fig:noisy_snr20_reco_unknown}
+      \label{fig:noisy_snr20_reco_known}
     \end{subfigure}\hfill
     \begin{subfigure}[t]{0.3\textwidth}
       \includegraphics[width=\textwidth]{fbp_phantom_snr_0.png}
       \caption{Noisy sinogram with \snry 0 dB reconstruction from known angles.}
-      \label{fig:noisy_snr10_reco_unknown}
+      \label{fig:noisy_snr0_reco_known}
     \end{subfigure}
 
     \caption{Shepp-Logan phantom sinogram GL eigenvectors}
     \label{fig:phantom_fbp_unknown_angles}
   \end{figure}
 
-  \textbf{TODO: Show reconstruction with known angles as well.}
+  Not only noise is reducing GL embedding quality, also $k$, number of observations 
+  and observation dimension have an impact to the final result.
+  Some further considerations are presented in Section~\ref{sec:embedding_quality}.
 
   \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     With the GL embedding of observations, angles can be approximated.
-    Therefore, CT and cryo-EM problem can be solved for unknown angles.
+    Therefore, CT and cryo-EM problem can be solved for unknown angles, even tough the quality
+    is slightly worse.
   \end{tcolorbox}
 
-  \paragraph{Denoise observations}
-  As the quality of reconstruction is highly dependent on observations and their noise, it
-  is expected to increase, when the level of noise is decreased.
+  \paragraph{Denoise observations:}
+  As the quality of reconstruction is highly dependent on observations, it
+  is expected to increase when the level of noise is decreased.
   Therefore, standard denoising methods like Block-matching and 3D filtering (BM3D) \cite{bm3d} or 
   non-local means \cite{noneLocalMean} could be used to denoise observations to get higher quality reconstructions.
   Both algorithms emerged from Signal Processing and are not operating on a graph structure. 
@@ -157,7 +174,9 @@ despite that there is an in-plane rotation of around 45 degrees.
   BM3D is considered the state-of-the-art denoising algorithm, before algorithms emerged from Deep Learning.
   Therefore, it will be used as a baseline algorithm in the practical part.
   Further, as illustrated with the GL embedding, graphs can restore information with a suitable prior,
-  such as angles are uniformly sampled.
+  such as angles are uniformly sampled. 
+
+  In this Thesis, 
 
 \section{Graph Denoising}
 \textit{Graph Denoising} is not a common term in literature.
@@ -166,7 +185,7 @@ Moreover, the underlying true graph was found by computing the GL embedding, whi
 Therefore, our constructed graph from observations can be considered a noisy graph, 
 as observations are noisy. 
 As a consequence, the constructed noisy graph has some missing and additional edges compared to the true graph.
-The goal of Graph Denoising is to estimate original graph $G$ from a given noisy graph $G_0$.
+The goal of Graph Denoising is to estimate the original graph $G$ from a given noisy graph $G_0$.
 In other words, noisy graph $G_0$ will be denoised.
 This is my definition for Graph Denoising, which is rather related to signal or image denoising.
 Reconstruction of a true signal given noisy observation signal is done via averaging, that can be performed
@@ -179,22 +198,14 @@ $G_0$ consists of same nodes $V$ as original graph $G$.
 From $E$ some edges are removed (denoted by $E^{-}_0$) and some are added
 (denoted by $E^{+}_0$), which results in edges $E_0$.
 
-Graph Denoising can therefore be written as 
-\begin{equation}
-    GD: A_0 \mapsto \tilde{A} \approx A
-\end{equation}
-
-Where $A_0$, $\tilde{A}$, $A$ denotes adjacency matrix from noisy input graph, denoised graph and original graph respectively.
-
-
 \paragraph{Connection to link prediction:}
-Link prediction is a task in Graph Learning. 
+Link prediction is a common task in Graph Learning. 
 The goal is to predict existence of a link between two nodes.
 The task can be formulated as a missing value estimation task. A model $M_p$ is learned
 from a given set of observed edges. The model finally maps links to probabilities
 $M_p : E^{\prime} \rightarrow [0,1]$ where $E^{\prime}$ is the set of potential links.
 
-Further, $U$ determines the set of all possible vertices of $G$, therefore $E \subseteq U$.
+Further, $U$ determines the set of all possible edges of $G$, therefore $E \subseteq U$.
 Clearly, Graph Denoising can be seen as a link prediction problem.
 The difference is, that in link prediction a model from a set of observed links is learned
 $E^{\prime} \subseteq E$ and in Graph Denoising model is learned from 

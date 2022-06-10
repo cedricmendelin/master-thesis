@@ -5,7 +5,7 @@ In this chapter, results of GAT-Denoiser are presented.
 First, the LoDoPaB-CT dataset is introduced, and some illustrations are given.
 Second, project setup and shared settings are given.
 Third, small scale GAT-Denoiser experiments are presented, where the goal is to find
-good parameters for training the model.
+good parameters for training the GAT-Denoiser model.
 Last, the large scale GAT-Denoiser experiments are presented, where the goal is 
 to find the best model.
 
@@ -41,20 +41,19 @@ for neural network configuration, Operator Discretization Library\footnote{https
 and last, Weight \& Bias\footnote{https://wandb.ai/site} (wandb) to gather results in a convenient way.
 
 Training of GAT-Denoiser has been performed on the HPC-cluster scicore of the University of Basel.
-During training, up to 4 titanx GPUs with 12 GB RAM have been used.
+During training, up to 4 titanx GPUs with each 12 GB RAM have been used.
 
 
 \paragraph{Radon Transform:}
-Radon Transform will be applied in GAT-Denoiser and sampling points have been fixed to 64, thus $s \in \mathbb{R}^64$.
+For Radon Transform, sampling points have been fixed to 64, thus $s \in \mathbb{R}^{64}$.
 Further, projection angles $\theta$ are sampled within interval $[0, \pi]$.
-The number of observation is the size of our input graph, where typically 1024 nodes are used.
-
+The number of observation is the size of our input graph nodes, where typically 1024 are used.
 
 \paragraph{GAT settings:}
-During experiments, in the GAT layers exponential linear unit (ELU) was used as activation function.
+During experiments, in the GAT layers exponential linear unit (ELU) was used as an activation function.
 Further, dropout is used as regularization term.
-During training, Adam~\cite{adam} optimizer was with fixed learning rate $0.01$ and weight decay $0.0005$.
-Moreover, mini Batch gradient descent with a batch size of 64 was used.
+During training, Adam~\cite{adam} optimizer was applied with learning rate $0.01$ and weight decay $0.0005$.
+Moreover, mini batch gradient descent with a batch size of 64 was computed.
 
 \paragraph{Performance metrics:}
 During evaluation, two main metrics are considered.
@@ -63,29 +62,18 @@ Second, \textit{SNR} is used, which refers to SNR in dB of reconstruction, compa
 Further, visual results are presented and can be seen as a third metric.
 
 
-\textbf{TODO: Move to notation chapter}
-To make notation clear, \textit{SNR} in this Chapter refers to SNR computed from denoised reconstruction and original object 
-and always shows an average on a test set for a specific algorithm or model.
-Contrary, $\textit{SNR}_y$ is used to express the level of noise during training or validation, 
-where SNR is computed from clean and noisy observation.
-
 \paragraph{U-Net training:}
 U-Net was pre-trained on the LoDoPaB-CT training dataset, with 128 channels in the first contracting step. 
 In total, 4 steps have been computed, which results in 1024 channels as output of last contracting step.
-During training, noise was sampled from normal distribution to reach SNR in the interval $[0, -10]$ and was added to the observation (sinogram). 
-In total, the model was trained for 200 epochs.
+During training, noise was sampled from normal distribution to reach SNR in the interval $[0, -10]$ dB 
+and was added to the observation. In total, the model was trained for 200 epochs.
 
 \paragraph{BM3D:}
-BM3D is a powerful and lightweight algorithm for image denoising. 
-It is not neural network based and was the defacto state-of-the-art before neural network outperformed
-BM3D. Therefore, it is an interesting baseline to compare with.
-
 In the GAT-Denoiser pipeline, first, observations will be denoised, and second, reconstruction is computed.
 Therefore, BM3D can be applied at two different steps. First, it can be used to denoise sinogram
 and forward denoised sinogram to FBP, which is how GAT-Denoiser work. Secondly, FBP can be
 computed with noisy sinogram and output can be forwarded to BM3D, which will denoise reconstruction.
-In the following term \textit{BM3D sinogram} and \textit{BM3D reco} 
-are used to distinguish between the two approaches.
+In the following term \textit{BM3D sino} and \textit{BM3D reco} are used to distinguish between the two approaches.
 
 \section{Small scale GAT-Denoiser experiments}
 For small scale experiments, not the complete LoDoPaB-CT dataset was considered, but only 1024 train images
@@ -94,15 +82,21 @@ Further, evaluated GAT-Denoiser models presented in this section have been train
 
 \subsection{Baseline}
 
-Table~\ref{tab:baseline-small} shows baseline results for FBP, BM3D sinogram, BM3D reconstruction and U-Net.
+Table~\ref{tab:baseline-small} shows baseline results for FBP, BM3D sino, BM3D reco and U-Net.
 Noise was added to reach $\textit{SNR}_y$ of 0, -5, -10 and -15 dB.
 
-As expected, reconstruction with only FBP performs the worst, as it only reconstructs from noisy observation.
-BM3D-sino and BM3D-reco perform surprisingly good.
-Although, for larger \snry the algorithm performs poorly as well.
-U-Net can decrease the overall noise, as a consequence, a lot of details will be lost.
+As expected, reconstruction with FBP performs the worst, as it only reconstructs from noisy observation.
+BM3D-sino and BM3D-reco perform surprisingly good for higher \snry.
+Although, for lower \snry the algorithm performs poorly as well.
 
-\textbf{TODO: There was a small bug in the final U-Net model, the SNR values should be better.}
+Figure~\ref{fig:baseline_small} illustrates the reconstruction of a single
+observation for all baseline algorithms. \snry is set to 0 dB.
+
+Visually U-Net reconstruction looks best, but the SNR was lower compared to the BM3D approaches.
+After some investigation, a small bug in the pre-trained U-Net model was found.
+There was an issue with the amplitude of U-Net reconstruction,
+therefore the SNR values of U-Net are expected to be slightly higher.
+But also the pre-trained U-Net model starts to fail reconstruction with lower \snry.
 
 
 \begin{table}[H]
@@ -123,7 +117,7 @@ U-Net can decrease the overall noise, as a consequence, a lot of details will be
   \label{tab:baseline-small}
 \end{table}
 
-Figure~\ref{fig:baseline_small} illustrates the reconstruction of an observation for all baseline algorithms. \snry is set to 0 dB.
+
 
 
 \begin{figure}[H]
@@ -154,36 +148,37 @@ Figure~\ref{fig:baseline_small} illustrates the reconstruction of an observation
 \end{figure}
 
 
- \subsection{Input graph structure and observation size}
+ \subsection{K-NN Experiments}
   In the following section, experiments with different input graphs are presented.
-  As the domain of interest is the input graph and its size, and therefore the number of observations, 
-  some other parameters are fixed for all experiments.
+  Therefore, some other parameters are fixed for all experiments.
   First, U-Net was deactivated, resulting reconstruction is defined as FBP solely.
   Further, GAT-Denoiser has been set to 3 layers with GAT single head and convolution 
   with one channel, kernel size 3 and padding 1. 
   If nothing else noted, noise was added to reach \snry 0 dB.
 
-  The input graph structure is important for GAT learning. As described in Section~\ref{sec:manifold_ct_cryoEM}
-  \textit{\nameref{sec:manifold_ct_cryoEM}} the computed tomography underlying manifold is assumed to be a circle 
-  in the clean case, therefore our graph is fixed as a circle graph. 
+  The input graph structure is important for GAT learning.
+  In our case, GL embedding for the observation is expected to be a circle and therefore,
+  the input graph was fixed. A k-NN graph was built from angles, which are mapped to
+  the unit-circle and great-circle distance was used to computed distances.
   Moreover, learning is expected to fail when learning on a random graph.
 
-  Further, the neighborhood size for k-NN graphs is explored, as it is expected to be not easy to find 
-  good values for parameter $k$.
+  Next to the input graph, the neighborhood size for k-NN graphs is explored, as it is expected to be not easy to find 
+  good values for $k$.
 
   \paragraph{Does learning fail with random graph?}
   Yes it does.
 
-  During this experiment, two models with different input graphs, but same size 1024 nodes have been trained.
+  During this experiment, two models with different input graphs, but same number of nodes 1024 have been trained.
   First, a k-NN graph with $k=10$ was defined as input, therefore, around 1\%  of all nodes are connected to a single node.
   Second, a random Erdős–Rényi graph with $p=0.01$ has been evaluated, where every node is 
-  approximately connected to 1\% of all available nodes. Consequently, both graphs have approximately the same amount of edges.
+  connected to every other node with probability $p$. 
+  As a consequence, nodes are approximately connected to 1\% of all available nodes as well.
   
-  In the experiment, random Erdős–Rényi graph fails to learn denoising and k-NN starts to capture some details.
+  In the experiment, random Erdős–Rényi graph fails to learn denoising and k-NN starts to capture first details.
   Table~\ref{tab:input_graph} shows Loss and SNR and in Figure~\ref{fig:input_graph_small} example reconstruction is illustrated.
   The reconstruction quality of GAT-Denoiser in Figure~\ref{fig:small_experiment_knn_graph} is rather low. 
   However, it starts learning a few coarse details and with the following experiments, the reconstruction can hopefully be 
-  increased in quality.
+  increased in quality. But, our assumption for GL embedding to be on a circle is reasonable.
 
   \begin{table}[H]
     \centering
@@ -223,44 +218,43 @@ Figure~\ref{fig:baseline_small} illustrates the reconstruction of an observation
 
 
 
-  \paragraph{Does result improve with large graph size?}
+  \paragraph{Does result improve with more observations?}
   Yes.
-  For this question to answer, multiple models have been trained for graphs with size 512, 1024 and 2048 
-  as well as different k-NN parameters $k = (2,6,8,10,20)$.
+  For this question to answer, multiple models have been trained for graphs with 512, 1024 and 2048 observations
+  as well as different $k = (2,6,8,10,20)$.
+  In Table~\ref{tab:graph_knn} results are presented, where results are averaged by number of observations 
+  for different $k$.
 
-  In Table~\ref{tab:graph_knn} results are presented, where average of different k-NN settings
-  are computed for different graph sizes.
-  A larger graph size can improve the models. 
+  A larger number of nodes can improve the models. 
   But, training is also more expensive regarding execution time. 
-  Therefore, for all upcoming experiments graph size is fixed to 1024, as it looks like a good
+  Therefore, for all upcoming experiments number of observations is fixed to 1024, as it looks like a good
   value in between, with good reconstruction result but also not too much training time.
   
   \begin{table}[H]
     \centering
       \begin{tabular}{l|ccc}
       \toprule
-      \textbf{Input graph size} & \textbf{SNR} & \textbf{Loss} & \textbf{Training time (s)}  \\ 
+      \textbf{Number of observations} & \textbf{SNR} & \textbf{Loss} & \textbf{Training time (s)}  \\ 
       \midrule
       512  &  7.22    &  822.6  & 2678.6 s \\ \hline
       1024 &  7.80    &  766.88 & 4216.1 s \\ \hline
       2048 &  8.55    &  701.49 & 7609.0 s  \\ \hline
       \midrule
       \end{tabular}
-    \caption{Loss and SNR for different input graph sizes, which refer to the average of 
+    \caption{Loss and SNR for different number of observations, which refer to the average of 
     different k-NN parameters $k = (2,6,8,10,20)$.}
     \label{tab:graph_knn}
   \end{table}
 
-  \paragraph{What is a good parameter k for k-NN graph construction?}
+  \paragraph{What is a good value for  $k$?}
 
-  To find good parameter $k$, multiple models have been trained with different $k=(1,2,3,4,6,8,10,20)$
+  To find suitable $k$, multiple models have been trained with different $k=(1,2,3,4,6,8,10,20)$
   as well as different \snry (0 dB and -10 dB).
 
   In Table~\ref{tab:small_knn_snr} the results of evaluated models are presented.
   For \snry 0 dB the best result can be achieved with $k=2$ and for \snry -10 dB $k=1$.
-
-  
-
+  With our assumption of fixed angles, it looks like only a few neighbors are enough to capture 
+  important information in the neighborhood.
 
   \begin{table}[H]
     \centering
@@ -284,25 +278,25 @@ Figure~\ref{fig:baseline_small} illustrates the reconstruction of an observation
     \label{tab:small_knn_snr}
   \end{table}
 
+  
 
-
-
-\subsection{GAT parameters}
+\subsection{GAT Experiments}
 In this section, experiments are presented with focus on the GAT and its parameters.
 Mainly, two parameters are important: number of heads and number of layers.
 
-To recap, the k-hop neighborhood in a GNN is defined by the number of layers.
-Therefore, number of layers is expected to keep rather low. The dataset observations have only resolution 64x64
-and consequently, it is expected that too many layers will average a too large neighborhood.
+Therefore, number of layers is expected to keep rather low, as it defines the exposure of the k-hop neighborhood.
+The dataset observations have only resolution 64x64 and consequently, it is expected that too many layers will 
+average a too large neighborhood.
 
-Further, number of heads determines if the learned weight matrix is divides into several parts.
+Further, number of heads determines if the learned weight matrix is divided into several parts.
 The larger the number of heads, the smaller are the parts of the weight matrix.
 Overall, larger number of heads is expected to smoothen denoising, but too large values
 will divide weight matrix in too many parts, leading to bad results.
 
-During GAT experiments, graph size 1024 was used and parameter $k=8$.
+Experiments have been computed in parallel and results for k-NN have not been present before. 
+Therefore, graphs were constructed with $k=8$, even tough it is not the best value for $k$.
 Further, convolution was applied with a single channel, kernel size = 3 and padding 1.
-As focus is on GAT parameters, U-Net was not used during these experiments.
+As focus is on GAT parameters, U-Net was again omitted.
 Further, multiple experiments with layers = $(2,3,4,6)$ and heads = $(1,2,4,8,16)$ have been evaluated, 
 where results can be found in Table~\ref{tab:small_gat_results}.
 
@@ -334,17 +328,18 @@ followed by 4, 3 and 2 layers.
 
 \paragraph{How does multiple heads affect result?}
 It has an overall positive impact. 
-During experiments, for every layer $l$ with single-head result, there
-is a better result for $l$, but multiple-heads. 
+During experiments, for every layer $l$ with single-head result, there is a better result for $l$, but multiple-heads. 
 For 2 layers, single-head model performs with an average SNR of 7.55 dB where with 16 heads average SNR is 8.27.
 
+2 layers seems to be most promising and number of heads 4 seems to be a reasonable choice for heads.
+With 16 heads, the result was even a bit better. As 16 heads performed rather low for other number of layers, 
+the best GAT parameters are considered to be 2 layers and 4 heads.
+To make sure that $k=2$ is a good setting for these GAT parameters as well, the k-NN experiment
+have been recomputed for 2 layers and 4 heads. Table~\ref{tab:small_knn_2} presents results, which 
+give the same insight as for previous k-NN experiments.
+
 \paragraph{How about some dropout?}
-
-Dropout is used in neural network as regularization and to prevent over fitting. 
-During training the neural network, some units are randomly omitted. Therefore, the network is 
-considered to not over fit to single unit, as during learning they are not always present.
-
-There is a dropout parameter in GAT as well. A small experiment with fixed network parameters
+A small experiment with fixed network parameters
 and different dropout values $(0, 0.01, 0.03, 0.05, 0.1)$ have been calculated. 
 Results are presented in Figure~\ref{tab:small_droput}.
 There is not too much of a difference, without dropout, model got the best value, followed by 
@@ -352,12 +347,12 @@ There is not too much of a difference, without dropout, model got the best value
 
 Therefore, in future trainings, dropout of 0.05 was used.
 
-\subsection{Convolution parameters}
+\subsection{Convolution Experiments}
 
-In the proposed architecture of GAT-Denoiser, in every layer, convolution and GAT is computed. For convolution, kernel size and padding can be defined.
+For convolution, kernel size and padding can be defined.
 Moreover, it is possible to increase number of channels during convolution. 
-Again, for GAT, number of layers determine the averaging neighborhood.
-As multiple channels need as least three layers (one for increasing channels, last for decreasing channels and others to convolve of increased number of channels),
+For GAT, number of layers determine the averaging neighborhood.
+As multiple channels are expected to perform better with multiple layers,
 there could be a trade-off between GAT quality (size of averaging neighborhood) and convolution quality (increasing number of channels). 
 
 First, some experiments with 4 layers and 2 heads have been executed with different number of kernel, padding and number of channels.
@@ -391,14 +386,20 @@ This is not too big of a surprise, observation dimension is only 64 and, therefo
 
 \paragraph{Is there a trade-off between GAT and convolution quality?}
 
-As kernel size of 3 with padding 1, seems to be a good value for LoDoPaB-CT dataset and resolution 64, 
-in the second convolution experiment different GAT architectures are compared to kernel size 3.
-The best resulting GAT architectures for layers from 2 to 4 have been chosen, so 2 layers with 4 heads, 3 layers with 8 heads
+As kernel size of 3 with padding 1, seems to be a good value for the LoDoPaB-CT dataset, 
+in the second convolution experiment different GAT architectures are compared with kernel size 3.
+Good performing GAT architectures for layers 2 to 4 have been chosen: 2 layers with 4 heads, 3 layers with 8 heads
 and 4 layers with 2 heads.
 
 Resulting evaluation can be seen in Table~\ref{tab:small_convolution_2}.
 Additionally, for every GAT architecture model without convolution was computed as well.
 For every architecture, there was a model with convolution which performed better than the one without convolution.
+
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+  Convolution can be considered to contribute to the success of GAT-Denoiser.
+\end{tcolorbox}
+
 
 
 \begin{table}[H]
@@ -422,34 +423,26 @@ For every architecture, there was a model with convolution which performed bette
 
 
 
-\subsection{Loss}
-As introduced in Section~\ref{sec:contr_training} \textit{\nameref{sec:contr_training}},
-during training loss is calculated based on quality of reconstruction, what is called
-end-to-end learning in this Thesis.
-
-One could also consider computing loss from GAT-Denoiser output directly, therefore on denoised observation level.
-For LoDoPaB-CT dataset, this would mean to compare clean sinogram with denoised sinogram:
-
-\begin{equation}
-  \label{eq:loss_sino}
-  \mathcal{L}_{sino} = \parallel p_i - \textit{GAT-Denoiser}(A(x_i, \theta, s) + \eta) \parallel ^2_2
-\end{equation}
-
-Therefore, an experiment was set up to compare introduced loss introduced in Equation~\ref{eq:loss_reco}
-with loss in Equation~\ref{eq:loss_sino}.
-
+\subsection{Loss Experiments}
+An experiment was set up to compare $\mathcal{L}$ from Equation~\ref{eq:loss_reco} 
+with $\mathcal{L}_{sino}$ from Equation~\ref{eq:loss_sino}.
+The same network parameters have been used, but once loss during training was defined 
+with $\mathcal{L}$ and once $\mathcal{L}_{sino}$. The experiment
+have been computed for \snry 0, -5, -10 and -15 dB.
 
 \paragraph{Is our end-to-end learning a good idea?}
 Yes, but it comes with a price. 
-For same network parameters and calculated for \snry 0, -5, -10 and -15 dB,
-experiments have been calculated once with $\mathcal{L} $ and once with $\mathcal{L}_{sino}$.
-Averaged results over SNR can be found in Table~\ref{tab:loss_sino_reco}. 
+Averaged results over training loss can be found in Table~\ref{tab:loss_sino_reco}. 
 Overall, model trained with loss $\mathcal{L} $ performed around 1 dB in SNR better.
 But, training of the network took much longer, more than factor 3. 
-This is not a big surprise, as learning with $\mathcal{L} $, reconstruction of every sample
-needs to be done in every epoch, where training with $\mathcal{L}_{sino}$, reconstruction is not needed.
+This is not a big surprise, as for learning with $\mathcal{L} $, reconstruction of every sample
+needs to be done in every epoch, where for $\mathcal{L}_{sino}$ reconstruction can be omitted.
 
-End-to-end learning with loss $\mathcal{L} $ shows great results and is used in further experiments.
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+  End-to-end learning with loss $\mathcal{L} $ contributes to the success of GAT-Denoiser and 
+   is used in further experiments.
+\end{tcolorbox}
+
 
 \begin{table}[H]
   \centering
@@ -466,23 +459,20 @@ End-to-end learning with loss $\mathcal{L} $ shows great results and is used in 
 \end{table}
 
 
-\subsection{GAT-Denoiser components}
+\subsection{GAT-Denoiser Component Experiments}
 
-The final small scale experiments have the goal, to see all components in action and 
-to compare against each other.
+The final small scale experiments aim to see contribution of the single components in action and 
+to compare them.
 Therefore, a fixed overall architecture is defined and experiments
 with different combination of components (Convolution, GAT and U-Net) will be calculated.
 Further, models with joint U-Net training have been evaluated.
-
-The overall settings of GAT-Denoiser has been defined with 2 layers, 4 heads, convolution with 
-kernel size 3 and padding 1. k-NN parameter k was set to 2.
-
-
+The fixed settings for GAT-Denoiser have been defined with 2 layers, 4 heads, convolution with 
+kernel size 3 and padding 1. $k$ was set to 2.
 Overall, 8 models have been evaluated and compared against the baseline algorithms for  \snry $ = (-15,-10,-5,0) $ dB .
+
 Results are plotted in Figure~\ref{fig:small_components} and numeric values can be found in Table~\ref{tab:small_gat_components}.
-First, \textit{GAT} is the model, where no convolution and 
-U-Net is active. Second, \textit{GAT + Conv} refers to the model 
-with GAT and convolution but no U-Net.
+First, \textit{GAT} is the model, where no convolution and no U-Net is active. 
+Second, \textit{GAT + Conv} refers to the model with GAT and convolution but no U-Net.
 Additionally, the two models have been combined with U-Net, which are referred as 
 \textit{GAT + U-Net} and \textit{Conv + GAT + U-Net}.
 Last, models with joint U-Net training are presented.
@@ -491,6 +481,7 @@ Last, models with joint U-Net training are presented.
 and training was activated for the second 100 epochs.
 
 \textbf{TODO: fix plot, same solor for some values}
+\ref{tab:small_gat_components}
 
 \begin{figure}[H]
   \centering
@@ -503,11 +494,13 @@ and training was activated for the second 100 epochs.
 
 Model \textit{GAT} is not able to beat baseline algorithms, and it seems that only applying GAT is not enough.
 \textit{GAT + Conv} performs slightly better. When adding U-Net in the models \textit{GAT + U-Net} \textit{Conv + GAT + U-Net},
-the visual results improve but reconstruction SNR is still not able to beat baseline algorithms.
+the visual results improve slightly but reconstruction SNR is still not able to beat baseline algorithms.
 Finally, with joint training of GAT-Denoiser and U-Net, 
 results can beat baseline algorithms for the small scale problem. It was helpful, to first train only GAT-Denoiser for 100 epochs 
 and start joint training for the second 100 epochs.
 
+Figure~\ref{fig:small_components_overview} illustrates visual results for all baseline algorithms and some GAT-Denoiser models.
+Further, clean sample is presented in Figure~\ref{fig:small_clean_sample_overview}.
 
 \begin{figure}[H]
   \captionsetup[subfigure]{justification=centering}
@@ -515,6 +508,7 @@ and start joint training for the second 100 epochs.
   \begin{subfigure}[t]{0.16\textwidth}
     \includegraphics[width=\textwidth]{small/small_clean.png}
     \caption{Clean sample}
+    \label{fig:small_clean_sample_overview}
   \end{subfigure} \hfill
   \begin{subfigure}[t]{0.16\textwidth}
     \includegraphics[width=\textwidth]{small/small_fbp.png}
@@ -559,13 +553,12 @@ and start joint training for the second 100 epochs.
 
 \section{Large scale Experiments}
 
-In this section, experiments are presented, which have been trained on the complete LoDoPaB-CT dataset
-as well as evaluated on the complete test dataset.
-
-From last section, the most promising parameters for the GAT-Denoiser architecture have been choosen
+In this section, large scale experiments are presented, which have been trained on the complete LoDoPaB-CT dataset
+as well as evaluated on the complete LoDoPaB-CT test dataset.
+From last section, the most promising parameters for the GAT-Denoiser architecture have been chosen
 to find the best model. The following parameters have been fixed during the large scale experiments:
 $k=2$, number of layers = 2, number of heads = 4, convolution with kernel size 3 and padding 1.
-The GAT-Denoiser have been trained for 20 epochs, if not noted something else.
+The GAT-Denoiser have been trained for 20 epochs, if not mentioned differently.
 
 
 \subsection{Baseline}
@@ -574,12 +567,12 @@ As only the number of samples changed, but algorithms are fixed, the result is r
 the same as for the small scale experiments.
 
 \subsection{GAT-Denoiser components}
-Again, the main components of GAT-Denoiser pipeline have been tested with different models.
+The main components of the GAT-Denoiser pipeline have been tested with different models.
 As a result of the small scale experiments, jointly training U-Net was most promising, 
 when there was first some training on GAT-Denoiser solely and in a second part a joint training phase.
-Therefore, model {Conv + GAT + U-Net*} and {GAT + U-Net*} is omitted and {GAT + U-Net**}.
-Moreover, {... U-Net*} denotes that models have been first trained 10 epochs without
-joint U-Net training then 10 epochs with U-Net training.
+Therefore, model {Conv + GAT + U-Net*} and {GAT + U-Net*} is omitted for the large scale experiments.
+Moreover, {... U-Net**} denotes that models have been first trained 10 epochs without
+U-Net training and then 10 epochs with U-Net training.
 
 
 \begin{figure}[H]
@@ -591,21 +584,21 @@ joint U-Net training then 10 epochs with U-Net training.
     }
 \end{figure}
 
+Figure~\ref{fig:large_components} presents resulting SNR for baseline algorithms and 
+different GAT-Denoiser models. Further, numerical results are presented in Table~\ref{tab:large_gat_components_knn2}
 The results are rather similar compared to the small scale experiments.
 Overall reconstruction is slightly better, as during training more samples have been seen.
 Again, approaches with joint U-Net and GAT-Denoiser training results best.
 
-\subsection{Last models}
-
-For the most promising models, the one with joint U-Net and GAT-Denoiser training,
-the presented models have been trained for 20 more epochs. 
-  
+\subsection{Best Models}
+For the most promising architectures, the one with joint U-Net and GAT-Denoiser training,
+the models have been further trained for another 20 epochs. 
 In Table~\ref{tab:large_best_models} final results are illustrated. 
-The number in denotes the number of training epochs without U-Net followed by
+The number in brackets denotes the number of training epochs without U-Net followed by
 the number of epochs with joint model training.
 
 All in all, the few more epochs could sometimes improve result, as for \textit{Conv + GAT + U-Net} and \snry 0 dB.
-Although, this is not always the case and in some scenarios, the model even performed worst, as for 
+Although, this is not always the case and in some scenarios, the model even performed worse, as for 
 \textit{GAT + U-Net} and \snry -10 dB.
 
 
@@ -630,9 +623,9 @@ Although, this is not always the case and in some scenarios, the model even perf
   \label{tab:large_best_models}
 \end{table}
 
-Single sample reconstruction for \snry 0 dB is presented in Figure~\ref{fig:large_scale_best_reco}.
-Additional visual results are presented in the Appendix for baseline algorithms and large scale GAT-Denoiser models
-for different \snry. 
+A single sample reconstruction for \snry 0 dB is presented in Figure~\ref{fig:large_scale_best_reco}.
+Additional visual results are presented in the Appendix~\ref{sec:large_scale_visual_results} for baseline algorithms 
+and the best performing large scale GAT-Denoiser models for different \snry. 
 
 \begin{figure}[H]
   \captionsetup[subfigure]{justification=centering}
@@ -662,5 +655,6 @@ for different \snry.
     \caption{\textit{Conv+GAT+U-Net(20/20)}}
   \end{subfigure}
   \caption{Large scale experiments visual results.}
+  \label{fig:large_scale_best_reco}
 \end{figure}
 

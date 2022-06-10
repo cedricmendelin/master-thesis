@@ -4,18 +4,24 @@
 
 Cryo-Electron Microscopy (cryo-EM) and Computer Tomography (CT) 
 are two molecular imaging methods.
-In both cases, observations are collected from a biological sample.
-During reconstruction, the aim is, to approximate
- the underlying biological sample.
- Due to the present of enormous noise and unknown projection angles 
-in the observations, reconstruction is challenging.
+In both scenarios, observations are collected from a biological sample.
+During reconstruction, the aim is, to approximate the underlying biological sample from observations.
+For CT, the reconstruction can be in 2D or 3D, for cryo-EM it is in 3D.
+Cryo-EM enables the view of molecules in near-atomic resolution and therefore got a lot of attention in recent years.
+Due to ground-breaking improvements regarding hardware and data processing, the field of research
+has highly improved.
+Reconstruction is challenging due to the present of enormous noise and unknown projection angles in the observations.
+CT is a similar to cryo-EM, but reconstruction is slightly easier
+as the problem can be in 2D and observation angles are known. 
+Therefore, CT is well suited to implement an algorithm toward an extended version working for cryo-EM as well.
 
-GAT-Denoiser is a new approach to combine Graph Attention Network 
-with convolution. It enables to denoise observations and boosts
-reconstruction quality for the assumption of known projection angles.
-During training and end-to-end approach 
-is used where reconstruction quality is compare and not only
+I introduce GAT-Denoiser, a Graph Neural Network, which combines Graph Attention Network with convolution 
+and an end-to-end learning approach. 
+It enables to denoise observations and boosts reconstruction quality with the assumption of known projection angles.
+During training an end-to-end approach is used where reconstruction quality is compared and not only
 denoised observation quality.
-GAT-Denoiser have been evaluated on the LoDoPaB-CT~\cite{lodopab-dataset} dataset,
-where it could outperform baseline algorithm BM3D 
-reconstruction SNR by 379.9\%, 126.0\% 57.7\%, 27.6\% for \snry -15 dB, -10 dB, -5 dB and 0 dB. 
+GAT-Denoiser have been evaluated on the LoDoPaB-CT~\cite{lodopab-dataset} dataset.
+It could outperform baseline algorithm BM3D measure by the reconstruction
+signal-to-noise-ratio (SNR). An improvement by 379.9\%, 126.0\% 57.7\%, 27.6\% for \snry -15 dB, -10 dB, -5 dB and 0 dB respectively
+could be fulfilled. 
+
