@@ -40,21 +40,22 @@ and in Figure~\ref{fig:sphere_sampling}, 800 samples are drawn from a uniform di
 as well as the sphere itself.
 
 
-\textbf{TODO: use subfigures}
+
 \begin{figure}[H]
-    \hfill
-    \subbottom[
-        \label{fig:circle_sampling}]
-        {\includegraphics[width=0.4\textwidth]{circle_sampling.png}}
-    \hfill
-        \subbottom[      
-    \label{fig:sphere_sampling}]
-        {\includegraphics[width=0.42\textwidth]{sphere_sampling.png}}
-    \hfill
-        \caption{Samples drawn from 1D and 2D manifold: 
-    \ref{fig:circle_sampling} circle samples,
-    \ref{fig:sphere_sampling} sphere samples}
-\end{figure}
+    \captionsetup[subfigure]{justification=centering}
+    \centering
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{circle_sampling.png}
+        \caption{Samples drawn for the unit-circle.}
+        \label{fig:circle_sampling}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.4\textwidth}
+      \includegraphics[width=\textwidth]{sphere_sampling.png}
+      \caption{Samples drawn for the unit-sphere.}
+      \label{fig:sphere_sampling}
+    \end{subfigure}\hfill
+    \caption{Samples drawn from a 1D and 2D manifold.}
+  \end{figure}
 
 
 \paragraph{GL embedding}
@@ -62,9 +63,9 @@ as well as the sphere itself.
 A low-dimensional embedding of a dataset can be computed with GL by the following:
 
 \begin{enumerate}
-    \item Construct k-NN graph from dataset.
-    \item Calculate the GL.
-    \item Extract the second, third (and fourth) smallest eigenvectors.
+    \item Construct the k-NN graph from dataset
+    \item Calculate the GL
+    \item Extract the second, third (and fourth) smallest eigenvectors
 \end{enumerate}
 
 Another popular algorithm for calculating a low-dimensional embedding is diffusion maps~\cite{diffusionMaps}, 
@@ -103,7 +104,7 @@ From $k \leq 4$ the GL embedding approximates a circle and with $k >  4$ it move
       \caption{Noisy sinogram GL embeddings for different $k$.}
       \label{fig:noisy_manifolds}
     \end{subfigure}\hfill
-    \caption{Shepp-Logan phantom sinogram GL eigenvectors}
+    \caption{Shepp-Logan phantom sinogram GL embeddings for different $k$.}
   \end{figure}
 
 If data is noisy, it is expected to be harder to construct a meaningful GL embedding, as some connections within
@@ -118,7 +119,7 @@ and $dim(s)$ defines the amount of sampling points. Both have great impact to ex
 In Figure~\ref{fig:clean_manifold_200} GL embedding with $\theta \in \mathbb{R}^{200}$ and k=6 is illustrated
 for clean sinogram. It looks like 6 are too many neighbors, as the perfect circle cannot be established anymore.
 But, if $\theta$ is increased to $\theta \in \mathbb{R}^{500}$, more nodes are available to choose good neighbors from
-and a circle can be established (figure~\ref{fig:clean_manifold_500}).
+and a circle can be established (Figure~\ref{fig:clean_manifold_500}).
 
 \begin{figure}[H]
     \captionsetup[subfigure]{justification=centering}
@@ -143,22 +144,21 @@ as more data needs to be explained with the same amount of neighbors. It is more
 This can be seen in Figure~\ref{fig:clean_manifold_res200} and Figure~\ref{fig:clean_manifold_res400}, where with $dim(s) = 200$,
 the perfect circle can be established and with $dim(s) = 400$, not anymore (by same parameter $k = 6$ and $\theta \in \mathbb{R}^{500}$).
 
-\textbf{TODO: use subfigures}
-
 \begin{figure}[H]
+    \captionsetup[subfigure]{justification=centering}
     \centering
-    \hfill
-    \subbottom[\label{fig:clean_manifold_res200}]
-        {\includegraphics[width=0.4\textwidth]{phaton_clean_manifold_res_200_k6.png}}
-    \hfill
-    \subbottom[\label{fig:clean_manifold_res400}]
-        {\includegraphics[width=0.4\textwidth]{phaton_clean_manifold_res_400_k6.png}}
-    \hfill
-    \caption{Shepp-Logan phantom sinogram GL embeddings: Importance of number of samples.
-    \ref{fig:clean_manifold_res200} Clean sinogram GL embedding, $k = 6$ and $dim(s)=200$,
-    \ref{fig:clean_manifold_res400} Clean sinogram GL embedding, $k = 6$ and $\dim(s)=400$}
-\end{figure}
-
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{phaton_clean_manifold_res_200_k6.png}
+        \caption{Clean sinogram GL embedding, $k = 6$ and $dim(s)=200$.}
+        \label{fig:clean_manifold_res200}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.4\textwidth}
+      \includegraphics[width=\textwidth]{phaton_clean_manifold_res_400_k6.png}
+      \caption{Clean sinogram GL embedding, $k = 6$ and $\dim(s)=400$.}
+      \label{fig:clean_manifold_res400}
+    \end{subfigure}\hfill
+    \caption{Shepp-Logan phantom sinogram GL embeddings: Importance of sample dimension.}
+  \end{figure}
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     Since the GL embedding is sensitive to $k$, it is best practice to try different values in order to find the best GL-manifold.

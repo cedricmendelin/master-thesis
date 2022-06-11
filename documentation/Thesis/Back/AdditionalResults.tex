@@ -13,25 +13,25 @@ Results for the baseline algorithms, different models with $k=2$ and $k=8$ are p
     \begin{tabular}{l|c|c|c|c}
       \toprule
       \textbf{Algorithm / Model} & \snrh{ 0} & \snrh{ -5} & \snrh{ -10} & \snrh{ -15} \\
-                         & \textbf{SNR} & \textbf{SNR} & \textbf{SNR}  & \textbf{SNR} \\ 
+                         & \small \small \textbf{SNR} & \small \small \textbf{SNR} & \small \small \textbf{SNR}  & \small \small \textbf{SNR} \\ 
       \midrule
       FBP                 & 4.50 & -0.31  & -5.25 & -10.22  \\ \hline
-      BM3D sino           & 9.93 &  7.42  & 4.61  & 2.00    \\ \hline
-      BM3D reco           & 10.79 & 8.09  & 4.97  & 1.54    \\ \hline
+      BM3D sino           & 9.93 &  7.42  & 4.61  & \textbf{2.00 }   \\ \hline
+      BM3D reco           & \textbf{10.79} & \textbf{8.09}  &\textbf{ 4.97}  & 1.54    \\ \hline
       U-Net               & 7.13  &  6.18 & 4.34  & 1.87    \\ \hline
       \midrule
-      \multicolumn{5}{c}{K-NN k = 2} \\
+      \multicolumn{5}{c}{$k=2$} \\
       GAT             &	9.42 	&8.25	&6.78	&5.75  \\  \hline
       Conv+GAT        & 10.01 &8.88	&7.69	&6.79  \\ \hline
       GAT+U-Net       &	7.93	&7.28	&6.77	&4.91  \\ \hline
       GAT+U-Net*      &	11.92	&10.14	&10.13	&8.43 \\ \hline
-      GAT+U-Net**     &	13.41	&12.12	&10.62	&8.50  \\ \hline
+      GAT+U-Net**     &	\textbf{13.41	}&\textbf{12.12}	&10.62	&8.50  \\ \hline
       Conv+GAT+U-Net  &	8.17	&7.09	&4.53	&5.67  \\ \hline
       Conv+GAT+U-Net* &	12.60	&10.71	&8.80	&8.44  \\ \hline
-      Conv+GAT+U-Net**&	12.80	&11.70	&10.63	&9.21 \\ \hline
+      Conv+GAT+U-Net**&	12.80	& 11.70	&\textbf{10.63}	&\textbf{9.21} \\ \hline
       
       \midrule
-      \multicolumn{5}{c}{K-NN k = 8} \\
+      \multicolumn{5}{c}{$k=8$} \\
       GAT                  & 8.32           & 6.94           & 6.19 & 5.01 \\ \hline
       Conv + GAT           & 9.05           & 8.07           & 6.99  & 5.75 \\ \hline
       GAT + U-Net          & 7.49           & 6.40           & 6.01   & 5.07 \\ \hline
@@ -43,7 +43,7 @@ Results for the baseline algorithms, different models with $k=2$ and $k=8$ are p
     \legend{The evaluated GAT-Denoiser models have been trained with 1024 images for 200 epochs. 
     U-Net* refers to joint U-Net training and U-Net** to joint U-Net training, after a 
     training of 100 epochs of GAT-Denoiser alone. }
-    \caption{Small scale experiment: GAT-Denoiser components vs. baseline algorithms.}
+    \caption{Small Scale Experiment: GAT-Denoiser components vs. baseline algorithms.}
     \label{tab:small_gat_components}
   \end{table}
 
@@ -56,16 +56,16 @@ K-NN experiment with 2 layers and 4 heads can be found in Table~\ref{tab:small_k
   \begin{tabular}{l|cc}
     \toprule
     \textbf{k} & \multicolumn{2}{l|}{\snrh{ 0}}   \\
-                       & \textbf{Loss} & \textbf{SNR}  \\ 
+                       & \small \textbf{Loss} & \small \small \textbf{SNR}  \\ 
     \midrule
-    2    & 9.90 & 601.38  \\ \hline
-    4    & 9.64 & 622.13  \\ \hline
-    6    & 9.38 & 634.44  \\ \hline
-    8    & 9.19 & 648.97  \\ \hline
+    2    & \textbf{9.90} & \textbf{601.4}  \\ \hline
+    4    & 9.64 & 622.1  \\ \hline
+    6    & 9.38 & 634.4  \\ \hline
+    8    & 9.19 & 649.0  \\ \hline
     \midrule
   \end{tabular}
 
-  \caption{Different $k$ values for \snry 0 dB and -10 dB }
+  \caption{Small Scale Experiment: Different $k$ values for \snry 0 dB.}
   \label{tab:small_knn_2}
 \end{table}
 
@@ -78,22 +78,22 @@ GAT-Denoiser was defined with 2 layers and 4 heads.
   \centering
   \begin{tabular}{l|cc}
     \toprule
-    \textbf{GAT dropout.} & \multicolumn{2}{l|}{\snrh{ 0}}   \\
-                       & \textbf{Loss} & \textbf{SNR}  \\ 
+    \textbf{GAT dropout.} & \multicolumn{2}{l|}{\snrh{ -5}}   \\
+                       & \small \textbf{Loss} & \small \small \textbf{SNR}  \\ 
     \midrule
-    0       & 8.33 & 739.5  \\ \hline
+    0       & \textbf{8.33} & \textbf{739.5}  \\ \hline
     0.01    & 7.81 & 766.2  \\ \hline
     0.03    & 7.98 & 743.3  \\ \hline
-    0.05    & 8.09 & 738.4  \\ \hline
+    0.05    & \textbf{8.09} & \textbf{738.4}  \\ \hline
     0.1     & 7.79 & 761.8  \\ 
     \midrule
   \end{tabular}
 
-  \caption{Different k-NN values for \snry 0 dB and -10 dB }
+  \caption{Small Scale Experiment: GAT dropout for \snry -5 dB.}
   \label{tab:small_dropout}
 \end{table}
 
-\section{Large scale experiment: baseline results}
+\section{Large Scale Experiment: Baseline Results}
 Table~\ref{tab:baseline-large} presents the result of the chosen baseline algorithms
 for the large scale experiment.
 
@@ -102,15 +102,15 @@ for the large scale experiment.
   \begin{tabular}{l|cc|cc|cc|cc}
     \toprule
     \textbf{Algorithm} & \multicolumn{2}{l|}{\snrh{ 0}} & \multicolumn{2}{l|}{\snrh{ -5}} & \multicolumn{2}{l|}{\snrh{ -10}} & \multicolumn{2}{l}{\snrh{ -15}} \\
-                       & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} \\ 
+                       & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} \\ 
     \midrule
     FBP                 & 4.57  & 1167.6 & -0.19 & 1973.5 & -5.17 & 3425.3 & -10.09 & 10'737.3       \\ \hline
-    BM3D sino           & 9.93  & 709.9  &  7.40 & 890.6  & 4.61  & 1168.0 & 2.09   & 1570.0 \\ \hline
-    BM3D reco           & 10.85 & 658.2  & 8.15  & 818.6  & 5.07  & 1118.3 & 1.76   & 1662.5 \\ \hline
+    BM3D sino           & 9.93  & 709.9  &  7.40 & 890.6  & 4.61  & 1168.0 & \textbf{2.09}   & \textbf{1570.0} \\ \hline
+    BM3D reco           & \textbf{10.85} & \textbf{658.2}  & \textbf{8.15}  &\textbf{ 818.6}  & \textbf{5.07}  & \textbf{1118.3} & 1.76   & 1662.5 \\ \hline
     U-Net               & 7.18  &  968.8 & 6.34  & 1044.7 & 4.50  & 1214.1 & 1.94   & 1522.4        \\ 
     \midrule
   \end{tabular}
-  \caption{Baseline results large experiments}
+  \caption{Large Scale Experiment: Baseline results.}
   \label{tab:baseline-large}
 \end{table}
 
@@ -122,15 +122,15 @@ and GAT-Denoiser models for the large scale.
     \centering
     \begin{tabular}{l|c|c|c|c}
       \toprule
-      \textbf{Algorithm} & \snrh{ 0} & \snrh{ -5} & \snrh{ -10} & \snrh{ -15} \\
-                         & \textbf{SNR} & \textbf{SNR} & \textbf{SNR}  & \textbf{SNR} \\ 
+      \textbf{Algorithm / Model} & \snrh{ 0} & \snrh{ -5} & \snrh{ -10} & \snrh{ -15} \\
+                         & \small \small \textbf{SNR} & \small \small \textbf{SNR} & \small \small \textbf{SNR}  & \small \small \textbf{SNR} \\ 
       \midrule
       FBP                 & 4.57   & -0.19  & -5.17  & -10.09 \\ \hline
       BM3D sino           & 9.93   &  7.40  & 4.61   & \textbf{2.09}   \\ \hline
       BM3D reco           & \textbf{10.85}  & \textbf{8.15}   & \textbf{5.07}   & 1.76   \\ \hline
       U-Net               & 7.18   & 6.34   & 4.50   & 1.94   \\ 
       \midrule
-      \multicolumn{5}{c}{K-NN k = 2} \\
+      \multicolumn{5}{c}{$k=2$} \\
     
         GAT              & 9.36	& 7.89	& 6.64	& 5.32    \\ \hline
         Conv+GAT         &	10.05	& 9.07	& 7.17	& 6.15    \\ \hline
@@ -140,7 +140,7 @@ and GAT-Denoiser models for the large scale.
         Conv+GAT+U-Net** &	\textbf{13.43}	& \textbf{12.52}	& 11.43	& 9.55   \\ 
     \end{tabular}
   
-    \caption{Large scale experiment: overall GAT-Denoiser components vs. Baseline for k-NN = 2}
+    \caption{Large Scale Experiment: GAT-Denoiser components vs. Baseline for $k$ = 2}
     \label{tab:large_gat_components_knn2}
   \end{table}
 

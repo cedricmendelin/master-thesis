@@ -33,18 +33,26 @@ Finally, new node embedding is calculated as:
 
 \begin{equation}
   h_i^{\prime} = \sigma \left( \sum_{j \in \mathcal{N}_i} \alpha_{ij} W h_j \right)
+  \label{eq:gat_node_features}
 \end{equation}
 
 With $\sigma$ as some arbitrary activation function.
 
-\textbf{TODO: formating}
+\begin{minipage}{0.45\textwidth}
+  \begin{figure}[H]
+    \includegraphics[width=\textwidth]{GAT.drawio.png}
+    \caption{GAT node feature propagation.}
+    \label{fig:gat_attention_illustration}
+  \end{figure}
+  \end{minipage} \hfill
+  \begin{minipage}{0.5\textwidth}
+    Figure~\ref{fig:gat_attention_illustration} shows how node features are propagated
+    in the network.
+    Node $h_1$ has 5 neighbors and for a single GAT layer, new node feature $h_1^{\prime}$
+    is computed with Equation~\ref{eq:gat_node_features}: 
+    $$h_{1}^{\prime} = \sigma \left( \sum_{i=1}^5\alpha_iWh_{1,i} \right)$$.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.5\textwidth]{GAT.drawio.png}
-  \caption{GAT attention illustration example.}
-  \label{fig:gat_attention_illustration}
-\end{figure}
+  \end{minipage}
 
 
 \paragraph{Multi-Head attention}
@@ -113,7 +121,7 @@ resulting in a U-shape, as illustrated in Figure~\ref{fig:u-net-architectue}.
   \centering
   \includegraphics[width=0.6\textwidth]{u-net-architecture.png}
   \legend{Number on top of boxes denotes channels, where numbers at bottom of boxes refer to input dimension.}
-  \caption{U-Net architecture \cite[p 2, Fig. 1]{unet-tomography}}
+  \caption{U-Net architecture \cite[p 2, Fig. 1]{unet-tomography}.}
     \label{fig:u-net-architectue}
 \end{figure}
 

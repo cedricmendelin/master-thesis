@@ -221,16 +221,16 @@ def chapter_graph_foundation_manifolds_noisy():
   eVec1 = get_embedding(sino_noisy_1, 6, 2)
   _,idx1,angles1 = estimate_angles(eVec1)
   plt.scatter(eVec1[:, 0], eVec1[:, 1], s=4, c=angles1,cmap='hsv')
-  plt.xticks([-0.06, -0.03, 0 , 0.03, 0.06])
-  plt.yticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  plt.xticks([-0.08, -0.04, 0 , 0.04, 0.08])
+  plt.yticks([-0.08, -0.04, 0 , 0.04, 0.08])
   # plt.title(f"Manifold noisy sinogram k = 2, SNR={snr}dB")
 
   plt.figure(figsize=(10,10))
   eVec2 = get_embedding(sino_noisy_2, 6, 2)
   _,idx2,angles2 = estimate_angles(eVec2)
   plt.scatter(eVec2[:, 0], eVec2[:, 1], s=4, c=angles2,cmap='hsv')
-  plt.xticks([-0.06, -0.03, 0 , 0.03, 0.06])
-  plt.yticks([-0.06, -0.03, 0 , 0.03, 0.06])
+  plt.xticks([-0.08, -0.04, 0 , 0.04, 0.08])
+  plt.yticks([-0.1, -0.05, 0 , 0.03, 0.06])
   # plt.title(f"Manifold noisy sinogram k = 4, SNR={snr}dB")
 
   _,idx,angles = estimate_angles(eVec_clean)
@@ -378,9 +378,12 @@ def chapter_results_small_overall_compoents():
   size = 12
   results = np.zeros((size,4))
   result_names = []
-
+  colors_list = ['lime', 'g', 'r', 'c', 'm', 'y', 'coral', 'k', 'gold', 'navy', 'crimson', 'b', 'teal']
   x = [0, -5, -10, -15]
   
+  import matplotlib.colors as colors
+  lots_of_colors = colors.get_named_colors_mapping()
+
   with open(csv_file_name, mode='r') as csv_file:
     csv_reader = csv.DictReader(csv_file, delimiter = ";")
     line_count = 0
@@ -391,17 +394,16 @@ def chapter_results_small_overall_compoents():
 
       result_names.append(row['Model/algortihm'])
       results[line_count - 1] = np.array([row['0'], row['-5'], row['-10'], row['-15']])
-      #results[line_count - 1] = np.array([row['-15'], row['-10'], row['-5'], row['0']])
       line_count += 1
 
   fig = plt.figure(figsize=(14,7))
 
-  for i in range(size):
-    plt.plot(x, results[i], marker='s')
+  for i,c in zip(range(size), colors_list):
+    plt.plot(x, results[i], marker='s', color=c)
 
   plt.xticks([-15,-10,-5,0])
   plt.yticks([-5,0,5, 7.5, 10, 12.5])
-  plt.ylim([-5, 14])
+  plt.ylim([-8, 14])
   plt.xlabel("$SNR_y$")
   plt.ylabel("$SNR$")
   plt.xlim([-16, 1])
@@ -510,11 +512,11 @@ def wandb_export_project(project_name:str):
 
 # chapter_graph_foundation_manifolds_different_k()
 # chapter_graph_foundation_manifolds_clean()
-chapter_graph_foundation_manifolds_noisy()
+#chapter_graph_foundation_manifolds_noisy()
 # chapter_graph_foundation_manifolds_noisy()
 #chapter_graph_foundation_manifolds_clean_samples_importance()
 #chapter_graph_foundation_manifolds_clean_resolution_importance()
-#chapter_results_small_overall_compoents()
+chapter_results_small_overall_compoents()
 #chapter_results_large_overall_compoents()
 #test_wandb_api()
 #wandb_export_project("LoDoPaB-Large-knn-2")  

@@ -138,7 +138,6 @@ shows reconstruction with U-Net where some details are missing as well, although
     \label{fig:phantom_fbps}
   \end{figure}
 
-  \textbf{TODO: Check conformation}
 
 \section{Cryo-EM}
 Cryo-EM is another molecular imaging method, that enables the view of molecules in near-atomic resolution.
@@ -147,7 +146,7 @@ When writing about cryo-EM it always refers to single-particle cryo-EM.
 
 During imaging, molecules are frozen in a thin layer of ice, where they are randomly oriented and positioned. 
 Random orientation and positioning make reconstruction challenging, 
-but freezing allows observation of their conformation in a stable state where molecules are not moving.
+but freezing allows observation in a stable state where molecules are not moving.
 With an electron microscope, 2D tomographic projections of molecules are observed,
 which are called \textit{micrograph}. 
 Frozen molecules are fragile, and electron microscope needs to work with
@@ -284,11 +283,7 @@ Further, an abstract form of the reconstruction operator is defined as:
     \textit{Recon} : \mathbb{R}^{M \times N} \to \mathbb{R}^{M \times M}, y \mapsto Recon(y; \theta)
 \end{equation}
 
-With
-\begin{itemize}
-    \item $\theta_i \in SO(D)$: projection angle(s).
-\end{itemize}
-
+With $\theta_i \in SO(D)$ as the projection angle(s).
 For CT, parameter $D=2$ and $A(\cdot)$ is the Radon Transform.
 Further, reconstruction operator can be defined as FBP (with or without U-Net).
 Cryo-EM parameters are defined with $D=3$ and $A(\cdot)$ can be

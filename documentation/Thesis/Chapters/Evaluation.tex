@@ -75,7 +75,7 @@ and forward denoised sinogram to FBP, which is how GAT-Denoiser work. Secondly, 
 computed with noisy sinogram and output can be forwarded to BM3D, which will denoise reconstruction.
 In the following term \textit{BM3D sino} and \textit{BM3D reco} are used to distinguish between the two approaches.
 
-\section{Small Scale GAT-Denoiser Experiments}
+\section{Small Scale Experiments}
 For small scale experiments, not the complete LoDoPaB-CT dataset was considered, but only 1024 train images
 and 100 validation images. 
 The default value for GAT-Denoiser have been: \snry -5 dB, U-Net omitted during reconstruction, 
@@ -116,16 +116,16 @@ But also the pre-trained U-Net model starts to fail reconstruction with lower \s
   \begin{tabular}{l|cc|cc|cc|cc}
     \toprule
     \textbf{Algorithm} & \multicolumn{2}{c|}{\snrh{ 0}} & \multicolumn{2}{c|}{\snrh{ -5}} & \multicolumn{2}{c|}{\snrh{ -10}} & \multicolumn{2}{l}{\snrh{ -15}} \\
-                       & \textbf{SNR} & \textbf{Loss}  & \textbf{SNR} & \textbf{Loss}  & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} \\ 
+                       & \small \small \textbf{SNR} & \small \textbf{Loss}  & \small \small \textbf{SNR} & \small \textbf{Loss}  & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} \\ 
     \midrule
-    FBP                 & 4.50 & 1182.3 & -0.31 & 1982.2 & -5.25 & 3454.1 & -10.22 & 6101.7 \\ \hline
-    BM3D-sino           & 9.93 & 714.2 &  7.42 & 892.2 & 4.61 & 1179.8 & 2.00 & 1570.1 \\ \hline
-    BM3D-reco           & 10.79 & 664.5 & 8.09 & 833.6 & 4.97 & 1137.7 & 1.54 & 1677.5 \\ \hline
-    U-Net               & 7.13 & 977.7 &  6.18 & 1054.1 & 4.34 & 1235.0 & 1.87 & 1545.4 \\ \hline
+    FBP                 & 4.50           & 1182.3          & -0.31 & 1982.2 & -5.25 & 3454.1 & -10.22 & 6101.7 \\ \hline
+    BM3D-sino           & 9.93           & 714.2          &  7.42 & 892.2 & 4.61 & 1179.8 & \textbf{2.00} & \textbf{1570.1} \\ \hline
+    BM3D-reco           & \textbf{10.79} &\textbf{ 664.5} & \textbf{8.09} & \textbf{833.6} & \textbf{4.97} & \textbf{1137.7} & 1.54 & 1677.5 \\ \hline
+    U-Net               & 7.13           & 977.7          &  6.18 & 1054.1 & 4.34 & 1235.0 & 1.87 & 1545.4 \\ \hline
     \midrule
   \end{tabular}
 
-  \caption{Baseline results small experiments }
+  \caption{Small Scale Experiment: Baseline results.}
   \label{tab:baseline-small}
 \end{table}
 
@@ -155,7 +155,7 @@ But also the pre-trained U-Net model starts to fail reconstruction with lower \s
     \includegraphics[width=\textwidth]{baseline_small_unet.png}
     \caption{U-Net reconstruction}
   \end{subfigure}
-  \caption{Sample reconstruction for baseline algorithms and \snry 0 dB}
+  \caption{Sample reconstruction for baseline algorithms and \snry 0 dB.}
   \label{fig:baseline_small}
 \end{figure}
 
@@ -192,13 +192,13 @@ But also the pre-trained U-Net model starts to fail reconstruction with lower \s
     \centering
       \begin{tabular}{l|cc}
       \toprule
-      \textbf{Input graph} & \textbf{Loss} & \textbf{SNR}  \\ 
+      \small  \textbf{Input graph} & \small \textbf{Loss} & \small \textbf{SNR}  \\ 
       \midrule
       Erdős–Rényi graph with $p=0.01$    &  1267.16         &  3.65   \\ \hline
       k-NN graph with $k=10$             &  \textbf{804.7}           &  \textbf{7.3 }   \\ \hline
       \midrule
       \end{tabular}
-    \caption{Loss and SNR for random graph vs. k-NN graph. }
+    \caption{Small Scale Experiment: Loss and SNR for random graph vs. k-NN graph. }
     \label{tab:input_graph}
   \end{table}
 
@@ -220,7 +220,7 @@ But also the pre-trained U-Net model starts to fail reconstruction with lower \s
     \caption{Reconstruction k-NN input graph with $k=10$}
     \label{fig:small_experiment_knn_graph}
   \end{subfigure}
-  \caption{Example reconstructions for different input graphs.}
+  \caption{Reconstructions for different input graphs.}
   \label{fig:input_graph_small}
 \end{figure}
 
@@ -242,15 +242,15 @@ But also the pre-trained U-Net model starts to fail reconstruction with lower \s
     \centering
       \begin{tabular}{l|ccc}
       \toprule
-      \textbf{Number of observations} & \textbf{SNR} & \textbf{Loss} & \textbf{Training time (s)}  \\ 
+      \small \textbf{Number of observations} & \small \small \textbf{SNR} & \small \textbf{Loss} & \textbf{Training time (s)}  \\ 
       \midrule
       512  &  7.22    &  822.6  & 2678.6 s \\ \hline
       1024 &  7.80    &  766.9 & 4216.1 s \\ \hline
       2048 &  8.55    &  701.5 & 7609.0 s  \\ \hline
       \midrule
       \end{tabular}
-    \caption{Loss and SNR for different number of observations, which refer to the average of 
-    different k-NN parameters $k = (2,6,8,10,20)$.}
+    \caption{Small Scale Experiment: Loss and SNR for different number of observations, which refer to the average of 
+    $k$.}
     \label{tab:graph_knn}
   \end{table}
 
@@ -268,8 +268,8 @@ But also the pre-trained U-Net model starts to fail reconstruction with lower \s
     \centering
     \begin{tabular}{c|cc|cc}
       \toprule
-      \textbf{k-NN}         & \multicolumn{2}{c|}{\snrh{ 0}} & \multicolumn{2}{c}{\snrh{ -10}}  \\
-      \textbf{parameter k}  & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} \\ 
+      \textbf{$k$}         & \multicolumn{2}{c|}{\snrh{ 0}} & \multicolumn{2}{c}{\snrh{ -10}}  \\
+            & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} \\ 
       \midrule
       1    & 8.81          & 678.7          & \textbf{7.09} & \textbf{827.5} \\ \hline
       2    & \textbf{9.16} & \textbf{652.4} & 6.95          & 849.4 \\ \hline
@@ -282,7 +282,7 @@ But also the pre-trained U-Net model starts to fail reconstruction with lower \s
       \midrule
     \end{tabular}
   
-    \caption{Different k-NN values for \snry 0 dB and -10 dB }
+    \caption{Small Scale Experiment: Different $k$ values for \snry 0 dB and -10 dB }
     \label{tab:small_knn_snr}
   \end{table}
 
@@ -308,21 +308,22 @@ where results can be found in Table~\ref{tab:small_gat_results}.
 
 \begin{table}[H]
   \centering
+  \resizebox{\textwidth}{!}{%
   \begin{tabular}{c|cc|cc|cc|cc|cc}
     \toprule
     \textbf{Heads} & \multicolumn{2}{c|}{\footnotesize \textbf{2 Layers}} & \multicolumn{2}{c|}{\footnotesize \textbf{3 Layers}} & \multicolumn{2}{c|}{\footnotesize \textbf{4 Layers}} & \multicolumn{2}{c|}{\footnotesize \textbf{6 Layers}} & \multicolumn{2}{c}{\footnotesize \textbf{Average}} \\
-                   & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} \\ 
+                   & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} \\ 
     \midrule
-    1    &  7.55	         & 784.23          & 6.65	          & 869.1          & \textbf{6.08}	& \textbf{934.2}  & 3.19	        & 1334.1          & 5.87 & 980.4 \\ \hline
+    1    &  7.55	         & 784.2         & 6.65	          & 869.1          & \textbf{6.08}	& \textbf{934.2}  & 3.19	        & 1334.1          & 5.87 & 980.4 \\ \hline
     2    &  7.88	         & 753.4           & 7.17	          & 821.7          & 5.98	          & 958.8           & 3.55	        & 1256.5          & \textbf{6.15} & \textbf{947.6} \\ \hline
-    4    &  8.22	         & 727.55          & 6.26	          & 927.4          & 4.10	          & 1176.1          & \textbf{4.08}	& \textbf{1191.2} & 5.67 & 1005.6 \\ \hline
-    8    &  8.14 	         & 732.28          & \textbf{7.28}	& \textbf{808.1} & 5.54	          & 1010.4          & 2.81	        & 1516.2          & 5.94 & 1016.7 \\ \hline
+    4    &  8.22	         & 727.6          & 6.26	          & 927.4          & 4.10	          & 1176.1          & \textbf{4.08}	& \textbf{1191.2} & 5.67 & 1005.6 \\ \hline
+    8    &  8.14 	         & 732.3          & \textbf{7.28}	& \textbf{808.1} & 5.54	          & 1010.4          & 2.81	        & 1516.2          & 5.94 & 1016.7 \\ \hline
     16   &  \textbf{8.27}  & \textbf{721.9}  & 5.69	          & 990.5          & 5.98	          & 941.8           & 2.81	        & 1516.0          & 5.66 & 1042.6 \\ \hline
     
     Average  &  8.01 & 743.9 & 6.59 & 883.4 & 5.54 & 1004.3 & 3.29 & 1362.8   \\ 
     \midrule
-  \end{tabular}
-  \caption{Models trained with different GAT parameters. }
+  \end{tabular}}
+  \caption{Small Scale Experiment: Different GAT parameters.}
   \label{tab:small_gat_results}
 \end{table}
 
@@ -375,8 +376,8 @@ This is not too big of a surprise, observation dimension is only 64 and, therefo
   \centering
   \begin{tabular}{c|cc|cc|cc|cc}
     \toprule
-    \textbf{Kernel}  & \multicolumn{2}{c|}{1 Channel} & \multicolumn{2}{c|}{4 Channel} & \multicolumn{2}{c|}{8 Channel} & \multicolumn{2}{c}{16 Channel} \\
-    \textbf{and Padding}  & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} \\ 
+    \textbf{Kernel}  & \multicolumn{2}{c|}{\textbf{1 Channel}} & \multicolumn{2}{c|}{\textbf{4 Channel}} & \multicolumn{2}{c|}{\textbf{8 Channel}} & \multicolumn{2}{c}{\textbf{16 Channel}} \\
+    \textbf{and Padding}  & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} \\ 
     \midrule
       7 / 3 & 3.56 & 1328.7                  & 4.60  &  1330.0                   & \textbf{3.76} & \textbf{1363.4} & \textbf{2.81}  & \textbf{1515.7} \\ \hline
       5 / 3 & 4.94 & 1081.0                  & 2.76  &  1548.5                   & 2.66 & 1597.0                   & \textbf{2.81}  & \textbf{1515.7} \\ \hline
@@ -385,7 +386,7 @@ This is not too big of a surprise, observation dimension is only 64 and, therefo
     \midrule
   \end{tabular}
 
-  \caption{Small experiment: Convolution for GAT-Denoiser with 4 layers and 2 heads}
+  \caption{Small Scale Experiment: Convolution for GAT-Denoiser with 4 layers and 2 heads}
   \label{tab:small_convolution}
 \end{table}
 
@@ -411,8 +412,8 @@ For every architecture, there was a model with convolution which performed bette
   \centering
   \begin{tabular}{l|cc|cc|cc}
     \toprule
-    \textbf{Channels } & \multicolumn{2}{c|}{2 Layers} & \multicolumn{2}{c|}{3 Layers} & \multicolumn{2}{c}{4 Layers}  \\
-                       & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} \\ 
+    \textbf{Channels } & \multicolumn{2}{c|}{\textbf{2 Layers}} & \multicolumn{2}{c|}{\textbf{3 Layers}} & \multicolumn{2}{c}{\textbf{4 Layers}}  \\
+                       & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} \\ 
     \midrule
 		No Conv & 6.99  & 839.3 & 4.31   & 1175.5 & \textbf{6.91} & \textbf{842.2}     \\ \hline
 		1       & \textbf{8.10}  & \textbf{735.6} & 6.91   & \textbf{842.2} & 6.49 & 900.6     \\ \hline
@@ -422,7 +423,7 @@ For every architecture, there was a model with convolution which performed bette
     \midrule
   \end{tabular}
 
-  \caption{Small experiment: Convolution for GAT-Denoiser with different number of layers and heads}
+  \caption{Small Scale Experiment: Convolution for GAT-Denoiser with different number of layers and heads}
   \label{tab:small_convolution_2}
 \end{table}
 
@@ -458,7 +459,7 @@ needs to be done in every epoch, where for $\mathcal{L}_{sino}$ reconstruction c
     $\mathcal{L}_{sino}$   &  6.49    &  981.3  & 1209 s \\ \hline
     \midrule
     \end{tabular}
-  \caption{Average Loss and SNR of different training loss $\mathcal{L}$ and $\mathcal{L}_{sino}$}
+  \caption{Small Scale Experiment: Average Loss and SNR of training loss $\mathcal{L}$ and $\mathcal{L}_{sino}$.}
   \label{tab:loss_sino_reco}
 \end{table}
 
@@ -489,7 +490,7 @@ and training was activated for the second 100 epochs.
   \centering
   
   \includegraphics[width=0.9\textwidth]{small_components_result.png}
-  \caption{Reconstruction SNR of different models and baseline algorithms.}
+  \caption{Small Scale Experiments: Reconstruction SNR of different GAT-Denoiser models and baseline algorithms.}
   \label{fig:small_components}
 \end{figure}
 
@@ -548,11 +549,11 @@ Further, clean sample is presented in Figure~\ref{fig:small_clean_sample_overvie
     \includegraphics[width=\textwidth]{small/small_gat_unet_train_2.png}
     \caption{\textit{Conv + GAT + U-Net**}}
   \end{subfigure}
-  \caption{Sample reconstruction for small scale GAT-Denoiser models \snry 0 dB.}
+  \caption{Small Scale Experiment: Visual results for \snry 0 dB.}
   \label{fig:small_components_overview}
 \end{figure}
 
-\section{Large scale Experiments}
+\section{Large Scale Experiments}
 
 In this section, large scale experiments are presented, which have been trained on the complete LoDoPaB-CT dataset
 as well as evaluated on the complete LoDoPaB-CT test dataset.
@@ -579,7 +580,7 @@ static U-Net and after with U-Net training.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{large_components_result.png}
-  \caption{Resulting SNR of different models and baseline algorithms.}
+  \caption{Large Scale Experiments: Reconstruction SNR of different GAT-Denoiser models and baseline algorithms.}
   \label{fig:large_components}
 \end{figure}
 
@@ -602,10 +603,11 @@ Although, this is not always the case and in some scenarios, the model even perf
 
 \begin{table}[H]
   \centering
+  \resizebox{\textwidth}{!}{%
   \begin{tabular}{l|cc|cc|cc|cc}
     \toprule
     \textbf{Model} & \multicolumn{2}{c|}{\snrh{ 0}} & \multicolumn{2}{c|}{\snrh{ -5}} & \multicolumn{2}{c|}{\snrh{ -10}} & \multicolumn{2}{c}{\snrh{ -15}} \\
-                       & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} & \textbf{SNR} & \textbf{Loss} \\ 
+                       & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} \\ 
     \midrule
 
     GAT+U-Net(10/10)          & 13.34           & 413.8          & 12.07          & 469.2          & \textbf{11.46} & \textbf{502.0} & 9.62 & 633.5 \\ \hline
@@ -616,8 +618,8 @@ Although, this is not always the case and in some scenarios, the model even perf
     Conv+GAT+U-Net(20/20)   & \textbf{13.87}  & \textbf{385.4} & \textbf{12.81} & \textbf{442.3} & 10.90 & 547.5                   & \textbf{10.1} & \textbf{604.4} \\ 
 
     \midrule
-  \end{tabular}
-  \caption{Baseline results large experiments}
+  \end{tabular}}
+  \caption{Large Scale Experiment: Baseline results.}
   \label{tab:large_best_models}
 \end{table}
 
@@ -652,7 +654,7 @@ and the best performing large scale GAT-Denoiser models for different $\textit{S
     \includegraphics[width=\textwidth]{large/large_conv_gat_unet_train_best.png}
     \caption{\textit{Conv+GAT+U-Net(20/20)}}
   \end{subfigure}
-  \caption{Large scale experiments visual results.}
+  \caption{Large Scale Experiment: Visual results for \snry 0 dB.}
   \label{fig:large_scale_best_reco}
 \end{figure}
 
