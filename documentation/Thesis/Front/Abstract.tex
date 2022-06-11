@@ -2,26 +2,27 @@
 \chapter{Abstract}
 
 
-Cryo-Electron Microscopy (cryo-EM) and Computer Tomography (CT) 
-are two molecular imaging methods.
-In both scenarios, observations are collected from a biological sample.
-During reconstruction, the aim is, to approximate the underlying biological sample from observations.
-For CT, the reconstruction can be in 2D or 3D, for cryo-EM it is in 3D.
+In molecular imaging methods cryo-Electron Microscopy (cryo-EM) and Computed Tomography (CT)
+observations are collected from a biological sample. 
 Cryo-EM enables the view of molecules in near-atomic resolution and therefore got a lot of attention in recent years.
-Due to ground-breaking improvements regarding hardware and data processing, the field of research
-has highly improved.
-Reconstruction is challenging due to the present of enormous noise and unknown projection angles in the observations.
-CT is a similar to cryo-EM, but reconstruction is slightly easier
-as the problem can be in 2D and observation angles are known. 
-Therefore, CT is well suited to implement an algorithm toward an extended version working for cryo-EM as well.
+Application of cryo-EM is a major motivation for this Thesis. 
+Observations are noisy due to the imaging process and reconstruction from noisy observations is desired.
+Reconstruction is challenging due to dealing with enormous noise and unknown observation angles.
+Moreover, cryo-EM can be seen as a problem in 3D, as the biological sample is imaged in 3D.
+CT is similar to cryo-EM, but reconstruction is slightly simpler, since it is potentially in 2D and 
+observation angles are known.
+That's why it is well suited as a first step towards a cryo-EM algorithm.
 
-I introduce GAT-Denoiser, a Graph Neural Network, which combines Graph Attention Network with convolution 
+I introduce \textit{GAT-Denoiser}, a Graph Neural Network, which combines Graph Attention Network (GAT) with convolution 
 and an end-to-end learning approach. 
-It enables to denoise observations and boosts reconstruction quality with the assumption of known projection angles.
-During training an end-to-end approach is used where reconstruction quality is compared and not only
-denoised observation quality.
+It enables to denoise observations and improves reconstruction quality with the assumption of known projection angles.
+During training an end-to-end approach is applied, that compares reconstruction quality.
 GAT-Denoiser have been evaluated on the LoDoPaB-CT dataset.
-It could outperform baseline algorithm BM3D measure by the reconstruction
-signal-to-noise-ratio (SNR). An improvement by 379.9\%, 126.0\% 57.7\%, 27.6\% for \snry -15 dB, -10 dB, -5 dB and 0 dB respectively
-could be fulfilled. 
+It could outperform baseline algorithm BM3D measured by the reconstruction
+signal-to-noise-ratio (SNR). An improvement by 379.9\%, 126.0\% 57.7\%, 27.6\% for SNR -15 dB, -10 dB, -5 dB and 0 dB respectively
+could be reached.
+Moreover, the individual components of GAT-Denoiser contribute to the success of GAT-Denoiser.
+It was shown that convolution, GAT and the end-to-end learning approach are all valuable individually.
+Further, GAT-Denoiser combined with U-Net and joint neural network training can upgrade CT reconstruction to a new level. 
+
 

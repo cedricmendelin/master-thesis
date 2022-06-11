@@ -34,7 +34,7 @@ All these images are having resolution 64x64.
 
 
 
-\section{Project setup}
+\section{Project Setup}
 Python source code of the project is available on GitHub\footnote{https://github.com/cedricmendelin/master-thesis}.
 Several python packages are used in the code and the most important one are listed: Pytorch geometric\footnote{https://pytorch-geometric.readthedocs.io/en/latest/} 
 for neural network configuration, Operator Discretization Library\footnote{https://odlgroup.github.io/odl/} for Radon Transform and FBP, 
@@ -57,8 +57,8 @@ Moreover, mini batch gradient descent with a batch size of 64 was computed.
 
 \paragraph{Performance metrics:}
 During evaluation, two main metrics are considered.
-First, \textit{Loss} is used, which refers to the average $\ell$-2 distance between original object and reconstruction.
-Second, \textit{SNR} is used, which refers to SNR in dB of reconstruction, compared to original object.
+First, \textit{Loss} is used, which refers to the average $\ell$-2 distance between the biological sample and reconstruction.
+Second, \textit{SNR} is used, which refers to SNR in dB of reconstruction, compared to the biological sample.
 Further, visual results are presented and can be seen as a third metric.
 
 
@@ -565,7 +565,7 @@ In Table~\ref{tab:baseline-large}, baseline results for large experiment can be 
 As only the number of samples changed, but algorithms are fixed, the result is roughly 
 the same as for the small scale experiments.
 
-\subsection{GAT-Denoiser Components}
+\subsection{GAT-Denoiser Components Experiments}
 The main components of the GAT-Denoiser pipeline have been tested with different models.
 As a result of the small scale experiments, jointly training U-Net was most promising, 
 when there was first some training on GAT-Denoiser solely and in a second part a joint training phase.
@@ -587,7 +587,7 @@ The results are rather similar compared to the small scale experiments.
 Overall reconstruction is slightly better, as during training more samples have been seen.
 Again, approaches with joint U-Net and GAT-Denoiser training results best.
 
-\subsection{Best Models}
+\subsection{Best Models Experiments}
 For the most promising architectures, the one with joint U-Net and GAT-Denoiser training,
 the models have been further trained for another 20 epochs. 
 In Table~\ref{tab:large_best_models} final results are illustrated. 

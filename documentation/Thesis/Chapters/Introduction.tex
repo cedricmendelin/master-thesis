@@ -2,31 +2,32 @@
 \label{sec:introduction}
 
 \paragraph{Motivation:}
-Inverse Problems aim to estimate an original signal that went through a system, 
+Inverse Problems aim to estimate an original signal that processed a system, 
 based on potentially noisy output signal observations.
 They are widely used throughout different science directions, such as Machine Learning (ML),
-Signal Processing, Computer Vision, Natural Language Processing and others.
-ML is one tool to model and solve inverse problems.
+Signal Processing, Computer Vision, Natural Language Processing, and others.
+ML is one tool to model and solve Inverse Problems.
 
-Cryo-Electron Microscopy (cryo-EM) is a molecular imaging method and gained a lot of attention in recent years. 
+Cryo-Electron Microscopy (cryo-EM) is a molecular imaging method and has gained a lot of attention in recent years. 
 Molecules are frozen and imaged through an electron microscope.
 Due to ground-breaking improvements regarding hardware and data processing, the field of research
-has highly improved. In 2017, pioneers in the field of cryo-EM got the 
+has been highly improved. In 2017, pioneers in the field of cryo-EM received the 
 Nobel Prize in Chemistry\footnote{https://www.nobelprize.org/prizes/chemistry/2017/press-release/}.
 Today, using cryo-EM, molecular structures can be observed with near-atomic resolution.
-The big challenge with cryo-EM is enormous noise and unknown observation angles.
+The big challenge is enormous noise and unknown observation angles.
 
-Computed tomography (CT) is similar to cryo-EM, but reconstruction is slightly easier
-as the problem is in 2D and observation angles are known.
+Computed tomography (CT) is another imaging method, which is similar to cryo-EM. 
+Reconstruction is considered slightly easier as the problem is in 2D and observation angles are known.
+That's why it is well suited as a first step towards a cryo-EM algorithm.
 
 The overall goal of this Thesis is to introduce an algorithm that works with CT, but 
 can conceptually be extended to work in 3D, thus for cryo-EM. 
-Additionally, the focus is on the high noise domain, as current available reconstruction algorithms
-start to fail when dealing with too much noise. To be more precise, the signal-to-noise-ratio of interest is the interval 
- between $[-15, 0]$.
+Additionally, the focus is on the high noise domain, as currently available reconstruction algorithms
+start to fail when dealing with high noise. To be more precise, the signal-to-noise-ratio of interest is the interval 
+ between $[-15, 0]$ dB.
 
 
-In recent years, graphs got a lot of attention in ML and Graph Machine Learning is one of the most promising research areas.
+In recent years, graphs have received a lot of attention in ML and Graph Machine Learning is one of the most promising research areas.
 Graphs are a well suited data structure, simple but with high expressiveness. 
 Especially data for which single data points tend to have a relation to other data points, graphs with its nodes and vertices are the perfect tool
 to capture these relationships. 
@@ -37,16 +38,16 @@ Besides, for some scenarios, ordinary ML algorithms fail, but Graph ML approache
 
 \paragraph{Contribution:}
 
-As a result of this Thesis, a Graph Neural Network (GNN) architecture is proposed, which is called \textit{GAT-Denoiser}.
+As a result of this Thesis, a Graph Neural Network (GNN)~\cite{GNN} architecture is proposed, which is called \textit{GAT-Denoiser}.
 GAT-Denoiser aims to denoise noisy observations to improve overall reconstruction quality.
 The assumption of known observations angles is defined.
-In the GNN architecture, convolution and Graph Attention Network (GAT) are used to denoise observations.
+In the GNN architecture, convolution and the Graph Attention Network (GAT)~\cite{GAT} are used to denoise observations.
 In addition, an end-to-end learning approach is used, where the reconstruction quality is compared in the loss
 and not only the denoised observation quality.
 
 GAT-Denoiser was evaluated on the LoDoPaB-CT dataset~\cite{lodopab-dataset}.
 I could show that all three components contribute to learning the best GAT-Denoiser model.
-Further, U-Net\cite{unet-tomography} was used to further improve CT reconstruction quality.
+Further, U-Net~\cite{unet-tomography} was used to further improve CT reconstruction quality.
 GAT-Denoiser outperformed BM3D~\cite{bm3d} as well as U-Net~\cite{unet-tomography},
 where observation signal-to-noise-ration (SNR) is between 0 dB and -15 dB.
 Compared to the best performing baseline BM3D, GAT-Denoiser could improve reconstruction SNR 
@@ -59,13 +60,14 @@ After some learning, in a second step, GAT-Denoiser and U-Net have been trained 
 
 The report is structured as follows: 
 
-First, notation applied throughout this Thesis is introduced in Chapter~\ref{sec:notation}.
+First, the notation applied throughout this Thesis is introduced in Chapter~\ref{sec:notation}.
  Chapter~\ref{sec:imaging} presents the two molecular imaging methods
 CT and cryo-EM and a mathematical abstraction for observation and reconstruction is introduced.
 Further, Chapter~\ref{sec:manifold_and_graphs} is dedicated to manifolds and graphs,
 and how a meaningful embedding for CT and cryo-EM can be established. 
 The main contribution is presented in Chapter~\ref{sec:contribution}, 
-where GAT-Denoiser is introduced and results are presented in Chapter~\ref{sec:results}.
+where GAT-Denoiser is introduced. Chapter~\ref{sec:results} presents experiments on the LoDoPaB-CT dataset.
+During small scale and large scale experiments, insights are shown.
 Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion}.
 
 \chapter{Notation}
@@ -74,25 +76,23 @@ Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion
 In this chapter, some basic terms are explained and their notation in this report is defined.
 
 \section{Molecular Imaging Methods}
-In molecular imaging methods CT and cryo-EM, observations are collected from a biological sample. 
-These observations are noisy. Reconstruction from noisy observations is desired, to approximate the biological sample.
 Throughout this Thesis, notation $p$ for noiseless observation and $y$ for observation with noise is used.
 In practice, $p$ is not observable directly and observed signal $y$ needs to be denoised.
 Further, $x$ is used for the biological sample and $x^{\prime}$ defines approximation by the reconstruction algorithms.
 In addition, $N$ is used for the number of observations and $M$ as the observation dimension.
 Consequently, $y_i \in \mathbb{R}^M$ determines $i$-th observation and $y_i[j] \in \mathbb{R}$ the $j$-th element of $y_i$,
-with $ 1 \leq i \leq N \text{ and } 1 \leq j \leq M$. The same is true for $p$ with $p_i$ and $p_i[j]$. 
+with $ 1 \leq i \leq N \text{ and } 1 \leq j \leq M$. The same is valid for $p$ with $p_i$ and $p_i[j]$. 
 
 
 \paragraph{Signal-to-noise-ratio}
-Signal-to-noise-ratio (SNR) is a measure used in Signal Processing. 
+SNR is a measure used in Signal Processing. 
 It compares the power of an input signal to the power of noise. It is typically given in decibel (dB), with
 $\text{SNR}_{dB} = 10 \log_{10} \left(  \frac{P_{signal}}{P_{noise}} \right)$.
 An SNR of smaller than 0 dB indicates more noise than signal.
 
 From a given clean image and its noisy version, SNR can be determined.
 During this Thesis, the term SNR is used  in two scenarios.
-First, to indicate how much noise is present in $y$. Second, as quality measure for reconstruction.
+First, to indicate how much noise is present in $y$. Second, as a quality measure for reconstruction.
 To make notation clear, $\textit{SNR}_y$ is used to express the level of noise in $y$, 
 where SNR is computed from $y$ and $p$.
 Contrary, \textit{SNR} refers to SNR computed from $x^{\prime}$ and $x$.
@@ -106,13 +106,13 @@ the index of vertices in the graph.
 \paragraph{Graph properties:}
 A graph can be either \textit{directed} or \textit{undirected}. 
 In a directed graph, an edge connects explicitly from one node to another, consequently edge $(i, j) \neq (j, i)$. 
-In an undirected graph, edges have no direction and ordering does not matter, therefore $(i, j) = (j, i)$.
-Throughout this Thesis, undirected graphs are considered and when writing from a graph, is refers to an undirected graph.
+In an undirected graph, edges have no direction, and ordering does not matter, therefore $(i, j) = (j, i)$.
+Throughout this Thesis, undirected graphs are considered, and when writing from a graph, is refers to an undirected graph.
 
 The \textit{neighborhood}, denoted by $\mathcal{N}(i)$, of a node $i$  is defined as all adjacent nodes.
 In other words, there is an edge between neighborhood nodes and $i$. 
-Further, edges can have \textit{weights}, which is a method to define the importance of neighbors, resulting in a \textit{weighted} graph.
-\textit{Degree} of a node are the number of incoming edges.
+Further, edges can have \textit{weights}, which is a method to distinguish between the importance of neighbors, resulting in a \textit{weighted} graph.
+\textit{Degree} of a node is the number of incoming edges.
 
 \paragraph{Adjacency Matrix:}
 The (binary) adjacency matrix of graph $G = \langle V, E \rangle$ is defined as follows:
@@ -128,7 +128,7 @@ The (binary) adjacency matrix of graph $G = \langle V, E \rangle$ is defined as 
 Matrix $A$ has dimension $\mathbb{R}^{N \times N}$ with $N$ as number of nodes
 and indices of $A$ correspond to nodes in $V$.
 If there exists an edge between two nodes, entry in $A$ will be set to $1$, otherwise to $0$.
-This leads to an unweighted graph, as weights of all edges will be $1$.
+This leads to an unweighted graph, as the weights of all edges will be $1$.
 When $G$ is undirected, corresponding adjacency matrix will be symmetric. 
 Eigenvalues of $A$ are called \textit{spectrum} of $G$.
 
@@ -140,7 +140,7 @@ During this Thesis, when writing from $k$ it refers to k-NN parameter $k$.
 
 \paragraph{Erdős–Rényi graph}
 The Erdős–Rényi model is a way to construct a random graph.
-For set of nodes, a graph is constructed by connecting nodes randomly. 
+For a set of nodes, a graph is constructed by connecting nodes randomly. 
 Every possible edge has the same probability to be present in the graph, which is determined by parameter $p$.
  
 \section{Maths}

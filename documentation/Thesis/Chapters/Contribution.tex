@@ -57,7 +57,7 @@ In the case of CT, convolution is in 1D, where for cryo-EM it is in 2D.
 
 
 But, the main overall goal is to get the best possible reconstruction 
-from noisy observation $y$ which approximates original object $x$ and 
+from noisy observation $y$ which approximates biological sample $x$ and 
 not just denoise observation $y$ which approximates noiseless observation $p$.
 
 
@@ -143,7 +143,7 @@ as reconstruction is needed to calculate loss during training.
 \end{equation}
 
 
-As $x_i$ is part of loss $\mathcal{L}_{sino}$ and $\mathcal{L}$, access to original object is needed during training.
+As $x_i$ is part of loss $\mathcal{L}_{sino}$ and $\mathcal{L}$, access to biological sample is needed during training.
 
 \paragraph{Dropout:}
 Dropout is used in neural network as regularization and to prevent over fitting. 
