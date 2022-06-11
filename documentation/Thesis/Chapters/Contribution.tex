@@ -1,22 +1,22 @@
 \chapter{GAT-Denoiser}
 \label{sec:contribution}
 
-In this Chapter, I introduce my methodological approach.
+In this chapter, I will introduce my methodological approach.
 As a result, a GNN is derived which is called \textit{GAT-Denoiser}.
-Its main components and overall architecture is introduced.
-GAT-Denoiser was implemented for 2D CT and therefore, some notes about CT are given.
+Its main components and overall architecture are introduced.
+GAT-Denoiser is implemented for 2D CT and therefore, some details for the 2D case are given.
 
 
 \paragraph{Goal:}
 CT and cryo-EM in the high-noise regime is the domain of interest.
-For a given set of observations, a denoising model is sought, such that
-it enables denoising of observations such that reconstruction quality will increase.
+For a given set of observations, a denoising model is sought, while
+it enables denoising of observations such that reconstruction quality increases.
 As a first step towards an algorithm which works for unknown observation angles, 
-angles are fixed during practical part of this Thesis.
+angles are fixed during the practical part of this Thesis.
 
 
 \paragraph{Input graph:}
-As $\theta$ is fixed, angle corresponding to each observation are known.
+As $\theta$ is fixed, angles corresponding to each observation are known.
 Therefore, a graph can be constructed to model neighboring observations 
 based on their angles.
 To define a distance measure, angles can be mapped to the unit circle (or sphere).
@@ -25,27 +25,25 @@ Based from these distances, a k-NN graph can be constructed.
 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-  For GAT-Denoiser, this entails that graph topology is fixed and
+  For GAT-Denoiser with fixed angles, this entails that graph topology is fixed and
   a k-NN graph can be constructed from $\theta$.
 \end{tcolorbox}
 
 \section{Pipeline}
 \label{sec:concept}
-
-In the following section, the GAT-Denoiser pipeline is introduced. 
-The pipeline consists of three neural network parts, namely convolution, GAT and U-Net.
-For readers who are not familiar with these concepts, Chapter~\ref{sec:neural_networks} present an introduction.
+The GAT-Denoiser pipeline consists of three neural network parts, namely convolution, GAT and U-Net.
+For readers who are not familiar with these concepts, Appendix~\ref{sec:neural_networks} presents an introduction.
 
 GAT-Denoiser is a GNN and has two main components, namely convolution layers and GAT layers.
 The main idea of GAT-Denoiser is to enable denoising of observations:
 \begin{equation}
-  \textit{GAT-Denoiser} (\cdot) : L^2(\tilde{\Omega}) \to  L^2(\tilde{\Omega}) , y \mapsto \textit{GAT-Denoiser} (y) 
+  \textit{GAT-Denoiser} (\cdot) : \mathbb{R}^{N \times M} \to  \mathbb{R}^{N \times M} , y \mapsto \textit{GAT-Denoiser} (y) 
 \end{equation}
 
 % The GAT is expected to denoise observation signal with its neighbours by averaging. 
 % Further, convolution is added to denoise single observations.
 
-Input $y$ of GAT-Denoiser is a noisy observation and output is a denoised version.
+Input $y$ of GAT-Denoiser is a noisy observation and the output is a denoised version.
 GAT averages over observation neighbors and convolution denoise single observations. 
 For every GAT layer there is a preceding convolution. 
 In the case of CT, convolution is in 1D, where for cryo-EM it is in 2D.
@@ -55,23 +53,21 @@ In the case of CT, convolution is in 1D, where for cryo-EM it is in 2D.
   Further, convolution is added to denoise single observations.
 \end{tcolorbox}
 
-
-But, the main overall goal is to get the best possible reconstruction 
+In Figure~\ref{fig:overall-concept} the GAT-Denoiser pipeline is illustrated.
+But, the main overall goal is to get the best possible reconstruction $x^{\prime}$ 
 from noisy observation $y$ which approximates biological sample $x$ and 
 not just denoise observation $y$ which approximates noiseless observation $p$.
 
 
 \begin{equation}
   \begin{aligned}
-    x \approx   &\textit{Recon} \left( \textit{GAT-Denoiser} \left( y \right) \right), \\
+    x \approx   &\textit{Recon} \left( \textit{GAT-Denoiser} \left( y \right) \right) = x^{\prime} \\
   \end{aligned}
 \end{equation}
 
 Therefore, an end-to-end learning approach is used where quality of reconstruction is 
 compared during GAT-Denoiser training, which is expected to perform better than 
 only optimizing denoising of observations.
-
-In Figure~\ref{fig:overall-concept} overall GAT-Denoiser pipeline is illustrated.
 
 \begin{figure}[H]
   \centering
@@ -82,9 +78,7 @@ In Figure~\ref{fig:overall-concept} overall GAT-Denoiser pipeline is illustrated
 
 
 \section{Layers}
-In the following, a closer look at the neural network layers will be given.
-
-Input of the layers are observations and output are denoised observations.
+The input to the neural network layers are observations and output are denoised observations.
 Therefore, input and output dimension is defined as  $\mathbb{R}^{N \times M}$. 
 
 Figure~\ref{fig:architecture-detailed} presents the detailed GNN architecture.
@@ -96,22 +90,21 @@ $layers$ defines how many convolution and GAT layers are stacked together.
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{GAT_Architecture_Detail.drawio.png}
-  \caption{Overall GAT-Denoiser architecture}
+  \caption{GAT-Denoiser architecture}
   \label{fig:architecture-detailed}
 \end{figure}
 
 
 For every layer, first convolution and then GAT is processed. 
-Convolution in the whole network was defined with kernel size of 3 and padding 1,
-therefore, size of convolved signal will not change. 
-Convolution can be defined with different parameters, but output signal needs to have 
-same size as input signal.
+As input and output dimension is the same for GAT-Denoiser,
+convolution needs to be defined, such that the size of the input signal needs to be the same as the size of the input signal
+(e.g. kernel size 3 and padding 1).
 Further, additional convolutional channels can be used for learning.
 If parameter $channels > 1$, channels are increased in the first convolution layer 
 and decreased in the last one.
-Parameter $heads$ controls multi-head approach for GAT. Input and hidden dimension
-of GAT is $M$ if no heads are used.
-If multi-head attention is used, hidden dimension will be set to $M / heads$.
+Parameter $heads$ controls the multi-head approach of GAT. The input and hidden dimension
+of GAT is $M$, when no heads are applied.
+If multi-head attention is applied, hidden dimension will be set to $\frac{M}{heads}$.
 In the last GAT layer, everything gets prepared for output dimension and 
 averaging with 1 head is applied.
 
@@ -123,36 +116,35 @@ to the layers of GAT. Therefore, if writing from one layer, it is referring to c
 \section{Training}
 
 For GAT-Denoiser, one could think of two different losses to use during training.
-First, one could think of defining the loss on an observation level directly, 
-what I denote by $\mathcal{L}_{sino}$. The $\ell2$-norm is giving a meaningful measure:
+First, the loss could be defined on an observation level, what is denoted by $\mathcal{L}_{sino}$. 
+The $\ell2$-norm is giving a meaningful measure:
 
 \begin{equation}
   \label{eq:loss_sino}
-  \mathcal{L}_{sino} = \parallel p_i - \textit{GAT-Denoiser}(A(x_i, \theta, s) + \eta) \parallel ^2_2
+  \mathcal{L}_{sino} = \parallel p - \textit{GAT-Denoiser}(A(x, \theta, s) + \eta) \parallel ^2_2
 \end{equation}
 
 Second idea is to use an end-to-end learning approach where quality of reconstruction is 
 compared in the loss. Thus, the output of GAT-Denoiser is not directly part of the loss, but first reconstruction will be computed.
-As the quality of reconstruction is measured in the loss, resulting model is expected to be optimized
+As the quality of the reconstruction is measured in the loss, resulting model is expected to be optimized
 for reconstruction quality, and not observation quality. But, it is expected to be more computing expensive,
 as reconstruction is needed to calculate loss during training.
 
 \begin{equation}
   \label{eq:loss_reco}
-  \mathcal{L} = \parallel x_i - \textit{Recon} ( \textit{GAT-Denoiser}(A(x_i, \theta, s) + \eta)) \parallel ^2_2
+  \mathcal{L} = \parallel x - \textit{Recon} ( \textit{GAT-Denoiser}(A(x, \theta, s) + \eta)) \parallel ^2_2
 \end{equation}
 
-
-As $x_i$ is part of loss $\mathcal{L}_{sino}$ and $\mathcal{L}$, access to biological sample is needed during training.
+Access to biological sample $x$ or clean observation $p$ is required during training.
 
 \paragraph{Dropout:}
 Dropout is used in neural network as regularization and to prevent over fitting. 
 During training the neural network, some units are randomly omitted. Therefore, the network is 
-considered to not over fit to single unit, as during learning they are not always present.
+considered to not over fit to single units, as during learning they are not always present.
 There is a dropout parameter in GAT, which can be considered during training. 
 
 
 \paragraph{Reconstruction Computed Tomography:}
-Reconstruction in the CT case is defined with U-Net, as $\textit{Recon} : \textit{UNet} \left( \textit{FBP} \left( \cdot \right) \right)$.
+Reconstruction in CT is defined with U-Net, as $\textit{Recon} : \textit{UNet} \left( \textit{FBP} \left( \cdot \right) \right)$.
 Thus, U-Net needs to be first pre-trained with the desired dataset.
 Then, in a second step, one could consider to jointly train U-Net with GAT-Denoiser.

@@ -1,6 +1,6 @@
 \chapter{Neural Networks}
 \label{sec:neural_networks}
-In GAT-Denoiser, concepts from existing neural networks have been used.
+In GAT-Denoiser, concepts from existing neural networks have been combined.
 In this chapter, GAT, Convolution and U-Net are introduced in detail.
 
 \section{Graph Attention Networks}
@@ -37,6 +37,8 @@ Finally, new node embedding is calculated as:
 
 With $\sigma$ as some arbitrary activation function.
 
+\textbf{TODO: formating}
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.5\textwidth]{GAT.drawio.png}
@@ -62,14 +64,14 @@ In the last layer, output dimension needs to be obtained.
 Consequently, concatenation is no longer plausible and averaging is used to match desired dimension.
 
 \section{Convolution}
-Convolution is an important part in Signal Processing, because it allows to average an incoming signal.
+Convolution is an important concept in Signal Processing, because it allows to average an incoming signal.
 Convolution commonly operators on pixel spaces, where every observation location or time slot gets one value assigned.
 
 \begin{equation}
   x \star k = y,
 \end{equation}
 
-Where $x$ is input signal, $k$ is kernel, $\star$ the convolution operator and $y$ the convolved signal.
+Where $x$ is input signal, $k$ is kernel and $y$ the convolved signal.
 
 To apply convolution, a kernel with weights needs to be defined. 
 This kernel will then slide over the input signal $x$ and computes the dot product with its weights.
@@ -87,7 +89,7 @@ The concept of convolution can be extended to arbitrary dimensions.
 \paragraph{Padding:} 
 
 
-Padding can be defined to add pixels to boundary of the signal.
+Padding can be applied to add pixels to boundary of the signal.
 In the example, padding is set to $0$ and therefore, the signal size is decreased by $2$.
 If signal size should be fixed during convolution, padding is a powerful tool. For padding $1$,
 the input size $n$ would be equal to output size $m$, as an extra element in the output signal
@@ -95,25 +97,23 @@ will be at convolved at boundaries.
 
 
 \paragraph{Stride:}
-Stride is the parameter how far kernel moves each time. In the example, stride was defined to be $1$.
+Stride is the parameter how far the kernel moves each step. In the example, stride was defined to be $1$.
 If stride is increased, the output signal size will decrease.
 
 \section{U-Net}
 \label{sec:unet}
-U-Net can boost performance of CT reconstruction, where FBP is further refined with a neural network.
+U-Net can improve performance of CT reconstruction, where FBP is further refined with a neural network.
 It is a convolutional neural network, which is well suited for image segmentation in different domains.
 \cite{unet-tomography} showed great success for biomedical image segmentation.
 
-The neural network architecture consists of contracting path and expansive path,
+The neural network architecture consists of a contracting path and a expansive path,
 resulting in a U-shape, as illustrated in Figure~\ref{fig:u-net-architectue}.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.6\textwidth]{u-net-architecture.png}
-  \caption{
-    U-Net architecture \cite[p 2, Fig. 1]{unet-tomography} \\
-    Number on top of boxes denotes channels, where numbers at bottom of boxes refer to input dimension.
-    }
+  \legend{Number on top of boxes denotes channels, where numbers at bottom of boxes refer to input dimension.}
+  \caption{U-Net architecture \cite[p 2, Fig. 1]{unet-tomography}}
     \label{fig:u-net-architectue}
 \end{figure}
 
@@ -125,6 +125,6 @@ Multiple contracting steps are combined. After last contracting step, expansive 
 where input dimension will be increased and input channels will be decreased.
 For every expansive step, an up-sampling of the feature map takes place, followed by a 2x2 convolution, 
 which halves the number of channels. Then, concatenation with the corresponding feature
-map of the contracting path is done (gray arrow in Figure~\ref{fig:u-net-architectue}), followed by again two 3x3 convolutions and ReLu.
+map of the contracting path is done (gray arrow ), followed by again two 3x3 convolutions and ReLu.
 Final layer is a 1x1 convolution to map to desired output dimension and single output channel.
 

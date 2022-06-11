@@ -10,19 +10,21 @@ within the high noise domain, have been the problems to approach.
 
 During the practical part, 2D and 3D tomography have been implemented 
 in python to familiarize with the domain.
-Further, vector diffusion map was implemented in 3D to so some comparison
+Further, vector diffusion map was implemented in 3D to do some comparison
 and code was integrated with Aspire\footnote{\url{http://spr.math.princeton.edu/}}.
 Finally, GAT was implemented and further optimized with convolution and U-Net.
-Therefore, GAT-Denoiser was introduced.
+Finally, GAT-Denoiser is derived.
 
 During evaluation on the LoDoPab-CT dataset, baseline algorithm BM3D was implemented.
 Overall, GAT-Denoiser shows great results and improves reconstruction SNR 
 by 379.9\%, 126.0\% 57.7\%, 27.6\% for \snry -15 dB, -10 dB, -5 dB and 0 dB.
 GAT is able to capture important observation information even in the high-noise domain.
 Moreover, the individual components of GAT-Denoiser contribute to the success of GAT-Denoiser.
-It was shown that convolution, GAT and the end-to-end learning approach are all valuable individually
+With the small scale experiments, 
+it was shown that convolution, GAT and the end-to-end learning approach are all valuable individually
 and are therefore well-chosen.
-Further, GAT-Denoiser combined with U-Net and joint neural network training can upgrade CT reconstruction to a new level. 
+Additionally, the large scale experiments found the best GAT-Denoiser model.
+GAT-Denoiser combined with U-Net and joint neural network training can upgrade CT reconstruction to a new level. 
 
 
 \section{Future Work}
@@ -35,19 +37,20 @@ towards an algorithm to work for cryo-EM
 So far, GAT-Denoiser was evaluated on a CT dataset in 2D.
 Therefore, the next step would be to increase the dimension and 
 derive GAT-Denoiser to work in 3D. This should be feasible without too much of an effort,
-as the single components of GAT-Denoiser are able to work in 3D as well.
+as the single components of GAT-Denoiser are able to work in 3D as well. 
+Even tough, more resources will be needed for computation.
 
 \paragraph{Drop known angle assumption:}
 So far, GAT-Denoiser works with the assumption that angles are fixed.
 In a future work, this assumption could be dropped. GL embedding
 is a way to approximate angles for CT and cryo-EM observations, but the quality in the high noise regime is rather low.
-To extend GAT-Denoiser to work with unknown angles, it needs to be combined with a fourth component, 
+To extend GAT-Denoiser to work with unknown angles, it needs to be combined with a additional component, 
 which can successfully approximates angles in the high noise regime.
 
 \paragraph{Further cryo-EM challenges:}
 In this Thesis, only single particle cryo-EM is considered.
-When GAT-Denoiser is available in 3D, one could also think of to approach
-the problem where from a given observation, underlying sample is not 
+When GAT-Denoiser is available in 3D, one could think of an approach
+where from a given observation, underlying sample is not 
 structural equivalent and there are some slight differences. 
 One needs to approximate the distribution of underlying samples.
 This could be established first for known observation angles and further brought to unknown observation angles.

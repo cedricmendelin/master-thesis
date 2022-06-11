@@ -1,11 +1,12 @@
 
 
 \chapter{Mathematical Tools}
+Some mathematical tools will be introduced in the following chapter.
 
 \section{3D Rotation Matrix}
 \label{app:3DrotationMatrix}
 A rotation matrix is a transformation matrix used to perform rotations.
-In 3D case, matrix for rotating one single axis can be described as:
+In the 3D case, matrix for rotating one single axis can be described as:
 \begin{equation}
     R_{e_x} (\theta)
     \begin{bmatrix}
@@ -33,6 +34,8 @@ In 3D case, matrix for rotating one single axis can be described as:
     \end{bmatrix}
 \end{equation}
 
+\textbf{TODO: check dimension $\theta$}
+
 Where $e_x, e_y, e_z$ corresponds to the axis unit-vector (for x: $(1,0,0)$, etc.) and $\theta \in \mathbb{R}$.
 To combine the single axis rotations, matrices can be multiplied with each other:
 
@@ -47,7 +50,7 @@ In Equation~\ref{eq:3d-rotation}, angle $\theta$ is the same for all axis, which
 \section{Power Iterations}
 \label{sec:powerIterations}
 
-Power iteration, also called power method, is an iterative method
+Power iteration, also called power method, is an iterative algorithm
 that approximates the largest eigenvalue of a diagonalizable matrix $A$.
 
 The algorithm starts with a random vector $b_0$ or an approximation of the dominant eigenvector.

@@ -12,7 +12,7 @@ Results for the baseline algorithms, different models with $k=2$ and $k=8$ are p
     \centering
     \begin{tabular}{l|c|c|c|c}
       \toprule
-      \textbf{Algorithm} & \snrh{ 0} & \snrh{ -5} & \snrh{ -10} & \snrh{ -15} \\
+      \textbf{Algorithm / Model} & \snrh{ 0} & \snrh{ -5} & \snrh{ -10} & \snrh{ -15} \\
                          & \textbf{SNR} & \textbf{SNR} & \textbf{SNR}  & \textbf{SNR} \\ 
       \midrule
       FBP                 & 4.50 & -0.31  & -5.25 & -10.22  \\ \hline
@@ -49,12 +49,7 @@ Results for the baseline algorithms, different models with $k=2$ and $k=8$ are p
 
 
 \section{Small Scale Experiment: Further k-NN Results}
-K-NN experiments have been computed before the one with GAT parameter for layers and heads.
-The best value for GAT parameters have been 2 layers and 4 heads.
-Therefore, k-NN experiment have been repeated with these settings and results 
-can be found in Table~\ref{tab:small_knn_2}. 
-
-The outcome was almost the same 
+K-NN experiment with 2 layers and 4 heads can be found in Table~\ref{tab:small_knn_2}. 
 
 \begin{table}[H]
   \centering
@@ -70,15 +65,14 @@ The outcome was almost the same
     \midrule
   \end{tabular}
 
-  \caption{Different k values for \snry 0 dB and -10 dB }
+  \caption{Different $k$ values for \snry 0 dB and -10 dB }
   \label{tab:small_knn_2}
 \end{table}
 
 
 \section{Small Scale Experiment: GAT Dropout}
 Table~\ref{tab:small_dropout} presents results for experiments with different dropout values.
-Further, GAT was defined with 2 layers and 4 heads and convolution with kernel size 3 and padding 1.
-\snry is defined with -5 dB and training was without U-Net.
+GAT-Denoiser was defined with 2 layers and 4 heads.
 
 \begin{table}[H]
   \centering
@@ -175,6 +169,7 @@ Clean images are repeated at every subsection, even tough they are the same
 
 
 \section{Wandb Results}
+\label{sec:wandb}
 Table~\ref{tab:wandb_results} shows urls raw wandb results for all computed experiments on the LoDoPaB-CT dataset.
 \begin{table}[H]
   \centering
