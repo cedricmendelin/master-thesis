@@ -18,14 +18,14 @@ Finally, GAT-Denoiser is derived.
 During evaluation on the LoDoPab-CT dataset, baseline algorithm BM3D was implemented.
 Overall, GAT-Denoiser shows great results and improves reconstruction SNR 
 by 379.9\%, 126.0\% 57.7\%, 27.6\% for \snry -15 dB, -10 dB, -5 dB and 0 dB.
-GAT is able to capture important observation information even in the high-noise domain.
-Moreover, the individual components of GAT-Denoiser contribute to the success of GAT-Denoiser.
+GAT-Denoiser is able to capture important observation information even in the high-noise domain.
+Moreover, the individual components contribute to the success of GAT-Denoiser.
 With the small scale experiments, 
 it was shown that convolution, GAT and the end-to-end learning approach are all valuable individually
 and are therefore well-chosen.
 Additionally, the large scale experiments found the best GAT-Denoiser model.
-GAT-Denoiser combined with U-Net and joint neural network training can upgrade CT reconstruction to a new level. 
-
+GAT-Denoiser combined with U-Net and joint neural network training can upgrade CT reconstruction 
+in the high-noise domain to a new level. 
 
 \section{Future Work}
 Cryo-EM is an open research area of great interest.
@@ -33,12 +33,21 @@ The 3D problem is not easy to solve and there are many steps in the Cryo-EM reco
 to be further improved. With GAT-Denoiser, a neural network architecture is introduced, 
 towards an algorithm to work for Cryo-EM
 
+\paragraph{Improve GAT-Denoiser:}
+The current GAT-Denoiser is not perfect. 
+In the architecture, a single convolutional layer proceeds a single GAT layer.
+In some scenarios, it could be beneficial, to apply multiple convolutional layers before GAT and 
+on could resolve the current architecture to allow multiple convolutional layer before GAT.
+Further, on could think of integrating convolution in GAT directly or adjust the architecture
+in other manners.
+
+
 \paragraph{GAT-Denoiser in 3D:}
 So far, GAT-Denoiser was evaluated on a CT dataset in 2D.
 Therefore, the next step would be to increase the dimension and 
 derive GAT-Denoiser to work in 3D. This should be feasible without too much of an effort,
 as the single components of GAT-Denoiser are able to work in 3D as well. 
-Even tough, more resources will be needed for computation.
+However, more resources will be needed for computation.
 
 \paragraph{Drop known Angle Assumption:}
 So far, GAT-Denoiser works with the assumption that angles are fixed.

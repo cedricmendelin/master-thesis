@@ -8,31 +8,32 @@ They are widely used throughout different science directions, such as Machine Le
 Signal Processing, Computer Vision, Natural Language Processing, and others.
 ML is one tool to model and solve Inverse Problems.
 
-Cryo-Electron Microscopy (Cryo-EM) is a molecular imaging method and has gained a lot of attention in recent years. 
-Molecules are frozen and imaged through an electron microscope.
+Cryo-Electron Microscopy (Cryo-EM) is a molecular imaging method and has received a lot of attention in recent years. 
+During observation, the molecules are frozen and imaged through an electron microscope.
 Due to ground-breaking improvements regarding hardware and data processing, the field of research
 has been highly improved. In 2017, pioneers in the field of Cryo-EM received the 
 Nobel Prize in Chemistry\footnote{https://www.nobelprize.org/prizes/chemistry/2017/press-release/}.
 Today, using Cryo-EM, molecular structures can be observed with near-atomic resolution.
-The big challenge is enormous noise and unknown observation angles.
+The big challenges are enormous noise and unknown observation angles.
 
-Computed tomography (CT) is another imaging method, which is similar to Cryo-EM. 
+Computed Tomography (CT) is another imaging method, which is similar to Cryo-EM. 
 Reconstruction is considered slightly easier as the problem is in 2D and observation angles are known.
 That's why it is well suited as a first step towards a Cryo-EM algorithm.
 
 The overall goal of this Thesis is to introduce an algorithm that works with CT, but 
 can conceptually be extended to work in 3D, thus for Cryo-EM. 
 Additionally, the focus is in the high noise domain, as currently available reconstruction algorithms
-start to fail when dealing with high noise. To be more precise, the signal-to-noise-ratio of interest is the interval 
+start to fail when dealing with high noise. To be more precise, the signal-to-noise-ratio (SNR) of interest is the interval 
  between $[-15, 0]$ dB.
 
 
-In recent years, graphs have received a lot of attention in ML and Graph Machine Learning is one of the most promising research areas.
+In recent years, graphs have received a lot of attention in ML and Graph Machine Learning is one of the most promising research areas\cite{GNN,GCN, GAT,simpleGCN,simpleGCN}.
 Graphs are a well suited data structure, simple but with high expressiveness. 
-Especially data for which single data points tend to have a relation to other data points, graphs with its nodes and vertices are the perfect tool
+Especially data for which single data points tend to have a relation to other data points, graphs with its nodes and edges are the perfect tool
 to capture these relationships. 
 Real world data might be in a graph structure, like social networks, citation networks,
 protein interaction networks or a simple google search. 
+If data is not available in graph structure, a graph can artificially be constructed for arbitrary datasets.
 Besides, for some scenarios, ordinary ML algorithms fail, but Graph ML approaches have great success, e.g. dimensionality reduction for high-dimensional data.
 
 
@@ -50,7 +51,7 @@ GAT-Denoiser was evaluated on the LoDoPaB-CT dataset~\cite{lodopab-dataset}.
 I could show that all three components contribute to learning the best GAT-Denoiser model.
 Further, U-Net~\cite{unet-tomography} was used to further improve CT reconstruction quality.
 GAT-Denoiser outperformed BM3D~\cite{bm3d} as well as U-Net~\cite{unet-tomography},
-where observation signal-to-noise-ration (SNR) is between 0 dB and -15 dB.
+where observation SNR is between 0 dB and -15 dB.
 Compared to the best performing baseline BM3D, GAT-Denoiser could improve reconstruction SNR 
 by 379.9\% for observation SNR -15 dB.
 The best GAT-Denoiser models could be established, when first, GAT-Denoiser is trained with a fixed U-Net model.
@@ -63,13 +64,13 @@ The report is structured as follows:
 
 First, the notation applied throughout this Thesis is introduced in Chapter~\ref{sec:notation}.
  Chapter~\ref{sec:imaging} presents the two molecular imaging methods
-CT and Cryo-EM and a mathematical abstraction for observation and reconstruction is introduced.
+CT and Cryo-EM and mathematical abstractions for observation and reconstruction are introduced.
 Further, Chapter~\ref{sec:manifold_and_graphs} is dedicated to manifolds and graphs,
 and how a meaningful embedding for CT and Cryo-EM can be established. 
 The main contribution is presented in Chapter~\ref{sec:contribution}, 
 where GAT-Denoiser is introduced. Chapter~\ref{sec:results} presents experiments on the LoDoPaB-CT dataset.
-During small scale and large scale experiments, insights are shown.
-Finally, conclusion and future work are presented in Chapter~\ref{sec:Conclusion}.
+During small scale and large scale experiments, insights are revealed.
+Finally, the conclusion and future work are presented in Chapter~\ref{sec:Conclusion}.
 
 \chapter{Notation}
 \label{sec:notation}
@@ -79,7 +80,7 @@ In this chapter, some basic terms are explained and their notation in this repor
 \section{Molecular Imaging Methods}
 Throughout this Thesis, notation $p$ for noiseless observation and $y$ for observation with noise is used.
 In practice, $p$ is not observable directly and observed signal $y$ needs to be denoised.
-Further, $x$ is used for the biological sample and $x^{\prime}$ defines approximation by the reconstruction algorithms.
+Further, $x$ is used for the biological sample and $x^{\prime}$ defines approximation by the reconstruction algorithm.
 In addition, $N$ is used for the number of observations and $M$ as the observation dimension.
 Consequently, $y_i \in \mathbb{R}^M$ determines $i$-th observation and $y_i[j] \in \mathbb{R}$ the $j$-th element of $y_i$,
 with $ 1 \leq i \leq N \text{ and } 1 \leq j \leq M$. The same is valid for $p$ with $p_i$ and $p_i[j]$. 
@@ -87,7 +88,7 @@ with $ 1 \leq i \leq N \text{ and } 1 \leq j \leq M$. The same is valid for $p$ 
 
 \paragraph{Signal-to-Noise-Ratio}
 SNR is a measure used in Signal Processing. 
-It compares the power of an input signal to the power of noise. It is typically given in decibel (dB), with
+It compares the power of an input signal to the power of the undesired noise. It is typically given in decibel (dB), with
 $\text{SNR}_{dB} = 10 \log_{10} \left(  \frac{P_{signal}}{P_{noise}} \right)$.
 An SNR of smaller than 0 dB indicates more noise than signal.
 
@@ -133,11 +134,11 @@ This leads to an unweighted graph, as the weights of all edges will be $1$.
 When $G$ is undirected, the corresponding adjacency matrix will be symmetric. 
 Eigenvalues of $A$ are called \textit{spectrum} of $G$.
 
-\paragraph{Graph Cnstruction with k-NN:}
-K-nearest-neighbors (k-NN) is a graph construction algorithm. The distance between
+\paragraph{Graph Construction with k-NN:}
+K-Nearest-Neighbors (k-NN) is a graph construction algorithm. The affinity between
 nodes is calculated with a distance measure (e.g. Euclidean distance) and 
 for every node, $\mathcal{N}_i$ is defined as $k$ nodes with the smallest similarity measure.
-During this Thesis, when writing from $k$ it refers to k-NN parameter $k$.
+During this Thesis, when writing from $k$, it refers to the k-NN parameter $k$.
 
 \paragraph{Erdős–Rényi graph}
 The Erdős–Rényi model is a way to construct a random graph.

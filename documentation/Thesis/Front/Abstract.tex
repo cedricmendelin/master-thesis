@@ -4,7 +4,8 @@
 
 In molecular imaging methods Cryo-Electron Microscopy (Cryo-EM) and Computed Tomography (CT)
 observations are collected from a biological sample. 
-Cryo-EM enables the view of molecules in near-atomic resolution and therefore got a lot of attention in recent years.
+Cryo-EM enables the view of molecules in near-atomic resolution and, therefore, has received
+a lot of attention in recent years.
 The Application of Cryo-EM is a major motivation for this Thesis. 
 Observations are noisy due to the imaging process and reconstruction from noisy observations is desired.
 Reconstruction is challenging due to dealing with enormous noise and unknown observation angles.
@@ -13,16 +14,15 @@ CT is similar to Cryo-EM, but reconstruction is slightly simpler, since it is po
 observation angles are known.
 That's why it is well suited as a first step towards a Cryo-EM algorithm.
 
-I introduce \textit{GAT-Denoiser}, a Graph Neural Network, which combines Graph Attention Network (GAT) with convolution 
+I introduce \textit{GAT-Denoiser}, a Graph Neural Network which combines Graph Attention Network (GAT) with convolution 
 and an end-to-end learning approach. 
-It enables to denoise observations and improves reconstruction quality with the assumption of known projection angles.
-During training an end-to-end approach is applied, that compares reconstruction quality.
+It enables denoising of observations and improves reconstruction quality with the assumption of known projection angles.
+During training, an end-to-end approach is applied, that compares reconstruction quality.
 GAT-Denoiser has been evaluated on the LoDoPaB-CT dataset.
 It could outperform baseline algorithm BM3D measured by the reconstruction
 signal-to-noise-ratio (SNR). An improvement by 379.9\%, 126.0\% 57.7\%, 27.6\% for SNR -15 dB, -10 dB, -5 dB and 0 dB, respectively
 could be reached.
 Moreover, the individual components of GAT-Denoiser contribute to the success of GAT-Denoiser.
-It was shown that convolution, GAT and the end-to-end learning approach are all valuable individually.
-Further, GAT-Denoiser combined with U-Net and joint neural network training can upgrade CT reconstruction to a new level. 
-
+During a series of experiments, it was shown that convolution, GAT and end-to-end learning are all valuable individually.
+Further, GAT-Denoiser combined with U-Net and joint neural network training can upgrade CT reconstruction in the high-noise domain to a new level. 
 

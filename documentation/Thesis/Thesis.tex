@@ -38,7 +38,6 @@
 \newcommand{\visualresult}[3]{
 \begin{figure}[H]
   \centering
-	\caption{#3 reconstruction for \snry #2 dB.}
   \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_1.png}
   \hfill
   \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_2.png}
@@ -50,6 +49,7 @@
   \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_9.png}
 	\hfill
   \includegraphics[width=0.16\textwidth]{#1/#2/#1_#2_10.png}
+  \caption{#3 reconstruction for \snry #2 dB.}
 \end{figure}
 }
 
@@ -127,7 +127,6 @@
 %% ----------------------------------------------------------------
 \thesismain
 
-\input{./Chapters/Notes}
 \input{./Chapters/Introduction.tex}
 \input{./Chapters/Imaging.tex}
 \input{./Chapters/GraphFoundations.tex}

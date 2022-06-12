@@ -2,8 +2,8 @@
 \label{sec:imaging}
 
 This chapter introduces two molecular imaging methods, \textit{Computed Tomography} (CT) and 
-\textit{Cryo-Electron Microscopy} (Cryo-EM). 
-Further, their observation model is defined in a mathematical way and reconstruction is presented.
+\textit{Cryo-Electron Microscopy} (Cryo-EM). Their observation model is defined in a mathematical way and reconstruction is presented.
+Finally, an abstraction is presented, as both methods are considered similar.
 
 
 
@@ -12,7 +12,7 @@ Further, their observation model is defined in a mathematical way and reconstruc
 CT is a well established molecular imaging method.
 Using X-ray sources, fan shaped beams are produced which scan the biological sample.
 Through scanning over straight lines, many observations are collected, 
-and the biological sample can be reconstructed.\footnote{For additional information \cite{computedTomography}}
+and the biological sample can be reconstructed\footnote{For additional information \cite{computedTomography}}.
 
 \paragraph{2D Tomographic Observation:}
 
@@ -104,14 +104,14 @@ Deep-Learning reconstruction methods for CT.
 
 \subparagraph{U-Net:}
 Today's state-of-the-art reconstruction algorithms are Deep-Learning based.
-U-Net~\cite{unet-tomography}, a convolution neural network approach, performed
+U-Net~\cite{unet-tomography}, a convolution neural network, performed
 much better compared to FBP in the comparison of \citet{ct-reconstruction-comparison}.
 Therefore, it is an interesting baseline and additionally can be combined with other ideas.
 
 In Figure~\ref{fig:phantom_fbps} reconstructions from Shepp-Logan phantom are presented.
-\snry is defined to teach 10 dB.
-The quality of noisy reconstruction is rather low, some important details are missing, and noise dominates reconstruction.
-If more noise is present in $y$, reconstruction will be of even lower quality.
+\snry is defined to reach 10 dB.
+The quality of the noisy reconstruction is rather low, some important details are missing, and noise dominates reconstruction.
+If more noise is present in $y$, the reconstruction will be of even lower quality.
 Further, Figure~\ref{fig:fbp_unet_phantom_noisy} 
 shows reconstruction with U-Net where some details are missing as well, although overall noise is drastically decreased.
 
@@ -139,7 +139,7 @@ shows reconstruction with U-Net where some details are missing as well, although
   \end{figure}
 
 
-\section{Cryo-EM}
+\section{Cryo-Electron Microscopy}
 Cryo-EM is another molecular imaging method, that enables the view of molecules in near-atomic resolution.
 In this Thesis, for simplicity, only single-particle Cryo-EM~\cite{singleParticleCryoEm} is considered.
 When writing about Cryo-EM it always refers to single-particle Cryo-EM.
@@ -147,8 +147,7 @@ When writing about Cryo-EM it always refers to single-particle Cryo-EM.
 During imaging, molecules are frozen in a thin layer of ice, where they are randomly oriented and positioned. 
 Random orientation and positioning make reconstruction challenging, 
 but freezing allows observation in a stable state where molecules are not moving.
-With an electron microscope, 2D tomographic projections of molecules are observed,
-which are called \textit{micrograph}. 
+2D tomographic projections of molecules are observed with an electron microscope, which are called \textit{micrograph}. 
 Frozen molecules are fragile, and the electron microscope needs to work with
 very low power (electron dose), resulting in highly noisy observations. The resulting SNR
 is typically smaller than 0 dB~\cite{cryoEmMath2}.
@@ -175,7 +174,7 @@ where
           $R_{\theta_i} =  R_{e_x} (\theta_i^{(1)}) R_{e_y} (\theta_i^{(2)}) R_{e_z} (\theta_i^{(3)}) = [R^1_{\theta_i}, R^2_{\theta_i}, R^3_{\theta_i}] \in SO(3)$ 
           \footnote{For additional information see \ref{app:3DrotationMatrix}}
           
-    \item $\textit{Rot} : L^2(\Omega) \to L^2(\Omega), \textit{Rot}(x, \theta_i) = \left((x_1,x_2,x_3) \mapsto x( x_1R^1_{\theta_i}, x_2R^2_{\theta_i}, x_3R^3_{\theta_i})\right)$: rotation operator
+    \item $\textit{Rot} : L^2(\Omega) \to L^2(\Omega), \textit{Rot}(x, \theta_i) = \left((x_1,x_2,x_3) \mapsto ( x_1R^1_{\theta_i}, x_2R^2_{\theta_i}, x_3R^3_{\theta_i})\right)$: rotation operator
     \item $\eta_i \in \mathbb{R}^M$: i.i.d Gaussian noise with $\eta_i[j] \sim \mathcal{N}(0,\sigma^2) \in \mathbb{R}$
 \end{itemize}
 
@@ -236,15 +235,16 @@ In Figure~\ref{fig:cryo-em-omicron} Cryo-EM micrographs are illustrated as well 
         \includegraphics[width=\textwidth]{emd_32500.map_zprojection.jpeg}
         \caption{Micrograph along z-axis}
       \end{subfigure}
-    \caption{Cryo-EM reconstruction and micrographs of COVID-19 Omicron spike \protect\footnote{https://www.ebi.ac.uk/emdb/EMD-32500}.}
+    \caption{Cryo-EM reconstruction and micrographs of COVID-19 Omicron spike\protect\footnotemark.}
     \label{fig:cryo-em-omicron}
   \end{figure}
 
+\footnotetext{\url{https://www.ebi.ac.uk/emdb/EMD-32500}}
 
 \paragraph{Cryo-EM Reconstruction:}
 Cryo-EM reconstruction is defined as the approximation of a 3D object from 2D observations.
 Cryo-EM reconstruction is computationally intensive and multiple steps are required to get from 
-observations to the final structure\footnote{For further details \cite{singleParticleCryoEm, cryoEmMath}}.
+observations to the final structure\footnote{For additional information \cite{singleParticleCryoEm, cryoEmMath}}.
 
 
 \section{Abstraction}
@@ -284,11 +284,11 @@ Further, an abstract form of the reconstruction operator is defined as:
 \end{equation}
 
 With $\theta_i \in SO(D)$ as the projection angle(s).
+
 For CT, parameter $D=2$ and $A(\cdot)$ is the Radon Transform.
 Further, reconstruction operator can be defined as FBP (with or without U-Net).
 Cryo-EM parameters are defined with $D=3$ and $A(\cdot)$ can be
-defined as $\Pi_z \left(\; \textit{Rot}(\;x; \theta) \right)$ 
-where \textit{Rot} is the 3D rotation and $\Pi_z$ the projection operator.
+defined as $\Pi_z \left(\; \textit{Rot}(\;x; \theta) \right)$. 
 
 
 \paragraph{High Noise Regime:}

@@ -12,7 +12,7 @@ Topology of the graph will not change but weighted averaging over the neighborho
 The input of a single GAT layer are node features $h = \{ h_1, h_2, \dots , h_N \} \in \mathbb{R}^F$, 
 where $N$ is the number of nodes and $F$ the number of features per node. 
 Single layer will map input to output, which can potentially have different dimensions: 
-$h^{\prime} = \{ h_1^{\prime}, h_2^{\prime}, \dots, h_N^{\prime} \} \in \mathbb{R}^{F^{\prime}} $
+$h^{\prime} = \{ h_1^{\prime}, h_2^{\prime}, \dots, h_N^{\prime} \} \in \mathbb{R}^{F^{\prime}} $.
 As is other GNNs, input features are initially linearly transformed and parametrized by a learnable weight matrix 
 $W \in \mathbb{R}^{F^{\prime} \times F}$. 
 This allows to add enough expressiveness to the neural network and weights are learned during training.
@@ -28,8 +28,8 @@ and LeakyReLu as activation function.
 
 To compare coefficients $e$ across different nodes, normalization is needed.
 Therefore, softmax is used as normalization $\alpha_{ij} = softmax_j(e_{ij})$ 
-such that all attention coefficients of one node sum up to 1 and therefore, are nicely comparable across nodes.
-Finally, new node embedding is calculated as:
+such that all attention coefficients of a single node sum up to 1 and therefore, are nicely comparable across nodes.
+Finally, the new node embedding is calculated as:
 
 \begin{equation}
   h_i^{\prime} = \sigma \left( \sum_{j \in \mathcal{N}_i} \alpha_{ij} W h_j \right)
@@ -38,19 +38,19 @@ Finally, new node embedding is calculated as:
 
 With $\sigma$ as some arbitrary activation function.
 
-\begin{minipage}{0.45\textwidth}
+\begin{minipage}{0.25\textwidth}
   \begin{figure}[H]
     \includegraphics[width=\textwidth]{GAT.drawio.png}
     \caption{GAT node feature propagation.}
     \label{fig:gat_attention_illustration}
   \end{figure}
   \end{minipage} \hfill
-  \begin{minipage}{0.5\textwidth}
+  \begin{minipage}{0.7\textwidth}
     Figure~\ref{fig:gat_attention_illustration} shows how node features are propagated
     in the network.
     Node $h_1$ has 5 neighbors and for a single GAT layer, new node feature $h_1^{\prime}$
     is computed with Equation~\ref{eq:gat_node_features}: 
-    $$h_{1}^{\prime} = \sigma \left( \sum_{i=1}^5\alpha_iWh_{1,i} \right)$$.
+    $$h_{1}^{\prime} = \sigma \left( \sum_{i=1}^5\alpha_iWh_{1,i} \right)$$
 
   \end{minipage}
 
@@ -61,10 +61,10 @@ Therefore, not only a single weight matrix is learned, but $W$ is split up in se
 all learned individually:
 
 \begin{equation}
-  h_i^{\prime} = \bigparallel^K_{k=1} \sigma \left(\sum_{j \in \mathcal{N}_i} \alpha_{ij}^k W^k h_j \right),  
+  h_i^{\prime} = \bigparallel^K_{k=1} \sigma \left(\sum_{j \in \mathcal{N}_i} \alpha_{ij}^k W^k h_j \right)  
 \end{equation}
 
-Where $\parallel$ corresponds to concatenation, $\alpha_{ij}^k$ the $k$-th attention mechanism and $W^k$ the linear
+Where $\parallel$ corresponds to concatenation, $\alpha_{ij}^k$ the $k$-th attention mechanism and $W^k$ the $k$-th linear
 transformations weight matrix. The final output consists of $KF^{\prime}$ output features.
 
 \paragraph{Last layer:}
@@ -76,10 +76,10 @@ Convolution is an important concept in Signal Processing, because it allows aver
 Convolution commonly operators on pixel spaces, where every observation location or time slot gets one value assigned.
 
 \begin{equation}
-  x \star k = y,
+  x \star k = y
 \end{equation}
 
-Where $x$ is the input signal, $k$ is the kernel and $y$ the convolved signal.
+Where $x$ is the input signal, $\star$ convolution, $k$ the kernel and $y$ the convolved signal.
 
 To apply convolution, a kernel with weights needs to be defined. 
 This kernel will then slide over the input signal $x$ and computes the dot product with its weights.
@@ -90,7 +90,7 @@ The concept of convolution can be extended to arbitrary dimensions.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.6\textwidth]{Convolution.drawio.png}
-  \caption{1D Convolution}
+  \caption{1D Convolution illustration.}
   \label{fig:1d-convolution}
 \end{figure}
 
@@ -112,8 +112,6 @@ If stride is increased, the output signal size will decrease.
 \label{sec:unet}
 U-Net can improve the performance of CT reconstruction, where FBP is further refined with a neural network.
 It is a convolutional neural network, which is well suited for image segmentation in different domains.
-\cite{unet-tomography} showed great success for biomedical image segmentation.
-
 The neural network architecture consists of a contracting path and a expansive path,
 resulting in a U-shape, as illustrated in Figure~\ref{fig:u-net-architectue}.
 
@@ -126,10 +124,10 @@ resulting in a U-shape, as illustrated in Figure~\ref{fig:u-net-architectue}.
 \end{figure}
 
 
-During contracting path (left part), input dimension is decreased but channels are increased.
+During the contracting path (left part), the input dimension is decreased, but channels are increased.
 For every step in the contracting path, two 3x3 convolution layers are followed by ReLu
-and a 2x2 max pooling for down-sampling. Further, at each down-sampling step, input channels are doubled.
-Multiple contracting steps are combined. After last contracting step, expansive path (right part) starts
+and a 2x2 max pooling for down-sampling. Further, at each down-sampling step, the input channels are doubled.
+Multiple contracting steps are combined. After the last contracting step, expansive path (right part) starts
 where input dimension will be increased and input channels will be decreased.
 For every expansive step, an up-sampling of the feature map takes place, followed by a 2x2 convolution, 
 which halves the number of channels. Then, concatenation with the corresponding feature

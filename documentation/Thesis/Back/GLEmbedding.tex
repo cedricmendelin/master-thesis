@@ -58,12 +58,12 @@ as well as the sphere itself.
   \end{figure}
 
 
-\paragraph{GL Embedding:}
+\paragraph{Graph Laplacian Embedding:}
 \label{sec:manifold_calculation}
 A low-dimensional embedding of a dataset can be computed with GL by the following:
 
 \begin{enumerate}
-    \item Construct the k-NN graph from dataset
+    \item Construct the k-NN graph from the dataset
     \item Calculate the GL
     \item Extract the second, third (and fourth) smallest eigenvectors
 \end{enumerate}
@@ -85,10 +85,16 @@ as well as parameter $\theta$, $s$ and $\eta$.
 
 $k$ is an important parameter for building up a graph. If set too low, neighbors
 do not capture similar data well as too few nodes are connected. 
-Further, if k is set too high, strength of a neighbor 
+Further, if k is set too high, power of a neighbor 
 is weakened and data is not well explained.
 In Figure~\ref{fig:clean_manifolds}, the GL embedding computed from clean sinogram and $k$ from 2 to 10 is illustrated.
 From $k \leq 4$ the GL embedding approximates a circle and with $k >  4$ it moves further away from the circle. 
+
+If data is noisy, it is expected to be harder to construct a meaningful GL embedding, as some connections within
+the graph will be noisy. This is exactly what is illustrated in Figure~\ref{fig:noisy_manifolds}, where 
+different GL embedding for noisy sinogram with \snry 20 dB and k from 3 to 10 are illustrated.
+GL embedding can never express data with a perfect circle. As noise is chosen rather moderate, GL embedding has still some 
+power to express underlying data and is expected to decrease, if noise is increased.
 
 
 \begin{figure}[H]
@@ -107,14 +113,8 @@ From $k \leq 4$ the GL embedding approximates a circle and with $k >  4$ it move
     \caption{Shepp-Logan phantom sinogram GL embeddings for different $k$.}
   \end{figure}
 
-If data is noisy, it is expected to be harder to construct a meaningful GL embedding, as some connections within
-the graph will be noisy. This is exactly what is illustrated in Figure~\ref{fig:noisy_manifolds}, where 
-different GL embedding for noisy sinogram (SNR=20dB) and k from 3 to 10 are illustrated.
-GL embedding can never express data with a perfect circle. As noise is chosen rather moderate, GL embedding has still some 
-power to express underlying data and is expected to decrease, if noise is increased.
 
-
-Further, when observing a sinogram, $\theta$ defines how many observations (straight lines) are drawn
+While observing a sinogram, $\theta$ defines how many observations (straight lines) are drawn
 and $dim(s)$ defines the number of sampling points. Both have a great impact to expressiveness of our sinogram.
 In Figure~\ref{fig:clean_manifold_200} GL embedding with $\theta \in \mathbb{R}^{200}$ and k=6 is illustrated
 for clean sinogram. It looks like 6 are too many neighbors, as the perfect circle cannot be established anymore.
@@ -131,15 +131,15 @@ and a circle can be established (Figure~\ref{fig:clean_manifold_500}).
     \end{subfigure}\hfill
     \begin{subfigure}[t]{0.45\textwidth}
       \includegraphics[width=\textwidth]{phaton_clean_manifold_500_k6.png}
-      \caption{Clean sinogram GL embedding, $k = 6$ and 500 samples.}
+      \caption{Clean sinogram GL embedding, $k = 6$ and 500 samples}
       \label{fig:clean_manifold_500}
     \end{subfigure}\hfill
-    \caption{Shepp-Logan phantom sinogram GL embeddings: Importance of number of samples}
+    \caption{Shepp-Logan phantom sinogram GL embeddings: Importance of number of samples.}
   \end{figure}
 
 
-Moreover, the number of sampling points is important as well.
-For more sampling points it is expected to be harder to come up with good neighbors (fixing k and number of samples),
+Moreover, the number of sampling points is important.
+The more sampling points available, it is expected to be harder to come up with good neighbors (fixing $k$ and number of samples),
 as more data needs to be explained with the same amount of neighbors. It is more likely, that nodes are connected wrongly.
 This can be seen in Figure~\ref{fig:clean_manifold_res200} and Figure~\ref{fig:clean_manifold_res400}, where with $dim(s) = 200$,
 the perfect circle can be established and with $dim(s) = 400$, not anymore (by same parameter $k = 6$ and $\theta \in \mathbb{R}^{500}$).
@@ -149,12 +149,12 @@ the perfect circle can be established and with $dim(s) = 400$, not anymore (by s
     \centering
     \begin{subfigure}[t]{0.4\textwidth}
         \includegraphics[width=\textwidth]{phaton_clean_manifold_res_200_k6.png}
-        \caption{Clean sinogram GL embedding, $k = 6$ and $dim(s)=200$.}
+        \caption{Clean sinogram GL embedding, $k = 6$ and $dim(s)=200$}
         \label{fig:clean_manifold_res200}
     \end{subfigure}\hfill
     \begin{subfigure}[t]{0.4\textwidth}
       \includegraphics[width=\textwidth]{phaton_clean_manifold_res_400_k6.png}
-      \caption{Clean sinogram GL embedding, $k = 6$ and $\dim(s)=400$.}
+      \caption{Clean sinogram GL embedding, $k = 6$ and $\dim(s)=400$}
       \label{fig:clean_manifold_res400}
     \end{subfigure}\hfill
     \caption{Shepp-Logan phantom sinogram GL embeddings: Importance of sample dimension.}
