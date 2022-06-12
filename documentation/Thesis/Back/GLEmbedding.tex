@@ -18,7 +18,7 @@ In the following section, an introduction to manifolds and the GL embedding is g
 The manifold assumption is a popular assumption for high-dimensional datasets.
 For a given dataset in high-dimension, one can assume that data points are samples drawn from a low-dimensional manifold,
 that embeds the high-dimensional space. 
-Therefore, if underlying manifold can be approximated, a dimensionality reduction
+Therefore, if the underlying manifold can be approximated, a dimensionality reduction
 is established as one can embed data points in the low-dimensional manifold space.
 There is a complete area of research devoted to this manifold assumption called Manifold Learning~\cite{ManifoldLearning}.
 
@@ -58,7 +58,7 @@ as well as the sphere itself.
   \end{figure}
 
 
-\paragraph{GL embedding}
+\paragraph{GL Embedding:}
 \label{sec:manifold_calculation}
 A low-dimensional embedding of a dataset can be computed with GL by the following:
 
@@ -73,14 +73,14 @@ which is a non-linear approach using GL.
 Vector diffusion maps~\cite{vectorDiffusionMaps} generalize the concept of diffusion maps for vector fields.
 Multi-frequency vector diffusion maps~\cite{multiDiffusionMaps} 
 can be seen as an extension to vector diffusion maps, which works well even on highly noisy environments.
-\citet{cryoEmMutliDM} successfully applied multi-frequency vector diffusion Maps in cryo-EM setting,
+\citet{cryoEmMutliDM} successfully applied multi-frequency vector diffusion Maps in Cryo-EM setting,
  where it was used for denoising observations.
 
 
 \subsection{Embedding Quality}
 \label{sec:embedding_quality}
 
-Finding a good embedding is not trivial and in our case, the embedding is dependent on $k$ during graph construction
+Finding a good embedding is not trivial, and in our case, the embedding is dependent on $k$ during graph construction
 as well as parameter $\theta$, $s$ and $\eta$.
 
 $k$ is an important parameter for building up a graph. If set too low, neighbors
@@ -115,7 +115,7 @@ power to express underlying data and is expected to decrease, if noise is increa
 
 
 Further, when observing a sinogram, $\theta$ defines how many observations (straight lines) are drawn
-and $dim(s)$ defines the amount of sampling points. Both have great impact to expressiveness of our sinogram.
+and $dim(s)$ defines the number of sampling points. Both have a great impact to expressiveness of our sinogram.
 In Figure~\ref{fig:clean_manifold_200} GL embedding with $\theta \in \mathbb{R}^{200}$ and k=6 is illustrated
 for clean sinogram. It looks like 6 are too many neighbors, as the perfect circle cannot be established anymore.
 But, if $\theta$ is increased to $\theta \in \mathbb{R}^{500}$, more nodes are available to choose good neighbors from

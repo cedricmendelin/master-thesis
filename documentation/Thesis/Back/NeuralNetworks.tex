@@ -8,15 +8,15 @@ The main component of GAT-Denoiser is a GAT.
 GAT is an extension to GCN and adds attention (or weights) to neighbors for learning new node feature representations. 
 Topology of the graph will not change but weighted averaging over the neighborhood will be computed.
 
-\paragraph{Single Layer}
-Input of a single GAT layer are node features $h = \{ h_1, h_2, \dots , h_N \} \in \mathbb{R}^F$, 
+\paragraph{Single Layer:}
+The input of a single GAT layer are node features $h = \{ h_1, h_2, \dots , h_N \} \in \mathbb{R}^F$, 
 where $N$ is the number of nodes and $F$ the number of features per node. 
 Single layer will map input to output, which can potentially have different dimensions: 
 $h^{\prime} = \{ h_1^{\prime}, h_2^{\prime}, \dots, h_N^{\prime} \} \in \mathbb{R}^{F^{\prime}} $
 As is other GNNs, input features are initially linearly transformed and parametrized by a learnable weight matrix 
 $W \in \mathbb{R}^{F^{\prime} \times F}$. 
 This allows to add enough expressiveness to the neural network and weights are learned during training.
-Further, attention coefficients are computed, which indicates importance of node $j$ to node $i$:
+Further, attention coefficients are computed, which indicates the importance of node $j$ to node $i$:
 
 \begin{equation}
   e_{ij} = a(Wh_i, Wh_j)
@@ -28,7 +28,7 @@ and LeakyReLu as activation function.
 
 To compare coefficients $e$ across different nodes, normalization is needed.
 Therefore, softmax is used as normalization $\alpha_{ij} = softmax_j(e_{ij})$ 
-such that all attention coefficient of one node sum up to 1 and therefore are nicely comparable across nodes.
+such that all attention coefficients of one node sum up to 1 and therefore, are nicely comparable across nodes.
 Finally, new node embedding is calculated as:
 
 \begin{equation}
@@ -55,7 +55,7 @@ With $\sigma$ as some arbitrary activation function.
   \end{minipage}
 
 
-\paragraph{Multi-Head attention}
+\paragraph{Multi-Head Attention:}
 Motivated by the work of \citet{transformer}, multi-head attention can be beneficial to stabilize learning process.
 Therefore, not only a single weight matrix is learned, but $W$ is split up in several parts, 
 all learned individually:
@@ -72,14 +72,14 @@ In the last layer, output dimension needs to be obtained.
 Consequently, concatenation is no longer plausible and averaging is used to match desired dimension.
 
 \section{Convolution}
-Convolution is an important concept in Signal Processing, because it allows to average an incoming signal.
+Convolution is an important concept in Signal Processing, because it allows averaging of an incoming signal.
 Convolution commonly operators on pixel spaces, where every observation location or time slot gets one value assigned.
 
 \begin{equation}
   x \star k = y,
 \end{equation}
 
-Where $x$ is input signal, $k$ is kernel and $y$ the convolved signal.
+Where $x$ is the input signal, $k$ is the kernel and $y$ the convolved signal.
 
 To apply convolution, a kernel with weights needs to be defined. 
 This kernel will then slide over the input signal $x$ and computes the dot product with its weights.
@@ -97,7 +97,7 @@ The concept of convolution can be extended to arbitrary dimensions.
 \paragraph{Padding:} 
 
 
-Padding can be applied to add pixels to boundary of the signal.
+Padding can be applied to add pixels to the boundary of the signal.
 In the example, padding is set to $0$ and therefore, the signal size is decreased by $2$.
 If signal size should be fixed during convolution, padding is a powerful tool. For padding $1$,
 the input size $n$ would be equal to output size $m$, as an extra element in the output signal
@@ -110,7 +110,7 @@ If stride is increased, the output signal size will decrease.
 
 \section{U-Net}
 \label{sec:unet}
-U-Net can improve performance of CT reconstruction, where FBP is further refined with a neural network.
+U-Net can improve the performance of CT reconstruction, where FBP is further refined with a neural network.
 It is a convolutional neural network, which is well suited for image segmentation in different domains.
 \cite{unet-tomography} showed great success for biomedical image segmentation.
 
@@ -126,7 +126,7 @@ resulting in a U-shape, as illustrated in Figure~\ref{fig:u-net-architectue}.
 \end{figure}
 
 
-During contracting path (left part), input dimension is decreased but channels increased.
+During contracting path (left part), input dimension is decreased but channels are increased.
 For every step in the contracting path, two 3x3 convolution layers are followed by ReLu
 and a 2x2 max pooling for down-sampling. Further, at each down-sampling step, input channels are doubled.
 Multiple contracting steps are combined. After last contracting step, expansive path (right part) starts

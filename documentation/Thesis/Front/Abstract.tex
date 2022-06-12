@@ -2,24 +2,24 @@
 \chapter{Abstract}
 
 
-In molecular imaging methods cryo-Electron Microscopy (cryo-EM) and Computed Tomography (CT)
+In molecular imaging methods Cryo-Electron Microscopy (Cryo-EM) and Computed Tomography (CT)
 observations are collected from a biological sample. 
 Cryo-EM enables the view of molecules in near-atomic resolution and therefore got a lot of attention in recent years.
-Application of cryo-EM is a major motivation for this Thesis. 
+The Application of Cryo-EM is a major motivation for this Thesis. 
 Observations are noisy due to the imaging process and reconstruction from noisy observations is desired.
 Reconstruction is challenging due to dealing with enormous noise and unknown observation angles.
-Moreover, cryo-EM can be seen as a problem in 3D, as the biological sample is imaged in 3D.
-CT is similar to cryo-EM, but reconstruction is slightly simpler, since it is potentially in 2D and 
+Moreover, Cryo-EM can be seen as a problem in 3D, as the biological sample is imaged in 3D.
+CT is similar to Cryo-EM, but reconstruction is slightly simpler, since it is potentially in 2D and 
 observation angles are known.
-That's why it is well suited as a first step towards a cryo-EM algorithm.
+That's why it is well suited as a first step towards a Cryo-EM algorithm.
 
 I introduce \textit{GAT-Denoiser}, a Graph Neural Network, which combines Graph Attention Network (GAT) with convolution 
 and an end-to-end learning approach. 
 It enables to denoise observations and improves reconstruction quality with the assumption of known projection angles.
 During training an end-to-end approach is applied, that compares reconstruction quality.
-GAT-Denoiser have been evaluated on the LoDoPaB-CT dataset.
+GAT-Denoiser has been evaluated on the LoDoPaB-CT dataset.
 It could outperform baseline algorithm BM3D measured by the reconstruction
-signal-to-noise-ratio (SNR). An improvement by 379.9\%, 126.0\% 57.7\%, 27.6\% for SNR -15 dB, -10 dB, -5 dB and 0 dB respectively
+signal-to-noise-ratio (SNR). An improvement by 379.9\%, 126.0\% 57.7\%, 27.6\% for SNR -15 dB, -10 dB, -5 dB and 0 dB, respectively
 could be reached.
 Moreover, the individual components of GAT-Denoiser contribute to the success of GAT-Denoiser.
 It was shown that convolution, GAT and the end-to-end learning approach are all valuable individually.

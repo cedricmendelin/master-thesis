@@ -2,7 +2,7 @@
 \label{sec:imaging}
 
 This chapter introduces two molecular imaging methods, \textit{Computed Tomography} (CT) and 
-\textit{Cryo-Electron Microscopy} (cryo-EM). 
+\textit{Cryo-Electron Microscopy} (Cryo-EM). 
 Further, their observation model is defined in a mathematical way and reconstruction is presented.
 
 
@@ -14,7 +14,7 @@ Using X-ray sources, fan shaped beams are produced which scan the biological sam
 Through scanning over straight lines, many observations are collected, 
 and the biological sample can be reconstructed.\footnote{For additional information \cite{computedTomography}}
 
-\paragraph{2D tomographic observation:}
+\paragraph{2D Tomographic Observation:}
 
 Mathematically, CT observations are defined as follows:
 
@@ -35,7 +35,7 @@ with
 \end{itemize}
 
 
-\paragraph{Observation illustration:}
+\paragraph{Observation Illustration:}
 
 The output of Radon Transform is called a \textit{sinogram}, which is a synonym for the CT observation.
 In Figure~\ref{fig:phantom} the Shepp-Logan phantom is illustrated.
@@ -69,13 +69,13 @@ Thus, $p \in \mathbb{R}^{500 \times 400}$ and noise is added to reach an \snry o
   \end{figure}
 
 
-\paragraph{Tomography reconstruction:}
+\paragraph{Tomography Reconstruction:}
 
 CT reconstruction is a popular Inverse Problem. 
 The aim is to reconstruct a biological sample based on observations.
 When the biological sample is in 2D, observations are available in 1D. 
-The reconstruction is possible for 3D objects as well, where observations are in 2D.
-In this Thesis I will focus on the 2D case of CT.
+The reconstruction is possible for 3D objects too, where observations are in 2D.
+In this Thesis, I will focus on the 2D case of CT.
 
 
 \subparagraph{Filter Backprojection:}
@@ -102,7 +102,7 @@ Lately, neural network approaches emerged, which further processed the output of
 This is the approach I will follow in this Thesis. \citet{ct-reconstruction-comparison} compared different 
 Deep-Learning reconstruction methods for CT. 
 
-\subparagraph{U-Net}
+\subparagraph{U-Net:}
 Today's state-of-the-art reconstruction algorithms are Deep-Learning based.
 U-Net~\cite{unet-tomography}, a convolution neural network approach, performed
 much better compared to FBP in the comparison of \citet{ct-reconstruction-comparison}.
@@ -141,22 +141,22 @@ shows reconstruction with U-Net where some details are missing as well, although
 
 \section{Cryo-EM}
 Cryo-EM is another molecular imaging method, that enables the view of molecules in near-atomic resolution.
-In this Thesis, for simplicity, only single-particle cryo-EM~\cite{singleParticleCryoEm} is considered.
-When writing about cryo-EM it always refers to single-particle cryo-EM.
+In this Thesis, for simplicity, only single-particle Cryo-EM~\cite{singleParticleCryoEm} is considered.
+When writing about Cryo-EM it always refers to single-particle Cryo-EM.
 
 During imaging, molecules are frozen in a thin layer of ice, where they are randomly oriented and positioned. 
 Random orientation and positioning make reconstruction challenging, 
 but freezing allows observation in a stable state where molecules are not moving.
 With an electron microscope, 2D tomographic projections of molecules are observed,
 which are called \textit{micrograph}. 
-Frozen molecules are fragile, and electron microscope needs to work with
+Frozen molecules are fragile, and the electron microscope needs to work with
 very low power (electron dose), resulting in highly noisy observations. The resulting SNR
 is typically smaller than 0 dB~\cite{cryoEmMath2}.
 
 In addition, observed molecules are not equal in the sense that there are some structural varieties between
 molecules (isotopes). While observing the same molecule in ice many times, single observations could be from different isotopes.
 
-\paragraph{3D cryo-EM observation:}
+\paragraph{3D Cryo-EM observation:}
 Mathematically, observation is defined as follows:
 \begin{equation}
     \label{eq:cryoEmSimple}
@@ -188,7 +188,7 @@ where
 % (see \ref{app:3DrotationMatrix} for further details). 
 % $\eta_i \sim \mathcal{N}(0,\sigma^2I) \in \mathbb{R}^M$ corresponds to noise of observation.
 
-Equation~\ref{eq:cryoEmSimple} is a simplified version of cryo-EM.
+Equation~\ref{eq:cryoEmSimple} is a simplified version of Cryo-EM.
 First, the point spread function of the microscope is not taken into account.
 Second, structural variety is ignored, the underlying sample $x$ is not the same 
 for every observation. 
@@ -214,8 +214,8 @@ With
 % the sampling grid.
 
 
-\paragraph{Observation illustration:}
-In Figure~\ref{fig:cryo-em-omicron} cryo-EM micrographs are illustrated as well as the reconstructed biological sample.
+\paragraph{Observation Illustration:}
+In Figure~\ref{fig:cryo-em-omicron} Cryo-EM micrographs are illustrated as well as the reconstructed biological sample.
 
 \begin{figure}[H]
     \captionsetup[subfigure]{justification=centering}
@@ -241,15 +241,15 @@ In Figure~\ref{fig:cryo-em-omicron} cryo-EM micrographs are illustrated as well 
   \end{figure}
 
 
-\paragraph{3D cryo-EM reconstruction:}
+\paragraph{Cryo-EM Reconstruction:}
 Cryo-EM reconstruction is defined as the approximation of a 3D object from 2D observations.
 Cryo-EM reconstruction is computationally intensive and multiple steps are required to get from 
 observations to the final structure\footnote{For further details \cite{singleParticleCryoEm, cryoEmMath}}.
 
 
 \section{Abstraction}
-As CT and cryo-EM are highly related, the aim of this section is to define
-an abstraction model. The big difference is, that CT is in 2D and cryo-EM in 3D.
+As CT and Cryo-EM are highly related, the aim of this section is to define
+an abstraction model. The big difference is, that CT is in 2D and Cryo-EM in 3D.
 Mathematically, an extension from 2D to 3D should be theoretically feasible. 
 It is considered a numerical challenge due to the need of additional computing resources.
 Therefore, an abstract form will be defined.
@@ -291,7 +291,7 @@ defined as $\Pi_z \left(\; \textit{Rot}(\;x; \theta) \right)$
 where \textit{Rot} is the 3D rotation and $\Pi_z$ the projection operator.
 
 
-\paragraph{High noise regime:}
+\paragraph{High Noise Regime:}
 Cryo-EM observations are highly noisy, which makes reconstruction challenging. 
 There are different ways to reduce noise from observations, most of them are related to averaging. 
 Averaging needs to consider similar observations and ignore diverse ones. 

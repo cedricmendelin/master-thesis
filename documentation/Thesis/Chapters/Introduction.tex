@@ -8,21 +8,21 @@ They are widely used throughout different science directions, such as Machine Le
 Signal Processing, Computer Vision, Natural Language Processing, and others.
 ML is one tool to model and solve Inverse Problems.
 
-Cryo-Electron Microscopy (cryo-EM) is a molecular imaging method and has gained a lot of attention in recent years. 
+Cryo-Electron Microscopy (Cryo-EM) is a molecular imaging method and has gained a lot of attention in recent years. 
 Molecules are frozen and imaged through an electron microscope.
 Due to ground-breaking improvements regarding hardware and data processing, the field of research
-has been highly improved. In 2017, pioneers in the field of cryo-EM received the 
+has been highly improved. In 2017, pioneers in the field of Cryo-EM received the 
 Nobel Prize in Chemistry\footnote{https://www.nobelprize.org/prizes/chemistry/2017/press-release/}.
-Today, using cryo-EM, molecular structures can be observed with near-atomic resolution.
+Today, using Cryo-EM, molecular structures can be observed with near-atomic resolution.
 The big challenge is enormous noise and unknown observation angles.
 
-Computed tomography (CT) is another imaging method, which is similar to cryo-EM. 
+Computed tomography (CT) is another imaging method, which is similar to Cryo-EM. 
 Reconstruction is considered slightly easier as the problem is in 2D and observation angles are known.
-That's why it is well suited as a first step towards a cryo-EM algorithm.
+That's why it is well suited as a first step towards a Cryo-EM algorithm.
 
 The overall goal of this Thesis is to introduce an algorithm that works with CT, but 
-can conceptually be extended to work in 3D, thus for cryo-EM. 
-Additionally, the focus is on the high noise domain, as currently available reconstruction algorithms
+can conceptually be extended to work in 3D, thus for Cryo-EM. 
+Additionally, the focus is in the high noise domain, as currently available reconstruction algorithms
 start to fail when dealing with high noise. To be more precise, the signal-to-noise-ratio of interest is the interval 
  between $[-15, 0]$ dB.
 
@@ -63,9 +63,9 @@ The report is structured as follows:
 
 First, the notation applied throughout this Thesis is introduced in Chapter~\ref{sec:notation}.
  Chapter~\ref{sec:imaging} presents the two molecular imaging methods
-CT and cryo-EM and a mathematical abstraction for observation and reconstruction is introduced.
+CT and Cryo-EM and a mathematical abstraction for observation and reconstruction is introduced.
 Further, Chapter~\ref{sec:manifold_and_graphs} is dedicated to manifolds and graphs,
-and how a meaningful embedding for CT and cryo-EM can be established. 
+and how a meaningful embedding for CT and Cryo-EM can be established. 
 The main contribution is presented in Chapter~\ref{sec:contribution}, 
 where GAT-Denoiser is introduced. Chapter~\ref{sec:results} presents experiments on the LoDoPaB-CT dataset.
 During small scale and large scale experiments, insights are shown.
@@ -85,7 +85,7 @@ Consequently, $y_i \in \mathbb{R}^M$ determines $i$-th observation and $y_i[j] \
 with $ 1 \leq i \leq N \text{ and } 1 \leq j \leq M$. The same is valid for $p$ with $p_i$ and $p_i[j]$. 
 
 
-\paragraph{Signal-to-noise-ratio}
+\paragraph{Signal-to-Noise-Ratio}
 SNR is a measure used in Signal Processing. 
 It compares the power of an input signal to the power of noise. It is typically given in decibel (dB), with
 $\text{SNR}_{dB} = 10 \log_{10} \left(  \frac{P_{signal}}{P_{noise}} \right)$.
@@ -104,7 +104,7 @@ vertices (or nodes) and $E$ is a set of edges (or links).
 Edges are defined as a set of tuples $(i, j)$, where $i$ and $j$ determine 
 the index of vertices in the graph.
 
-\paragraph{Graph properties:}
+\paragraph{Graph Properties:}
 A graph can be either \textit{directed} or \textit{undirected}. 
 In a directed graph, an edge connects explicitly from one node to another, consequently edge $(i, j) \neq (j, i)$. 
 In an undirected graph, edges have no direction, and ordering does not matter, therefore $(i, j) = (j, i)$.
@@ -130,10 +130,10 @@ Matrix $A$ has dimension $\mathbb{R}^{N \times N}$ with $N$ as number of nodes
 and indices of $A$ correspond to nodes in $V$.
 If there exists an edge between two nodes, entry in $A$ will be set to $1$, otherwise to $0$.
 This leads to an unweighted graph, as the weights of all edges will be $1$.
-When $G$ is undirected, corresponding adjacency matrix will be symmetric. 
+When $G$ is undirected, the corresponding adjacency matrix will be symmetric. 
 Eigenvalues of $A$ are called \textit{spectrum} of $G$.
 
-\paragraph{Graph construction with k-NN:}
+\paragraph{Graph Cnstruction with k-NN:}
 K-nearest-neighbors (k-NN) is a graph construction algorithm. The distance between
 nodes is calculated with a distance measure (e.g. Euclidean distance) and 
 for every node, $\mathcal{N}_i$ is defined as $k$ nodes with the smallest similarity measure.

@@ -2,10 +2,10 @@
 \label{sec:manifold_and_graphs}
     
 In this chapter, the connection between graphs and Graph Laplacian (GL) embedding to 
-CT and cryo-EM is examined. 
+CT and Cryo-EM is examined. 
 First, an introduction to Graph Learning is presented, and it is shown how a graph
-for CT and cryo-EM observation can be defined.
-Second, GL and its embedding are introduced and the connection to CT and cryo-EM is illustrated.
+for CT and Cryo-EM observation can be defined.
+Second, GL and its embedding are introduced and the connection to CT and Cryo-EM is illustrated.
 Further, the term Graph Denoising is defined and last, some Graph Deep Learning approaches are presented.
 
 
@@ -25,13 +25,13 @@ graph algorithms provide a helpful tool, while ordinary algorithms like principa
 establish a meaningful dimensionality reduction.
 
 
-\paragraph{Constructing Graphs for molecular-imaging:}
-For a cryo-EM or CT observation, a graph can be constructed.
+\paragraph{Constructing Graphs for Molecular Imaging:}
+For a Cryo-EM or CT observation, a graph can be constructed.
 Every observation $y_i$ can be assigned to a node $v_i$, consequently $v_i \in \mathbb{R}^M$ and $|V|=N$.
 
 To determine affinity between two nodes, a distance measure needs to be defined.
 For CT, it can be set up by using the $\ell2$-norm $\norm{y_i - y_j}^2_2$.
-A cryo-EM distance measure is more challenging to set up, as projections are drawn with some random 3D rotation and projection.
+A Cryo-EM distance measure is more challenging to set up, as projections are drawn with some random 3D rotation and projection.
 Two observations might be equivalent up to a 2D rotation. 
 Consider a first observation $y_1$, which has no 3D rotation and 
 a second observation $y_2$ with a rotation in x-y plane by 45°.
@@ -41,7 +41,7 @@ which is inspired by \cite{multiDiffusionMaps}.
 
 
 \section{Graph Laplacian \& Manifolds}
-In the following section, the connection of GL and manifolds to CT and cryo-EM is established.
+In the following section, the connection of GL and manifolds to CT and Cryo-EM is established.
 
 \subsection{Graph Laplacian}
 GL is a matrix that represents a graph and can be used to find many important properties.
@@ -49,9 +49,9 @@ It is a very powerful tool and a good introduction can be found in \cite{tutoria
 
 GL is defined as $L = D - A$, with $A$ as the adjacency matrix and $D$ the degree matrix (diagonal matrix with the degree of nodes as entries).
 
-\subsection{Graph Laplacian Embedding for CT and cryo-EM}
+\subsection{Graph Laplacian Embedding for CT and Cryo-EM}
 A basic introduction to GL embedding and how it can be computed is found in \ref{sec:manifolds}.
-In this section, the connection to CT and cryo-EM is established directly.
+In this section, the connection to CT and Cryo-EM is established directly.
 
 For a given observation, a low-dimensional embedding can be computed by using the GL.
 To be more precise, the second and third smallest eigenvectors of GL are computed and will be observed in an example 
@@ -64,7 +64,7 @@ It looks like a perfect circle and the angles are in order.
 Further, noise was added to the sinogram to reach \snry 20 dB, 10 dB and 0 dB. 
 Additionally, the embedding was computed with $k=6$ and illustrated in Figure~\ref{fig:noisy_manifold_k6_snr20},
 Figure~\ref{fig:noisy_manifold_k6_snr10} and Figure~\ref{fig:noisy_manifold_k6_snr0} respectively.
-For \snry 20 dB a circle like object could be established, for \snry 10 dB it looks like a half circle and for \snry
+For \snry 20 dB a circle-like shape could be established, for \snry 10 dB it looks like a half circle and for \snry
 everything is scattered. 
 
 \begin{figure}[H]
@@ -95,22 +95,22 @@ everything is scattered.
   \end{figure}
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
-    In the fields of CT and cryo-EM, underlying low-dimensional GL embedding is well-defined for noiseless data.
+    In the fields of CT and Cryo-EM, underlying low-dimensional GL embedding is well-defined for noiseless data.
     The GL embedding in 2D is a circle, whereas in 3D the GL embedding is defined as a sphere.
     This fact can be exploited during learning.
 \end{tcolorbox}
 
-\paragraph{Tomography for unknown angles:}
+\paragraph{Tomography for unknown Angles:}
 But what can we use this embedding for?
 It is defining a low-dimensional mapping from high-dimensional space.
-In the case of CT and cryo-EM, this embedding approximates the angles of observations.
+In the case of CT and Cryo-EM, this embedding approximates the angles of observations.
 Therefore, for (noisy) observations, angles are approximated and reconstruction can be computed even if angles are unknown.
 The problem here is the quality of our embedding. As long as the computed embedding is a mapping to the circle (or sphere),
 it should be reasonable to do reconstruction with.
 In Figure~\ref{fig:phantom_fbp_unknown_angles} reconstruction with unknown angles is applied. Again, $k=6$
 but \snry 20 dB and 0 dB are used. Clean reconstruction with approximated angles in Figure~\ref{fig:clean_reco_unknown} looks good, 
 despite, that there is an in-plane rotation of around 45 degrees. 
-But even for moderate noise 20 dB, where the embedding almost looks like a circle (Figure~\ref{fig:noisy_manifold_k6_snr20}),
+But even for moderate noise of SNR 20 dB, where the embedding almost looks like a circle (Figure~\ref{fig:noisy_manifold_k6_snr20}),
 the difference between reconstruction with known angles (Figure~\ref{fig:noisy_snr20_reco_known})
 and unknown angles (Figure~\ref{fig:noisy_snr20_reco_unknown}) is massive.
 For 0 dB, already with known angles (Figure~\ref{fig:noisy_snr0_reco_known}), reconstruction fails and with unknown angles barely anything from
@@ -156,10 +156,10 @@ the original Shepp-Logan phantom can be determined  (Figure~\ref{fig:noisy_snr0_
 
   \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
     With the GL embedding of observations, angles can be approximated.
-    Therefore, CT and cryo-EM problem can be solved for unknown angles with moderate noise.
+    Therefore, CT and Cryo-EM problem can be solved for unknown angles with moderate noise.
   \end{tcolorbox}
 
-  \paragraph{Denoise observations:}
+  \paragraph{Observation Denoising:}
   As the quality of reconstruction is highly dependent on observations, it
   is expected to increase when the level of noise is decreased.
   Therefore, standard denoising methods like Block-matching and 3D filtering (BM3D) \cite{bm3d} or 
@@ -194,7 +194,7 @@ $G_0$ consists of the same nodes $V$ as $G$.
 From $E$ some edges are removed (denoted by $E^{-}_0$) and some are added
 (denoted by $E^{+}_0$), which results in edges $E_0$.
 
-\paragraph{Connection to link prediction:}
+\paragraph{Connection to Link Prediction:}
 Link prediction is a common task in Graph Learning. 
 The goal is to predict the existence of a link between two nodes.
 The task can be formulated as a missing value estimation task. A model $M_p$ is learned

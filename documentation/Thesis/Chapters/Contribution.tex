@@ -8,20 +8,20 @@ GAT-Denoiser is implemented for 2D CT and therefore, some details for the 2D cas
 
 
 \paragraph{Goal:}
-CT and cryo-EM in the high-noise regime is the domain of interest.
+CT and Cryo-EM in the high-noise regime is the domain of interest.
 For a given set of observations, a denoising model is sought, while
 it enables denoising of observations such that reconstruction quality increases.
-As a first step towards an algorithm which works for unknown observation angles, 
+As a first step toward an algorithm that works for unknown observation angles, 
 angles are fixed during the practical part of this Thesis.
 
 
-\paragraph{Input graph:}
+\paragraph{Input Graph:}
 As $\theta$ is fixed, angles corresponding to each observation are known.
 Therefore, a graph can be constructed to model neighboring observations 
 based on their angles.
 To define a distance measure, angles can be mapped to the unit circle (or sphere).
 Then, a geodesic distance can be computed with the great-circle distance.
-Based from these distances, a k-NN graph can be constructed.
+Based one these distances, a k-NN graph can be constructed.
 
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
@@ -46,7 +46,7 @@ The main idea of GAT-Denoiser is to enable denoising of observations:
 Input $y$ of GAT-Denoiser is a noisy observation and the output is a denoised version.
 GAT averages over observation neighbors and convolution denoise single observations. 
 For every GAT layer there is a preceding convolution. 
-In the case of CT, convolution is in 1D, where for cryo-EM it is in 2D.
+In the case of CT, convolution is in 1D, where for Cryo-EM it is in 2D.
 
 \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
   The GAT denoise observation signal with its neighbors by averaging. 
@@ -108,10 +108,10 @@ If multi-head attention is applied, hidden dimension will be set to $\frac{M}{he
 In the last GAT layer, everything gets prepared for output dimension and 
 averaging with 1 head is applied.
 
-\paragraph{K-hop neighborhood:}
-In GNNs, multiple layers expose the k-hop neighborhood. So for a network with $k$ layers,
-network operates on the $k$-hop neighborhood. In GAT-Denoiser, this corresponds
-to the layers of GAT. Therefore, if writing from one layer, it is referring to convolution and GAT together.
+\paragraph{K-hop Neighborhood:}
+In GNNs, multiple layers expose the k-hop neighborhood. Thus, for a network with $k$ layers,
+the network operates in the $k$-hop neighborhood. In GAT-Denoiser, this corresponds
+to the layers of GAT.
 
 \section{Training}
 
@@ -138,7 +138,7 @@ as reconstruction is needed to calculate loss during training.
 Access to biological sample $x$ or clean observation $p$ is required during training.
 
 \paragraph{Dropout:}
-Dropout is used in neural network as regularization and to prevent over fitting. 
+Dropout is used in neural network for regularization, thus to prevent over fitting. 
 During training the neural network, some units are randomly omitted. Therefore, the network is 
 considered to not over fit to single units, as during learning they are not always present.
 There is a dropout parameter in GAT, which can be considered during training. 

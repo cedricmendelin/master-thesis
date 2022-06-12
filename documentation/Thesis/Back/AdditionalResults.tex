@@ -13,7 +13,7 @@ Results for the baseline algorithms, different models with $k=2$ and $k=8$ are p
     \begin{tabular}{l|c|c|c|c}
       \toprule
       \textbf{Algorithm / Model} & \snrh{ 0} & \snrh{ -5} & \snrh{ -10} & \snrh{ -15} \\
-                         & \small \small \textbf{SNR} & \small \small \textbf{SNR} & \small \small \textbf{SNR}  & \small \small \textbf{SNR} \\ 
+                         & \small \textbf{SNR} & \small \textbf{SNR} & \small \textbf{SNR}  & \small \textbf{SNR} \\ 
       \midrule
       FBP                 & 4.50 & -0.31  & -5.25 & -10.22  \\ \hline
       BM3D sino           & 9.93 &  7.42  & 4.61  & \textbf{2.00 }   \\ \hline
@@ -55,8 +55,8 @@ K-NN experiment with 2 layers and 4 heads can be found in Table~\ref{tab:small_k
   \centering
   \begin{tabular}{l|cc}
     \toprule
-    \textbf{k} & \multicolumn{2}{l|}{\snrh{ 0}}   \\
-                       & \small \textbf{Loss} & \small \small \textbf{SNR}  \\ 
+    \textbf{k} & \multicolumn{2}{c}{\snrh{ 0}}   \\
+                       & \small \textbf{Loss} & \small \textbf{SNR}  \\ 
     \midrule
     2    & \textbf{9.90} & \textbf{601.4}  \\ \hline
     4    & 9.64 & 622.1  \\ \hline
@@ -78,8 +78,8 @@ GAT-Denoiser was defined with 2 layers and 4 heads.
   \centering
   \begin{tabular}{l|cc}
     \toprule
-    \textbf{GAT dropout.} & \multicolumn{2}{l|}{\snrh{ -5}}   \\
-                       & \small \textbf{Loss} & \small \small \textbf{SNR}  \\ 
+    \textbf{GAT dropout.} & \multicolumn{2}{c}{\snrh{ -5}}   \\
+                       & \small \textbf{Loss} & \small \textbf{SNR}  \\ 
     \midrule
     0       & \textbf{8.33} & \textbf{739.5}  \\ \hline
     0.01    & 7.81 & 766.2  \\ \hline
@@ -101,8 +101,8 @@ for the large scale experiment.
   \centering
   \begin{tabular}{l|cc|cc|cc|cc}
     \toprule
-    \textbf{Algorithm} & \multicolumn{2}{l|}{\snrh{ 0}} & \multicolumn{2}{l|}{\snrh{ -5}} & \multicolumn{2}{l|}{\snrh{ -10}} & \multicolumn{2}{l}{\snrh{ -15}} \\
-                       & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} & \small \textbf{Loss} & \small \small \textbf{SNR} \\ 
+    \textbf{Algorithm} & \multicolumn{2}{c|}{\snrh{ 0}} & \multicolumn{2}{c|}{\snrh{ -5}} & \multicolumn{2}{c|}{\snrh{ -10}} & \multicolumn{2}{c}{\snrh{ -15}} \\
+                       & \small \textbf{Loss} & \small \textbf{SNR} & \small \textbf{Loss} & \small \textbf{SNR} & \small \textbf{Loss} & \small \textbf{SNR} & \small \textbf{Loss} & \small \textbf{SNR} \\ 
     \midrule
     FBP                 & 4.57  & 1167.6 & -0.19 & 1973.5 & -5.17 & 3425.3 & -10.09 & 10'737.3       \\ \hline
     BM3D sino           & 9.93  & 709.9  &  7.40 & 890.6  & 4.61  & 1168.0 & \textbf{2.09}   & \textbf{1570.0} \\ \hline
@@ -123,7 +123,7 @@ and GAT-Denoiser models for the large scale.
     \begin{tabular}{l|c|c|c|c}
       \toprule
       \textbf{Algorithm / Model} & \snrh{ 0} & \snrh{ -5} & \snrh{ -10} & \snrh{ -15} \\
-                         & \small \small \textbf{SNR} & \small \small \textbf{SNR} & \small \small \textbf{SNR}  & \small \small \textbf{SNR} \\ 
+                         & \small \textbf{SNR} & \small \textbf{SNR} & \small \textbf{SNR}  & \small \textbf{SNR} \\ 
       \midrule
       FBP                 & 4.57   & -0.19  & -5.17  & -10.09 \\ \hline
       BM3D sino           & 9.93   &  7.40  & 4.61   & \textbf{2.09}   \\ \hline

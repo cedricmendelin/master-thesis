@@ -1,11 +1,11 @@
 \chapter{Conclusion and Future Work}
 \label{sec:Conclusion}
 
-In this final chapter, conclusion and future work is presented.
+In this final chapter, the conclusion and future work is presented.
 
 \section{Conclusion}
 
-In this Thesis, the molecular imaging methods CT and cryo-EM
+In this Thesis, the molecular imaging methods CT and Cryo-EM
 within the high noise domain, have been the problems to approach.
 
 During the practical part, 2D and 3D tomography have been implemented 
@@ -29,9 +29,9 @@ GAT-Denoiser combined with U-Net and joint neural network training can upgrade C
 
 \section{Future Work}
 Cryo-EM is an open research area of great interest.
-The 3D problem is not easy to solve and there are many steps in the cryo-EM reconstruction pipeline 
+The 3D problem is not easy to solve and there are many steps in the Cryo-EM reconstruction pipeline 
 to be further improved. With GAT-Denoiser, a neural network architecture is introduced, 
-towards an algorithm to work for cryo-EM
+towards an algorithm to work for Cryo-EM
 
 \paragraph{GAT-Denoiser in 3D:}
 So far, GAT-Denoiser was evaluated on a CT dataset in 2D.
@@ -40,18 +40,18 @@ derive GAT-Denoiser to work in 3D. This should be feasible without too much of a
 as the single components of GAT-Denoiser are able to work in 3D as well. 
 Even tough, more resources will be needed for computation.
 
-\paragraph{Drop known angle assumption:}
+\paragraph{Drop known Angle Assumption:}
 So far, GAT-Denoiser works with the assumption that angles are fixed.
 In a future work, this assumption could be dropped. GL embedding
-is a way to approximate angles for CT and cryo-EM observations, but the quality in the high noise regime is rather low.
-To extend GAT-Denoiser to work with unknown angles, it needs to be combined with a additional component, 
-which can successfully approximates angles in the high noise regime.
+is a way to approximate angles for CT and Cryo-EM observations, but the quality in the high noise regime is rather low.
+To extend GAT-Denoiser to work with unknown angles, it needs to be combined with an additional component, 
+which can successfully approximate angles in the high noise regime.
 
-\paragraph{Further cryo-EM challenges:}
-In this Thesis, only single particle cryo-EM is considered.
+\paragraph{Further Cryo-EM Challenges:}
+In this Thesis, only single particle Cryo-EM is considered.
 When GAT-Denoiser is available in 3D, one could think of an approach
-where from a given observation, underlying sample is not 
+where from a given observation, the underlying sample is not 
 structural equivalent and there are some slight differences. 
-One needs to approximate the distribution of underlying samples.
+One needs to approximate the distribution of the underlying samples.
 This could be established first for known observation angles and further brought to unknown observation angles.
 
