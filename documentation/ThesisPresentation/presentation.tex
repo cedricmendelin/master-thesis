@@ -1,0 +1,82 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usepackage{basileabeam}
+\usepackage[most]{tcolorbox}
+\usepackage{subcaption}
+\usepackage{pgfplots} 
+
+
+\setbeamercovered{invisible}
+\addbibresource{presentation.bib}
+% Notes:
+%\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]
+%\setbeamertemplate{note page}[plain]
+%\setbeameroption{show notes on second screen=bottom}
+
+\title              {Graph Denoising for Molecular Imaging}
+
+\author     		{Cédric Mendelin}
+\email				{cedric.mendelin@stud.unibas.ch}
+\institute          {Department of Mathematics and Computer Science, University of Basel}
+
+\date               {26.06.2022}
+
+\ulogo        		{Template/header}
+\ulistelement    	{Template/listelement}
+
+\graphicspath{{Figures/}}
+
+% Options:
+%\totalNoSlidesDisabled % To turn off the total number of slides in the footer. Comment this if you want the total number of slides in the footer
+
+%\headerSectionsDisabled % Comment this if you want a fancy header containing your sections.
+
+
+\begin{document}
+
+\AtBeginSection[]{%
+  \frame<beamer>{ 
+    \frametitle{Outline}   
+    \tableofcontents[currentsection] 
+  }
+}
+
+\begin{frame}[t,plain]
+    \titlepage
+\end{frame}
+
+\begin{frame}[t]{Outline}
+    \tableofcontents
+\end{frame}
+
+
+%% Presentation content
+
+\begin{frame}{Signal-to-noise-ration (SNR)}
+    
+    \begin{block}{Reconstruction}
+        SNR is a measure, which compares the power of an input signal to the power of the undesired noise.
+    \end{block}
+
+\end{frame}
+
+
+\input{./Chapters/Imaging.tex}
+\input{./Chapters/Graphs.tex}
+\input{./Chapters/GAT-Denoiser.tex}
+\input{./Chapters/Results.tex}
+\input{./Chapters/Summary.tex}
+
+
+
+
+\backupbegin
+
+\begin{frame}{References}
+    \printbibliography
+\end{frame}
+
+\backupend
+
+\end{document}
+

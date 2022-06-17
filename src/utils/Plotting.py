@@ -14,7 +14,7 @@ font = {'family' : 'DejaVu Sans',
 
 matplotlib.rc('font', **font)
 
-def plot_imshow(data, title='', xlabel='', ylabel='', xticks=None, yticks=None, xlim=None, ylim=None, show=False, colorbar=True, aspect=None, c_map = reversed_color_map, size=(5,5)):
+def plot_imshow(data, title='', xlabel='', ylabel='', xticks=None, yticks=None, xlim=None, ylim=None, show=False, colorbar=True, aspect=None, c_map = color_map, size=(5,5)):
     plt.figure(figsize=size)
     plt.imshow(data, cmap=c_map, aspect=aspect)
     #plt.title(title)

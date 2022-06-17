@@ -1,6 +1,8 @@
 from torch_geometric.nn import GATConv
 from torch.nn import Conv1d
 from torch_geometric.data import Data, Dataset
+
+from ThesisFigures import get_embedding
 from .SNRHelper import add_noise_to_sinograms
 import torch.nn.functional as F
 import torch
