@@ -538,7 +538,7 @@ def bunny():
 
 def observation_bunny_noisy():
   import PIL
-  image = PIL.Image.open('data/bunnies/bunny_872.png')
+  image = PIL.Image.open('data/bunnies/bunny_471.png')
   # convert image to numpy array
   data = np.asarray(image)[:,:,0]
   print(data.shape)

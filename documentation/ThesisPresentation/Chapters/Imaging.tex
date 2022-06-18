@@ -25,11 +25,12 @@
             \vskip 0pt
             \includegraphics[width=\textwidth]{CryoObservation.drawio.png}
         \end{subfigure}\hfill
-        \pause
-        \begin{subfigure}[t]{0.4\textwidth}
-            \vskip 0pt
-            \includegraphics[width=\textwidth]{Cryo-EM_reconstruction.drawio.png}
-        \end{subfigure}\hfill
+        \only<2>{
+            \begin{subfigure}[t]{0.4\textwidth}
+                \vskip 0pt
+                \includegraphics[width=\textwidth]{Cryo-EM_reconstruction.drawio.png}
+            \end{subfigure}\hfill
+        }
         \caption{Cryo-EM overview}
     \end{figure}
 
@@ -110,42 +111,64 @@
 
         
     \end{columns}
-
 \end{frame}
+
 
 \begin{frame}{Observation}
 
     \begin{block}{Observation}
-        \begin{equation}
-            \begin{aligned}
-                y &= p + \eta \\
-                y_i &= \left( A(x, \theta_i) \right) \\
-                y_i[j] &= p_i[j] + \eta_i[j] & \text{ with } 1 \leq i \leq N, 1 \leq j \leq M  \\
-            \end{aligned}
-        \end{equation}
+        \only<1>{
+            \begin{equation}
+                \begin{aligned}
+                    y &= p + \eta \\
+                \end{aligned}
+            \end{equation}
+        }
+        
+        \only<2->{
+            \begin{equation}
+                \begin{aligned}
+                    y &= p + \eta \\
+                    y_i &=  A(x, \theta_i) \\
+                    y_i[j] &= p_i[j] + \eta_i[j] & \text{ with } 1 \leq i \leq N, 1 \leq j \leq M  \\
+                \end{aligned}
+            \end{equation}
+        }
 
     \end{block}
 
-    \begin{columns}[T]
-    \column{.5\textwidth}
+    \only<1-2>{
 
-    \begin{itemize}
-        \item $y$: noisy observation
-        \item $p$: noiseless observation
-        \item $\eta$: noise, assumed  $\eta_i \sim \mathcal{N}(0,\sigma^2)$
-        \item $\theta_i$: observation angle
-    \end{itemize}
+    
+        \begin{columns}[T]
+        \column{.5\textwidth}
+
         
-    \column{.5\textwidth}
+        \begin{itemize}
+            \item<1-> $y$: noisy observation
+            \item<1-> $p$: noiseless observation
+            \item<1-> $\eta$: noise, assumed  $\eta_i \sim \mathcal{N}(0,\sigma^2)$
+            \item<2-> $\theta_i$: observation angle
+        \end{itemize}
+            
+        \column{.5\textwidth}
 
-    \begin{itemize}
+        \begin{itemize}
+            \item<2-> $A: L^2(\Omega) \to \mathbb{R}^M, x \mapsto A(x; \theta_i)$: \\a non-linear operator 
+            \item<2-> $N$: number of observations
+            \item<2-> $M$: observation dimension
+        \end{itemize}
 
-        \item $N$: number of observations
-        \item $M$: observation dimension
-        \item $A: L^2(\Omega) \to \mathbb{R}^M, x \mapsto A(x; \theta_i)$: \\a non-linear operator 
-    \end{itemize}
-
-    \end{columns}
+        \end{columns}
+    }
+    
+    \only<3>{
+        \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+            $SNR_y$ is used to define the level of noise of observation.    
+        \end{tcolorbox}
+    }
+    
+        
 \end{frame}
 
 \begin{frame}{Observation - Computed Tomography }
@@ -169,11 +192,11 @@
 
     \begin{figure}
         \centering
-        \begin{subfigure}[t]{0.4\textwidth}
+        \begin{subfigure}[t]{0.3\textwidth}
             \includegraphics[width=\textwidth]{bunny.PNG}
             \caption{Biological Sample}
         \end{subfigure}
-        \begin{subfigure}[t]{0.4\textwidth}
+        \begin{subfigure}[t]{0.65\textwidth}
             \includegraphics[width=\textwidth]{micrograph_yi.drawio.png}
             \caption{Cryo-EM Observation - micrographs}
         \end{subfigure}
@@ -185,19 +208,35 @@
 
 \begin{frame}{Reconstruction}
 
+    \begin{block}{Reconstruction}
+        \begin{equation}
+            \begin{aligned}
+                \textit{Recon} : & \mathbb{R}^{M \times N} \to \mathbb{R}^{M \times M} & y \mapsto Recon(y; \theta)
+            \end{aligned}
+        \end{equation}
+    \end{block}
+
+\end{frame}
+
+\begin{frame}{Reconstruction -  Computed Tomography}
     \begin{columns}
         \column{.45\textwidth}
-        \begin{block}{Reconstruction}
-            \begin{equation}
-                \begin{aligned}
-                    \textit{Recon} : & \mathbb{R}^{M \times N} \to \mathbb{R}^{M \times M} \\
-                    & y \mapsto Recon(y; \theta)
-                \end{aligned}
-            \end{equation}
-        \end{block}
+        
+        \begin{itemize}
+            \item Filter Backprojection (FBP)
+            \begin{itemize}
+                \item Can be considered historical approach
+                \item Enables reconstruction for moderate noise.
+            \end{itemize}
+            \item<2> Neural Network Approaches
+            \begin{itemize}
+                \item Today state-of-the art
+                \item Using result of FBP and further denoise.
+                \item U-Net \cite{unet-tomography}.
+            \end{itemize}
+        \end{itemize}
 
         \column{.55\textwidth}
-            
         \begin{figure}
             \centering
             \begin{subfigure}[t]{0.45\textwidth}
@@ -211,10 +250,11 @@
                     $Recon(p, \theta) \not\approx x$}
             \end{subfigure}
         \end{figure}
-
     \end{columns}
 
 \end{frame}
+
+
 
 \begin{frame}{Problem and Goal}
     
@@ -222,10 +262,8 @@
         $p$ not observable directly only $y$ is observable.
     \end{block}
 
-    \pause
     \begin{block}{Goal}
-        $$ denoiser:   (p_i + \eta) \mapsto y_i^* \approx y_i $$
-        \pause
+        $$ denoiser:   y_i = (p_i + \eta) \mapsto p_i^* \approx p_i $$
         $$ \textit{Recon} \left( denoiser(y; \theta) \right) \approx x $$
     \end{block}
 

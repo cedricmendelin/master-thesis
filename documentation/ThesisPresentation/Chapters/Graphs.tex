@@ -109,8 +109,23 @@
       \includegraphics[width=0.8\textwidth]{cryo-EM_graph.drawio.png}
       \caption{Sample graph for cryo-EM observation}        
     \end{figure}
-  
+  \end{columns}
+\end{frame}
 
+\begin{frame}{Graph for Molecular Imaging Observation - Noise}
+  \begin{columns}
+    \column{0.45\textwidth}
+    \begin{itemize}
+      \item With present noise, graph will not capture neighborhood well.
+    \end{itemize}
+
+    \column{0.55\textwidth}
+    \pause
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.8\textwidth]{cryo-EM_graph_noisy.drawio.png}
+      \caption{Sample graph for noisy cryo-EM observation}        
+    \end{figure}
   \end{columns}
 \end{frame}
 
@@ -131,43 +146,74 @@
 
 \end{frame}
 
-%\begin{frame}[c]{Noisy graph}
-%
-%    \begin{definition}
-%        For every noisy graph $G_0 = \langle V, E_0 \rangle$, 
-%        there exists a noiseless graph $G = \langle V, E \rangle$.
-%        Both graphs consists of the same set of vertices $V$ but different edges.
-%        $E_0$  is defined as follows:
-%        $$E_0 = E \setminus  E^{-}_0 \cup  E^{+}_0,$$
-%        where $E^{-}_0 \subseteq E$ and $E^{+}_0 \subseteq U$ with $U$ the set of all possible edges and $E^{+}_0 \cap E = \emptyset$
-%    \end{theorem}
-%
-%\end{frame}
 
-\begin{frame}{Low\-dimensional Embedding}
-
-  some notes and show clean embedding
+\begin{frame}{Low-dimensional Embedding for Computed Tomography}
+  \begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{phantom_sino.png}
+        \caption{CT observation}
+    \end{subfigure} \hfill
+    \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{graph.drawio.png}
+        \caption{Building k-NN Graph with $ k = 2$ }
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.3\textwidth}
+      \includegraphics[width=\textwidth]{phaton_clean_manifold.png}
+      \caption{$2_{nd}$ and $3_{rd}$ smallest eigenvectors of  $L =  D - A$}
+  \end{subfigure}
+\end{figure}
   
 \end{frame}
 
 
-\begin{frame}{Unknown angles}
-  Show reconstruction with calculated angles
-\end{frame}
-  
+\begin{frame}{Computed Tomography with unknown angles}
+  \begin{itemize}
+    \item GL - Embedding estimated observation angles for noiseless case.
+    \item Can be applied for reconstruction.
+  \end{itemize}
 
-\begin{frame}{High-noise domain}
-
-  Show graph
-  Show embedding
-  Show reconstruction
+  \begin{figure}
+    \centering
+    \only<1-3>{
+      \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=.8\textwidth]{fbp_phantom_clean.png}
+        \caption{Reconstruction known angles}
+      \end{subfigure} \hfill
+      \pause
+      \begin{subfigure}[t]{0.3\textwidth}
+          \includegraphics[width=0.8\textwidth]{phaton_clean_manifold.png}
+          \caption{GL-Embedding from $k=2$}
+      \end{subfigure}\hfill
+      \pause
+      \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=0.8\textwidth]{fbp_phantom_clean_unknown_angles.png}
+        \caption{Reconstruction unknown angles}
+    \end{subfigure}
+    }
+    
+    \only<4>{
+      \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=.8\textwidth]{fbp_phantom_snr_0.png}
+        \caption{Reconstruction known angles $SNR_y$ : 0 dB}
+      \end{subfigure} \hfill
+      \begin{subfigure}[t]{0.3\textwidth}
+          \includegraphics[width=.8\textwidth]{phaton_noisy_manifold_k6_snr0.png}
+          \caption{GL-Embedding from $k=6$ and $SNR_y$ : 0 dB }
+      \end{subfigure}\hfill
+      \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=.8\textwidth]{fbp_phantom_snr_0_unknown_angels.png}
+        \caption{Reconstruction unknown angles $SNR_y$ : 0 dB}
+      \end{subfigure}
+    }
+  \end{figure}
 
 \end{frame}
 
 
 
 \begin{frame}[c]{Graph Denoising}
-    \textit{Graph denoising} is the task, to estimate a denoised graph $\tilde{G}$  
+    \textit{Graph denoising} is the task, to estimate a graph $\tilde{G}$  
     from a given noisy graph $G_0$, with underlying original graph $G$:
 
     \begin{definition}[Graph Denoising]
@@ -176,14 +222,22 @@
     where $G_0$, $\tilde{G}$, $G$ denotes noisy, estimated denoised and original graph respectively.
 \end{frame}
 
-\begin{frame}{Traditional Denoising}
+\begin{frame}{Observation Denoising}
 
-  BM3D
-  Non-local means
-\end{frame}
+  \begin{itemize}
+    \item Use existing denoising algorithms
+    \begin{itemize}
+      \item Block-matching and 3D filtering (BM3D) \cite{bm3d}
+      \item Non-local means \cite{noneLocalMean}
+      \item No graph as data structure
+      \item But, both exploit neighborhood during averaging.
+    \end{itemize}
+    \item Show potential for graph as a data structure.
+  \end{itemize}
 
-\begin{frame}{Our Approach}
+  \begin{tcolorbox}[colback=red!5!white,hide=<-1>, alert=<2>, colframe=red!75!black]
+    This is the methodology to approach.
+\end{tcolorbox}
 
-  BM3D
-  Non-local means
+  
 \end{frame}
