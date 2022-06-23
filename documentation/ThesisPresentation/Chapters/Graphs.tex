@@ -2,43 +2,50 @@
 \section{Graphs \& Manifolds}
 
 \begin{frame}{Graph - Definitions}
-
+  \pause
   \begin{block}{Graph Definition}
     A graph is defined as $G = \langle V,E \rangle$, where $V$ is a set of 
     nodes and $E$ is a set of edges. 
   \end{block}
 
-  \pause
 
   \begin{columns}
     \column{.55\textwidth}
-
-    \begin{block}{Nodes}
-      $(n_1, n_2, \dots) \in \mathbb{R}^F$, with $F$ as node feature dimensions.
-    \end{block}
-  
-    \begin{block}{Edges}
-      Edges are defined as a set of tuples $(i, j)$, where $i$ and $j$ determine 
-      the index of the nodes.
-    \end{block}
-
-    \column{.45\textwidth}
-    \begin{figure}
-      \centering
-      \includegraphics[width=\textwidth]{graph_undirected.drawio.png}
-      \caption{Sample graph}        
-    \end{figure}
-  \end{columns}
-
-
-  \begin{figure}
+    \only<4->{
+      \begin{block}{Nodes}
+        $(n_1, n_2, \dots) \in \mathbb{R}^F$, with $F$ as node feature dimensions.
+      \end{block}
     
-  \end{figure}
+      \begin{block}{Edges}
+        Edges are defined as a set of tuples $(i, j)$, where $i$ and $j$ determine 
+        the index of the nodes.
+      \end{block}
+    }
 
+    
+    \column{.45\textwidth}
+    \only<3>{
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{graph_undirected_2.drawio.png}
+        \caption{Sample graph}        
+      \end{figure}
+    }
+    
+    \only<4->{
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{graph_undirected.drawio.png}
+        \caption{Sample graph}        
+      \end{figure}
+    }
+    
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Graph - Definitions - Adjacency Matrix}
-\begin{columns}
+  \pause
+  \begin{columns}
   \column{.55\textwidth}
 
   \begin{block}{Adjacency Matrix}
@@ -67,6 +74,7 @@
 \end{frame}
 
 \begin{frame}{Graph - Definitions - Degree}
+  \pause
   \begin{columns}
     \column{.55\textwidth}
   
@@ -74,53 +82,76 @@
       The $degree$ of a node is defined as the number of (incoming) edges.
     \end{block}
 
-    \begin{block}{Degree Matrix of Graph $G$}
-      Is a diagonal matrix with degree of nodes as entries.
-      $$D_{ii} = degree(n_i)$$
-    \end{block}
-  
-    \pause
+    \only<4->{
+      \begin{block}{Degree Matrix of Graph $G$}
+        Is a diagonal matrix with degree of nodes as entries.
+        $$D_{ii} = degree(n_i)$$
+      \end{block}
+    }
 
     \column{.45\textwidth}
-    \begin{figure}
-      \centering
-      \includegraphics[width=0.9\textwidth]{graph_degree.drawio.png}
-      \caption{Sample graph}        
-    \end{figure}
-  
+    \only<3->{
+      \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{graph_degree.drawio.png}
+        \caption{Sample graph}        
+      \end{figure}
+    }
+    
   \end{columns}
-  
   \end{frame}
 
 \begin{frame}{Graph for Molecular Imaging Observation}
+  How to construct a graph for molecular imaging?
+  \pause
   \begin{columns}
     \column{0.45\textwidth}
     \begin{itemize}
       \item Nodes: Single observation $y_i$
-      \item Edges: Use k-nearest neighbours (k-NN) to construct a graph
-      \item Define similarity measure:
-      
+      \item<3-> Edges: Use k-nearest neighbours (k-NN) to construct a graph
+      \begin{itemize}
+        \item<4-> Define similarity measure for nodes: $\ell2$-norm
+        % \begin{itemize}
+        %   \item<5-> CT:  $\norm{y_i - y_j}^2_2$ 
+        %   \item<5-> Cryo-EM: $min_{g \in SO(2)}\norm{g \;y_i - y_j}^2_2$
+        % \end{itemize}
+      \end{itemize}
     \end{itemize}
 
     \column{0.55\textwidth}
-    \pause
     \begin{figure}
       \centering
-      \includegraphics[width=0.8\textwidth]{cryo-EM_graph.drawio.png}
+
+      \only<2-4>{
+        \includegraphics[width=0.8\textwidth]{cryo-EM_graph_nodes.drawio.png}
+      }
+
+      \only<5>{
+        \includegraphics[width=0.7\textwidth]{cryo-EM_graph_node_distance.drawio.png}
+      }
+
+      \only<6>{
+        \includegraphics[width=0.8\textwidth]{cryo-EM_graph.neighbours_n2.drawio.png}
+      }
+
+      \only<7>{
+        \includegraphics[width=0.8\textwidth]{cryo-EM_graph.drawio.png}
+      }
       \caption{Sample graph for cryo-EM observation}        
     \end{figure}
   \end{columns}
 \end{frame}
 
 \begin{frame}{Graph for Molecular Imaging Observation - Noise}
+  What happens with our noisy observations?
+  \pause
   \begin{columns}
     \column{0.45\textwidth}
     \begin{itemize}
-      \item With present noise, graph will not capture neighborhood well.
+      \item With noise, graph will capture neighborhood inaccurately.
     \end{itemize}
 
     \column{0.55\textwidth}
-    \pause
     \begin{figure}
       \centering
       \includegraphics[width=0.8\textwidth]{cryo-EM_graph_noisy.drawio.png}
@@ -131,10 +162,13 @@
 
 
 \begin{frame}{Graph Laplacian (GL)}
-\begin{itemize}
-  \item What can we use this graph for?
-  \item \cite{LaplaceRandomProjections} used it to approximate angles:
+  What can we use this graph for?
+  \pause
+  \begin{itemize}
+  \item \cite{LaplaceRandomProjections} used it to approximate angles for CT:
 \end{itemize}
+
+\pause
 
 \begin{block}{Low-dimensional Embedding}
   \begin{enumerate}
@@ -152,12 +186,14 @@
     \centering
     \begin{subfigure}[t]{0.3\textwidth}
         \includegraphics[width=\textwidth]{phantom_sino.png}
-        \caption{CT observation}
+        \caption{Clean CT observation}
     \end{subfigure} \hfill
+    \pause
     \begin{subfigure}[t]{0.3\textwidth}
         \includegraphics[width=\textwidth]{graph.drawio.png}
-        \caption{Building k-NN Graph with $ k = 2$ }
+        \caption{Building k-NN graph with $ k = 2$ }
     \end{subfigure}\hfill
+    \pause
     \begin{subfigure}[t]{0.3\textwidth}
       \includegraphics[width=\textwidth]{phaton_clean_manifold.png}
       \caption{$2_{nd}$ and $3_{rd}$ smallest eigenvectors of  $L =  D - A$}
@@ -168,14 +204,16 @@
 
 
 \begin{frame}{Computed Tomography with unknown angles}
+  \pause
   \begin{itemize}
-    \item GL - Embedding estimated observation angles for noiseless case.
-    \item Can be applied for reconstruction.
+    \item GL - Embedding estimates observation angles for noiseless case.
+    \item Can be applied during reconstruction.
   \end{itemize}
 
+  \pause
   \begin{figure}
     \centering
-    \only<1-3>{
+    \only<3-5>{
       \begin{subfigure}[t]{0.3\textwidth}
         \includegraphics[width=.8\textwidth]{fbp_phantom_clean.png}
         \caption{Reconstruction known angles}
@@ -192,7 +230,24 @@
     \end{subfigure}
     }
     
-    \only<4>{
+    \only<6>{\alert{What happens in the noisy case?}}
+
+    \only<7>{
+      \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=.8\textwidth]{fbp_phantom_snr_10.png}
+        \caption{Reconstruction known angles $SNR_y$ : 10 dB}
+      \end{subfigure} \hfill
+      \begin{subfigure}[t]{0.3\textwidth}
+          \includegraphics[width=.8\textwidth]{phaton_noisy_manifold_k6_snr10.png}
+          \caption{GL-Embedding from $k=6$ and $SNR_y$ : 10 dB }
+      \end{subfigure}\hfill
+      \begin{subfigure}[t]{0.3\textwidth}
+        \includegraphics[width=.8\textwidth]{fbp_phantom_snr_10_unknown_angels.png}
+        \caption{Reconstruction unknown angles $SNR_y$ : 10 dB}
+      \end{subfigure}
+    }
+
+    \only<8>{
       \begin{subfigure}[t]{0.3\textwidth}
         \includegraphics[width=.8\textwidth]{fbp_phantom_snr_0.png}
         \caption{Reconstruction known angles $SNR_y$ : 0 dB}
@@ -212,31 +267,33 @@
 
 
 
-\begin{frame}[c]{Graph Denoising}
-    \textit{Graph denoising} is the task, to estimate a graph $\tilde{G}$  
-    from a given noisy graph $G_0$, with underlying original graph $G$:
+% \begin{frame}[c]{Graph Denoising}
+%   \pause
+%     \textit{Graph denoising} is the task, to approximate a graph $G$ from a given noisy version graph $G_0$:
 
-    \begin{definition}[Graph Denoising]
-        $$GD: G_0 \mapsto \tilde{G} \approx G,$$
-    \end{definition}
-    where $G_0$, $\tilde{G}$, $G$ denotes noisy, estimated denoised and original graph respectively.
-\end{frame}
+%     \begin{definition}[Graph Denoising]
+%         $$GD: G_0 \mapsto \tilde{G} \approx G$$
+%     \end{definition}
+%     where $G_0$, $\tilde{G}$, $G$ denotes noisy, denoised and original graph respectively.
+% \end{frame}
 
 \begin{frame}{Observation Denoising}
-
+  The fewer noise is available in the observation, the better reconstruction is possible.
+  
+  \pause
   \begin{itemize}
     \item Use existing denoising algorithms
     \begin{itemize}
       \item Block-matching and 3D filtering (BM3D) \cite{bm3d}
       \item Non-local means \cite{noneLocalMean}
       \item No graph as data structure
-      \item But, both exploit neighborhood during averaging.
+      \item But, both exploit neighborhood during averaging
     \end{itemize}
-    \item Show potential for graph as a data structure.
+    \item<3-> \alert<3->{Show potential for graph as a data structure}
   \end{itemize}
 
-  \begin{tcolorbox}[colback=red!5!white,hide=<-1>, alert=<2>, colframe=red!75!black]
-    This is the methodology to approach.
+  \begin{tcolorbox}[colback=red!5!white,hide=<1-3>, alert=<4>, colframe=red!75!black]
+    Exploit graph as a data structure and the GL-embedding.
 \end{tcolorbox}
 
   

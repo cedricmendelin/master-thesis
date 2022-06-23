@@ -19,7 +19,7 @@
 \email				{cedric.mendelin@stud.unibas.ch}
 \institute          {Department of Mathematics and Computer Science, University of Basel}
 
-\date               {26.06.2022}
+\date               {29.06.2022}
 
 \ulogo        		{Template/header}
 \ulistelement    	{Template/listelement}
@@ -31,6 +31,8 @@
 
 %\headerSectionsDisabled % Comment this if you want a fancy header containing your sections.
 
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
 \begin{document}
 
@@ -51,21 +53,6 @@
 
 
 %% Presentation content
-
-\begin{frame}{Signal-to-noise-ration (SNR)}
-    
-    \begin{itemize}
-        \item SNR is a measure, which compares the power of an input signal to the power of the undesired noise.
-        \item SNR is typically given in decibel (dB).
-        \item SNR can be measured from clean and noisy sampel.
-    \end{itemize}
-
-    \begin{tcolorbox}[colback=red!5!white,hide=<-1>, alert=<2>, colframe=red!75!black]
-        $SNR_y$ is used to define the level of noise of observation.
-    \end{tcolorbox}
-
-\end{frame}
-
 
 \input{./Chapters/Imaging.tex}
 \input{./Chapters/Graphs.tex}
