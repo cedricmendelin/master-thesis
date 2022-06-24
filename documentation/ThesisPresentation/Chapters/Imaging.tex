@@ -3,15 +3,15 @@
 
 \begin{frame}[c]{Cryo-Electron Microscopy (Cryo-EM)}
     \begin{itemize}
-        \item Major motivation for Thesis
+        \item Major motivation
         \item Enables observation of molecules in near atomic resolution
-        \item<2-> Observation through an elector microscope
-        \item<2-> Frozen state required
+        \item<2-> Observation through an electron microscope
+        \item<2-> Frozen state of molecules required for observation
         \begin{itemize}
-            \item<2-> Frozen molecules are fragile, electron microscope needs to work with low power
+            \item<2-> Frozen molecules are fragile $\mapsto$ electron microscope low power
             \item<2-> During freezing, molecules rotate randomly
         \end{itemize}
-        \item<2-> Observations can be reconstructed to 3D model
+        \item<2-> Observations can be reconstructed to a 3D model
     \end{itemize}
 
     \begin{tcolorbox}[colback=red!5!white,hide=<1-2>, alert=<3>, colframe=red!75!black]
@@ -45,15 +45,10 @@
         \column{.45\textwidth}
         
         \begin{itemize}
-            \item High-noise level 
+            \item High level of noise
             \item Unknown rotation during freezing
             \item (Structural variety of observations)
         \end{itemize}
-
-        % \begin{tcolorbox}[colback=red!5!white,hide=<-1>, alert=<2>,colframe=red!75!black]
-        %     Master Thesis domain of interest is to high-noise regime (cryo-EM).
-        %     Goal is to introduce a denoise method for cryo-EM 2D projections.
-        % \end{tcolorbox}
 
         \column{.55\textwidth}
         \begin{figure}
@@ -96,16 +91,16 @@
     \begin{columns}[c]
         \column{.55\textwidth}
             \begin{itemize}
-                \item<2-> Related to cryo-EM
-                \item<2-> Can be seen as a simpler version in 2D
-                \item<2-> Good to start with towards a cryo-EM algorithm
+                \item<2-> Similar to Cryo-EM
+                \item<2-> Can be seen as a simpler version in 2D with known observation angles
+                \item<2-> Good to start with towards a Cryo-EM algorithm
             \end{itemize}
         
         \column{.45\textwidth}
         \pause
         \begin{figure}
             \centering
-            \begin{subfigure}[t]{0.45\textwidth}
+            \begin{subfigure}[t]{0.4\textwidth}
                 \includegraphics[width=\textwidth]{ct_im_2}
                 \caption{Biological sample}
             \end{subfigure}\hfill                
@@ -272,7 +267,7 @@
 \begin{frame}{Problem and Goal}
     \pause
     \begin{block}{Problem}
-        $p$ not observable directly only $y$ is observable.
+        $p$ not observable directly only access to $y$.
     \end{block}
     \pause
     \begin{block}{Goal}

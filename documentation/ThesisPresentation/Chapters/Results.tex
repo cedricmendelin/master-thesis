@@ -4,7 +4,7 @@
 
 \begin{frame}{LoDoPaB-CT dataset}
 \begin{itemize}
-    \item Dataset for low-dose Computed tomography
+    \item Dataset for low-dose Computed Tomography
     \item 35'820 train samples
     \item 3'553 test samples
     \item BM3D as baseline algorithm
@@ -57,28 +57,39 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Small Scale Results}
+\begin{frame}{Small Scale Experiments - Overall Results}
     \begin{columns}
         \column{0.5\textwidth}
         \begin{itemize}
             \item Learning fails with random graph
             \item Learning succeeds with defined input graph
-            \item Components contribute to success of GAT-Denoiser
-            \item Best model with joint U-Net training 
+            \item<2-> Components contribute to success of GAT-Denoiser
+            \item<2-> Best model with joint U-Net training 
         \end{itemize}
         \column{0.5\textwidth}
+        \begin{figure}
+          \centering
+          \begin{subfigure}[t]{0.4\textwidth}
+              \includegraphics[width=\textwidth]{random__graph_small_experiment.png}
+              \caption{Reconstruction with random input graph}
+          \end{subfigure}\hfill
+          \begin{subfigure}[t]{0.4\textwidth}
+              \includegraphics[width=\textwidth]{knn__graph_small_experiment.png}
+              \caption{Reconstruction with k-NN input graph $k = 10$}
+          \end{subfigure}
+      \end{figure}
         
     \end{columns}
 \end{frame}
 
-\begin{frame}{Large Scale Results}
+\begin{frame}{Large Scale Experiment - SNR Results}
     \begin{figure}
         \centering
         \includegraphics[width=.7\textwidth]{LargeScaleResults.png}
     \end{figure}
 \end{frame}
 
-\begin{frame}{Large Scale Results - Visual - $SNR_y$ 0 dB}
+\begin{frame}{Large Scale Experiment - Visual Results - $SNR_y$ 0 dB}
 \begin{figure}
     \captionsetup[subfigure]{justification=centering}
     \centering
@@ -107,13 +118,13 @@
   
 
   \begin{tcolorbox}[colback=red!5!white,hide=<1>, alert=<2>, colframe=red!75!black]
-    GAT-Denoiser improves BM3D by 27.6\%.
+    GAT-Denoiser improves BM3D for $SNR_y$ 0 dB  by 27.6\%.
     \end{tcolorbox}
     
 \end{frame}
 
 
-\begin{frame}{Large Scale Results - Visual - $SNR_y$ -10 dB}
+\begin{frame}{Large Scale Experiment - Visual Results - $SNR_y$ -10 dB}
     \begin{figure}
         \captionsetup[subfigure]{justification=centering}
         \centering
@@ -142,12 +153,12 @@
       
     
       \begin{tcolorbox}[colback=red!5!white,hide=<1>, alert=<2>, colframe=red!75!black]
-        GAT-Denoiser improves BM3D by 126.0\%.
+        GAT-Denoiser improves BM3D for $SNR_y$ 0 dB by 126.0\%.
         \end{tcolorbox}
         
 \end{frame}
 
-\begin{frame}{Large Scale Results - Visual - $SNR_y$ -15 dB}
+\begin{frame}{Large Scale Experiment - Visual Results - $SNR_y$ -15 dB}
     \begin{figure}
         \captionsetup[subfigure]{justification=centering}
         \centering
@@ -176,24 +187,7 @@
       
     
       \begin{tcolorbox}[colback=red!5!white,hide=<1>, alert=<2>, colframe=red!75!black]
-        GAT-Denoiser improves BM3D by 379.9\%.
+        GAT-Denoiser improves BM3D for $SNR_y$ 0 dB by 379.9\%.
         \end{tcolorbox}
         
 \end{frame}
-
-% \begin{frame}{Some result testing}
-%     \begin{tikzpicture}
- 
-%         \begin{axis} [xbar,bar width=10pt]
-
-%         \addplot[fill = teal] coordinates { (13.34, 3) };
-%         \addplot[fill = cyan] coordinates { (13.43, 2) };
-%         \addplot[fill = olive] coordinates { (10.85, 1) };
-%         \addplot[fill = lime] coordinates { (4.57, 0) };
-%         \legend {FBP,BM3D, Conv+GAT+U-Net, GAT+U-Net};
-%         \end{axis}
-         
-%         \end{tikzpicture}
-         
-
-% \end{frame}

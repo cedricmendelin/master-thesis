@@ -13,7 +13,7 @@
     \column{.55\textwidth}
     \only<4->{
       \begin{block}{Nodes}
-        $(n_1, n_2, \dots) \in \mathbb{R}^F$, with $F$ as node feature dimensions.
+        $(n_1, n_2, \dots) \in \mathbb{R}^F$, with $F$ as node feature dimensions
       \end{block}
     
       \begin{block}{Edges}
@@ -122,8 +122,11 @@
     \begin{figure}
       \centering
 
-      \only<2-4>{
+      \only<2-3>{
         \includegraphics[width=0.8\textwidth]{cryo-EM_graph_nodes.drawio.png}
+      }
+      \only<4>{
+        \includegraphics[width=0.8\textwidth]{cryo-EM_graph_nodes_k.drawio.png}
       }
 
       \only<5>{
@@ -206,8 +209,7 @@
 \begin{frame}{Computed Tomography with unknown angles}
   \pause
   \begin{itemize}
-    \item GL - Embedding estimates observation angles for noiseless case.
-    \item Can be applied during reconstruction.
+    \item GL-Embedding estimates observation angles
   \end{itemize}
 
   \pause
@@ -293,7 +295,7 @@
   \end{itemize}
 
   \begin{tcolorbox}[colback=red!5!white,hide=<1-3>, alert=<4>, colframe=red!75!black]
-    Exploit graph as a data structure and the GL-embedding.
+    Exploit graph as a data structure and the GL-Embedding
 \end{tcolorbox}
 
   

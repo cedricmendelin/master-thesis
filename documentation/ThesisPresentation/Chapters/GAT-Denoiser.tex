@@ -47,30 +47,36 @@
     \item<4-> End-to-End Learning
     \begin{itemize}
       \item Optimize for reconstruction quality
-      \item $\mathcal{L} &= \parallel x - \textit{Recon} ( \textit{GAT-Denoiser}(A(x, \theta) + \eta)) \parallel ^2_2$
-      \item $\mathcal{L}_{sino} &= \parallel p - \textit{GAT-Denoiser}(A(x, \theta) + \eta) \parallel ^2_2 $
+      \item Loss:
+      \begin{itemize}
+        \item<5-> $\mathcal{L}_{observation} = \parallel p - \textit{GAT-Denoiser}(y) \parallel ^2_2 $
+        \item<6-> \alert{$\mathcal{L}_{reconstruction} = \parallel x - \textit{Recon} ( \textit{GAT-Denoiser}(y)) \parallel ^2_2$}
+      \end{itemize}
+      
+      
     \end{itemize}
   \end{itemize}
 
 \end{frame}
 
 \begin{frame}{Graph Attention Network - GAT}
+  \pause
   \begin{columns}
   \column{0.6\textwidth}
     \begin{itemize}
       \item Extends Graph Convolution Network with attention (weights)
-      \item Compute new node features
+      \item Computes new node features
       \item Averages graph over neighborhood
       \item Multi-head available, motivated by \cite{transformer}
-      \item<2> \alert<2>{$\sigma$: activation function (Exponential Linear Unit)}
-      \item<2> \alert<2>{$W$: learnable weight matrix}
-      \item<2> \alert<2>{$\alpha$: normalized attention coefficients}
+      \item<3> \alert<3>{$\sigma$: activation function (Exponential Linear Unit)}
+      \item<3> \alert<3>{$W$: learnable weight matrix}
+      \item<3> \alert<3>{$\alpha$: normalized attention coefficients}
     \end{itemize}
     \column{0.4\textwidth}
     \begin{figure}
       \includegraphics[width=.6\textwidth]{GAT.drawio.png}
     \end{figure}
-    \only<2>{
+    \only<3>{
       $$h_{1}^{\prime} = \sigma \left( \sum_{i=1}^5\alpha_i W h_{1,i} \right)$$
     }
     
@@ -85,9 +91,15 @@
     \column{0.6\textwidth}
     \begin{itemize}
       \item Exploit information from GL
-      \item Low-dimensional embedding estimates angles
-      \item Dominant information in data can be considered observation angles.
+      \begin{itemize}
+        \item Low-dimensional embedding estimates angles
+        \item Dominant information in data can be considered observation angles.
+      \end{itemize}
       \item<3-> \alert<3>{Construct graph from observation angles}
+      \begin{itemize}
+        \item<4-> Map angles to unit-Circle or unit-sphere
+        \item<5-> Use k-NN with great-circle distance
+      \end{itemize}
     \end{itemize}
     \column{0.4\textwidth}
 
@@ -97,7 +109,7 @@
       \end{figure}
     }
 
-    \only<5-6>{
+    \only<5->{
       \begin{figure}
         \includegraphics[width=.85\textwidth]{Circle_graphneighbours.drawio.png}
       \end{figure}
@@ -106,8 +118,8 @@
   \end{columns}
   
 
-  \begin{tcolorbox}[colback=red!5!white,hide=<1-4>, alert=<5>, colframe=red!75!black]
-    Observation angles  $\theta$ are assumed to be equally spaced.
+  \begin{tcolorbox}[colback=red!5!white,hide=<1-5>, alert=<6>, colframe=red!75!black]
+    Observation angles $\theta$ are assumed to be equally spaced.
 \end{tcolorbox}
 \end{frame}
 
