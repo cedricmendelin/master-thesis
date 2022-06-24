@@ -1,17 +1,16 @@
 
-\section{Results on LoDoPaB-CT dataset}
+\section{Results}
 % https://latexdraw.com/bar-charts-in-latex-step-by-step-tikz-tutorial/
 
 \begin{frame}{LoDoPaB-CT dataset}
-\begin{itemize}
-    \item Dataset for low-dose Computed Tomography
-    \item 35'820 train samples
-    \item 3'553 test samples
-    \item BM3D as baseline algorithm
-    \item Resolution 64 x 64
-\end{itemize}
-
-\begin{figure}
+  \begin{itemize}
+      \item Dataset for low-dose Computed Tomography
+      \item 35'820 train samples
+      \item 3'553 test samples
+      \item BM3D as baseline algorithm
+      \item Resolution 64 x 64
+  \end{itemize}
+  \begin{figure}
     \centering
     \hfill
     \includegraphics[width=0.16\textwidth]{ct_im_0.png}
@@ -25,6 +24,23 @@
     \caption{Some samples from the LoDoPaB-CT dataset.}
   \end{figure}
 \end{frame}
+
+
+\begin{frame}{GAT-Denoiser - Implementation for Computed Tomography}
+  \begin{itemize}
+    \item PyTorch Geometric
+    \item U-Net used for reconstruction
+    \begin{itemize}
+        \item Pre-trained with complete dataset and $SNR_y$ in [-10, 0] dB for 200 epochs
+        \item Joint U-Net training possible
+    \end{itemize}
+    \item Mini-batch gradient descent with batch size 64
+    \item Adam optimizer
+    
+  \end{itemize}
+\end{frame}
+
+
 
 
 \begin{frame}{Evaluation}
@@ -45,33 +61,26 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Training}
-    \begin{itemize}
-        \item U-Net used for reconstruction
-        \begin{itemize}
-            \item Pre-trained with complete dataset and $SNR_y$ in [-10, 0] for 200 epochs
-        \end{itemize}
-        \item Mini-batch gradient descent with batch size 64
-        \item Adam optimizer
-        \item Joint U-Net training possible
-    \end{itemize}
-\end{frame}
-
 \begin{frame}{Small Scale Experiments - Overall Results}
     \begin{columns}
-        \column{0.5\textwidth}
+        \column{0.52\textwidth}
         \begin{itemize}
-            \item Learning fails with random graph
+            \item Learning fails with random graph (Erdős–Rényi)
             \item Learning succeeds with defined input graph
-            \item<2-> Components contribute to success of GAT-Denoiser
-            \item<2-> Best model with joint U-Net training 
+            \item<2-> Single components contribute to success of GAT-Denoiser:
+            \begin{itemize}
+              \item \alert{GAT: 2 layers and 4 heads}
+              \item \alert{Convolution: kernel size 3 and padding 1}
+              \item \alert{k-NN with k=2}
+              \item \alert{Joint U-Net training}
+            \end{itemize}
         \end{itemize}
-        \column{0.5\textwidth}
+        \column{0.47\textwidth}
         \begin{figure}
           \centering
           \begin{subfigure}[t]{0.4\textwidth}
               \includegraphics[width=\textwidth]{random__graph_small_experiment.png}
-              \caption{Reconstruction with random input graph}
+              \caption{Reconstruction with random Erdős–Rényi graph with $p=0.01$}
           \end{subfigure}\hfill
           \begin{subfigure}[t]{0.4\textwidth}
               \includegraphics[width=\textwidth]{knn__graph_small_experiment.png}
@@ -83,10 +92,26 @@
 \end{frame}
 
 \begin{frame}{Large Scale Experiment - SNR Results}
-    \begin{figure}
+  \only<1>{
+    \begin{itemize}
+      \item 3'553 test samples
+      \item Different algortihms / GAT-Denoiser models:
+      \begin{itemize}
+        \item FBP
+        \item BM3D
+        \item GAT + U-Net (10/30)
+        \item Conv + GAT + U-Net (20/20)
+      \end{itemize}
+      \item Reconstruction SNR averages over all test samples
+    \end{itemize}
+  }
+    \only<2>{
+      \begin{figure}
         \centering
         \includegraphics[width=.7\textwidth]{LargeScaleResults.png}
     \end{figure}
+    }
+    
 \end{frame}
 
 \begin{frame}{Large Scale Experiment - Visual Results - $SNR_y$ 0 dB}
@@ -153,7 +178,7 @@
       
     
       \begin{tcolorbox}[colback=red!5!white,hide=<1>, alert=<2>, colframe=red!75!black]
-        GAT-Denoiser improves BM3D for $SNR_y$ 0 dB by 126.0\%.
+        GAT-Denoiser improves BM3D for $SNR_y$ -10 dB by 126.0\%.
         \end{tcolorbox}
         
 \end{frame}
@@ -187,7 +212,7 @@
       
     
       \begin{tcolorbox}[colback=red!5!white,hide=<1>, alert=<2>, colframe=red!75!black]
-        GAT-Denoiser improves BM3D for $SNR_y$ 0 dB by 379.9\%.
+        GAT-Denoiser improves BM3D for $SNR_y$ -15 dB by 379.9\%.
         \end{tcolorbox}
         
 \end{frame}

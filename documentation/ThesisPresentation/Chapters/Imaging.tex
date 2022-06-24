@@ -21,51 +21,41 @@
 \end{frame}
 
 \begin{frame}[c]{Cryo-Electron Microscopy (Cryo-EM) - Illustration}
-    \begin{figure}
-        \captionsetup[subfigure]{justification=centering}
-        \centering
-        \hfill
-        \begin{subfigure}[t]{0.35\textwidth}
-            \vskip 0pt
-            \includegraphics[width=\textwidth]{CryoObservation.drawio.png}
-        \end{subfigure}\hfill
-        \only<2>{
-            \begin{subfigure}[t]{0.4\textwidth}
+    \only<1-2>{
+        \begin{figure}
+            \captionsetup[subfigure]{justification=centering}
+            \centering
+            \hfill
+            \begin{subfigure}[t]{0.35\textwidth}
                 \vskip 0pt
-                \includegraphics[width=\textwidth]{Cryo-EM_reconstruction.drawio.png}
+                \includegraphics[width=\textwidth]{CryoObservation.drawio.png}
             \end{subfigure}\hfill
-        }
-        \caption{Cryo-EM overview}
-    \end{figure}
+            \only<2>{
+                \begin{subfigure}[t]{0.4\textwidth}
+                    \vskip 0pt
+                    \includegraphics[width=\textwidth]{Cryo-EM_reconstruction.drawio.png}
+                \end{subfigure}\hfill
+            }
+            \caption{Cryo-EM overview}
+        \end{figure}
+    
+    }
 
-\end{frame}
-
-\begin{frame}[c]{Cryo-Electron Microscopy (Cryo-EM) - Challenges}
-    \begin{columns}[c]
-        \column{.45\textwidth}
-        
-        \begin{itemize}
-            \item High level of noise
-            \item Unknown rotation during freezing
-            \item (Structural variety of observations)
-        \end{itemize}
-
-        \column{.55\textwidth}
+    \only<3>{
         \begin{figure}
             \centering
-            \begin{subfigure}[t]{0.5\textwidth}
+            \begin{subfigure}[t]{0.4\textwidth}
                 \includegraphics[width=\textwidth]{bunny_872.png}
                 \caption{Clean micrograph}
             \end{subfigure}\hfill                
-            \begin{subfigure}[t]{0.5\textwidth}
+            \begin{subfigure}[t]{0.4\textwidth}
                 \includegraphics[width=\textwidth]{bunny_872_noisy.png}
                 \caption{Noisy micrograph}
             \end{subfigure}\hfill                
         \end{figure}
 
-    \end{columns}
-
-    %\footnotetext[1]{https://www.ebi.ac.uk/emdb/EMD-32177}
+    }
+   
 \end{frame}
 
 %\begin{frame}
@@ -122,7 +112,7 @@
         \only<2>{
             \begin{equation}
                 \begin{aligned}
-                    y &= p + \eta \\
+                    y_i &= p_i + \eta_i & \text{ with } 1 \leq i \leq N
                 \end{aligned}
             \end{equation}
         }
@@ -130,18 +120,8 @@
         \only<3>{
             \begin{equation}
                 \begin{aligned}
-                    y &= p + \eta \\
-                    y_i[j] &= p_i[j] + \eta_i[j] & \text{ with } 1 \leq i \leq N, 1 \leq j \leq M  \\
-                \end{aligned}
-            \end{equation}
-        }
-        
-        \only<4->{
-            \begin{equation}
-                \begin{aligned}
-                    y &= p + \eta \\
-                    y_i[j] &= p_i[j] + \eta_i[j] & \text{ with } 1 \leq i \leq N, 1 \leq j \leq M  \\
-                    y_i &=  A(x, \theta_i) +\eta_i \\
+                    y_i &= p_i + \eta_i & \text{ with } 1 \leq i \leq N \\
+                    y_i &=  A(x, \theta_i) +\eta_i  & \text{ with } 1 \leq i \leq N
                 \end{aligned}
             \end{equation}
         }
@@ -155,16 +135,16 @@
         \item<2-> \alert<2>{$y$: noisy observation}
         \item<2-> \alert<2>{$p$: noiseless observation}
         \item<2-> \alert<2>{$\eta$: noise, assumed  $\eta_i \sim \mathcal{N}(0,\sigma^2)$}
-        \item<4-> \alert<4>{$x$: biological sample}
+        \item<3-> \alert<3>{$x$: biological sample}
     \end{itemize}
         
     \column{.58\textwidth}
 
     \begin{itemize}
-        \item<3-> \alert<3>{$N$: number of observations}
-        \item<3-> \alert<3>{$M$: observation dimension}
-        \item<4-> \alert<4>{$A: x \mapsto A(x; \theta_i) \in \mathbb{R}^M$: a non-linear operator}
-        \item<4-> \alert<4>{$\theta_i$: observation angle}
+        \item<2-> \alert<2>{$y_i \in \mathbb{R}^M, $ $M$: observation dimension}
+        \item<2-> \alert<2>{$N$: number of observations}
+        \item<3-> \alert<3>{$A: x \mapsto A(x; \theta_i) \in \mathbb{R}^M$: a non-linear operator}
+        \item<3-> \alert<3>{$\theta_i$: observation angle}
     \end{itemize}
 
     \end{columns}
@@ -179,7 +159,7 @@
         \includegraphics[width=\textwidth]{sino_yi.drawio.png}
         \caption{CT Observation - sinogram}
     \end{subfigure}
-    \begin{subfigure}[t]{0.6\textwidth}
+    \begin{subfigure}{0.6\textwidth}
         \includegraphics[width=\textwidth]{micrograph_yi.drawio.png}
         \caption{Cryo-EM Observation - micrographs}
     \end{subfigure}
@@ -271,7 +251,7 @@
     \end{block}
     \pause
     \begin{block}{Goal}
-        $$ denoiser:   y_i = (p_i + \eta) \mapsto p_i^* \approx p_i $$
+        $$ denoiser:   y_i \mapsto y_i^* \approx p_i $$
         $$ \textit{Recon} \left( denoiser(y; \theta) \right) \approx x $$
     \end{block}
 

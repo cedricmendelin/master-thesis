@@ -28,18 +28,20 @@ font = {'family' : 'DejaVu Sans',
 matplotlib.rc('font', **font)
 
 
-def chapter_imaging_sinos():
+def chapter_imaging_sinos(phantom = None):
   resolution = 400
   samples = 500
   snr = 0
-  phantom = shepp_logan_phantom()
+
+  if phantom is None:
+    phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
-  device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+  # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-  checkpoint = torch.load("models/unet_128.pt", map_location=device)
-  unet = UNet(nfilter=128).eval()
-  unet.load_state_dict(checkpoint['model_state_dict'])    
+  # checkpoint = torch.load("models/unet_128.pt", map_location=device)
+  # unet = UNet(nfilter=128).eval()
+  # unet.load_state_dict(checkpoint['model_state_dict'])    
 
   radon, fbp, pad =  setup_forward_and_backward(resolution, samples)
 
@@ -48,100 +50,26 @@ def chapter_imaging_sinos():
   reconstruction = fbp(pad(torch.from_numpy(sino)))
   reconstruction_snr = fbp(pad(torch.from_numpy(sino_noisy)))
 
-  reconstruction_fbp_unet = unet(
-    torch.from_numpy(reconstruction_snr.data).view(-1, 1, resolution, resolution)).view(resolution, resolution).cpu().detach().numpy()
+  # reconstruction_fbp_unet = unet(
+  #   torch.from_numpy(reconstruction_snr.data).view(-1, 1, resolution, resolution)).view(resolution, resolution).cpu().detach().numpy()
 
   plot_imshow(phantom, title="Shepp Logan Phantom", colorbar=False)
   plot_imshow(sino, title="Sinogram", xlabel="s", ylabel='$\\theta$', colorbar=False)
   plot_imshow(sino_noisy, title=f"Sinogram with noise SNR: {snr} dB", xlabel="s", ylabel='$\\theta$', colorbar=False)
   plot_imshow(reconstruction, title="FBP clean sinogram", colorbar=False)
   plot_imshow(reconstruction_snr, title="FBP noisy sinogram", colorbar=False)
-  plot_imshow(reconstruction_fbp_unet, title="FBP + U-Net noisy sinogram", colorbar=False)
+  # plot_imshow(reconstruction_fbp_unet, title="FBP + U-Net noisy sinogram", colorbar=False)
 
   print(find_SNR(torch.from_numpy(phantom), torch.from_numpy(reconstruction_snr.data)))
-  print(find_SNR(torch.from_numpy(phantom), reconstruction_fbp_unet))
+  # print(find_SNR(torch.from_numpy(phantom), reconstruction_fbp_unet))
   
   plt.show()
 
-def chapter_graph_foundation_cricle_manifold():
-  from numpy.random import default_rng
-  rng = default_rng()
-  vals = rng.uniform(0, 2* np.pi, 200)
-
-  fig = plt.figure(figsize=(5,5))
-  
-  # Creating plot
-  plt.scatter(np.cos(vals), np.sin(vals), cmap='hsv')
-  plt.xticks([-1, -0.5,0,0.5,1])
-  plt.yticks([-1, -0.5,0,0.5,1])
-
-      
-
-
-  plt.show()
-
-def chapter_graph_foundation_sphere_manifold():
-  from mpl_toolkits.mplot3d import Axes3D
-  import numpy as np
-  from numpy.random import default_rng
-
-  rng = default_rng()
-
-  # Create a sphere
-  r = 1
-  pi = np.pi
-  cos = np.cos
-  sin = np.sin
-  phi, theta = np.mgrid[0.0:pi:100j, 0.0:2.0*pi:100j]
-
-  x = r*sin(phi)*cos(theta)
-  y = r*sin(phi)*sin(theta)
-  z = r*cos(phi)
-
-  #Import data
-  #data = rng.uniform(0, 500, 600)
-  #theta, phi, r = np.hsplit(data, 3) 
-  #theta = theta * pi / 180.0
-  #phi = phi * pi / 180.0
-  rng = default_rng()
-  phi = rng.uniform(0, 2* np.pi, 400)
-  theta = rng.uniform(0, 2* np.pi, 400)
-
-
-  #xx = sin(phi)*cos(theta)
-  #yy = sin(phi)*sin(theta)
-  #zz = cos(phi)
-
-  points = sampling_sphere(800)
-
-  xx = points[:,0]
-  yy = points[:,1]
-  zz = points[:,2]
-
-
-  #Set colours and render
-  fig = plt.figure(figsize=(8,8))
-  ax = fig.add_subplot(111, projection='3d')
-
-  ax.plot_surface(
-      x, y, z,  rstride=1, cstride=1, color='c', alpha=0.3, linewidth=0)
-
-  ax.scatter(xx,yy,zz,color="gray",s=20)
-
-  ax.set_xlim([-1,1])
-  ax.set_ylim([-1,1])
-  ax.set_zlim([-1,1])
-  #ax.set_aspect("equal")
-  ax.set_xticks([-1, -0.5,0,0.5,1])
-  ax.set_yticks([-1, -0.5,0,0.5,1])
-  ax.set_zticks([-1, -0.5,0,0.5,1])
-  plt.tight_layout()
-  plt.show()
-
-def chapter_graph_foundation_manifolds_different_k():
+def chapter_graph_foundation_manifolds_different_k(phantom = None):
   resolution = 200
   samples = 500
-  phantom = shepp_logan_phantom()
+  if phantom is None:
+    phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
   radon, fbp, pad =  setup_forward_and_backward(resolution, samples)
@@ -182,10 +110,11 @@ def estimate_angles(graph_laplacian, degree=False):
   else:
     return angles, idx, angles[idx]
 
-def chapter_graph_foundation_manifolds_clean():
+def chapter_graph_foundation_manifolds_clean(phantom = None):
   resolution = 200
   samples = 500
-  phantom = shepp_logan_phantom()
+  if phantom is None:
+    phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
   radon, _, _=  setup_forward_and_backward(resolution, samples)
@@ -202,10 +131,11 @@ def chapter_graph_foundation_manifolds_clean():
   plt.show()
 
 
-def chapter_graph_foundation_manifolds_noisy():
+def chapter_graph_foundation_manifolds_noisy(phantom = None):
   resolution = 200
   samples = 500
-  phantom = shepp_logan_phantom()
+  if phantom is None:
+    phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
   snr_1 = 20
@@ -229,7 +159,7 @@ def chapter_graph_foundation_manifolds_noisy():
   # plt.title(f"Manifold noisy sinogram k = 2, SNR={snr}dB")
 
   plt.figure(figsize=(10,10))
-  eVec2 = get_embedding(sino_noisy_2, 6, 2)
+  eVec2 = get_embedding(sino_noisy_2, 8, 2)
   _,idx2,angles2 = estimate_angles(eVec2)
   plt.scatter(eVec2[:, 0], eVec2[:, 1], s=4, c=angles2,cmap='hsv')
   plt.xticks([-0.08, -0.04, 0 , 0.04, 0.08])
@@ -239,19 +169,20 @@ def chapter_graph_foundation_manifolds_noisy():
   _,idx,angles = estimate_angles(eVec_clean)
   _, fbp_clean,_ =  setup_forward_and_backward(resolution, samples, angles)
   _, fbp1,_ =  setup_forward_and_backward(resolution, samples, angles1)
-  _, fbp2,_ =  setup_forward_and_backward(resolution, samples, angles2)
+
+  # _, fbp2,_ =  setup_forward_and_backward(resolution, samples, angles2)
 
   reco_clean = fbp_clean(pad(torch.from_numpy(sino[idx])))
   reco_1 = fbp1(pad(torch.from_numpy(sino_noisy_1[idx1])))
-  reco_2 = fbp2(pad(torch.from_numpy(sino_noisy_2[idx2])))
+  # reco_2 = fbp2(pad(torch.from_numpy(sino_noisy_2[idx2])))
 
   plot_imshow(reco_clean, colorbar=False, size=(10,10))
   plot_imshow(reco_1, colorbar=False, size=(10,10))
-  plot_imshow(reco_2, colorbar=False, size=(10,10))
+  # plot_imshow(reco_2, colorbar=False, size=(10,10))
 
   plot_imshow(fbp(pad(torch.from_numpy(sino))), colorbar=False, size=(10,10))
   plot_imshow(fbp(pad(torch.from_numpy(sino_noisy_1))), colorbar=False, size=(10,10))
-  plot_imshow(fbp2(pad(torch.from_numpy(sino_noisy_2))), colorbar=False, size=(10,10))
+  # plot_imshow(fbp2(pad(torch.from_numpy(sino_noisy_2))), colorbar=False, size=(10,10))
 
 
   # plt.figure(figsize=(10,10))
@@ -373,142 +304,7 @@ def chapter_graph_foundation_manifolds_clean_resolution_importance():
   
   plt.show()
 
-import csv
-def chapter_results_small_overall_compoents():
-  csv_file_name = "src/small_components_knn2.csv"
-  import csv
 
-  size = 12
-  results = np.zeros((size,4))
-  result_names = []
-  colors_list = ['lime', 'g', 'r', 'c', 'm', 'y', 'coral', 'k', 'gold', 'navy', 'crimson', 'b', 'teal']
-  x = [0, -5, -10, -15]
-  
-  import matplotlib.colors as colors
-  lots_of_colors = colors.get_named_colors_mapping()
-
-  with open(csv_file_name, mode='r') as csv_file:
-    csv_reader = csv.DictReader(csv_file, delimiter = ";")
-    line_count = 0
-    for row in csv_reader:
-      if line_count == 0:
-        print(f'Column names are {", ".join(row)}')
-        line_count += 1
-
-      result_names.append(row['Model/algortihm'])
-      results[line_count - 1] = np.array([row['0'], row['-5'], row['-10'], row['-15']])
-      line_count += 1
-
-  fig = plt.figure(figsize=(14,7))
-
-  for i,c in zip(range(size), colors_list):
-    plt.plot(x, results[i], marker='s', color=c)
-
-  plt.xticks([-15,-10,-5,0])
-  plt.yticks([-5,0,5, 7.5, 10, 12.5])
-  plt.ylim([-8, 14])
-  plt.xlabel("$SNR_y$")
-  plt.ylabel("$SNR$")
-  plt.xlim([-16, 1])
-  plt.legend(result_names)
-  plt.show()
-
-def chapter_results_large_overall_compoents():
-  csv_file_name = "src/large_components_knn2.csv"
-  import csv
-
-  size = 10
-  results = np.zeros((size,4))
-  result_names = []
-
-  x = [0, -5, -10, -15]
-  
-  with open(csv_file_name, mode='r') as csv_file:
-    csv_reader = csv.DictReader(csv_file, delimiter = ";")
-    line_count = 0
-    for row in csv_reader:
-      if line_count == 0:
-        print(f'Column names are {", ".join(row)}')
-        line_count += 1
-
-      result_names.append(row['Model/algortihm'])
-      results[line_count - 1] = np.array([row['0'], row['-5'], row['-10'], row['-15']])
-      #results[line_count - 1] = np.array([row['-15'], row['-10'], row['-5'], row['0']])
-      line_count += 1
-
-  fig = plt.figure(figsize=(14,7))
-
-  for i in range(size):
-    plt.plot(x, results[i], marker='s')
-
-  plt.xticks([-15,-10,-5,0])
-  plt.yticks([-5,0,5, 7.5, 10, 12.5, 15, 17])
-  plt.ylim([-8, 18])
-  plt.xlabel("$SNR_y$")
-  plt.ylabel("$SNR$")
-  plt.xlim([-16, 1])
-  plt.legend(result_names, loc='lower right')
-  plt.show()
-
-def wandb_rename(project_name : str, run_id : str, new_name : str):
-  import wandb
-  api = wandb.Api()
-
-  run = api.run(f"cedric-mendelin/{project_name}/{run_id}")
-  run.name = new_name
-  run.update()
-
-def wandb_export_project(project_name:str):
-  import wandb
-  api = wandb.Api()
-
-  # Project is specified by <entity/project-name>
-  runs = api.runs("cedric-mendelin/" + project_name)
-  name_list = [] 
-  snr_result = np.zeros(len(runs)) 
-  loss_result = np.zeros(len(runs)) 
-  duration_result = np.zeros(len(runs)) 
-  config_list=[]
-  counter = 0
-  config_names = ['gat_snr_lower', 'gat_use_conv', 'unet_refinement', 'unet_train']
-  #config_names = ['gat_layers', 'gat_heads', 'loss']
-  for run in runs: 
-      # run.summary are the output key/values like accuracy.
-      # We call ._json_dict to omit large files 
-      summary = run.summary._json_dict
-
-      # run.config is the input metrics.
-      # We remove special values that start with _.
-      config = {k:v for k,v in run.config.items() if not k.startswith('_') and k in config_names}
-      config_list.append(config)
-
-      snrs = []
-      loss = []
-      for i, row in run.history(keys=["val_snr_reco_denoised"]).iterrows():
-        snrs.append(row["val_snr_reco_denoised"])
-      for i, row in run.history(keys=["val_loss_reco_denoised"]).iterrows():
-        loss.append(row["val_loss_reco_denoised"])
-
-      snr_result[counter]  = (np.mean( np.array(snrs)))
-      loss_result[counter] = (np.mean( np.array(loss)))
-      # duration_result[counter] = summary['training']
-
-      # run.name is the name of the run.
-      name_list.append(run.name)
-      counter += 1       
-
-  
-  import pandas as pd 
-
-  snr_df = pd.DataFrame(snr_result, columns=['SNR']) 
-  loss_df = pd.DataFrame(loss_result, columns=['Loss'])
-  # duration_df = pd.DataFrame(duration_result, columns=['training'])
-  name_df = pd.DataFrame({'name': name_list}) 
-  config_df = pd.DataFrame.from_records(config_list) 
-  all_df = pd.concat([name_df, snr_df, loss_df, config_df], axis=1)
-
-  all_df.to_csv("wandb_results/" + project_name + ".csv")
-  
 #chapter_imaging_sinos()
 #chapter_graph_foundation_cricle_manifold()
 #chapter_graph_foundation_sphere_manifold()
@@ -555,4 +351,17 @@ def observation_bunny_noisy():
   plt.show()
 
 
-observation_bunny_noisy()
+# observation_bunny_noisy()
+
+def my_foot_observation():
+  import PIL
+  image = PIL.Image.open('src/foot_cm.jpg')
+  data = np.asarray(image)[:,:,0]
+  lin = np.linspace(-1,1, data.shape[0])
+  XX, YY = np.meshgrid(lin,lin)
+  circle = ((XX**2+YY**2)<=1)*1.
+  data = data * circle
+  # chapter_imaging_sinos(data)
+  chapter_graph_foundation_manifolds_noisy(data)
+
+my_foot_observation()

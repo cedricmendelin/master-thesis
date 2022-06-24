@@ -11,7 +11,7 @@
 
   \begin{columns}
     \column{.55\textwidth}
-    \only<4->{
+    \only<2->{
       \begin{block}{Nodes}
         $(n_1, n_2, \dots) \in \mathbb{R}^F$, with $F$ as node feature dimensions
       \end{block}
@@ -24,15 +24,7 @@
 
     
     \column{.45\textwidth}
-    \only<3>{
-      \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{graph_undirected_2.drawio.png}
-        \caption{Sample graph}        
-      \end{figure}
-    }
-    
-    \only<4->{
+    \only<3->{
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{graph_undirected.drawio.png}
@@ -59,8 +51,6 @@
       \end{cases}
   \end{equation}
   \end{block}
-
-  \pause
   
   \column{.45\textwidth}
   \begin{figure}
@@ -82,7 +72,7 @@
       The $degree$ of a node is defined as the number of (incoming) edges.
     \end{block}
 
-    \only<4->{
+    \only<3->{
       \begin{block}{Degree Matrix of Graph $G$}
         Is a diagonal matrix with degree of nodes as entries.
         $$D_{ii} = degree(n_i)$$
@@ -90,7 +80,7 @@
     }
 
     \column{.45\textwidth}
-    \only<3->{
+    \only<2->{
       \begin{figure}
         \centering
         \includegraphics[width=0.9\textwidth]{graph_degree.drawio.png}
@@ -207,7 +197,6 @@
 
 
 \begin{frame}{Computed Tomography with unknown angles}
-  \pause
   \begin{itemize}
     \item GL-Embedding estimates observation angles
   \end{itemize}
@@ -215,7 +204,7 @@
   \pause
   \begin{figure}
     \centering
-    \only<3-5>{
+    \only<2-4>{
       \begin{subfigure}[t]{0.3\textwidth}
         \includegraphics[width=.8\textwidth]{fbp_phantom_clean.png}
         \caption{Reconstruction known angles}
@@ -232,9 +221,9 @@
     \end{subfigure}
     }
     
-    \only<6>{\alert{What happens in the noisy case?}}
+    \only<5>{\alert{What happens in the noisy case?}}
 
-    \only<7>{
+    \only<6>{
       \begin{subfigure}[t]{0.3\textwidth}
         \includegraphics[width=.8\textwidth]{fbp_phantom_snr_10.png}
         \caption{Reconstruction known angles $SNR_y$ : 10 dB}
@@ -249,7 +238,7 @@
       \end{subfigure}
     }
 
-    \only<8>{
+    \only<7>{
       \begin{subfigure}[t]{0.3\textwidth}
         \includegraphics[width=.8\textwidth]{fbp_phantom_snr_0.png}
         \caption{Reconstruction known angles $SNR_y$ : 0 dB}
@@ -291,7 +280,7 @@
       \item No graph as data structure
       \item But, both exploit neighborhood during averaging
     \end{itemize}
-    \item<3-> \alert<3->{Show potential for graph as a data structure}
+    \item<3-> \alert<3->{Shows potential for graph as a data structure}
   \end{itemize}
 
   \begin{tcolorbox}[colback=red!5!white,hide=<1-3>, alert=<4>, colframe=red!75!black]

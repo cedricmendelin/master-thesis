@@ -6,58 +6,73 @@
     \item GAT-Denoiser is a graph neural network (GNN) to denoise observations.
     \item Consists of three components:
     \begin{itemize}
-      \item Convolution
-      \item Graph Attention Network (GAT) \cite{GAT}
-      \item End-to-End Learning
+      \item \alert<3-4>{Convolution}
+      \only<4>{
+        \begin{itemize}
+          \item \alert{Denoise single observation}
+        \end{itemize}
+      }
+      \item \alert<3-4>{Graph Attention Network (GAT) \cite{GAT}}
+      \only<4>{
+        \begin{itemize}
+          \item \alert{Denoise neighboring  observation}
+        \end{itemize}
+      }
+      
+      \item \alert<5-6>{End-to-End Learning}
+      \only<5-6>{
+        \begin{itemize}
+          \item<6> \alert{Optimize for reconstruction quality}
+          \item<6> \alert{Loss: $\mathcal{L}_{reconstruction} = \parallel x - \textit{Recon} ( \textit{GAT-Denoiser}(y)) \parallel ^2_2$}
+        \end{itemize}
+      }
+      
     \end{itemize}
   \end{itemize}
+  
 
-  \only<2>{
-    \begin{figure}
-      \includegraphics[width=\textwidth]{Overall_GAT-Denoiser_Pipeline_3.drawio.png}
-    \end{figure}
-  }
+    \only<2>{
+      \begin{figure}
+        \includegraphics[width=.9\textwidth]{Overall_GAT-Denoiser_Pipeline_3.drawio.png}
+      \end{figure}
+    }
 
-  \only<3>{
-    \begin{figure}
-      \includegraphics[width=\textwidth]{Overall_GAT-Denoiser_Pipeline_2.drawio.png}
-    \end{figure}
-  }
+    \only<3-4>{
+      \begin{figure}
+        \includegraphics[width=.8\textwidth]{Overall_GAT-Denoiser_Pipeline_2.drawio.png}
+      \end{figure}
+    }
 
-  \only<4>{
-    \begin{figure}
-      \includegraphics[width=\textwidth]{Overall_GAT-Denoiser_Pipeline.drawio.png}
-    \end{figure}
-  }
+    \only<5-6>{
+      \begin{figure}
+        \includegraphics[width=.8\textwidth]{Overall_GAT-Denoiser_Pipeline.drawio.png}
+      \end{figure}
+    }
 
+      
 \end{frame}
 
-\begin{frame}{GAT-Denoiser Components}
+% \begin{frame}{GAT-Denoiser Components}
     
-  \begin{itemize}
-    \item<2-> Convolution
-    \begin{itemize}
-      \item Denoise single observation
-    \end{itemize}
+%   \begin{itemize}
+%     \item<2-> Convolution
+%     \begin{itemize}
+%       \item Denoise single observation
+%     \end{itemize}
 
-    \item<3-> Graph Attention Network (GAT) \cite{GAT}
-    \begin{itemize}
-      \item Denoise neighboring  observation
-    \end{itemize}
-    \item<4-> End-to-End Learning
-    \begin{itemize}
-      \item Optimize for reconstruction quality
-      \item Loss:
-      \begin{itemize}
-        \item<5-> $\mathcal{L}_{observation} = \parallel p - \textit{GAT-Denoiser}(y) \parallel ^2_2 $
-        \item<6-> \alert{$\mathcal{L}_{reconstruction} = \parallel x - \textit{Recon} ( \textit{GAT-Denoiser}(y)) \parallel ^2_2$}
-      \end{itemize}
+%     \item<3-> Graph Attention Network (GAT) \cite{GAT}
+%     \begin{itemize}
+%       \item Denoise neighboring  observation
+%     \end{itemize}
+%     \item<4-> End-to-End Learning
+%     \begin{itemize}
+%       \item Optimize for reconstruction quality
+%       \item Loss: $\mathcal{L}_{reconstruction} = \parallel x - \textit{Recon} ( \textit{GAT-Denoiser}(y)) \parallel ^2_2$
       
-      
-    \end{itemize}
-  \end{itemize}
+%     \end{itemize}
+%   \end{itemize}
 
-\end{frame}
+% \end{frame}
 
 \begin{frame}{Graph Attention Network - GAT}
   \pause
@@ -73,11 +88,11 @@
       \item<3> \alert<3>{$\alpha$: normalized attention coefficients}
     \end{itemize}
     \column{0.4\textwidth}
+    \only<3>{
     \begin{figure}
       \includegraphics[width=.6\textwidth]{GAT.drawio.png}
     \end{figure}
-    \only<3>{
-      $$h_{1}^{\prime} = \sigma \left( \sum_{i=1}^5\alpha_i W h_{1,i} \right)$$
+      $$h_{1}^{\prime} = \sigma \left( \sum_{i=1}^6\alpha_i W h_{i} \right)$$
     }
     
   \end{columns}
@@ -97,8 +112,8 @@
       \end{itemize}
       \item<3-> \alert<3>{Construct graph from observation angles}
       \begin{itemize}
-        \item<4-> Map angles to unit-Circle or unit-sphere
-        \item<5-> Use k-NN with great-circle distance
+        \item<4-> Map angles to unit-circle / unit-sphere
+        \item<5-> Apply k-NN with great-circle distance
       \end{itemize}
     \end{itemize}
     \column{0.4\textwidth}
@@ -119,15 +134,7 @@
   
 
   \begin{tcolorbox}[colback=red!5!white,hide=<1-5>, alert=<6>, colframe=red!75!black]
-    Observation angles $\theta$ are assumed to be equally spaced.
+    Observation angles $\theta$ are assumed to be equally spaced on the unit-circle.
 \end{tcolorbox}
-\end{frame}
-
-
-\begin{frame}{GAT-Denoiser Implementation for Computed Tomography}
-  \begin{itemize}
-    \item Use U-Net for reconstruction
-    \item During Trainig, U-Net might be trained jointly
-  \end{itemize}
 \end{frame}
 
