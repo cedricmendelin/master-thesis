@@ -1,3 +1,4 @@
+# Some Aspire helper functions
 import numpy as np
 
 from aspire.operators import ScalarFilter
@@ -10,7 +11,7 @@ def default_shifts(n_img):
 def default_amplitudes(n_img):
   return np.ones(n_img)
 
-
+# create Aspire simulation with default settings
 def create_simulation(aspire_vol, n, angles, noise_variance, shifts=None, amplitudes=None, ctf=None, seed=12345):
   """create aspire simultation
 

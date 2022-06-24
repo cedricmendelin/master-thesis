@@ -183,8 +183,6 @@ def fibonacci_sphere(samples=1000):
     return points
 
 
-from aspire.basis import ffb_2d
-
 def generate_knn_from_distances(distanceMatrix, K, sym=True, ordering='desc', dataType='float64', ignoreFirst=False):
     samples = distanceMatrix.shape[0]
     A = np.zeros_like(distanceMatrix)
@@ -228,6 +226,7 @@ INPUT:
   - refl_knn: boolean array indicating is the closest image is with or without reflection
 """
 def rotation_invariant_knn(x1,K=10,ell_max=None,refl_bool=True):
+    from aspire.basis import ffb_2d
     fb = ffb_2d.FFBBasis2D((x1.shape[1],x1.shape[1]),ell_max=ell_max,dtype=np.float64)
     c1 = fb.evaluate_t(x1)
     c1=fb.to_complex(c1)

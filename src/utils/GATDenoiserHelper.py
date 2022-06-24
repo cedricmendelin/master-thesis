@@ -52,9 +52,16 @@ class GatBase():
     
     ######################## Initializer for child classes ############################
     def consumeArgs(self, args):
+        """ Consume all the required arguments
+
+        Args:
+            args: The GAT-Denoiser arguments.
+        """
         self.args = args
         self.VERBOSE = args.verbose
         self.USE_WANDB = args.use_wandb
+        if self.USE_WANDB:
+            self.WAND_PROJECT = args.wandb_project
 
         self.N: int = args.graph_size
         self.K : int = args.k_nn
@@ -66,6 +73,8 @@ class GatBase():
         self.GAT_DROPOUT: float = args.gat_dropout
         self.GAT_USE_CONV: bool = args.gat_use_conv
         self.UNET_REFINEMENT: bool = args.unet_refinement
+        if self.UNET_REFINEMENT:
+            self.UNET_PATH : str = args.unet_path
         
         if self.GAT_USE_CONV:
             self.GAT_CONV_KERNEL = args.gat_conv_kernel
@@ -73,6 +82,10 @@ class GatBase():
             self.GAT_CONV_N_LATENT = args.gat_conv_N_latent
 
     def consumeDenoiserArgs(self, args):
+        """ Consume all the required arguments for denoiser instance of GAT-Denoiser
+        Args:
+            args: The GAT-Denoiser arguments.
+        """
         self.M = args.samples
         self.EPOCHS: int = args.epochs
         
@@ -98,11 +111,25 @@ class GatBase():
     @classmethod
     def create_validator(cls, args, model_state, run_name=None):
         """ Creates a validator instance.
-
         Args:
             args: Arguments for setting up the validator.
-            model_state (dict): The trained model which will be validated.
-
+                The following arguments need to be present:
+                    args.verbose : Determines if time is measured or not.
+                    args.use_wandb : Determines if wandb is used
+                    args.graph_size :  Number of observations in the forward model.
+                    args.k_nn: K-NN parameter k for graph size.
+                    args.resolution: Observation resolution 
+                    args.gat_layers: Number of GAT-Denoiser layers (same for convolution and GAT)
+                    args.gat_heads: Number of heads
+                    args.gat_dropout: GAT dropout
+                    args.gat_use_conv: Activate Convolution
+                    args.unet_refinement : Activate U-Net reconstruction
+                Optional arguments:
+                    args.wandb_project: Wandb project name
+                    args.gat_conv_kernel : Convolution kernel
+                    args.gat_conv_padding: Convolution Padding
+                    args.gat_conv_N_latent: Convolution latent channels
+                    args.unet_path: Path to U-Net model
         Returns:
             GatValidator: The created instance.
         """
@@ -118,7 +145,32 @@ class GatBase():
 
         Args:
             args: Arguments for setting up the denoiser.
-
+                The following arguments need to be present:
+                    args.verbose : Determines if time is measured or not.
+                    args.use_wandb : Determines if wandb is used
+                    args.graph_size :  Number of observations in the forward model.
+                    args.samples: Number of samples
+                    args.k_nn: K-NN parameter k for graph size.
+                    args.resolution: Observation resolution 
+                    
+                    args.gat_layers: Number of GAT-Denoiser layers (same for convolution and GAT)
+                    args.gat_heads: Number of heads
+                    args.gat_dropout: GAT dropout
+                    args.gat_use_conv: Activate Convolution
+                    args.unet_refinement : Activate U-Net reconstruction
+                    args.unet_train: Joint U-Net training
+                    self.loss: Loss type
+                    
+                    args.EPOCHS: Number of training epochs
+                    args.gat_weight_decay: Adam optimizer weight decay
+                    args.gat_learning_rate: Adam optimizer learning rate
+                    args.gat_snr_lower: lower training snr boundary
+                    args.gat_snr_upper: upper training snr boundard
+                Optional arguments:
+                    args.gat_conv_kernel : Convolution kernel
+                    args.gat_conv_padding: Convolution Padding
+                    args.gat_conv_N_latent: Convolution latent channels
+                    args.unet_path: Path to U-Net model
         Returns:
             GatDenoiserToyImagesDynamic: The created instance.
         """
@@ -132,7 +184,9 @@ class GatBase():
         """ Create a fixed image denoiser. In every epoch, the same training images will be used.
 
         Args:
-            args: Arguments for setting up the denoiser.
+            args: Arguments for setting up the denoiser. 
+            The following arguments need to be present:
+
 
         Returns:
             GatDenoiserImagesFixed: The created instance.
@@ -143,7 +197,7 @@ class GatBase():
     
     def __initialize_validator__(self, args, model_state, run_name):
         if self.USE_WANDB:
-            self.__init_wandb__(args.wandb_project, args, run_name=run_name)
+            self.__init_wandb__(self.WAND_PROJECT, args, run_name=run_name)
 
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
         self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
@@ -152,7 +206,7 @@ class GatBase():
         self.consumeDenoiserArgs(args)
 
         if self.USE_WANDB:
-            self.__init_wandb__(args.wandb_project, args, run_name=run_name)
+            self.__init_wandb__(self.WAND_PROJECT, args, run_name=run_name)
         
         self.__execute_and_log_time__(lambda: self.__init_graph_and_forward_backward(args), "init")
         self.__execute_and_log_time__(lambda: self.__prepare_model__(model_state), "prep model")
@@ -179,7 +233,7 @@ class GatBase():
         self.radon, self.fbp, self.pad = setup_forward_and_backward(self.RESOLUTION, self.N)
 
         if self.UNET_REFINEMENT:
-            checkpoint = torch.load(args.unet_path, map_location=self.device)
+            checkpoint = torch.load(self.UNET_PATH, map_location=self.device)
             self.unet = UNetModel.UNet(nfilter=128).to(self.device)
             self.unet.load_state_dict(checkpoint['model_state_dict'])
             if self.UNET_TRAIN:

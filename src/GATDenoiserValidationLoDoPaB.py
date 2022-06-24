@@ -33,7 +33,7 @@ parser.add_argument("--graph_size", type=int, default=1024)
 parser.add_argument("--samples", type=int, default=1024)
 parser.add_argument("--resolution", type=int, default=64)
 
-parser.add_argument("--use_wandb", action='store_true', default=True)
+parser.add_argument("--use_wandb", action='store_true', default=False)
 parser.add_argument("--gat_layers", type=int, default=4)
 parser.add_argument("--gat_heads", type=int, default=8)
 parser.add_argument("--gat_dropout", type=float, default=0.05)

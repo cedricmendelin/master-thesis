@@ -9,22 +9,13 @@ from os import mkdir
 import gemmi
 import vedo
 import mrcfile
+import SNRHelper
 
 from aspire.volume import Volume
 DATA_DIR = 'src/data/'
 MAP_DIR = 'src/maps/' 
 
-"""
-Given a wanted SNR and the true signal, return the std that need to have the noise.
-"""
-def find_sigma_noise(snr, x_ref):
-  nref = np.std(x_ref)
-  sigma_noise = (10**(-snr/20)) * nref
-  return sigma_noise
 
-def find_sigma_noise_cheng(snr, x):
-    variance =  ( np.std(x)**2) / (10 ** (snr/10) )
-    return np.sqrt(variance)
 
 def create_or_load_knn_rotation_invariant(name, N, image_res, images, K, snr=None, save=True):
     aspireknn_filename = ''
@@ -90,34 +81,6 @@ def getAngle(P,Q):
     theta = (np.trace(R) -1)/2
     return np.arccos(theta) * (180/np.pi)
 
-def reconstruct_result_cheng(V, n, img_size, snr, k):
-     # create aspire volume and downsample to image size
-    aspire_vol = Volume(V)
-    #aspire_vol = aspire_vol.downsample(img_size)
-
-    # return values:
-    rotation_angles =  random_rotation_3d(n)
-
-    # determine noise
-    noise_variance = find_sigma_noise(snr, aspire_vol.__getitem__(0))
-
-    print(f"noise sigma: {noise_variance}")
-    noise_variance = 1e-5
-
-    # create aspire simulation
-    sim = create_simulation(aspire_vol, n, rotation_angles, noise_variance)
-
-    # get clean graph
-    distance, classes, angles,reflection = rotation_invariant_knn(sim.clean_images(0, n).asnumpy(), K=k)
-    clean_graph = Knn(distance, classes, angles, reflection)
-    #clean_graph = None
-
-    # get noisy graph
-    #distance, classes, angles,reflection = rotation_invariant_knn(sim.images(0, n).asnumpy(), K=k)
-    noisy_graph = None #Knn(distance, classes, angles, reflection)
-
-    return aspire_vol, sim, clean_graph, noisy_graph
-
 def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr, k, normalize=False, ctf=None):
     # checks
     assert path.isfile(MAP_DIR + map_file) , "could not find map file" 
@@ -149,11 +112,11 @@ def create_or_load_dataset_from_map(expertiment_name, map_file, n, img_size, snr
     rotation_angles = create_or_load_rotations(rotation_file, n)
 
     # determine noise
-    noise_variance = find_sigma_noise(snr, aspire_vol)
+    noise_variance = SNRHelper.find_sigma_noise(snr, aspire_vol)
     #found noise_variance: 0.12354835437561838
     print(f"found noise_variance: {noise_variance}")
 
-    noise_variance = find_sigma_noise_cheng(snr, aspire_vol)
+    noise_variance = SNRHelper.find_sigma_noise(snr, aspire_vol)
     #found noise_variance: 0.12354835437561838
     print(f"found noise_variance: {noise_variance}")
 

@@ -516,7 +516,7 @@ def wandb_export_project(project_name:str):
 # chapter_graph_foundation_manifolds_noisy()
 #chapter_graph_foundation_manifolds_clean_samples_importance()
 #chapter_graph_foundation_manifolds_clean_resolution_importance()
-chapter_results_small_overall_compoents()
+# chapter_results_small_overall_compoents()
 #chapter_results_large_overall_compoents()
 #test_wandb_api()
 #wandb_export_project("LoDoPaB-Large-knn-2")  
