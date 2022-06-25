@@ -138,8 +138,8 @@ def chapter_graph_foundation_manifolds_noisy(phantom = None):
     phantom = shepp_logan_phantom()
   phantom = rescale(phantom, scale=resolution / phantom.shape[0], mode='reflect')
 
-  snr_1 = 20
-  snr_2 = 0
+  snr_1 = 10
+  snr_2 = 5
   radon, fbp , pad =  setup_forward_and_backward(resolution, samples)
 
   # clean graph
@@ -151,38 +151,38 @@ def chapter_graph_foundation_manifolds_noisy(phantom = None):
   eVec_clean = get_embedding(sino, 6, 2)
 
   plt.figure(figsize=(10,10))
-  eVec1 = get_embedding(sino_noisy_1, 6, 2)
+  eVec1 = get_embedding(sino_noisy_1, 8, 2)
   _,idx1,angles1 = estimate_angles(eVec1)
   plt.scatter(eVec1[:, 0], eVec1[:, 1], s=4, c=angles1,cmap='hsv')
   plt.xticks([-0.08, -0.04, 0 , 0.04, 0.08])
   plt.yticks([-0.08, -0.04, 0 , 0.04, 0.08])
   # plt.title(f"Manifold noisy sinogram k = 2, SNR={snr}dB")
 
+
   plt.figure(figsize=(10,10))
   eVec2 = get_embedding(sino_noisy_2, 8, 2)
   _,idx2,angles2 = estimate_angles(eVec2)
   plt.scatter(eVec2[:, 0], eVec2[:, 1], s=4, c=angles2,cmap='hsv')
   plt.xticks([-0.08, -0.04, 0 , 0.04, 0.08])
-  plt.yticks([-0.1, -0.05, 0 , 0.03, 0.06])
+  plt.yticks([-0.08, -0.04, 0 , 0.04, 0.08])
   # plt.title(f"Manifold noisy sinogram k = 4, SNR={snr}dB")
 
   _,idx,angles = estimate_angles(eVec_clean)
   _, fbp_clean,_ =  setup_forward_and_backward(resolution, samples, angles)
   _, fbp1,_ =  setup_forward_and_backward(resolution, samples, angles1)
-
-  # _, fbp2,_ =  setup_forward_and_backward(resolution, samples, angles2)
+  _, fbp2,_ =  setup_forward_and_backward(resolution, samples, angles2)
 
   reco_clean = fbp_clean(pad(torch.from_numpy(sino[idx])))
   reco_1 = fbp1(pad(torch.from_numpy(sino_noisy_1[idx1])))
-  # reco_2 = fbp2(pad(torch.from_numpy(sino_noisy_2[idx2])))
+  reco_2 = fbp2(pad(torch.from_numpy(sino_noisy_2[idx2])))
 
   plot_imshow(reco_clean, colorbar=False, size=(10,10))
   plot_imshow(reco_1, colorbar=False, size=(10,10))
-  # plot_imshow(reco_2, colorbar=False, size=(10,10))
+  plot_imshow(reco_2, colorbar=False, size=(10,10))
 
   plot_imshow(fbp(pad(torch.from_numpy(sino))), colorbar=False, size=(10,10))
   plot_imshow(fbp(pad(torch.from_numpy(sino_noisy_1))), colorbar=False, size=(10,10))
-  # plot_imshow(fbp2(pad(torch.from_numpy(sino_noisy_2))), colorbar=False, size=(10,10))
+  plot_imshow(fbp2(pad(torch.from_numpy(sino_noisy_2))), colorbar=False, size=(10,10))
 
 
   # plt.figure(figsize=(10,10))
@@ -361,7 +361,7 @@ def my_foot_observation():
   XX, YY = np.meshgrid(lin,lin)
   circle = ((XX**2+YY**2)<=1)*1.
   data = data * circle
-  # chapter_imaging_sinos(data)
+  #chapter_imaging_sinos(data)
   chapter_graph_foundation_manifolds_noisy(data)
 
 my_foot_observation()

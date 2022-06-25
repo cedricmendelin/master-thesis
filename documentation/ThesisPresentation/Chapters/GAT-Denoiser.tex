@@ -83,9 +83,9 @@
       \item Computes new node features
       \item Averages graph over neighborhood
       \item Multi-head available, motivated by \cite{transformer}
-      \item<3> \alert<3>{$\sigma$: activation function (Exponential Linear Unit)}
-      \item<3> \alert<3>{$W$: learnable weight matrix}
       \item<3> \alert<3>{$\alpha$: normalized attention coefficients}
+      \item<3> \alert<3>{$W$: learnable weight matrix}
+      \item<3> \alert<3>{$\sigma$: activation function (Exponential Linear Unit)}
     \end{itemize}
     \column{0.4\textwidth}
     \only<3>{
@@ -112,8 +112,8 @@
       \end{itemize}
       \item<3-> \alert<3>{Construct graph from observation angles}
       \begin{itemize}
-        \item<4-> Map angles to unit-circle / unit-sphere
-        \item<5-> Apply k-NN with great-circle distance
+        \item<4-> \alert<4>{Map angles to unit-circle / unit-sphere}
+        \item<5-> \alert<5>{Apply k-NN with great-circle distance}
       \end{itemize}
     \end{itemize}
     \column{0.4\textwidth}

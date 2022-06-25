@@ -11,7 +11,7 @@
 
   \begin{columns}
     \column{.55\textwidth}
-    \only<2->{
+    \only<3->{
       \begin{block}{Nodes}
         $(n_1, n_2, \dots) \in \mathbb{R}^F$, with $F$ as node feature dimensions
       \end{block}
@@ -24,7 +24,7 @@
 
     
     \column{.45\textwidth}
-    \only<3->{
+    \only<4->{
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{graph_undirected.drawio.png}
@@ -113,22 +113,22 @@
       \centering
 
       \only<2-3>{
-        \includegraphics[width=0.8\textwidth]{cryo-EM_graph_nodes.drawio.png}
+        \includegraphics[width=0.7\textwidth]{cryo-EM_graph_nodes.drawio.png}
       }
       \only<4>{
-        \includegraphics[width=0.8\textwidth]{cryo-EM_graph_nodes_k.drawio.png}
+        \includegraphics[width=0.7\textwidth]{cryo-EM_graph_nodes_k.drawio.png}
       }
 
       \only<5>{
-        \includegraphics[width=0.7\textwidth]{cryo-EM_graph_node_distance.drawio.png}
+        \includegraphics[width=0.6\textwidth]{cryo-EM_graph_node_distance.drawio.png}
       }
 
       \only<6>{
-        \includegraphics[width=0.8\textwidth]{cryo-EM_graph.neighbours_n2.drawio.png}
+        \includegraphics[width=0.6\textwidth]{cryo-EM_graph.neighbours_n2.drawio.png}
       }
 
       \only<7>{
-        \includegraphics[width=0.8\textwidth]{cryo-EM_graph.drawio.png}
+        \includegraphics[width=0.7\textwidth]{cryo-EM_graph.drawio.png}
       }
       \caption{Sample graph for cryo-EM observation}        
     \end{figure}
@@ -147,7 +147,7 @@
     \column{0.55\textwidth}
     \begin{figure}
       \centering
-      \includegraphics[width=0.8\textwidth]{cryo-EM_graph_noisy.drawio.png}
+      \includegraphics[width=0.7\textwidth]{cryo-EM_graph_noisy.drawio.png}
       \caption{Sample graph for noisy cryo-EM observation}        
     \end{figure}
   \end{columns}
@@ -177,8 +177,8 @@
 \begin{frame}{Low-dimensional Embedding for Computed Tomography}
   \begin{figure}
     \centering
-    \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width=\textwidth]{phantom_sino.png}
+    \begin{subfigure}[t]{0.25\textwidth}
+        \includegraphics[width=\textwidth]{foot_sino.png}
         \caption{Clean CT observation}
     \end{subfigure} \hfill
     \pause
@@ -206,7 +206,7 @@
     \centering
     \only<2-4>{
       \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width=.8\textwidth]{fbp_phantom_clean.png}
+        \includegraphics[width=.8\textwidth]{foot_reco_clean.png}
         \caption{Reconstruction known angles}
       \end{subfigure} \hfill
       \pause
@@ -216,7 +216,7 @@
       \end{subfigure}\hfill
       \pause
       \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width=0.8\textwidth]{fbp_phantom_clean_unknown_angles.png}
+        \includegraphics[width=0.8\textwidth]{foot_reco_clean_unknown.png}
         \caption{Reconstruction unknown angles}
     \end{subfigure}
     }
@@ -225,31 +225,31 @@
 
     \only<6>{
       \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width=.8\textwidth]{fbp_phantom_snr_10.png}
+        \includegraphics[width=.8\textwidth]{foot_reco_snr_10.png}
         \caption{Reconstruction known angles $SNR_y$ : 10 dB}
       \end{subfigure} \hfill
       \begin{subfigure}[t]{0.3\textwidth}
-          \includegraphics[width=.8\textwidth]{phaton_noisy_manifold_k6_snr10.png}
-          \caption{GL-Embedding from $k=6$ and $SNR_y$ : 10 dB }
+          \includegraphics[width=.8\textwidth]{foot_manifold_snr_10.png}
+          \caption{GL-Embedding from $k=8$ and $SNR_y$ : 10 dB }
       \end{subfigure}\hfill
       \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width=.8\textwidth]{fbp_phantom_snr_10_unknown_angels.png}
+        \includegraphics[width=.8\textwidth]{foot_reco_snr_10_unknown.png}
         \caption{Reconstruction unknown angles $SNR_y$ : 10 dB}
       \end{subfigure}
     }
 
     \only<7>{
       \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width=.8\textwidth]{fbp_phantom_snr_0.png}
-        \caption{Reconstruction known angles $SNR_y$ : 0 dB}
+        \includegraphics[width=.8\textwidth]{foot_reco_snr_5.png}
+        \caption{Reconstruction known angles $SNR_y$ : 5 dB}
       \end{subfigure} \hfill
       \begin{subfigure}[t]{0.3\textwidth}
-          \includegraphics[width=.8\textwidth]{phaton_noisy_manifold_k6_snr0.png}
-          \caption{GL-Embedding from $k=6$ and $SNR_y$ : 0 dB }
+          \includegraphics[width=.8\textwidth]{foot_manifold_snr_5.png}
+          \caption{GL-Embedding from $k=8$ and $SNR_y$ : 5 dB }
       \end{subfigure}\hfill
       \begin{subfigure}[t]{0.3\textwidth}
-        \includegraphics[width=.8\textwidth]{fbp_phantom_snr_0_unknown_angels.png}
-        \caption{Reconstruction unknown angles $SNR_y$ : 0 dB}
+        \includegraphics[width=.8\textwidth]{foot_reco_snr_5_unknown.png}
+        \caption{Reconstruction unknown angles $SNR_y$ : 5 dB}
       \end{subfigure}
     }
   \end{figure}
