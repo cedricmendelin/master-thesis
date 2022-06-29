@@ -57,7 +57,7 @@ K-NN experiment with 2 layers and 4 heads can be found in Table~\ref{tab:small_k
   \begin{tabular}{l|cc}
     \toprule
     \small\textbf{k} & \multicolumn{2}{c}{\snrh{0}}   \\
-                       & \small \textbf{Loss} & \small \textbf{SNR}  \\ 
+                       & \small \textbf{SNR} & \small \textbf{Loss}  \\ 
     \midrule
     2    & \textbf{9.90} & \textbf{601.4}  \\ \hline
     4    & 9.64 & 622.1  \\ \hline
@@ -80,7 +80,7 @@ GAT-Denoiser was defined with 2 layers and 4 heads.
   \begin{tabular}{l|cc}
     \toprule
     \small \textbf{GAT dropout} & \multicolumn{2}{c}{\snrh{-5}}   \\
-                       & \small \textbf{Loss} & \small \textbf{SNR}  \\ 
+                       & \small \textbf{SNR} & \small \textbf{Loss}  \\ 
     \midrule
     0       & \textbf{8.33} & \textbf{739.5}  \\ \hline
     0.01    & 7.81 & 766.2  \\ \hline
@@ -104,7 +104,7 @@ for the large scale experiment.
   \begin{tabular}{l|cc|cc|cc|cc}
     \toprule
     \small\textbf{Algorithm} & \multicolumn{2}{c|}{\snrh{0}} & \multicolumn{2}{c|}{\snrh{-5}} & \multicolumn{2}{c|}{\snrh{-10}} & \multicolumn{2}{c}{\snrh{-15}} \\
-                       & \small \textbf{Loss} & \small \textbf{SNR} & \small \textbf{Loss} & \small \textbf{SNR} & \small \textbf{Loss} & \small \textbf{SNR} & \small \textbf{Loss} & \small \textbf{SNR} \\ 
+                       & \small \textbf{SNR} & \small \textbf{Loss} &\small \textbf{SNR} & \small \textbf{Loss} & \small \textbf{SNR} & \small \textbf{Loss} & \small \textbf{SNR} & \small \textbf{Loss} \\ 
     \midrule
     FBP                 & 4.57  & 1167.6 & -0.19 & 1973.5 & -5.17 & 3425.3 & -10.09 & 10'737.3       \\ \hline
     BM3D sino           & 9.93  & 709.9  &  7.40 & 890.6  & 4.61  & 1168.0 & \textbf{2.09}   & \textbf{1570.0} \\ \hline

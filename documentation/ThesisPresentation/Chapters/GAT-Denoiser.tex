@@ -3,27 +3,27 @@
 
 \begin{frame}{GAT-Denoiser}
   \begin{itemize}
-    \item GAT-Denoiser is a graph neural network (GNN) to denoise observations.
+    \item GAT-Denoiser is a graph neural network (GNN) to denoise observations
     \item Consists of three components:
     \begin{itemize}
-      \item \alert<3-4>{Convolution}
-      \only<4>{
+      \item \alert<3>{Convolution}
+      \only<3>{
         \begin{itemize}
           \item \alert{Denoise single observation}
         \end{itemize}
       }
-      \item \alert<3-4>{Graph Attention Network (GAT) \cite{GAT}}
-      \only<4>{
+      \item \alert<3>{Graph Attention Network (GAT) \cite{GAT}}
+      \only<3>{
         \begin{itemize}
           \item \alert{Denoise neighboring  observation}
         \end{itemize}
       }
       
-      \item \alert<5-6>{End-to-End Learning}
-      \only<5-6>{
+      \item \alert<4>{End-to-End Learning}
+      \only<4>{
         \begin{itemize}
-          \item<6> \alert{Optimize for reconstruction quality}
-          \item<6> \alert{Loss: $\mathcal{L}_{reconstruction} = \parallel x - \textit{Recon} ( \textit{GAT-Denoiser}(y)) \parallel ^2_2$}
+          \item<4> \alert{Optimize for reconstruction quality}
+          \item<4> \alert{Loss: $\mathcal{L}_{reconstruction} = \parallel x - \textit{Recon} ( \textit{GAT-Denoiser}(y)) \parallel ^2_2$}
         \end{itemize}
       }
       
@@ -37,13 +37,13 @@
       \end{figure}
     }
 
-    \only<3-4>{
+    \only<3>{
       \begin{figure}
         \includegraphics[width=.8\textwidth]{Overall_GAT-Denoiser_Pipeline_2.drawio.png}
       \end{figure}
     }
 
-    \only<5-6>{
+    \only<4>{
       \begin{figure}
         \includegraphics[width=.8\textwidth]{Overall_GAT-Denoiser_Pipeline.drawio.png}
       \end{figure}
@@ -108,7 +108,7 @@
       \item Exploit information from GL
       \begin{itemize}
         \item Low-dimensional embedding estimates angles
-        \item Dominant information in data can be considered observation angles.
+        \item Dominant information in data can be considered observation angles
       \end{itemize}
       \item<3-> \alert<3>{Construct graph from observation angles}
       \begin{itemize}
@@ -134,7 +134,7 @@
   
 
   \begin{tcolorbox}[colback=red!5!white,hide=<1-5>, alert=<6>, colframe=red!75!black]
-    Observation angles $\theta$ are assumed to be equally spaced on the unit-circle.
+    Observation angles $\theta$ are assumed to be equally spaced on the unit-circle / unit-sphere.
 \end{tcolorbox}
 \end{frame}
 

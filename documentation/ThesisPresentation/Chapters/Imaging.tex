@@ -12,12 +12,8 @@
             \item<2-> During freezing, molecules rotate randomly
         \end{itemize}
         \item<2-> Observations can be reconstructed to a 3D model
+        \item<2-> Single particle Cryo-EM 
     \end{itemize}
-
-    \begin{tcolorbox}[colback=red!5!white,hide=<1-2>, alert=<3>, colframe=red!75!black]
-        Only single particle cryo-EM is considered.
-    \end{tcolorbox}
-
 \end{frame}
 
 \begin{frame}[c]{Cryo-Electron Microscopy (Cryo-EM) - Illustration}
@@ -187,7 +183,7 @@
     \begin{itemize}
         \item SNR is a measure, which compares the power of an input signal to the power of the undesired noise
         \item Typically given in decibel (dB)
-        \item SNR $\le 0$ dB indicated more noise than signal. 
+        \item SNR $\le 0$ dB indicates more noise than signal 
     \end{itemize}
 
 
@@ -218,7 +214,9 @@
             \begin{itemize}
                 \item Today state-of-the art
                 \item Using result of FBP and further denoise
-                \item U-Net \cite{unet-tomography}
+                \begin{itemize}
+                    \item U-Net \cite{unet-tomography}
+                \end{itemize}
             \end{itemize}
         \end{itemize}
 

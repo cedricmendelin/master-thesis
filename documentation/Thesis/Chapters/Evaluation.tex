@@ -65,7 +65,7 @@ Further, visual results are presented and can be seen as a third metric.
 \paragraph{U-Net Training:}
 U-Net was pre-trained on the LoDoPaB-CT training dataset, with 128 channels in the first contracting step. 
 In total, 4 steps have been computed, which results in 1024 channels as output of last contracting step.
-During training, noise was sampled from normal distribution to reach SNR in the interval $[0, -10]$ dB 
+During training, noise was sampled from normal distribution to reach SNR in the interval $[-10, 0]$ dB 
 and was added to the observation. In total, the model was trained for 200 epochs on the complete LoDoPaB-CT dataset.
 
 \paragraph{BM3D:}

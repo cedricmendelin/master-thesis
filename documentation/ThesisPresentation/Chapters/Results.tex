@@ -34,8 +34,8 @@
         \item Pre-trained with complete dataset and $SNR_y$ in [-10, 0] dB for 200 epochs
         \item Joint U-Net training possible
     \end{itemize}
-    \item Mini-batch gradient descent with batch size 64
-    \item Adam optimizer
+    \item Modular architecture which allows disabling of Convolution and U-Net
+    \item Mini-batch gradient descent
     
   \end{itemize}
 \end{frame}
@@ -63,29 +63,32 @@
 
 \begin{frame}{Small Scale Experiments - Overall Results}
     \begin{columns}
-        \column{0.52\textwidth}
+        \column{0.6\textwidth}
         \begin{itemize}
             \item Learning fails with random graph (Erdős–Rényi)
             \item Learning succeeds with defined input graph
             \item<2-> Single components contribute to success of GAT-Denoiser:
             \begin{itemize}
+              \item \alert{N=1024}
+              \item \alert{M=64}
               \item \alert{GAT: 2 layers and 4 heads}
               \item \alert{Convolution: kernel size 3 and padding 1}
               \item \alert{k-NN with k=2}
               \item \alert{Joint U-Net training}
             \end{itemize}
         \end{itemize}
-        \column{0.47\textwidth}
+        \column{0.4\textwidth}
         \begin{figure}
           \centering
-          \begin{subfigure}[t]{0.4\textwidth}
-              \includegraphics[width=\textwidth]{random__graph_small_experiment.png}
+          \begin{subfigure}{0.9\textwidth}
+              \centering
+              \includegraphics[width=.45\textwidth]{random__graph_small_experiment.png}
               \caption{Reconstruction with random Erdős–Rényi graph with $p=0.01$}
           \end{subfigure}\hfill
-          \begin{subfigure}[t]{0.4\textwidth}
-              \includegraphics[width=\textwidth]{knn__graph_small_experiment.png}
-              \caption{Reconstruction with k-NN input graph $k = 10$}
-          \end{subfigure}
+          % \begin{subfigure}[t]{0.4\textwidth}
+          %     \includegraphics[width=\textwidth]{knn__graph_small_experiment.png}
+          %     \caption{Reconstruction with k-NN input graph $k = 10$}
+          % \end{subfigure}
       \end{figure}
         
     \end{columns}
@@ -94,14 +97,14 @@
 \begin{frame}{Large Scale Experiment - SNR Results}
   \only<1>{
     \begin{itemize}
-      \item 3'553 test samples
-      \item Different algortihms / GAT-Denoiser models:
+      \item Different algorithms / GAT-Denoiser models:
       \begin{itemize}
         \item FBP
         \item BM3D
         \item GAT + U-Net (10/30)
         \item Conv + GAT + U-Net (20/20)
       \end{itemize}
+      \item 3'553 test samples
       \item Reconstruction SNR averages over all test samples
     \end{itemize}
   }
@@ -142,7 +145,7 @@
   \end{figure}
   
 
-  \begin{tcolorbox}[colback=red!5!white,hide=<1>, alert=<2>, colframe=red!75!black]
+  \begin{tcolorbox}[colback=red!5!white, colframe=red!75!black]
     GAT-Denoiser improves BM3D for $SNR_y$ 0 dB  by 27.6\%.
     \end{tcolorbox}
     
@@ -177,7 +180,7 @@
       \end{figure}
       
     
-      \begin{tcolorbox}[colback=red!5!white,hide=<1>, alert=<2>, colframe=red!75!black]
+      \begin{tcolorbox}[colback=red!5!white, colframe=red!75!black]
         GAT-Denoiser improves BM3D for $SNR_y$ -10 dB by 126.0\%.
         \end{tcolorbox}
         
@@ -211,7 +214,7 @@
       \end{figure}
       
     
-      \begin{tcolorbox}[colback=red!5!white,hide=<1>, alert=<2>, colframe=red!75!black]
+      \begin{tcolorbox}[colback=red!5!white, colframe=red!75!black]
         GAT-Denoiser improves BM3D for $SNR_y$ -15 dB by 379.9\%.
         \end{tcolorbox}
         
