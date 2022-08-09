@@ -2,27 +2,22 @@
 \chapter{Abstract}
 
 
-In molecular imaging methods Cryo-Electron Microscopy (Cryo-EM) and Computed Tomography (CT)
-observations are collected from a biological sample. 
-Cryo-EM enables the view of molecules in near-atomic resolution and, therefore, has received
-a lot of attention in recent years.
-The Application of Cryo-EM is a major motivation for this Thesis. 
-Observations are noisy due to the imaging process and reconstruction from noisy observations is desired.
-Reconstruction is challenging due to dealing with enormous noise and unknown observation angles.
-Moreover, Cryo-EM can be seen as a problem in 3D, as the biological sample is imaged in 3D.
-CT is similar to Cryo-EM, but reconstruction is slightly simpler, since it is potentially in 2D and 
-observation angles are known.
-That's why it is well suited as a first step towards a Cryo-EM algorithm.
+Cryo-electron microscopy (Cryo-EM) is a modern molecular imaging modality which has recently enabled atomic resolution reconstructions of large biological molecules. 
+Unlike in diffraction crystallography which requires challenging crystallization of large molecules, 
+in Cryo-EM we freeze molecules in a thin layer of vitreous ice without any need to form crystals. 
+This led to Cryo-EM becoming the leading technology to determine 3D protein structures and its inventors were awarded the 2017 Nobel Prize in Chemistry.
 
-I introduce \textit{GAT-Denoiser}, a Graph Neural Network which combines Graph Attention Network (GAT) with convolution 
-and an end-to-end learning approach. 
-It enables denoising of observations and improves reconstruction quality with the assumption of known projection angles.
-During training, an end-to-end approach is applied, that compares reconstruction quality.
-GAT-Denoiser has been evaluated on the LoDoPaB-CT dataset.
-It could outperform baseline algorithm BM3D measured by the reconstruction
-signal-to-noise-ratio (SNR). An improvement by 379.9\%, 126.0\% 57.7\%, 27.6\% for SNR -15 dB, -10 dB, -5 dB and 0 dB, respectively
-could be reached.
-Moreover, the individual components of GAT-Denoiser contribute to the success of GAT-Denoiser.
-During a series of experiments, it was shown that convolution, GAT and end-to-end learning are all valuable individually.
-Further, GAT-Denoiser combined with U-Net and joint neural network training can upgrade CT reconstruction in the high-noise domain to a new level. 
+Cryo-EM is a transmission modality: the electron beam passes through the sample and becomes attenuated where the electron density of the molecule is large. 
+Since the sample contains many identical (to the first approximation) copies of the same protein and various random orientations, 
+the collected projection data lends itself to tomographic inversion, with the caveat that the orientations are a priori unknown. 
+Further, in order to avoid damaging the sample the electron dose must be kept low, which leads to very noisy projections. 
+Taken together, unknown orientations and very large noise require much more sophisticated reconstruction algorithms than in standard tomography.
 
+In this thesis we tackle the projection denoising problem. 
+We propose GAT-Denoiser, a graph neural network which combines graph attention with convolutional updates and physics-based end-to-end learning. 
+In this proof of concept work we assume that the orientations are known, and we work in 2D, focusing tightly on the problem of noise.
+We demonstrate through extensive experiments that GAT-Denoiser brings about substantial improvements over strong baselines, especially in the very low SNR regime.
+Moreover, we show that all components of the GAT-Denoiser network contribute to its strong performance. 
+In particular, the convolutional filters, the graph attention, and end-to-end learning are all essential and the absence of any of them deteriorates performance.
+Finally, we show that jointly training the GAT-Denoiser with a reconstruction U-Net brings about further improvements.
+This work may be a foundation of a full Cryo-EM reconstruction pipeline in which the graph connectivity is inferred from noisy projections rather than given a priori.
